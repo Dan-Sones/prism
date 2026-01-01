@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router";
+import { Routes, Route, Navigate } from "react-router";
 import NotFound from "../routes/error/NotFound";
 import Home from "../routes/home/Home";
 import Sidebar from "../components/sidebar/Sidebar";
@@ -9,6 +9,7 @@ const Router = () => {
       <Sidebar />
       <section className="flex-grow h-full w-full">
         <Routes>
+          <Route path="/" element={<Navigate to={"/home"} />} />
           <Route path="/*" element={<NotFound />} />
           <Route path="/home" element={<Home />} />
         </Routes>
