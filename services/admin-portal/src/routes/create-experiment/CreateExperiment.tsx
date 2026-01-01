@@ -39,7 +39,7 @@ const CreateExperiment = () => {
     <div className="flex justify-center items-center h-full p-4">
       <Tile className="w-4/5 h-full">
         <div className="flex flex-col gap-4 justify-center items-center">
-          <h1 className="text-5xl text-slate-100">Create New Experiment</h1>
+          <h1 className="text-3xl text-slate-100">Create New Experiment</h1>
           <br />
 
           <div id="experiment-config" className="transition-all duration-200">
@@ -58,13 +58,16 @@ const CreateExperiment = () => {
                 />
               </div>
 
-              <div id="form-options" className="flex flex-row gap-4">
+              <div id="form-options" className="flex flex-row gap-4 flex-wrap">
                 {formItems.map((item) => {
                   return <ConfigurationElement {...item} />;
                 })}
               </div>
 
-              <div id="advanced-form-options" className="flex flex-row gap-4">
+              <div
+                id="advanced-form-options"
+                className="flex flex-row gap-4 flex-wrap"
+              >
                 {exclusionOptions.map((item) => {
                   return <ConfigurationElement {...item} />;
                 })}

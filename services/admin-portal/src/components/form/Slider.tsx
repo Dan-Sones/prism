@@ -1,5 +1,5 @@
 import React from "react";
-import type { ConfigurationElementType } from "./ConfigurationElement";
+import type { ConfigurationElementType } from "../../routes/create-experiment/ConfigurationElement";
 
 const Slider = (props: ConfigurationElementType) => {
   const [value, setValue] = React.useState(0);

@@ -1,8 +1,11 @@
 import React from "react";
-import type { ConfigurationElementType } from "./ConfigurationElement";
 import TagBubble from "./TagBubble";
 
-const Tag = (props: ConfigurationElementType) => {
+interface TagProps {
+  name: string;
+}
+
+const Tag = (props: TagProps) => {
   const [userInput, setUserInput] = React.useState<string>("");
   const [tags, setTags] = React.useState<Array<string>>([]);
   const [error, setError] = React.useState<string>("");

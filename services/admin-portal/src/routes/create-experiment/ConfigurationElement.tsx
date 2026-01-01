@@ -1,5 +1,5 @@
-import Slider from "./Slider";
-import Tag from "./Tag";
+import Slider from "../../components/form/Slider";
+import Tag from "../../components/form/tag/Tag";
 
 export interface ConfigurationElementType {
   label: string;
@@ -10,7 +10,7 @@ export interface ConfigurationElementType {
 
 const ConfigurationElement = (props: ConfigurationElementType) => {
   return (
-    <section className="w-lg max-w-96" key={props.name}>
+    <section className="min-w-80 max-w-80" key={props.name}>
       <hr className="border-gray-600" />
       <div className=" flex flex-col gap-2 p-3">
         <h1 className="text-xl">{props.label}</h1>
@@ -20,7 +20,7 @@ const ConfigurationElement = (props: ConfigurationElementType) => {
           <input
             type="text"
             name={props.name}
-            className="rounded bg-slate-50 h-9 p-3 w- text-slate-950 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="rounded bg-slate-50 h-9 p-3 text-slate-950 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         )}
 
