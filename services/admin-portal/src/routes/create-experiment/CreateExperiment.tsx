@@ -20,9 +20,24 @@ const CreateExperiment = () => {
     },
   ];
 
+  const exclusionOptions: Array<ConfigurationElementType> = [
+    {
+      label: "Exclusion Criteria",
+      name: "exclusion-criteria",
+      description: "A list of tags to be excluded from the test sample. ",
+      type: "tag",
+    },
+    {
+      label: "Tags",
+      name: "tags",
+      description: "Tags to associate with this experiment.",
+      type: "tag",
+    },
+  ];
+
   return (
-    <div className="flex justify-center items-center h-full">
-      <Tile className="w-4/5 p-8">
+    <div className="flex justify-center items-center h-full p-4">
+      <Tile className="w-4/5 h-full">
         <div className="flex flex-col gap-4 justify-center items-center">
           <h1 className="text-5xl text-slate-100">Create New Experiment</h1>
           <br />
@@ -45,6 +60,12 @@ const CreateExperiment = () => {
 
               <div id="form-options" className="flex flex-row gap-4">
                 {formItems.map((item) => {
+                  return <ConfigurationElement {...item} />;
+                })}
+              </div>
+
+              <div id="advanced-form-options" className="flex flex-row gap-4">
+                {exclusionOptions.map((item) => {
                   return <ConfigurationElement {...item} />;
                 })}
               </div>

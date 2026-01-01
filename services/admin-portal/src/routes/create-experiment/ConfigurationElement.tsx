@@ -1,15 +1,16 @@
 import Slider from "./Slider";
+import Tag from "./Tag";
 
 export interface ConfigurationElementType {
   label: string;
   name: string;
   description?: string;
-  type: "text" | "number" | "select" | "percentage";
+  type: "text" | "number" | "tag" | "percentage";
 }
 
 const ConfigurationElement = (props: ConfigurationElementType) => {
   return (
-    <section className="w-fit max-w-96" key={props.name}>
+    <section className="w-lg max-w-96" key={props.name}>
       <hr className="border-gray-600" />
       <div className=" flex flex-col gap-2 p-3">
         <h1 className="text-xl">{props.label}</h1>
@@ -24,6 +25,8 @@ const ConfigurationElement = (props: ConfigurationElementType) => {
         )}
 
         {props.type === "percentage" && <Slider {...props} />}
+
+        {props.type === "tag" && <Tag {...props} />}
       </div>
     </section>
   );
