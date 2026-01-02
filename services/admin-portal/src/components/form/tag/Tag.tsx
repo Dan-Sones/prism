@@ -1,5 +1,6 @@
 import React from "react";
 import TagBubble from "./TagBubble";
+import TextInput from "../TextInput";
 
 interface TagProps {
   name: string;
@@ -40,15 +41,13 @@ const Tag = (props: TagProps) => {
 
   return (
     <div>
-      <input
+      <TextInput
         type="text"
         name={props.name}
         value={userInput}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
-        className={`rounded bg-slate-50 h-9 p-3 w- text-slate-950 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-          error ? "border-2 border-red-500 focus:ring-red-500" : ""
-        }`}
+        className={`${error ? " border-red-500 focus:ring-red-500" : ""}`}
       />
       <p className="text-red-500 text-sm opacity-85 pt-1">{error}</p>
       <div className="mt-2 flex flex-wrap gap-2">

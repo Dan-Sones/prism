@@ -1,3 +1,4 @@
+import TextInput from "../../components/form/TextInput";
 import Tile from "../../components/tiles/Tile";
 import type { ConfigurationElementType } from "./ConfigurationElement";
 import ConfigurationElement from "./ConfigurationElement";
@@ -51,11 +52,7 @@ const CreateExperiment = () => {
                     This is pretty important, choose something with meaning
                   </p>
                 </div>
-                <input
-                  type="text"
-                  name={"experiment-name"}
-                  className="rounded bg-slate-50 h-9 p-3 w- text-slate-950 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
+                <TextInput type="text" name={"experiment-name"} />
               </div>
 
               <div id="form-options" className="flex flex-row gap-4 flex-wrap">

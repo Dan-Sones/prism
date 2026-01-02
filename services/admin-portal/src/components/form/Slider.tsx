@@ -1,5 +1,6 @@
 import React from "react";
 import type { ConfigurationElementType } from "../../routes/create-experiment/ConfigurationElement";
+import TextInput from "./TextInput";
 
 const Slider = (props: ConfigurationElementType) => {
   const [value, setValue] = React.useState(0);
@@ -14,12 +15,12 @@ const Slider = (props: ConfigurationElementType) => {
 
   return (
     <div className="flex flex-row gap-4 justify-center items-center">
-      <input
+      <TextInput
         id={`${props.name}-slider-value`}
         type="text"
         value={value + "%"}
         onChange={handleInputChange}
-        className="w-20 mb-2 p-2 rounded bg-slate-50 h-9 text-slate-950  transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-20 mb-2 p-2 rounded "
       />
 
       <input
