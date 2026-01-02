@@ -1,5 +1,4 @@
 import TextInput from "../../components/form/TextInput";
-import Tile from "../../components/tiles/Tile";
 import type { ConfigurationElementType } from "./ConfigurationElement";
 import ConfigurationElement from "./ConfigurationElement";
 
@@ -38,43 +37,41 @@ const CreateExperiment = () => {
 
   return (
     <div className="flex justify-center items-center h-full p-4">
-      <Tile className="w-4/5 h-full">
-        <div className="flex flex-col gap-4 justify-center items-center">
-          <h1 className="text-3xl text-slate-100">Create New Experiment</h1>
-          <br />
+      <div className="flex flex-col gap-4 justify-center items-center">
+        <h1 className="text-3xl ">Create New Experiment</h1>
+        <br />
 
-          <div id="experiment-config" className="transition-all duration-200">
-            <form className="flex flex-col gap-4">
-              <div className="flex flex-row gap-4 items-center">
-                <div>
-                  <h1 className="text-2xl">Experiment Name</h1>
-                  <p className="text-sm opacity-70 pb-2">
-                    This is pretty important, choose something with meaning
-                  </p>
-                </div>
-                <TextInput type="text" name={"experiment-name"} />
+        <div id="experiment-config" className="transition-all duration-200">
+          <form className="flex flex-col gap-4">
+            <div className="flex flex-row gap-4 items-center">
+              <div>
+                <h1 className="text-2xl">Experiment Name</h1>
+                <p className="text-sm opacity-70 pb-2">
+                  This is pretty important, choose something with meaning
+                </p>
               </div>
+              <TextInput type="text" name={"experiment-name"} />
+            </div>
 
-              <div id="form-options" className="flex flex-row gap-4 flex-wrap">
-                {formItems.map((item) => {
-                  return <ConfigurationElement {...item} />;
-                })}
-              </div>
+            <div id="form-options" className="flex flex-row gap-4 flex-wrap">
+              {formItems.map((item) => {
+                return <ConfigurationElement {...item} />;
+              })}
+            </div>
 
-              <div
-                id="advanced-form-options"
-                className="flex flex-row gap-4 flex-wrap"
-              >
-                {exclusionOptions.map((item) => {
-                  return <ConfigurationElement {...item} />;
-                })}
-              </div>
+            <div
+              id="advanced-form-options"
+              className="flex flex-row gap-4 flex-wrap"
+            >
+              {exclusionOptions.map((item) => {
+                return <ConfigurationElement {...item} />;
+              })}
+            </div>
 
-              <br />
-            </form>
-          </div>
+            <br />
+          </form>
         </div>
-      </Tile>
+      </div>
     </div>
   );
 };
