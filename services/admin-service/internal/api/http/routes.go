@@ -12,10 +12,12 @@ type Controllers struct {
 }
 
 func RegisterRoutes(router *chi.Mux, c Controllers) {
-	router.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("pong"))
-	})
+	router.Route("/api", func(r chi.Router) {
+		r.Get("/ping", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusOK)
+			w.Write([]byte("pong"))
+		})
 
-	router.Post("/experiments", c.ExperimentController.CreateExperiment)
+		r.Post("/experiments", c.ExperimentController.CreateExperiment)
+	})
 }
