@@ -23,7 +23,7 @@ const Tag = (props: TagProps) => {
 
       if (userInput.includes(" ")) {
         setError(
-          "Tags cannot contain spaces. Please use hyphens or underscores."
+          "Tags cannot contain spaces. Please use hyphens or underscores.",
         );
         return;
       }
@@ -47,9 +47,9 @@ const Tag = (props: TagProps) => {
         value={userInput}
         onChange={handleInputChange}
         onKeyDown={handleKeyDown}
-        className={`${error ? " border-red-500 focus:ring-red-500" : ""}`}
+        className={`${error ? "border-red-500 focus:ring-red-500" : ""}`}
       />
-      <p className="text-red-500 text-sm opacity-85 pt-1">{error}</p>
+      <p className="pt-1 text-sm text-red-500 opacity-85">{error}</p>
       <div className="mt-2 flex flex-wrap gap-2">
         {tags.map((tag, index) => (
           <TagBubble

@@ -6,5 +6,5 @@ import MasterRouter from "./router/MasterRouter.tsx";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <MasterRouter />
-  </StrictMode>
+  </StrictMode>,
 );

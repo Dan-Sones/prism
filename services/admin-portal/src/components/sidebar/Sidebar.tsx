@@ -23,9 +23,9 @@ const Sidebar = () => {
   ];
 
   return (
-    <section id="sidebar" className="w-72 border-r bg-gray-50 border-gray-200">
-      <div className="flex flex-col pt-4 gap-3">
-        <h1 className="text-2xl font-medium p-4 flex flex-row items-center gap-1">
+    <section id="sidebar" className="w-72 border-r border-gray-200 bg-gray-50">
+      <div className="flex flex-col gap-3 pt-4">
+        <h1 className="flex flex-row items-center gap-1 p-4 text-2xl font-medium">
           <span>
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -49,12 +49,12 @@ const Sidebar = () => {
             <a
               key={item.name}
               href={item.href}
-              className="py-2 px-4 rounded hover:bg-gray-200 flex flex-row items-center gap-3 transition-allks duration-200"
+              className="transition-allks flex flex-row items-center gap-3 rounded px-4 py-2 duration-200 hover:bg-gray-200"
             >
-              <span className="w-6 h-6 flex items-center justify-center">
+              <span className="flex h-6 w-6 items-center justify-center">
                 {item.iconSvg}
               </span>
-              <span className=" font-medium">{item.name}</span>
+              <span className="font-medium">{item.name}</span>
             </a>
           ))}
         </nav>

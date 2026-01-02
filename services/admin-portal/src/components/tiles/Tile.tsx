@@ -6,7 +6,7 @@ interface TileProps extends React.HTMLAttributes<HTMLElement> {
 
 const Tile = ({ className, children, ...rest }: TileProps) => {
   return (
-    <section {...rest} className={clsx("  rounded-4xl p-4", className)}>
+    <section {...rest} className={clsx("rounded-4xl p-4", className)}>
       {children}
     </section>
   );
