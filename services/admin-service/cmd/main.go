@@ -3,9 +3,10 @@ package main
 import (
 	"admin-service/internal/api/http"
 	"admin-service/internal/clients"
+	"admin-service/internal/controller"
 	"admin-service/internal/environment"
-	"context"
-	"fmt"
+	"admin-service/internal/repository"
+	"admin-service/internal/service"
 	"log"
 	http2 "net/http"
 	"os"
@@ -14,8 +15,6 @@ import (
 )
 
 func main() {
-	fmt.Println("Hello World")
-
 	err := godotenv.Load("../../infrastructure/.env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
@@ -36,15 +35,19 @@ func main() {
 	pgPool := clients.GetPostgresConnectionPool()
 	defer pgPool.Close()
 
-	var greeting string
-	err = pgPool.QueryRow(context.Background(), "select 'Hello, world!'").Scan(&greeting)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
-		os.Exit(1)
-	}
+	// Repositories
+	experimentRepository := repository.NewExperimentRepository(pgPool, logger)
+
+	// Services
+	experimentService := service.NewExperimentService(experimentRepository, logger)
+
+	// Controllers
+	experimentController := controller.NewExperimentController(experimentService)
 
 	router := http.NewRouter()
-	http.RegisterRoutes(router, http.Controllers{})
+	http.RegisterRoutes(router, http.Controllers{
+		ExperimentController: experimentController,
+	})
 
 	http2.ListenAndServe(":8080", router)
 

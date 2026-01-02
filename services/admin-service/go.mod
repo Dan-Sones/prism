@@ -3,6 +3,7 @@ module admin-service
 go 1.25
 
 require (
+	github.com/georgysavva/scany/v2 v2.1.4 // indirect
 	github.com/go-chi/chi/v5 v5.2.3 // indirect
 	github.com/go-chi/cors v1.2.2 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect

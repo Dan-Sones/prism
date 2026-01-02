@@ -1,0 +1,29 @@
+package service
+
+import (
+	"admin-service/internal/model"
+	"admin-service/internal/repository"
+	"context"
+	"log/slog"
+)
+
+type ExperimentService struct {
+	experimentRepository *repository.ExperimentRepository
+	logger               *slog.Logger
+}
+
+func NewExperimentService(experimentRepository *repository.ExperimentRepository, logger *slog.Logger) *ExperimentService {
+	return &ExperimentService{
+		experimentRepository: experimentRepository,
+		logger:               logger,
+	}
+}
+
+func (s *ExperimentService) CreateExperiment(ctx context.Context, experiment model.Experiment) error {
+	err := s.experimentRepository.CreateNewExperiment(ctx, experiment)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
