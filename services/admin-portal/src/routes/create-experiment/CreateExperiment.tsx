@@ -1,3 +1,4 @@
+import PrimaryButton from "../../components/button/PrimaryButton";
 import TextInput from "../../components/form/TextInput";
 import type { ConfigurationElementType } from "./ConfigurationElement";
 import ConfigurationElement from "./ConfigurationElement";
@@ -36,24 +37,24 @@ const CreateExperiment = () => {
   ];
 
   return (
-    <div className="flex justify-center items-center h-full p-4">
-      <div className="flex flex-col gap-4 justify-center items-center">
-        <h1 className="text-3xl ">Create New Experiment</h1>
-        <br />
+    <div className="flex h-full items-start justify-center px-16 pt-36">
+      <div className="flex flex-col gap-4">
+        <h1 className="text-4xl font-semibold">New Experiment</h1>
 
         <div id="experiment-config" className="transition-all duration-200">
           <form className="flex flex-col gap-4">
-            <div className="flex flex-row gap-4 items-center">
-              <div>
-                <h1 className="text-2xl">Experiment Name</h1>
-                <p className="text-sm opacity-70 pb-2">
-                  This is pretty important, choose something with meaning
-                </p>
-              </div>
-              <TextInput type="text" name={"experiment-name"} />
+            <div className="flex flex-col gap-1">
+              <label className="text-lg font-light" htmlFor="experiment-name">
+                Experiment Name
+              </label>
+              <TextInput
+                type="text"
+                name={"experiment-name"}
+                className="max-w-96"
+              />
             </div>
 
-            <div id="form-options" className="flex flex-row gap-4 flex-wrap">
+            <div id="form-options" className="flex flex-row flex-wrap gap-4">
               {formItems.map((item) => {
                 return <ConfigurationElement {...item} />;
               })}
@@ -61,14 +62,20 @@ const CreateExperiment = () => {
 
             <div
               id="advanced-form-options"
-              className="flex flex-row gap-4 flex-wrap"
+              className="flex flex-row flex-wrap gap-4"
             >
               {exclusionOptions.map((item) => {
                 return <ConfigurationElement {...item} />;
               })}
             </div>
-
-            <br />
+            <hr className="border-gray-100" />
+            <PrimaryButton
+              type="submit"
+              value="Create Experiment"
+              className="max-w-fit"
+            >
+              Create Experiment
+            </PrimaryButton>
           </form>
         </div>
       </div>

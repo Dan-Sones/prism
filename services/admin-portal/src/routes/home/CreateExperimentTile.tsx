@@ -11,10 +11,10 @@ const CreateExperimentTile = () => {
 
   return (
     <Tile>
-      <div className="flex flex-col gap-4 justify-center items-center p-8">
-        <h1 className="text-5xl text-slate-100">Welcome to Prism!</h1>
+      <div className="flex flex-col items-center justify-center gap-4 p-8">
+        <h1 className="text-5xl">Welcome to Prism!</h1>
         <PrimaryButton className="w-fit" onClick={onClick}>
-          Create Experiment
+          New Experiment
         </PrimaryButton>
       </div>
     </Tile>

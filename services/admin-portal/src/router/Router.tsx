@@ -6,9 +6,9 @@ import CreateExperiment from "../routes/create-experiment/CreateExperiment";
 
 const Router = () => {
   return (
-    <div id="page-container" className="w-full h-full flex flex-row">
+    <div id="page-container" className="flex h-full w-full flex-row">
       <Sidebar />
-      <section className="flex-grow h-full w-full">
+      <section className="h-full w-full flex-grow">
         <Routes>
           <Route path="/" element={<Navigate to={"/home"} />} />
           <Route path="/*" element={<NotFound />} />

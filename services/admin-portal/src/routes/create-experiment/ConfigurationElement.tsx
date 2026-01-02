@@ -11,13 +11,17 @@ export interface ConfigurationElementType {
 
 const ConfigurationElement = (props: ConfigurationElementType) => {
   return (
-    <section className="min-w-80 max-w-80" key={props.name}>
-      <hr className="border-gray-600" />
-      <div className=" flex flex-col gap-2 p-3">
-        <h1 className="text-xl">{props.label}</h1>
-        <p className="text-sm opacity-70 pb-2">{props.description}</p>
+    <section className="max-w-96 min-w-96" key={props.name}>
+      <hr className="border-gray-100" />
+      <div className="flex flex-col gap-2 pt-3">
+        <label className="text-lg font-light" htmlFor={props.name}>
+          {props.label}
+        </label>
+        <p className="pb-2 text-sm opacity-70">{props.description}</p>
 
-        {props.type === "text" && <TextInput type="text" name={props.name} />}
+        {props.type === "text" && (
+          <TextInput type="text" name={props.name} className="w-96" />
+        )}
 
         {props.type === "percentage" && <Slider {...props} />}
 

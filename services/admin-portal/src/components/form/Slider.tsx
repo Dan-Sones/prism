@@ -14,13 +14,13 @@ const Slider = (props: ConfigurationElementType) => {
   };
 
   return (
-    <div className="flex flex-row gap-4 justify-center items-center">
+    <div className="flex flex-row items-center justify-center gap-4">
       <TextInput
         id={`${props.name}-slider-value`}
         type="text"
         value={value + "%"}
         onChange={handleInputChange}
-        className="w-20 mb-2 p-2 rounded "
+        className="mb-2 w-20 rounded p-2"
       />
 
       <input
@@ -28,7 +28,7 @@ const Slider = (props: ConfigurationElementType) => {
         type="range"
         value={value}
         onChange={(e) => setValue(Number(e.target.value))}
-        className="w-full h-2 bg-slate-500 accent-orange-500 rounded-full appearance-none cursor-pointer"
+        className="h-2 w-full cursor-pointer appearance-none rounded-full bg-gray-100 accent-orange-500"
       />
     </div>
   );
