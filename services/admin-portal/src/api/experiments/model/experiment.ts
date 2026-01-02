@@ -1,7 +1,7 @@
 export type Experiment = {
   id: number;
   name: string;
-  createdAt: number; 
+  createdAt: number;
 };
 
 export type CreateExperimentRequestBody = {

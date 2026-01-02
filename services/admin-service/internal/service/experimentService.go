@@ -1,6 +1,7 @@
 package service
 
 import (
+	"admin-service/internal/errors"
 	"admin-service/internal/model"
 	"admin-service/internal/repository"
 	"context"
@@ -20,6 +21,11 @@ func NewExperimentService(experimentRepository *repository.ExperimentRepository,
 }
 
 func (s *ExperimentService) CreateExperiment(ctx context.Context, experiment model.Experiment) error {
+
+	if experiment.Name == "" {
+		return &errors.MissingFieldError{Field: "Name"}
+	}
+
 	err := s.experimentRepository.CreateNewExperiment(ctx, experiment)
 	if err != nil {
 		return err

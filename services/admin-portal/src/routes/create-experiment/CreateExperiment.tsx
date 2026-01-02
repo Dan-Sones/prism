@@ -6,7 +6,12 @@ import ConfigurationElement from "./ConfigurationElement";
 import {
   createExperiment,
   type CreateExperimentRequestBody,
+  type Experiment,
 } from "../../api/experiments";
+import type { AxiosError } from "axios";
+import type { ProblemDetail } from "../../api/base/ProblemDetails";
+import React from "react";
+import CreateExperimentError from "./CreateExperimentError";
 
 const CreateExperiment = () => {
   const formItems: Array<ConfigurationElementType> = [
@@ -41,6 +46,8 @@ const CreateExperiment = () => {
     },
   ];
 
+  const [error, setError] = React.useState<string | null>(null);
+
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -50,21 +57,29 @@ const CreateExperiment = () => {
     mutation.mutate(body);
   };
 
-  const mutation = useMutation({ mutationFn: createExperiment });
-
-  if (mutation.isError) {
-    // TODO: Develop Error harness 
-    // Toasts are bad I think I read somewhere so maybe have them inline?
-  }
-
-  if (mutation.isSuccess) {
-    return <div>Experiment Created Successfully!</div>;
-  }
+  const mutation = useMutation<
+    Experiment,
+    AxiosError<ProblemDetail>,
+    CreateExperimentRequestBody
+  >({
+    mutationFn: createExperiment,
+    onError: (error) => {
+      if (error.response?.data.toDisplay) {
+        setError(error.response.data.toDisplay);
+      } else {
+        setError("Something went wrong creating the experiment.");
+      }
+    },
+    onSuccess: () => {
+      setError(null);
+    },
+  });
 
   return (
     <div className="flex h-full items-start justify-center px-16 pt-36">
       <div className="flex flex-col gap-4">
         <h1 className="text-4xl font-semibold">New Experiment</h1>
+        <CreateExperimentError message={error} />
 
         <div id="experiment-config" className="transition-all duration-200">
           <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
