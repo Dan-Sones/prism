@@ -1,0 +1,5 @@
+services/admin-service/.env
+services/admin-service/.idea/
+infrastructure/.env
+.idea/
+services/admin-portal/coverage

@@ -1,0 +1,7 @@
+CREATE SCHEMA IF NOT EXISTS prism;
+
+CREATE TABLE  prism.experiments (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
