@@ -20,6 +20,7 @@ const TagBubble = (props: TagBubbleProps) => {
         stroke="currentColor"
         className="size-5 cursor-pointer"
         onClick={onCrossClick}
+        role="button"
       >
         <path
           strokeLinecap="round"
