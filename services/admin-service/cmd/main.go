@@ -2,7 +2,9 @@ package main
 
 import (
 	"admin-service/internal/api/http"
+	"admin-service/internal/clients"
 	"admin-service/internal/environment"
+	"context"
 	"fmt"
 	"log"
 	http2 "net/http"
@@ -14,7 +16,7 @@ import (
 func main() {
 	fmt.Println("Hello World")
 
-	err := godotenv.Load()
+	err := godotenv.Load("../../infrastructure/.env")
 	if err != nil {
 		log.Fatal("Error loading .env file")
 	}
@@ -30,6 +32,16 @@ func main() {
 
 	logger := environment.GetLogger()
 	logger.Info("admin-service started")
+
+	pgPool := clients.GetPostgresConnectionPool()
+	defer pgPool.Close()
+
+	var greeting string
+	err = pgPool.QueryRow(context.Background(), "select 'Hello, world!'").Scan(&greeting)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "QueryRow failed: %v\n", err)
+		os.Exit(1)
+	}
 
 	router := http.NewRouter()
 	http.RegisterRoutes(router, http.Controllers{})
