@@ -25,7 +25,7 @@ describe("PrimaryButton", () => {
 
     const button = screen.getByText("Button");
     expect(button.className).toContain("custom-class");
-    expect(button.className).toContain("bg-indigo-500");
+    expect(button.className).toContain("bg-green-500");
     expect(button.className).toContain("rounded-xl");
   });
 

@@ -1,6 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Geist:wght@100..900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Electrolize&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Play:wght@400;700&display=swap");
+
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Geist", sans-serif;
+  --font-brand: "Play", sans-serif;
 }
