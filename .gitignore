@@ -1,3 +1,4 @@
+services/admin-portal/.vite/
 services/admin-service/.env
 services/admin-service/.idea/
 infrastructure/.env
