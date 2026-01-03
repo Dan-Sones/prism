@@ -17,14 +17,14 @@ const NavItem = (item: NavItemProps) => {
     <a
       key={name}
       href={href}
-      className="flex flex-row items-center gap-2 rounded px-4 py-1.5 transition-all duration-200 hover:bg-gray-200"
+      className="flex flex-row items-center gap-2 rounded px-4 py-2 transition-all duration-200 hover:bg-gray-200"
     >
       <span className="flex items-center justify-center">
         <Icon
           className={`size-6 ${isActive ? "text-green-600" : "text-slate-600"}`}
         />
       </span>
-      <p className={`text-lg ${isActive ? "font-semibold" : "text-slate-600"}`}>
+      <p className={`${isActive ? "font-semibold" : "text-slate-600"}`}>
         {name}
       </p>
     </a>
