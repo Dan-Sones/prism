@@ -14,7 +14,7 @@ const ConfigurationElement = (props: ConfigurationElementType) => {
     <section className="max-w-96 min-w-96" key={props.name}>
       <hr className="border-gray-100" />
       <div className="flex flex-col gap-2 pt-3">
-        <label className="text-lg font-light" htmlFor={props.name}>
+        <label className="text-lg" htmlFor={props.name}>
           {props.label}
         </label>
         <p className="pb-2 text-sm opacity-70">{props.description}</p>

@@ -10,7 +10,7 @@ const PrimaryButton = ({ children, rounded, ...rest }: PrimaryButtonProps) => {
     <button
       {...rest}
       className={clsx(
-        `cursor-pointer ${rounded ? "rounded-4xl px-4 py-3" : "rounded px-3 py-3"} bg-black text-slate-50 transition-colors duration-400 hover:bg-green-600 hover:text-slate-100 disabled:cursor-not-allowed disabled:opacity-50`,
+        `cursor-pointer ${rounded ? "rounded-4xl px-4 py-3" : "rounded-lg px-3 py-2.5"} bg-black text-slate-50 transition-colors duration-400 ease-in-out hover:bg-green-600 hover:text-slate-100 disabled:cursor-not-allowed disabled:opacity-50`,
         rest.className,
       )}
     >

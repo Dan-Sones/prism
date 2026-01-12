@@ -84,7 +84,7 @@ const CreateExperiment = () => {
         <div id="experiment-config" className="transition-all duration-200">
           <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
             <div className="flex flex-col gap-1">
-              <label className="text-lg font-light" htmlFor="experiment-name">
+              <label className="text-lg" htmlFor="experiment-name">
                 Experiment Name
               </label>
               <TextInput
