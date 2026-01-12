@@ -17,7 +17,7 @@ const NavItem = (item: NavItemProps) => {
     <a
       key={name}
       href={href}
-      className="flex flex-row items-center gap-2 rounded px-4 py-2 transition-all duration-200 hover:bg-gray-200"
+      className="flex flex-row items-center gap-2 rounded px-4 py-2 transition-all duration-300 ease-in-out hover:bg-gray-200"
     >
       <span className="flex items-center justify-center">
         <Icon
