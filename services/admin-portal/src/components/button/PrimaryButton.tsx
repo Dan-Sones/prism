@@ -2,14 +2,15 @@ import clsx from "clsx";
 
 interface PrimaryButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children?: React.ReactNode;
+  rounded?: boolean;
 }
 
-const PrimaryButton = ({ children, ...rest }: PrimaryButtonProps) => {
+const PrimaryButton = ({ children, rounded, ...rest }: PrimaryButtonProps) => {
   return (
     <button
       {...rest}
       className={clsx(
-        "cursor-pointer rounded-xl bg-indigo-500 px-3 py-2 text-slate-50 transition-colors duration-300 hover:bg-orange-500 disabled:cursor-not-allowed disabled:opacity-50",
+        `cursor-pointer ${rounded ? "rounded-4xl px-4 py-3" : "rounded px-3 py-3"} bg-black text-slate-50 transition-colors duration-400 hover:bg-green-600 hover:text-slate-100 disabled:cursor-not-allowed disabled:opacity-50`,
         rest.className,
       )}
     >

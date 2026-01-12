@@ -76,7 +76,7 @@ const CreateExperiment = () => {
   });
 
   return (
-    <div className="flex h-full items-start justify-center px-16 pt-36">
+    <div className="flex h-full items-start justify-center px-16 pt-44">
       <div className="flex flex-col gap-4">
         <h1 className="text-4xl font-semibold">New Experiment</h1>
         <CreateExperimentError message={error} />

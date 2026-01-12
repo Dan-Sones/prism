@@ -8,7 +8,7 @@ const TagBubble = (props: TagBubbleProps) => {
 
   return (
     <div
-      className="flex flex-row gap-1 rounded-3xl border border-slate-200 bg-gray-50 p-2 text-sm font-light text-slate-700 shadow-xs transition duration-300 hover:border-slate-300"
+      className="flex flex-row gap-1 rounded-3xl border border-slate-200 bg-gray-50 p-2 text-sm font-light text-slate-800 shadow-xs transition duration-300 hover:border-slate-300"
       onClick={onCrossClick}
     >
       {label}{" "}
