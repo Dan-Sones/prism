@@ -3,6 +3,8 @@ package main
 import (
 	"assignment-service/internal/api/http"
 	"assignment-service/internal/clients"
+	"assignment-service/internal/repository"
+	"assignment-service/internal/service"
 	"log"
 	"os"
 	"strconv"
@@ -45,9 +47,18 @@ func main() {
 
 	//salt, bucketCount := loadBucketConfig()
 
+	// Repositories
+	experimentRepository := repository.NewExperimentRepository(pgPool, logger)
+
+	// Services
+	//bucketService := service.NewBucketService(salt, bucketCount)
+	experimentService := service.NewExperimentService(experimentRepository, logger)
+
+	// Controllers
+
+	experimentService.GetVariantsForBucket(1)
+
 	router := http.NewRouter()
 	http.RegisterRoutes(router, http.Controllers{})
-
-	//bucketService := service.NewBucketService(salt, bucketCount)
 
 }
