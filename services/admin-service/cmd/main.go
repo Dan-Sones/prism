@@ -4,13 +4,14 @@ import (
 	"admin-service/internal/api/http"
 	"admin-service/internal/clients"
 	"admin-service/internal/controller"
-	"admin-service/internal/environment"
+
 	"admin-service/internal/repository"
 	"admin-service/internal/service"
 	"log"
 	http2 "net/http"
 	"os"
 
+	"github.com/Dan-Sones/prismlogger"
 	"github.com/joho/godotenv"
 )
 
@@ -22,14 +23,14 @@ func main() {
 
 	env := os.Getenv("APP_ENV")
 	if env == "development" {
-		environment.InitLogger("development", "admin-service")
+		prismLog.InitLogger("development", "admin-service")
 	} else if env == "production" {
-		environment.InitLogger("production", "admin-service")
+		prismLog.InitLogger("production", "admin-service")
 	} else {
 		log.Fatal("APP_ENV must be set to development or production")
 	}
 
-	logger := environment.GetLogger()
+	logger := prismLog.GetLogger()
 	logger.Info("admin-service started")
 
 	pgPool := clients.GetPostgresConnectionPool()

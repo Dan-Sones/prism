@@ -1,4 +1,4 @@
-package environment
+package prismLog
 
 import (
 	"log/slog"
