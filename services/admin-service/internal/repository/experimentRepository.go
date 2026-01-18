@@ -1,10 +1,10 @@
 package repository
 
 import (
-	"admin-service/internal/model"
 	"context"
 	"log/slog"
 
+	"github.com/Dan-Sones/prismdbmodels/models"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 

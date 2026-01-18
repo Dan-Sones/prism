@@ -13,4 +13,7 @@ require (
 	github.com/joho/godotenv v1.5.1 // indirect
 	golang.org/x/sync v0.17.0 // indirect
 	golang.org/x/text v0.29.0 // indirect
+	github.com/Dan-Sones/prismdbmodels v0.0.0
 )
+
+replace github.com/Dan-Sones/prismdbmodels => ../prismdbmodels

@@ -2,10 +2,11 @@ package service
 
 import (
 	"admin-service/internal/errors"
-	"admin-service/internal/model"
 	"admin-service/internal/repository"
 	"context"
 	"log/slog"
+
+	"github.com/Dan-Sones/prismdbmodels/models"
 )
 
 type ExperimentService struct {
