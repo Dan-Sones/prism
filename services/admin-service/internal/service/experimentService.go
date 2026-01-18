@@ -6,7 +6,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/Dan-Sones/prismdbmodels/models"
+	"github.com/Dan-Sones/prismdbmodels/model"
 )
 
 type ExperimentService struct {

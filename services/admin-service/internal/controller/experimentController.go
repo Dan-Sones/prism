@@ -9,7 +9,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/Dan-Sones/prismdbmodels/models"
+	"github.com/Dan-Sones/prismdbmodels/model"
 )
 
 type ExperimentController struct {

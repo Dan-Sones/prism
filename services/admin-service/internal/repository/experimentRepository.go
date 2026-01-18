@@ -4,7 +4,7 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/Dan-Sones/prismdbmodels/models"
+	"github.com/Dan-Sones/prismdbmodels/model"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
