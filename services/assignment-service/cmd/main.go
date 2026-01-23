@@ -3,7 +3,6 @@ package main
 import (
 	"assignment-service/internal/api/http"
 	"assignment-service/internal/clients"
-	"assignment-service/internal/repository"
 	"assignment-service/internal/service"
 	"log"
 	"os"
@@ -45,14 +44,8 @@ func main() {
 	pgPool := clients.GetPostgresConnectionPool()
 	defer pgPool.Close()
 
-	//salt, bucketCount := loadBucketConfig()
-
-	// Repositories
-	experimentRepository := repository.NewExperimentRepository(pgPool, logger)
-
 	// Services
-	//bucketService := service.NewBucketService(salt, bucketCount)
-	experimentService := service.NewExperimentService(experimentRepository, logger)
+	experimentService := service.NewExperimentService(logger)
 
 	// Controllers
 

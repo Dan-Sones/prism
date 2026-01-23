@@ -9,17 +9,18 @@ import (
 
 type BucketService struct {
 	salt        string
-	bucketCount int
+	bucketCount int64
+	// TODO: we need int32 here I think
 }
 
-func NewBucketService(salt string, bucketCount int) *BucketService {
+func NewBucketService(salt string, bucketCount int64) *BucketService {
 	return &BucketService{
 		salt:        salt,
 		bucketCount: bucketCount,
 	}
 }
 
-func (s *BucketService) GetBucketFor(userId string) int {
+func (s *BucketService) GetBucketFor(userId string) int32 {
 	hash := s.createMD5For(userId)
 	hashHex := hex.EncodeToString(hash[:])
 
@@ -27,9 +28,9 @@ func (s *BucketService) GetBucketFor(userId string) int {
 	hashInt.SetString(hashHex, 16)
 
 	bucket := new(big.Int)
-	bucket.Mod(hashInt, big.NewInt(int64(s.bucketCount)))
+	bucket.Mod(hashInt, big.NewInt(s.bucketCount))
 
-	return int(bucket.Int64())
+	return int32(bucket.Int64())
 }
 
 func (s *BucketService) createMD5For(userId string) [16]byte {

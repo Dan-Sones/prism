@@ -27,7 +27,7 @@ func TestSaltAffectsOutput(t *testing.T) {
 }
 
 func TestStability(t *testing.T) {
-	expected := map[string]int{
+	expected := map[string]int32{
 		"user_123": 4221,
 		"user_456": 5419,
 		"user_789": 114,

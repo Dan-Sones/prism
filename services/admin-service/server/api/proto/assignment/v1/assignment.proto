@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package assignment.v1;
+option go_package = "admin-service/server/api/proto/assignment/v1;assignment";
+
+service AssignmentService {
+  rpc GetExperimentsAndVariantsForBucket(GetExperimentsAndVariantsForBucketRequest) returns (GetExperimentsAndVariantsForBucketResponse);
+}
+
+message GetExperimentsAndVariantsForBucketRequest {
+  int32 bucket_id = 1;
+}
+
+message ExperimentVariant {
+  int32 experiment_id = 1;
+  string experiment_name = 2;
+  int32 variant_id = 3;
+  string variant_name = 4;
+}
+
+message GetExperimentsAndVariantsForBucketResponse {
+  repeated ExperimentVariant experiment_variants = 1;
+}
