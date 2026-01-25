@@ -4,3 +4,5 @@ services/admin-service/.idea/
 infrastructure/.env
 .idea/
 services/admin-portal/coverage
+
+services/assignment-service/go.sum

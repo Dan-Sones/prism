@@ -9,11 +9,10 @@ import (
 
 type BucketService struct {
 	salt        string
-	bucketCount int64
-	// TODO: we need int32 here I think
+	bucketCount int32
 }
 
-func NewBucketService(salt string, bucketCount int64) *BucketService {
+func NewBucketService(salt string, bucketCount int32) *BucketService {
 	return &BucketService{
 		salt:        salt,
 		bucketCount: bucketCount,
@@ -28,7 +27,9 @@ func (s *BucketService) GetBucketFor(userId string) int32 {
 	hashInt.SetString(hashHex, 16)
 
 	bucket := new(big.Int)
-	bucket.Mod(hashInt, big.NewInt(s.bucketCount))
+	bucket.Mod(hashInt, big.NewInt(int64(s.bucketCount)))
+
+	fmt.Printf("bucket is: %d\n", bucket)
 
 	return int32(bucket.Int64())
 }

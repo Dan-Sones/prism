@@ -3,25 +3,16 @@ package main
 import (
 	"assignment-service/internal/api/http"
 	"assignment-service/internal/clients"
+	"assignment-service/internal/controller"
 	"assignment-service/internal/service"
+	"assignment-service/internal/utils"
 	"log"
+	http2 "net/http"
 	"os"
-	"strconv"
 
 	prismLog "github.com/Dan-Sones/prismlogger"
 	"github.com/joho/godotenv"
 )
-
-func loadBucketConfig() (string, int) {
-
-	salt := os.Getenv("SALT_VALUE")
-	bucketCountStr := os.Getenv("BUCKET_COUNT")
-	bucketCount, err := strconv.Atoi(bucketCountStr)
-	if err != nil {
-		log.Fatalf("Invalid BUCKET_COUNT: %v", err)
-	}
-	return salt, bucketCount
-}
 
 func main() {
 	err := godotenv.Load("../../infrastructure/.env")
@@ -44,14 +35,40 @@ func main() {
 	pgPool := clients.GetPostgresConnectionPool()
 	defer pgPool.Close()
 
+	grpcClient := getGrpcClient()
+	defer grpcClient.Close()
+
+	salt, bucketCount := utils.GetBucketConfig()
+
 	// Services
-	experimentService := service.NewExperimentService(logger)
+	bucketService := service.NewBucketService(salt, bucketCount)
+	assignmentService := service.NewAssignmentService(logger, bucketService, *grpcClient)
 
 	// Controllers
-
-	experimentService.GetVariantsForBucket(1)
+	assignmentController := controller.NewAssignmentController(assignmentService)
 
 	router := http.NewRouter()
-	http.RegisterRoutes(router, http.Controllers{})
+	http.RegisterRoutes(router, http.Controllers{
+		AssignmentController: assignmentController,
+	})
 
+	http2.ListenAndServe(":8082", router)
+
+}
+
+func getGrpcClient() *clients.GrpcClient {
+	client, err := clients.NewGrpcClient(mustGetGrpcAddr())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return client
+}
+
+func mustGetGrpcAddr() string {
+	grpcAddr := os.Getenv("ADMIN_SERVICE_GRPC_ADDR")
+	if grpcAddr == "" {
+		log.Fatal("ADMIN_SERVICE_GRPC_ADDR is not set")
+	}
+	return grpcAddr
 }

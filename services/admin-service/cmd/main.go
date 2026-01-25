@@ -6,8 +6,10 @@ import (
 	"admin-service/internal/clients"
 	"admin-service/internal/controller"
 	"admin-service/internal/utils"
+	"fmt"
 	"log/slog"
 	"net"
+	"strings"
 
 	"admin-service/internal/repository"
 	"admin-service/internal/service"
@@ -88,12 +90,19 @@ func startGrpcServer(logger *slog.Logger, assignmentService *service.AssignmentS
 
 	reflection.Register(grpcServer)
 
-	lis, err := net.Listen("tcp", ":50052")
+	grpcAddress := os.Getenv("ADMIN_SERVICE_GRPC_ADDR")
+	if grpcAddress == "" {
+		log.Fatalf("ADMIN_SERVICE_GRPC_ADDR must be set")
+	}
+
+	port := fmt.Sprintf(":%s", strings.Split(grpcAddress, ":")[1])
+
+	lis, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	logger.Info("gRPC server started on :50052")
+	logger.Info("gRPC server started on " + grpcAddress)
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("failed to serve grpc: %v", err)
 	}
