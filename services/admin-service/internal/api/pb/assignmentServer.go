@@ -2,8 +2,8 @@ package pb
 
 import (
 	appErrors "admin-service/internal/errors"
+	pb "admin-service/internal/grpc/generated/assignment/v1"
 	"admin-service/internal/service"
-	pb "admin-service/server/api/proto/assignment/v1"
 	"context"
 	"errors"
 

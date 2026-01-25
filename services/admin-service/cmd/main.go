@@ -20,7 +20,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	pb2 "admin-service/server/api/proto/assignment/v1"
+	pb2 "admin-service/internal/grpc/generated/assignment/v1"
 )
 
 func main() {
