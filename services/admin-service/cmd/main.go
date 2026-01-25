@@ -9,13 +9,13 @@ import (
 	"fmt"
 	"log/slog"
 	"net"
+	"os"
 	"strings"
 
 	"admin-service/internal/repository"
 	"admin-service/internal/service"
 	"log"
 	http2 "net/http"
-	"os"
 
 	"github.com/Dan-Sones/prismlogger"
 	"github.com/joho/godotenv"
@@ -28,13 +28,28 @@ import (
 func main() {
 	loadEnv()
 	logger := initLogger()
+	utils.ValidateEnvVars(logger,
+		"APP_ENV",
+		"ADMIN_SERVICE_HTTP_PORT",
+		"ADMIN_SERVICE_GRPC_SERVER_ADDRESS",
+		"ADMIN_SERVICE_GRPC_SERVER_PORT",
+		"BUCKET_COUNT",
+		"POSTGRES_PORT",
+		"POSTGRES_USER",
+		"POSTGRES_PASSWORD",
+		"POSTGRES_DB",
+	)
 	logger.Info("admin-service started")
 
 	pgPool := clients.GetPostgresConnectionPool()
 	defer pgPool.Close()
 
 	// Global Values
-	bucketCount := mustGetBucketCount()
+	bucketCount, err := utils.GetBucketCount()
+	if err != nil {
+		logger.Error("Failed to get bucket count", "error", err)
+		os.Exit(1)
+	}
 
 	// Repositories
 	experimentRepository := repository.NewExperimentRepository(pgPool, logger)
@@ -53,26 +68,22 @@ func main() {
 		ExperimentController: experimentController,
 	})
 
-	http2.ListenAndServe(":8080", router)
+	httpPort := fmt.Sprintf(":%s", os.Getenv("ADMIN_SERVICE_HTTP_PORT"))
 
-}
-
-func mustGetBucketCount() int32 {
-	bucketCount, err := utils.GetBucketCount()
+	err = http2.ListenAndServe(httpPort, router)
 	if err != nil {
-		log.Fatalf("Failed to get bucket count: %v", err)
+		logger.Error("HTTP server failed", "error", err)
+		os.Exit(1)
 	}
-	return bucketCount
 }
 
 func initLogger() *slog.Logger {
 	env := os.Getenv("APP_ENV")
-	switch env {
-	case "development", "production":
-		prismLog.InitLogger(env, "admin-service")
-	default:
+	if env != "development" && env != "production" {
 		log.Fatal("APP_ENV must be set to development or production")
 	}
+
+	prismLog.InitLogger(env, "admin-service")
 	return prismLog.GetLogger()
 }
 
@@ -90,20 +101,18 @@ func startGrpcServer(logger *slog.Logger, assignmentService *service.AssignmentS
 
 	reflection.Register(grpcServer)
 
-	grpcAddress := os.Getenv("ADMIN_SERVICE_GRPC_ADDR")
-	if grpcAddress == "" {
-		log.Fatalf("ADMIN_SERVICE_GRPC_ADDR must be set")
-	}
+	grpcAddress := os.Getenv("ADMIN_SERVICE_GRPC_SERVER_ADDRESS")
+	grpcPort := os.Getenv("ADMIN_SERVICE_GRPC_SERVER_PORT")
 
-	port := fmt.Sprintf(":%s", strings.Split(grpcAddress, ":")[1])
-
-	lis, err := net.Listen("tcp", port)
+	lis, err := net.Listen("tcp", strings.Join([]string{grpcAddress, grpcPort}, ":"))
 	if err != nil {
-		log.Fatalf("failed to listen: %v", err)
+		logger.Error("failed to listen", "error", err)
+		os.Exit(1)
 	}
 
 	logger.Info("gRPC server started on " + grpcAddress)
 	if err := grpcServer.Serve(lis); err != nil {
-		log.Fatalf("failed to serve grpc: %v", err)
+		logger.Error("failed to serve grpc", "error", err)
+		os.Exit(1)
 	}
 }

@@ -6,7 +6,9 @@ import (
 	"assignment-service/internal/controller"
 	"assignment-service/internal/service"
 	"assignment-service/internal/utils"
+	"fmt"
 	"log"
+	"log/slog"
 	http2 "net/http"
 	"os"
 
@@ -15,25 +17,18 @@ import (
 )
 
 func main() {
-	err := godotenv.Load("../../infrastructure/.env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	loadEnv()
 
-	env := os.Getenv("APP_ENV")
-	if env == "development" {
-		prismLog.InitLogger("development", "assignment-service")
-	} else if env == "production" {
-		prismLog.InitLogger("production", "assignment-service")
-	} else {
-		log.Fatal("APP_ENV must be set to development or production")
-	}
-
-	logger := prismLog.GetLogger()
+	logger := initLogger()
 	logger.Info("assignment-service started")
 
-	pgPool := clients.GetPostgresConnectionPool()
-	defer pgPool.Close()
+	utils.ValidateEnvVars(logger,
+		"APP_ENV",
+		"ADMIN_SERVICE_GRPC_SERVER_ADDRESS",
+		"ADMIN_SERVICE_GRPC_SERVER_PORT",
+		"BUCKET_COUNT",
+		"SALT_VALUE",
+	)
 
 	grpcClient := getGrpcClient()
 	defer grpcClient.Close()
@@ -56,19 +51,28 @@ func main() {
 
 }
 
+func loadEnv() {
+	if err := godotenv.Load("../../infrastructure/.env"); err != nil {
+		log.Fatal("Error loading .env file")
+	}
+}
+
+func initLogger() *slog.Logger {
+	env := os.Getenv("APP_ENV")
+	if env != "development" && env != "production" {
+		log.Fatal("APP_ENV must be set to development or production")
+	}
+
+	prismLog.InitLogger(env, "assignment-service")
+	return prismLog.GetLogger()
+}
+
 func getGrpcClient() *clients.GrpcClient {
-	client, err := clients.NewGrpcClient(mustGetGrpcAddr())
+	address := fmt.Sprintf("%s:%s", os.Getenv("ADMIN_SERVICE_GRPC_SERVER_ADDRESS"), os.Getenv("ADMIN_SERVICE_GRPC_SERVER_PORT"))
+	client, err := clients.NewGrpcClient(address)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	return client
-}
-
-func mustGetGrpcAddr() string {
-	grpcAddr := os.Getenv("ADMIN_SERVICE_GRPC_ADDR")
-	if grpcAddr == "" {
-		log.Fatal("ADMIN_SERVICE_GRPC_ADDR is not set")
-	}
-	return grpcAddr
 }
