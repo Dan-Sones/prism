@@ -35,22 +35,21 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/ExperimentVariant"
+                  $ref: "#/components/schemas/GetExperimentsAndVariantsForBucketResponse"
               examples:
-                multipleExperiments:
-                  summary: User assigned to multiple experiments
+                singleExperiment:
+                  summary: Single active experiment for user's bucket
                   value:
-                    - experiment_id: 1
-                      experiment_name: "homepage_redesign"
-                      variant_id: 101
-                      variant_name: "variant_a"
-                    - experiment_id: 2
-                      experiment_name: "checkout_flow"
-                      variant_id: 202
-                      variant_name: "control"
+                    feature_flag_1: variant_a
+                multipleExperiments:
+                  summary: Multiple active experiments for user's bucket
+                  value:
+                    feature_flag_1: variant_a
+                    feature_flag_2: variant_b
+
                 emptyResponse:
                   summary: No active experiments for user's bucket
-                  value: []
+                  value: {}
         "400":
           description: Bad request - missing user_id parameter
           content:
@@ -74,33 +73,11 @@ paths:
 
 components:
   schemas:
-    ExperimentVariant:
+    GetExperimentsAndVariantsForBucketResponse:
       type: object
-      description: Represents an experiment and the variant assigned to a user
-      required:
-        - experiment_id
-        - experiment_name
-        - variant_id
-        - variant_name
-      properties:
-        experiment_id:
-          type: integer
-          format: int32
-          description: Unique identifier for the experiment
-          example: 1
-        experiment_name:
-          type: string
-          description: Human-readable name of the experiment
-          example: "homepage_redesign"
-        variant_id:
-          type: integer
-          format: int32
-          description: Unique identifier for the variant within the experiment
-          example: 101
-        variant_name:
-          type: string
-          description: Human-readable name of the variant
-          example: "variant_a"
+      additionalProperties:
+        type: string
+      description: Map of feature flag IDs to variant IDs
 
     ProblemDetail:
       type: object

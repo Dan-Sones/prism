@@ -29,14 +29,9 @@ func (s *AssignmentServer) GetExperimentsAndVariantsForBucket(ctx context.Contex
 		return nil, s.handleError(err)
 	}
 
-	pbVariants := make([]*pb.ExperimentVariant, len(variants))
+	pbVariants := make(map[string]string)
 	for i, v := range variants {
-		pbVariants[i] = &pb.ExperimentVariant{
-			ExperimentId:   v.ExperimentID,
-			ExperimentName: v.ExperimentName,
-			VariantId:      v.VariantID,
-			VariantName:    v.VariantName,
-		}
+		pbVariants[v.FeatureFlagID] = variants[i].VariantID
 	}
 
 	return &pb.GetExperimentsAndVariantsForBucketResponse{

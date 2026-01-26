@@ -2,7 +2,6 @@ package service
 
 import (
 	"assignment-service/internal/clients"
-	pb "assignment-service/internal/grpc/generated/assignment/v1"
 	"context"
 	"fmt"
 	"log/slog"
@@ -22,7 +21,7 @@ func NewAssignmentService(logger *slog.Logger, bService *BucketService, grpcclie
 	}
 }
 
-func (e *AssignmentService) GetVariantsForUserId(ctx context.Context, userId string) ([]*pb.ExperimentVariant, error) {
+func (e *AssignmentService) GetVariantsForUserId(ctx context.Context, userId string) (*map[string]string, error) {
 	bucket := e.bucketService.GetBucketFor(userId)
 
 	experiments, err := e.grpcClient.GetExperimentsAndVariantsForBucket(ctx, bucket)
@@ -30,5 +29,5 @@ func (e *AssignmentService) GetVariantsForUserId(ctx context.Context, userId str
 		return nil, fmt.Errorf("failed to get experiments and variants for bucket %d: %w", bucket, err)
 	}
 
-	return experiments.ExperimentVariants, nil
+	return &experiments.ExperimentVariants, nil
 }

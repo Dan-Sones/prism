@@ -21,7 +21,7 @@ func GetBucketConfig() (salt string, bucketCount int32) {
 	s := os.Getenv("SALT_VALUE")
 	bCount, err := getBucketCount()
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatal(err.Error())
 	}
 	return s, bCount
 }

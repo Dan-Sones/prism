@@ -38,10 +38,9 @@ func (r *ExperimentRepository) CreateNewExperiment(ctx context.Context, experime
 
 func (r *ExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*model.ExperimentVariant, error) {
 	sql := `SELECT
-    e.id AS experiment_id,
-    e.name AS experiment_name,
-    v.id AS variant_id,
-    v.name AS variant_name
+    e.feature_flag_id,
+    v.variant_id,
+    v.buckets
 	FROM
 		prism.experiments e
 	JOIN
@@ -63,7 +62,7 @@ func (r *ExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Co
 	var results []*model.ExperimentVariant
 	for rows.Next() {
 		var ev model.ExperimentVariant
-		err := rows.Scan(&ev.ExperimentID, &ev.ExperimentName, &ev.VariantID, &ev.VariantName)
+		err := rows.Scan(&ev.FeatureFlagID, &ev.VariantID, &ev.Buckets)
 		if err != nil {
 			//TODO: this approach means that if one row fails, the whole thing fails. Consider logging and continuing?
 			return nil, err

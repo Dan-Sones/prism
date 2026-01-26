@@ -11,13 +11,6 @@ message GetExperimentsAndVariantsForBucketRequest {
   int32 bucket_id = 1;
 }
 
-message ExperimentVariant {
-  int32 experiment_id = 1;
-  string experiment_name = 2;
-  int32 variant_id = 3;
-  string variant_name = 4;
-}
-
 message GetExperimentsAndVariantsForBucketResponse {
-  repeated ExperimentVariant experiment_variants = 1;
+  map<string, string> experiment_variants = 1;
 }
