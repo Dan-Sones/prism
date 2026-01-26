@@ -1,9 +1,12 @@
 import "./App.css";
+import NavBar from "./components/navbar/NavBar";
+import ProductPage from "./routes/product/ProductPage";
 
 function App() {
   return (
     <>
-      <h1 className="text-8xl">Hello world</h1>
+      <NavBar />
+      <ProductPage />
     </>
   );
 }
