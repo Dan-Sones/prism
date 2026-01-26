@@ -1,6 +1,7 @@
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import { PresetEntry } from 'redocusaurus';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -35,6 +36,7 @@ const config: Config = {
     locales: ['en'],
   },
 
+
   presets: [
     [
       'classic',
@@ -47,6 +49,20 @@ const config: Config = {
           customCss: './src/css/custom.css',
         },
       } satisfies Preset.Options,
+    ],
+    [
+      'redocusaurus',
+      {
+        specs: [
+          {
+            spec: 'openapi/assignment-service.yaml',
+            route: '/api/assignment-service',
+          },
+        ],
+        theme: {
+          primaryColor: '#1890ff',
+        },
+      } satisfies PresetEntry,
     ],
   ],
 

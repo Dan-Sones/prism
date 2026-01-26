@@ -39,10 +39,9 @@ func (a *AssignmentController) GetExperimentsAndVariantsForBucket(w http.Respons
 	if err != nil {
 		status := http.StatusInternalServerError
 		problemDetail := utility.ProblemDetail{
-			Title:     "Internal Server Error",
-			Status:    status,
-			Detail:    fmt.Sprintf("Failed to get assignments for userId %s: %v", userId, err),
-			ToDisplay: "Something went wrong. Please try again later.",
+			Title:  "Internal Server Error",
+			Status: status,
+			Detail: fmt.Sprintf("Failed to get assignments for user_id %s: %v", userId, err),
 		}
 		WriteResponse(w, status, problemDetail)
 		return

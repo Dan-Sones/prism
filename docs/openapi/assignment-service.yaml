@@ -1,0 +1,129 @@
+openapi: 3.0.3
+info:
+  title: Assignment Service API
+  description: |
+    The assignment Service is responsible for providing users with their experiment variant assignments given their user ID.
+servers:
+  - url: http://localhost:8082
+    description: Local development server
+
+tags:
+  - name: Assignments
+
+paths:
+  /api/assignments/{user_id}:
+    get:
+      tags:
+        - Assignments
+      summary: Get experiment assignments for a user
+      description: |
+        Retrieves the list of active experiments and their assigned variants for a given user.
+      operationId: getExperimentsAndVariantsForUser
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The unique identifier for the user
+          schema:
+            type: string
+          example: "user_12345"
+      responses:
+        "200":
+          description: Successfully retrieved experiment assignments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ExperimentVariant"
+              examples:
+                multipleExperiments:
+                  summary: User assigned to multiple experiments
+                  value:
+                    - experiment_id: 1
+                      experiment_name: "homepage_redesign"
+                      variant_id: 101
+                      variant_name: "variant_a"
+                    - experiment_id: 2
+                      experiment_name: "checkout_flow"
+                      variant_id: 202
+                      variant_name: "control"
+                emptyResponse:
+                  summary: No active experiments for user's bucket
+                  value: []
+        "400":
+          description: Bad request - missing user_id parameter
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+              example:
+                title: "Bad Request"
+                status: 400
+                detail: "user_id path parameter is required"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProblemDetail"
+              example:
+                title: "Internal Server Error"
+                status: 500
+                detail: "Failed to get assignments for user_id user_12345: connection failed"
+
+components:
+  schemas:
+    ExperimentVariant:
+      type: object
+      description: Represents an experiment and the variant assigned to a user
+      required:
+        - experiment_id
+        - experiment_name
+        - variant_id
+        - variant_name
+      properties:
+        experiment_id:
+          type: integer
+          format: int32
+          description: Unique identifier for the experiment
+          example: 1
+        experiment_name:
+          type: string
+          description: Human-readable name of the experiment
+          example: "homepage_redesign"
+        variant_id:
+          type: integer
+          format: int32
+          description: Unique identifier for the variant within the experiment
+          example: 101
+        variant_name:
+          type: string
+          description: Human-readable name of the variant
+          example: "variant_a"
+
+    ProblemDetail:
+      type: object
+      description: |
+        Used to provide structured error information to clients.
+      properties:
+        title:
+          type: string
+          description: A short, human-readable summary of the problem type
+          example: "Bad Request"
+        status:
+          type: integer
+          description: The HTTP status code
+          example: 400
+        detail:
+          type: string
+          description: A human-readable explanation specific to this occurrence of the problem
+          example: "user_id path parameter is required"
+        toDisplay:
+          type: string
+          description: A user-friendly message suitable for displaying to end users
+          example: "Something went wrong. Please try again later."
+        structuredDetail:
+          type: object
+          description: Additional structured details about the error
+          additionalProperties: true
