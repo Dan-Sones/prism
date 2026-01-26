@@ -2,53 +2,117 @@ package main
 
 import (
 	"admin-service/internal/api/http"
+	"admin-service/internal/api/pb"
 	"admin-service/internal/clients"
 	"admin-service/internal/controller"
-	"admin-service/internal/environment"
+	"admin-service/internal/utils"
+	"fmt"
+	"log/slog"
+	"net"
+	"os"
+	"strings"
+
 	"admin-service/internal/repository"
 	"admin-service/internal/service"
 	"log"
 	http2 "net/http"
-	"os"
 
+	"github.com/Dan-Sones/prismlogger"
 	"github.com/joho/godotenv"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
+
+	pb2 "admin-service/internal/grpc/generated/assignment/v1"
 )
 
 func main() {
-	err := godotenv.Load("../../infrastructure/.env")
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
-
-	env := os.Getenv("APP_ENV")
-	if env == "development" {
-		environment.InitLogger("development", "admin-service")
-	} else if env == "production" {
-		environment.InitLogger("production", "admin-service")
-	} else {
-		log.Fatal("APP_ENV must be set to development or production")
-	}
-
-	logger := environment.GetLogger()
+	loadEnv()
+	logger := initLogger()
+	utils.ValidateEnvVars(logger,
+		"APP_ENV",
+		"ADMIN_SERVICE_HTTP_PORT",
+		"ADMIN_SERVICE_GRPC_SERVER_ADDRESS",
+		"ADMIN_SERVICE_GRPC_SERVER_PORT",
+		"BUCKET_COUNT",
+		"POSTGRES_PORT",
+		"POSTGRES_USER",
+		"POSTGRES_PASSWORD",
+		"POSTGRES_DB",
+	)
 	logger.Info("admin-service started")
 
 	pgPool := clients.GetPostgresConnectionPool()
 	defer pgPool.Close()
+
+	// Global Values
+	bucketCount, err := utils.GetBucketCount()
+	if err != nil {
+		logger.Error("Failed to get bucket count", "error", err)
+		os.Exit(1)
+	}
 
 	// Repositories
 	experimentRepository := repository.NewExperimentRepository(pgPool, logger)
 
 	// Services
 	experimentService := service.NewExperimentService(experimentRepository, logger)
+	assignmentService := service.NewAssignmentService(experimentRepository, bucketCount, logger)
 
 	// Controllers
 	experimentController := controller.NewExperimentController(experimentService)
+
+	go startGrpcServer(logger, assignmentService)
 
 	router := http.NewRouter()
 	http.RegisterRoutes(router, http.Controllers{
 		ExperimentController: experimentController,
 	})
 
-	http2.ListenAndServe(":8080", router)
+	httpPort := fmt.Sprintf(":%s", os.Getenv("ADMIN_SERVICE_HTTP_PORT"))
 
+	err = http2.ListenAndServe(httpPort, router)
+	if err != nil {
+		logger.Error("HTTP server failed", "error", err)
+		os.Exit(1)
+	}
+}
+
+func initLogger() *slog.Logger {
+	env := os.Getenv("APP_ENV")
+	if env != "development" && env != "production" {
+		log.Fatal("APP_ENV must be set to development or production")
+	}
+
+	prismLog.InitLogger(env, "admin-service")
+	return prismLog.GetLogger()
+}
+
+func loadEnv() {
+	if err := godotenv.Load("../../infrastructure/.env"); err != nil {
+		log.Fatal("Error loading .env file")
+	}
+}
+
+func startGrpcServer(logger *slog.Logger, assignmentService *service.AssignmentService) {
+	grpcServer := grpc.NewServer()
+
+	assignmentServer := pb.NewAssignmentServer(assignmentService)
+	pb2.RegisterAssignmentServiceServer(grpcServer, assignmentServer)
+
+	reflection.Register(grpcServer)
+
+	grpcAddress := os.Getenv("ADMIN_SERVICE_GRPC_SERVER_ADDRESS")
+	grpcPort := os.Getenv("ADMIN_SERVICE_GRPC_SERVER_PORT")
+
+	lis, err := net.Listen("tcp", strings.Join([]string{grpcAddress, grpcPort}, ":"))
+	if err != nil {
+		logger.Error("failed to listen", "error", err)
+		os.Exit(1)
+	}
+
+	logger.Info("gRPC server started on " + grpcAddress)
+	if err := grpcServer.Serve(lis); err != nil {
+		logger.Error("failed to serve grpc", "error", err)
+		os.Exit(1)
+	}
 }

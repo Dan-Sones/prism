@@ -1,12 +1,16 @@
 package repository
 
 import (
-	"admin-service/internal/model"
 	"context"
 	"log/slog"
 
+	"github.com/Dan-Sones/prismdbmodels/model"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
+
+type ExperimentRepositoryInterface interface {
+	GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*model.ExperimentVariant, error)
+}
 
 type ExperimentRepository struct {
 	pgxPool *pgxpool.Pool
@@ -30,4 +34,41 @@ func (r *ExperimentRepository) CreateNewExperiment(ctx context.Context, experime
 	}
 
 	return nil
+}
+
+func (r *ExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*model.ExperimentVariant, error) {
+	sql := `SELECT
+    e.feature_flag_id,
+    v.variant_id,
+    v.buckets
+	FROM
+		prism.experiments e
+	JOIN
+		prism.variants v ON v.experiment_id = e.id
+	WHERE
+		$1 = ANY(v.buckets);
+	`
+
+	rows, err := r.pgxPool.Query(ctx, sql, bucketId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	var results []*model.ExperimentVariant
+	for rows.Next() {
+		var ev model.ExperimentVariant
+		err := rows.Scan(&ev.FeatureFlagID, &ev.VariantID, &ev.Buckets)
+		if err != nil {
+			//TODO: this approach means that if one row fails, the whole thing fails. Consider logging and continuing?
+			return nil, err
+		}
+		results = append(results, &ev)
+	}
+
+	return results, nil
 }

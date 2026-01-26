@@ -1,0 +1,23 @@
+module assignment-service
+
+go 1.25
+
+require (
+	github.com/Dan-Sones/prismlogger v0.0.0
+	github.com/go-chi/chi/v5 v5.2.4
+	github.com/go-chi/cors v1.2.2
+	github.com/joho/godotenv v1.5.1
+	google.golang.org/grpc v1.78.0
+	google.golang.org/protobuf v1.36.11
+)
+
+require (
+	golang.org/x/net v0.47.0 // indirect
+	golang.org/x/sys v0.38.0 // indirect
+	golang.org/x/text v0.33.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20251029180050-ab9386a59fda // indirect
+)
+
+replace github.com/Dan-Sones/prismdbmodels => ../prismdbmodels
+
+replace github.com/Dan-Sones/prismlogger => ../prismlogger

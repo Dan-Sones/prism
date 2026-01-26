@@ -2,13 +2,14 @@ package controller
 
 import (
 	errors2 "admin-service/internal/errors"
-	"admin-service/internal/model"
 	"admin-service/internal/model/utility"
 	"admin-service/internal/service"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
+
+	"github.com/Dan-Sones/prismdbmodels/model"
 )
 
 type ExperimentController struct {
