@@ -1,7 +1,7 @@
-const world = 'world';
+const world = 'world'
 
 export function hello(who: string = world): string {
-  return `Hello ${who}!`;
-   }
+    return `Hello ${who}!`
+}
 
-   console.log(hello());
+console.log(hello())
