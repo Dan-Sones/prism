@@ -1,18 +1,14 @@
 import {
-    ClientProviderStatus,
+    ErrorCode,
     OpenFeatureEventEmitter,
     ProviderEvents,
-    type AnyProviderEvent,
+    StandardResolutionReasons,
     type EvaluationContext,
     type Hook,
     type JsonValue,
-    type Logger,
-    type Paradigm,
     type Provider,
-    type ProviderEventEmitter,
     type ProviderMetadata,
     type ResolutionDetails,
-    type TrackingEventDetails,
 } from '@openfeature/web-sdk'
 import type { Flags } from './types.js'
 
@@ -76,11 +72,13 @@ export class PrismWebProvider implements Provider {
     }
 
     private evaluateFlag<T extends any>(flagKey: string, defaultValue: T): ResolutionDetails<T> {
-        // TODO: Handle errors better
-        // how do we get the user to just see the control but not log their events?
-
         if (this.flagsCache === null) {
-            throw new Error('Flags cache is not initialized.')
+            return {
+                value: defaultValue,
+                variant: 'default',
+                reason: StandardResolutionReasons.UNKNOWN,
+                errorCode: ErrorCode.PROVIDER_NOT_READY,
+            }
         }
 
         if (this.flagsCache.hasOwnProperty(flagKey)) {
@@ -88,10 +86,14 @@ export class PrismWebProvider implements Provider {
             return {
                 value,
                 variant: 'on',
-                reason: 'TARGETING_MATCH',
+                reason: StandardResolutionReasons.TARGETING_MATCH,
             }
         } else {
-            throw new Error(`Flag with key ${flagKey} not found.`)
+            return {
+                value: defaultValue,
+                variant: 'default',
+                reason: StandardResolutionReasons.DEFAULT,
+            }
         }
     }
 
