@@ -1,5 +1,7 @@
 import {
     ClientProviderStatus,
+    OpenFeatureEventEmitter,
+    ProviderEvents,
     type AnyProviderEvent,
     type EvaluationContext,
     type Hook,
@@ -12,62 +14,103 @@ import {
     type ResolutionDetails,
     type TrackingEventDetails,
 } from '@openfeature/web-sdk'
+import type { Flags } from './types.js'
 
 export class PrismWebProvider implements Provider {
     hooks?: Hook<Record<string, unknown>>[]
+
+    readonly metadata: ProviderMetadata = {
+        name: 'PrismWebProvider',
+    }
+
+    readonly events = new OpenFeatureEventEmitter()
+
+    private fetchInstance: typeof fetch
+    private baseUrl: string
+
+    private flagsCache: Flags | null = null
+
+    constructor(fetchInstance: typeof fetch, baseUrl: string) {
+        this.fetchInstance = fetchInstance
+        this.baseUrl = baseUrl
+    }
+
+    async initialize?(context?: EvaluationContext): Promise<void> {
+        if (context?.targetingKey === undefined) {
+            throw new Error(
+                'PrismWebProvider requires a targetingKey in the evaluation context for initialization.'
+            )
+        }
+
+        try {
+            await this.updateFlagsCache(context.targetingKey)
+        } catch (error) {
+            this.events.emit(ProviderEvents.Error)
+            throw new Error(`Failed to initialize PrismWebProvider: ${(error as Error).message}`)
+        }
+
+        this.events.emit(ProviderEvents.Ready)
+    }
+
+    async updateFlagsCache(userId: string): Promise<void> {
+        const flags = await this.fetchFlags(userId)
+        this.flagsCache = flags
+    }
+
+    async fetchFlags(userId: string): Promise<Flags> {
+        const response = await this.fetchInstance(`${this.baseUrl}/assignments?userId=${userId}`)
+        if (!response.ok) {
+            throw new Error(`Failed to fetch flags: ${response.statusText}`)
+        }
+        const flags = (await response.json()) as Flags
+        return flags
+    }
+
     onContextChange?(
         oldContext: EvaluationContext,
         newContext: EvaluationContext
     ): Promise<void> | void {
-        throw new Error('Method not implemented.')
+        if (oldContext.targetingKey !== newContext.targetingKey) {
+            return this.updateFlagsCache(newContext.targetingKey as string)
+        }
     }
-    resolveBooleanEvaluation(
-        flagKey: string,
-        defaultValue: boolean,
-        context: EvaluationContext,
-        logger: Logger
-    ): ResolutionDetails<boolean> {
-        throw new Error('Method not implemented.')
+
+    private evaluateFlag<T extends any>(flagKey: string, defaultValue: T): ResolutionDetails<T> {
+        // TODO: Handle errors better
+        // how do we get the user to just see the control but not log their events?
+
+        if (this.flagsCache === null) {
+            throw new Error('Flags cache is not initialized.')
+        }
+
+        if (this.flagsCache.hasOwnProperty(flagKey)) {
+            const value = this.flagsCache[flagKey] as T
+            return {
+                value,
+                variant: 'on',
+                reason: 'TARGETING_MATCH',
+            }
+        } else {
+            throw new Error(`Flag with key ${flagKey} not found.`)
+        }
     }
-    resolveStringEvaluation(
-        flagKey: string,
-        defaultValue: string,
-        context: EvaluationContext,
-        logger: Logger
-    ): ResolutionDetails<string> {
-        throw new Error('Method not implemented.')
+
+    resolveBooleanEvaluation(flagKey: string, defaultValue: boolean): ResolutionDetails<boolean> {
+        return this.evaluateFlag(flagKey, defaultValue)
     }
-    resolveNumberEvaluation(
-        flagKey: string,
-        defaultValue: number,
-        context: EvaluationContext,
-        logger: Logger
-    ): ResolutionDetails<number> {
-        throw new Error('Method not implemented.')
+
+    resolveStringEvaluation(flagKey: string, defaultValue: string): ResolutionDetails<string> {
+        return this.evaluateFlag(flagKey, defaultValue)
     }
+
+    resolveNumberEvaluation(flagKey: string, defaultValue: number): ResolutionDetails<number> {
+        return this.evaluateFlag(flagKey, defaultValue)
+    }
+
     resolveObjectEvaluation<T extends JsonValue>(
         flagKey: string,
-        defaultValue: T,
-        context: EvaluationContext,
-        logger: Logger
+        defaultValue: T
     ): ResolutionDetails<T> {
-        throw new Error('Method not implemented.')
-    }
-    metadata: ProviderMetadata
-    runsOn?: Paradigm
-    status?: ClientProviderStatus
-    events?: ProviderEventEmitter<AnyProviderEvent, Record<string, unknown>>
-    onClose?(): Promise<void> {
-        throw new Error('Method not implemented.')
-    }
-    initialize?(context?: EvaluationContext): Promise<void> {
-        throw new Error('Method not implemented.')
-    }
-    track?(
-        trackingEventName: string,
-        context: EvaluationContext,
-        trackingEventDetails: TrackingEventDetails
-    ): void {
-        throw new Error('Method not implemented.')
+        return this.evaluateFlag(flagKey, defaultValue)
     }
 }
