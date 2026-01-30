@@ -2,15 +2,18 @@ import { OpenFeature, ProviderStatus, StandardResolutionReasons } from '@openfea
 import { PrismWebProvider } from './PrismWebProvider.js'
 
 describe('PrismWebProvider', () => {
-    let fetchMock: jest.Mock
     const baseUrl = 'https://example.com'
+
+    beforeEach(() => {
+        global.fetch = jest.fn()
+    })
 
     afterEach(() => {
         jest.resetAllMocks()
     })
 
     it('should initialize and have ready status', async () => {
-        fetchMock = jest.fn().mockResolvedValue({
+        ;(global.fetch as jest.Mock).mockResolvedValue({
             ok: true,
             json: async () => ({
                 'feature-flag-1': true,
@@ -20,9 +23,10 @@ describe('PrismWebProvider', () => {
         } as Response)
 
         OpenFeature.setContext({ targetingKey: 'test-key' })
-        await OpenFeature.setProviderAndWait(new PrismWebProvider(fetchMock, baseUrl))
+        await OpenFeature.setProviderAndWait(new PrismWebProvider(baseUrl))
 
-        expect(fetchMock).toHaveBeenCalledTimes(1)
+        expect(global.fetch).toHaveBeenCalledTimes(1)
+        expect(global.fetch).toHaveBeenCalledWith(`${baseUrl}/assignments?userId=test-key`, {})
 
         const client = OpenFeature.getClient()
         expect(client.providerStatus).toBe(ProviderStatus.READY)
@@ -30,7 +34,7 @@ describe('PrismWebProvider', () => {
 
     describe('success tests', () => {
         beforeEach(async () => {
-            fetchMock = jest.fn().mockResolvedValue({
+            ;(global.fetch as jest.Mock).mockResolvedValue({
                 ok: true,
                 json: async () => ({
                     'feature-flag-bool': true,
@@ -42,12 +46,16 @@ describe('PrismWebProvider', () => {
             } as Response)
 
             OpenFeature.setContext({ targetingKey: 'test-key' })
-            await OpenFeature.setProviderAndWait(new PrismWebProvider(fetchMock, baseUrl))
+            await OpenFeature.setProviderAndWait(new PrismWebProvider(baseUrl))
 
-            expect(fetchMock).toHaveBeenCalledTimes(1)
+            expect(global.fetch).toHaveBeenCalledTimes(1)
 
             const client = OpenFeature.getClient()
             expect(client.providerStatus).toBe(ProviderStatus.READY)
+        })
+
+        afterEach(() => {
+            OpenFeature.clearProviders()
         })
 
         it('should evaluate boolean flag', async () => {
@@ -82,10 +90,14 @@ describe('PrismWebProvider', () => {
     })
 
     describe('context change tests', () => {
+        afterEach(() => {
+            OpenFeature.clearProviders()
+        })
+
         it('should update flags on context change', async () => {
             let activeKey = 'initial-key'
 
-            fetchMock = jest.fn().mockImplementation(
+            ;(global.fetch as jest.Mock).mockImplementation(
                 async () =>
                     ({
                         ok: true,
@@ -96,10 +108,10 @@ describe('PrismWebProvider', () => {
             )
 
             OpenFeature.setContext({ targetingKey: 'initial-key' })
-            const provider = new PrismWebProvider(fetchMock, baseUrl)
+            const provider = new PrismWebProvider(baseUrl)
             await OpenFeature.setProviderAndWait(provider)
 
-            expect(fetchMock).toHaveBeenCalledTimes(1)
+            expect(global.fetch).toHaveBeenCalledTimes(1)
 
             const client = OpenFeature.getClient()
 
@@ -111,12 +123,12 @@ describe('PrismWebProvider', () => {
 
             let contextChangeResult = await client.getBooleanValue('feature-flag-bool', false)
 
-            expect(fetchMock).toHaveBeenCalledTimes(2)
+            expect(global.fetch).toHaveBeenCalledTimes(2)
             expect(contextChangeResult).toBe(false)
         })
 
         it("should not update flags if targetingKey hasn't changed", async () => {
-            fetchMock = jest.fn().mockResolvedValue({
+            ;(global.fetch as jest.Mock).mockResolvedValue({
                 ok: true,
                 json: async () => ({
                     'feature-flag-bool': true,
@@ -124,10 +136,10 @@ describe('PrismWebProvider', () => {
             } as Response)
 
             OpenFeature.setContext({ targetingKey: 'same-key' })
-            const provider = new PrismWebProvider(fetchMock, baseUrl)
+            const provider = new PrismWebProvider(baseUrl)
             await OpenFeature.setProviderAndWait(provider)
 
-            expect(fetchMock).toHaveBeenCalledTimes(1)
+            expect(global.fetch).toHaveBeenCalledTimes(1)
 
             const client = OpenFeature.getClient()
 
@@ -138,7 +150,7 @@ describe('PrismWebProvider', () => {
 
             let contextChangeResult = await client.getBooleanValue('feature-flag-bool', false)
 
-            expect(fetchMock).toHaveBeenCalledTimes(1)
+            expect(global.fetch).toHaveBeenCalledTimes(1)
             expect(contextChangeResult).toBe(true)
         })
     })
@@ -146,14 +158,14 @@ describe('PrismWebProvider', () => {
     describe('error handling tests', () => {
         describe('http failure', () => {
             beforeEach(async () => {
-                fetchMock = jest.fn().mockResolvedValue({
+                ;(global.fetch as jest.Mock).mockResolvedValue({
                     ok: false,
                     statusText: 'Internal Server Error',
                 } as Response)
 
                 OpenFeature.setContext({ targetingKey: 'test-key' })
                 await expect(
-                    OpenFeature.setProviderAndWait(new PrismWebProvider(fetchMock, baseUrl))
+                    OpenFeature.setProviderAndWait(new PrismWebProvider(baseUrl))
                 ).rejects.toThrow(
                     'Failed to initialize PrismWebProvider: Failed to fetch flags: Internal Server Error'
                 )
@@ -179,10 +191,9 @@ describe('PrismWebProvider', () => {
 
         describe('missing targetingKey', () => {
             beforeEach(async () => {
-                fetchMock = jest.fn()
                 OpenFeature.setContext({})
                 await expect(
-                    OpenFeature.setProviderAndWait(new PrismWebProvider(fetchMock, baseUrl))
+                    OpenFeature.setProviderAndWait(new PrismWebProvider(baseUrl))
                 ).rejects.toThrow(
                     'PrismWebProvider requires a targetingKey in the evaluation context for initialization.'
                 )
@@ -207,13 +218,13 @@ describe('PrismWebProvider', () => {
 
         describe('non-existent flag', () => {
             beforeEach(async () => {
-                fetchMock = jest.fn().mockResolvedValue({
+                ;(global.fetch as jest.Mock).mockResolvedValue({
                     ok: true,
                     json: async () => ({}),
                 } as Response)
 
                 OpenFeature.setContext({ targetingKey: 'test-key' })
-                await OpenFeature.setProviderAndWait(new PrismWebProvider(fetchMock, baseUrl))
+                await OpenFeature.setProviderAndWait(new PrismWebProvider(baseUrl))
             })
 
             it('should resolve default value for non-existent flag', async () => {

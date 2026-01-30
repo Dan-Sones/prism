@@ -21,14 +21,14 @@ export class PrismWebProvider implements Provider {
 
     readonly events = new OpenFeatureEventEmitter()
 
-    private fetchInstance: typeof fetch
     private baseUrl: string
+    private fetchOptions: RequestInit
 
     private flagsCache: Flags | null = null
 
-    constructor(fetchInstance: typeof fetch, baseUrl: string) {
-        this.fetchInstance = fetchInstance
+    constructor(baseUrl: string, fetchOptions: RequestInit = {}) {
         this.baseUrl = baseUrl
+        this.fetchOptions = fetchOptions
     }
 
     async initialize?(context?: EvaluationContext): Promise<void> {
@@ -54,7 +54,10 @@ export class PrismWebProvider implements Provider {
     }
 
     async fetchFlags(userId: string): Promise<Flags> {
-        const response = await this.fetchInstance(`${this.baseUrl}/assignments?userId=${userId}`)
+        const response = await fetch(
+            `${this.baseUrl}/assignments?userId=${userId}`,
+            this.fetchOptions
+        )
         if (!response.ok) {
             throw new Error(`Failed to fetch flags: ${response.statusText}`)
         }
