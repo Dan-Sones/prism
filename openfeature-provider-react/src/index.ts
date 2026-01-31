@@ -1,7 +1,2 @@
-const world = 'world'
-
-export function hello(who: string = world): string {
-    return `Hello ${who}!`
-}
-
-console.log(hello())
+export { PrismWebProvider } from './PrismWebProvider.js'
+export type { Flags } from './types.js'

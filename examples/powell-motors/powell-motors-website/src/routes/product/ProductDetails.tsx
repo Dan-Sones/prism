@@ -1,3 +1,4 @@
+import { FeatureFlag } from "@openfeature/react-sdk";
 import PrimaryButton from "../../components/buttons/PrimaryButton";
 import SecondaryButton from "../../components/buttons/SecondaryButton";
 
@@ -14,7 +15,15 @@ const ProductDetails = ({ title, price, description }: ProductDetailsProps) => {
       <p className="text-xl font-bold">{price}</p>
       <p className="text font-light italic">{description}</p>
       <div className="flex flex-col gap-2 w-full">
-        <PrimaryButton>Buy now</PrimaryButton>
+        <FeatureFlag
+          flagKey="button_color_v1"
+          matchValue="button_blue"
+          defaultValue="control"
+          fallback={<PrimaryButton>Buy Now</PrimaryButton>}
+        >
+          <PrimaryButton className="bg-blue-700!">Buy Now</PrimaryButton>
+        </FeatureFlag>
+
         <SecondaryButton>Add to bag</SecondaryButton>
       </div>
       <div className="mt-4 text-gray-800 flex flex-row gap-8 justify-center">

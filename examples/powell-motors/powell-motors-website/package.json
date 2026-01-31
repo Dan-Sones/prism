@@ -7,10 +7,14 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "format": "prettier --write ."
   },
   "dependencies": {
+    "@openfeature/react-sdk": "^1.2.0",
+    "@prism/openfeature-provider-react": "^1.0.5",
     "@tailwindcss/vite": "^4.1.18",
+    "prettier": "^3.8.1",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tailwindcss": "^4.1.18"

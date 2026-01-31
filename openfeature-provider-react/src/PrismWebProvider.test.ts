@@ -26,7 +26,7 @@ describe('PrismWebProvider', () => {
         await OpenFeature.setProviderAndWait(new PrismWebProvider(baseUrl))
 
         expect(global.fetch).toHaveBeenCalledTimes(1)
-        expect(global.fetch).toHaveBeenCalledWith(`${baseUrl}/assignments?userId=test-key`, {})
+        expect(global.fetch).toHaveBeenCalledWith(`${baseUrl}/api/assignments/test-key`, {})
 
         const client = OpenFeature.getClient()
         expect(client.providerStatus).toBe(ProviderStatus.READY)
