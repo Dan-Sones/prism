@@ -3,13 +3,13 @@ import ProductDetails from "./ProductDetails";
 
 const ProductPage = () => {
   return (
-    <main className="mx-auto my-12 max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col ">
-      <div className="flex flex-col lg:flex-row w-full gap-8">
+    <main className="mx-auto my-12 flex max-w-7xl flex-col px-4 sm:px-6 lg:px-8">
+      <div className="flex w-full flex-col gap-8 lg:flex-row">
         <div className="flex-1">
           <img
             src="../../../public/the-homer.jpg"
             alt="Car"
-            className="h-auto rounded-lg shadow-md w-full"
+            className="h-auto w-full rounded-lg shadow-md"
           />
         </div>
         <ProductDetails

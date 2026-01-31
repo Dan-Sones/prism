@@ -10,11 +10,11 @@ interface ProductDetailsProps {
 
 const ProductDetails = ({ title, price, description }: ProductDetailsProps) => {
   return (
-    <div className="flex-1 gap-3 flex flex-col justify-center">
+    <div className="flex flex-1 flex-col justify-center gap-3">
       <h2 className="text-4xl font-semibold">{title}</h2>
       <p className="text-xl font-bold">{price}</p>
       <p className="text font-light italic">{description}</p>
-      <div className="flex flex-col gap-2 w-full">
+      <div className="flex w-full flex-col gap-2">
         <FeatureFlag
           flagKey="button_color_v1"
           matchValue="button_blue"
@@ -26,8 +26,8 @@ const ProductDetails = ({ title, price, description }: ProductDetailsProps) => {
 
         <SecondaryButton>Add to bag</SecondaryButton>
       </div>
-      <div className="mt-4 text-gray-800 flex flex-row gap-8 justify-center">
-        <div className="flex flex-row gap-2 items-center">
+      <div className="mt-4 flex flex-row justify-center gap-8 text-gray-800">
+        <div className="flex flex-row items-center gap-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -44,7 +44,7 @@ const ProductDetails = ({ title, price, description }: ProductDetailsProps) => {
           </svg>
           <p className="text-sm">Delivered to your door</p>
         </div>
-        <div className="flex flex-row gap-2 items-center">
+        <div className="flex flex-row items-center gap-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"

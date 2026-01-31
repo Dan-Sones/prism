@@ -12,7 +12,7 @@ const PrimaryButton = ({
   return (
     <button
       onClick={onClick}
-      className={`bg-black text-white px-4 py-2 rounded flex-1 hover:bg-white hover:text-black border-2 border-black transition-all duration-300 cursor-pointer ${className}`}
+      className={`flex-1 cursor-pointer rounded border-2 border-black bg-black px-4 py-2 text-white transition-all duration-300 hover:bg-white hover:text-black ${className}`}
     >
       {children}
     </button>
