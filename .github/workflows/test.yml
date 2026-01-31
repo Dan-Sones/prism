@@ -1,0 +1,40 @@
+name: Run Tests
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  go-service-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.25"
+
+      - name: Run admin-service tests
+        run: cd services/admin-service && go test ./...
+
+      - name: Run assignment-service tests
+        run: cd services/assignment-service && go test ./...
+
+  openfeature-provider-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "23"
+
+      - name: Install dependencies
+        run: cd openfeature-provider-react && npm install
+
+      - name: Run Jest tests
+        run: cd openfeature-provider-react && npm test
