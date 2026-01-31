@@ -29,16 +29,16 @@ const ProductAbout = () => {
   return (
     <section>
       <hr className="my-8" />
-      <div className="flex flex-col md:flex-row gap-12">
+      <div className="flex flex-col gap-12 md:flex-row">
         {items.map((item, index) => (
           <div key={index} className="flex-1">
             <img
               src={item.imageSrc}
               alt="The Homer Car"
-              className="w-full h-auto rounded-lg shadow-md mb-6"
+              className="mb-6 h-auto w-full rounded-lg shadow-md"
             />
-            <h2 className="text-3xl font-semibold mb-4">{item.title}</h2>
-            <p className="text-lg mb-4">{item.description}</p>
+            <h2 className="mb-4 text-3xl font-semibold">{item.title}</h2>
+            <p className="mb-4 text-lg">{item.description}</p>
           </div>
         ))}
       </div>

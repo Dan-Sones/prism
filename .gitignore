@@ -4,3 +4,5 @@ services/admin-service/.idea/
 infrastructure/.env
 .idea/
 services/admin-portal/coverage
+
+openfeature-provider-react/.DS_Store

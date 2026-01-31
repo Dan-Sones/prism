@@ -1,9 +1,9 @@
 const NavBar = () => {
   return (
-    <nav className="bg-gray-800 h-16 text-white">
-      <div className="flex justify-between h-full w-full p-4">
+    <nav className="h-16 bg-gray-800 text-white">
+      <div className="flex h-full w-full justify-between p-4">
         <h1 className="text-2xl">Powell Motors</h1>
-        <button className="border-white border-2 rounded-xl px-2 cursor-pointer">
+        <button className="cursor-pointer rounded-xl border-2 border-white px-2">
           Login
         </button>
       </div>
