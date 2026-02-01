@@ -29,8 +29,6 @@ func (s *BucketService) GetBucketFor(userId string) int32 {
 	bucket := new(big.Int)
 	bucket.Mod(hashInt, big.NewInt(int64(s.bucketCount)))
 
-	fmt.Printf("bucket is: %d\n", bucket)
-
 	return int32(bucket.Int64())
 }
 

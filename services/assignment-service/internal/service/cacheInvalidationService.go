@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log/slog"
+	"os"
 	"time"
 
 	"github.com/twmb/franz-go/pkg/kgo"
@@ -24,13 +25,15 @@ type CacheInvalidationServiceKafka struct {
 func NewCacheInvalidationServiceKafka(kafkaClient *kgo.Client, logger *slog.Logger, cache AssignmentCache) *CacheInvalidationServiceKafka {
 	return &CacheInvalidationServiceKafka{
 		kafkaClient: kafkaClient,
-		logger:      logger,
+		logger:      logger.With(slog.String("component", "CacheInvalidationService")),
 		cache:       cache,
 	}
 }
 
 func (c *CacheInvalidationServiceKafka) ListenForInvalidations() error {
 	ctx := context.Background()
+
+	c.logger.Info("Starting cache invalidation listener", "topic", os.Getenv("KAFKA_CACHE_INVALIDATIONS_TOPIC"))
 
 	for {
 		fetches := c.kafkaClient.PollFetches(ctx)
@@ -66,15 +69,13 @@ func (c *CacheInvalidationServiceKafka) invalidateWithRetry(ctx context.Context,
 	for attempt := 0; attempt < maxRetries; attempt++ {
 		if attempt > 0 {
 			backoff := time.Duration(attempt*attempt) * time.Second
-			c.logger.Warn("Retrying cache invalidation",
-				"bucket", bucket,
-				"attempt", attempt+1,
-				"backoff", backoff)
+			c.logger.Warn("Retrying cache invalidation", "bucket", bucket, "attempt", attempt+1, "backoff", backoff)
 			time.Sleep(backoff)
 		}
 
 		err := c.cache.InvalidateAssignmentsForBucket(ctx, bucket)
 		if err == nil {
+			c.logger.Info("Cache invalidated successfully", "bucket", bucket, "attempt", attempt+1)
 			return nil
 		}
 

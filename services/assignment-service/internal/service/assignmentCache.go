@@ -23,7 +23,7 @@ type AssignmentCacheRedis struct {
 func NewAssignmentCache(redisClient *redis.Client, logger *slog.Logger) *AssignmentCacheRedis {
 	return &AssignmentCacheRedis{
 		RedisClient: redisClient,
-		Logger:      logger,
+		Logger:      logger.With(slog.String("component", "AssignmentCache")),
 	}
 }
 
@@ -35,6 +35,8 @@ func (a *AssignmentCacheRedis) SetAssignmentsForBucket(ctx context.Context, buck
 		a.Logger.Error("Failed to cache assignments for bucket", "bucketId", bucketId, "error", err)
 		return err
 	}
+
+	a.Logger.Info("Cached assignments for bucket", "bucket", bucketId)
 	return nil
 }
 
@@ -50,6 +52,11 @@ func (a *AssignmentCacheRedis) GetAssignmentsForBucket(ctx context.Context, buck
 		a.Logger.Error("Failed to retrieve cached assignments for bucket", "bucketId", bucketId, "error", err)
 		return nil, err
 	}
+
+	if len(assignments) > 0 {
+		a.Logger.Info("Cache hit for bucket", "bucket", bucketId)
+	}
+
 	return assignments, nil
 }
 
@@ -58,8 +65,10 @@ func (a *AssignmentCacheRedis) InvalidateAssignmentsForBucket(ctx context.Contex
 
 	err := a.RedisClient.Del(ctx, bucketIdStr).Err()
 	if err != nil {
+		a.Logger.Error("Failed to invalidate cache for bucket", "bucket", bucketId, "error", err)
 		return err
 	}
 
+	a.Logger.Info("Cache invalidated for bucket", "bucket", bucketId)
 	return nil
 }

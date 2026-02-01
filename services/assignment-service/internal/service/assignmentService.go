@@ -17,7 +17,7 @@ type AssignmentService struct {
 
 func NewAssignmentService(logger *slog.Logger, bService *BucketService, assignmentClient clients.AssignmentClient, assignmentCache AssignmentCache) *AssignmentService {
 	return &AssignmentService{
-		logger:           logger,
+		logger:           logger.With(slog.String("component", "AssignmentService")),
 		bucketService:    bService,
 		assignmentCache:  assignmentCache,
 		assignmentClient: assignmentClient,
@@ -35,10 +35,14 @@ func (e *AssignmentService) GetVariantsForUserId(ctx context.Context, userId str
 		return assignments, nil
 	}
 
+	e.logger.Info("Cache miss, fetching from gRPC", "bucket", bucket, "user_id", userId)
+
 	assignments, err = e.assignmentClient.GetExperimentsAndVariantsForBucket(ctx, bucket)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get experiments and variants for bucket %d: %w", bucket, err)
 	}
+
+	e.logger.Info("Fetched assignments from gRPC", "bucket", bucket, "assignment_count", len(assignments))
 
 	// Cache the assignments asynchronously
 	go func() {
