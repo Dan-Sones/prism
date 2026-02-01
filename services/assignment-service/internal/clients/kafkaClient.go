@@ -3,6 +3,7 @@ package clients
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/twmb/franz-go/pkg/kgo"
 )
@@ -14,6 +15,10 @@ func GetKafkaClient() (*kgo.Client, error) {
 		kgo.SeedBrokers(broker),
 		kgo.ConsumerGroup(os.Getenv("ASSIGNMENT_SERVICE_KAFKA_CONSUMER_GROUP_ID")),
 		kgo.ConsumeTopics(os.Getenv("KAFKA_CACHE_INVALIDATIONS_TOPIC")),
+		kgo.FetchMinBytes(1),
+		kgo.FetchMaxWait(100*time.Millisecond),
+		kgo.SessionTimeout(6*time.Second),
+		kgo.HeartbeatInterval(2*time.Second),
 	)
 	if err != nil {
 		return nil, err
