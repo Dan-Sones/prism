@@ -20,7 +20,6 @@ func main() {
 	loadEnv()
 
 	logger := initLogger()
-	logger.Info("assignment-service started")
 
 	utils.ValidateEnvVars(logger,
 		"APP_ENV",
@@ -28,16 +27,22 @@ func main() {
 		"ADMIN_SERVICE_GRPC_SERVER_PORT",
 		"BUCKET_COUNT",
 		"SALT_VALUE",
+		"REDIS_HOST",
+		"REDIS_PORT",
 	)
 
-	grpcClient := getGrpcClient()
+	grpcClient := getGrpcAssignmentClient()
 	defer grpcClient.Close()
+
+	redisClient := clients.NewRedisClient()
+	defer redisClient.Close()
 
 	salt, bucketCount := utils.GetBucketConfig()
 
 	// Services
 	bucketService := service.NewBucketService(salt, bucketCount)
-	assignmentService := service.NewAssignmentService(logger, bucketService, *grpcClient)
+	assignmentCacheService := service.NewAssignmentCache(redisClient, logger)
+	assignmentService := service.NewAssignmentService(logger, bucketService, grpcClient, assignmentCacheService)
 
 	// Controllers
 	assignmentController := controller.NewAssignmentController(assignmentService)
@@ -47,6 +52,7 @@ func main() {
 		AssignmentController: assignmentController,
 	})
 
+	logger.Info("assignment-service started")
 	http2.ListenAndServe(":8082", router)
 
 }
@@ -67,7 +73,7 @@ func initLogger() *slog.Logger {
 	return prismLog.GetLogger()
 }
 
-func getGrpcClient() *clients.GrpcClient {
+func getGrpcAssignmentClient() clients.AssignmentClient {
 	address := fmt.Sprintf("%s:%s", os.Getenv("ADMIN_SERVICE_GRPC_SERVER_ADDRESS"), os.Getenv("ADMIN_SERVICE_GRPC_SERVER_PORT"))
 	client, err := clients.NewGrpcClient(address)
 	if err != nil {
