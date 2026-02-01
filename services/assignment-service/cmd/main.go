@@ -29,6 +29,10 @@ func main() {
 		"SALT_VALUE",
 		"REDIS_HOST",
 		"REDIS_PORT",
+		"ASSIGNMENT_SERVICE_KAFKA_CONSUMER_GROUP_ID",
+		"KAFKA_BOOTSTRAP_SERVER_HOST",
+		"KAFKA_BOOTSTRAP_SERVER_PORT",
+		"KAFKA_CACHE_INVALIDATIONS_TOPIC",
 	)
 
 	grpcClient := getGrpcAssignmentClient()
@@ -37,12 +41,19 @@ func main() {
 	redisClient := clients.NewRedisClient()
 	defer redisClient.Close()
 
+	kafkaClient, err := clients.GetKafkaClient()
+	if err != nil {
+		log.Fatal("Failed to create Kafka client: ", err)
+	}
+	defer kafkaClient.Close()
+
 	salt, bucketCount := utils.GetBucketConfig()
 
 	// Services
 	bucketService := service.NewBucketService(salt, bucketCount)
 	assignmentCacheService := service.NewAssignmentCache(redisClient, logger)
 	assignmentService := service.NewAssignmentService(logger, bucketService, grpcClient, assignmentCacheService)
+	assignmentCacheInvalidationService := service.NewCacheInvalidationServiceKafka(kafkaClient, logger, assignmentCacheService)
 
 	// Controllers
 	assignmentController := controller.NewAssignmentController(assignmentService)
@@ -51,6 +62,8 @@ func main() {
 	http.RegisterRoutes(router, http.Controllers{
 		AssignmentController: assignmentController,
 	})
+
+	go assignmentCacheInvalidationService.ListenForInvalidations()
 
 	logger.Info("assignment-service started")
 	http2.ListenAndServe(":8082", router)

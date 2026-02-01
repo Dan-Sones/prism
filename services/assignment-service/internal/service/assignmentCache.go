@@ -54,5 +54,12 @@ func (a *AssignmentCacheRedis) GetAssignmentsForBucket(ctx context.Context, buck
 }
 
 func (a *AssignmentCacheRedis) InvalidateAssignmentsForBucket(ctx context.Context, bucketId int32) error {
-	return errors.New("not implemented")
+	bucketIdStr := fmt.Sprintf("%d", bucketId)
+
+	err := a.RedisClient.Del(ctx, bucketIdStr).Err()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
