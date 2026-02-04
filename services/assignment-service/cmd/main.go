@@ -6,6 +6,7 @@ import (
 	"assignment-service/internal/controller"
 	"assignment-service/internal/service"
 	"assignment-service/internal/utils"
+	"context"
 	"fmt"
 	"log"
 	"log/slog"
@@ -64,7 +65,7 @@ func main() {
 		AssignmentController: assignmentController,
 	})
 
-	go assignmentCacheInvalidationService.ListenForInvalidations()
+	go assignmentCacheInvalidationService.ListenForInvalidations(context.Background())
 
 	logger.Info("assignment-service started")
 	http2.ListenAndServe(":8082", router)
