@@ -12,7 +12,9 @@ import (
 type AssignmentCache interface {
 	SetAssignmentsForBucket(ctx context.Context, bucketId int32, assignments map[string]string) error
 	GetAssignmentsForBucket(ctx context.Context, bucketId int32) (map[string]string, error)
-	InvalidateAssignmentsForBucket(ctx context.Context, bucketId int32) error
+	ActionFullInvalidateBucket(ctx context.Context, bucketId int32) error
+	ActionRemoveFlagFromBucket(ctx context.Context, bucketId int32, flag string) error
+	ActionUpdateValueForBucketAndFlag(ctx context.Context, bucketId int32, flag, newValue string) error
 }
 
 type AssignmentCacheRedis struct {
@@ -60,7 +62,7 @@ func (a *AssignmentCacheRedis) GetAssignmentsForBucket(ctx context.Context, buck
 	return assignments, nil
 }
 
-func (a *AssignmentCacheRedis) InvalidateAssignmentsForBucket(ctx context.Context, bucketId int32) error {
+func (a *AssignmentCacheRedis) ActionFullInvalidateBucket(ctx context.Context, bucketId int32) error {
 	bucketIdStr := fmt.Sprintf("%d", bucketId)
 
 	err := a.RedisClient.Del(ctx, bucketIdStr).Err()
@@ -70,5 +72,31 @@ func (a *AssignmentCacheRedis) InvalidateAssignmentsForBucket(ctx context.Contex
 	}
 
 	a.Logger.Info("Cache invalidated for bucket", "bucket", bucketId)
+	return nil
+}
+
+func (a *AssignmentCacheRedis) ActionRemoveFlagFromBucket(ctx context.Context, bucketId int32, flag string) error {
+	bucketIdStr := fmt.Sprintf("%d", bucketId)
+
+	err := a.RedisClient.HDel(ctx, bucketIdStr, flag).Err()
+	if err != nil {
+		a.Logger.Error("Failed to remove assignment from cache for bucket", "bucket", bucketId, "flag", flag, "error", err)
+		return err
+	}
+
+	a.Logger.Info("Removed assignment from cache for bucket", "bucket", bucketId, "flag", flag)
+	return nil
+}
+
+func (a *AssignmentCacheRedis) ActionUpdateValueForBucketAndFlag(ctx context.Context, bucketId int32, flag, newValue string) error {
+	bucketIdStr := fmt.Sprintf("%d", bucketId)
+
+	err := a.RedisClient.HSet(ctx, bucketIdStr, flag, newValue).Err()
+	if err != nil {
+		a.Logger.Error("Failed to update assignment in cache for bucket", "bucket", bucketId, "flag", flag, "error", err)
+		return err
+	}
+
+	a.Logger.Info("Updated assignment in cache for bucket", "bucket", bucketId, "flag", flag)
 	return nil
 }

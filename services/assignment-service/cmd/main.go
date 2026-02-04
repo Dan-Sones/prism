@@ -53,7 +53,8 @@ func main() {
 	bucketService := service.NewBucketService(salt, bucketCount)
 	assignmentCacheService := service.NewAssignmentCache(redisClient, logger)
 	assignmentService := service.NewAssignmentService(logger, bucketService, grpcClient, assignmentCacheService)
-	assignmentCacheInvalidationService := service.NewCacheInvalidationServiceKafka(kafkaClient, logger, assignmentCacheService)
+	kafkaConsumer := service.NewKafkaConsumerImp(kafkaClient, logger)
+	assignmentCacheInvalidationService := service.NewCacheInvalidationServiceKafka(kafkaConsumer, logger, assignmentCacheService)
 
 	// Controllers
 	assignmentController := controller.NewAssignmentController(assignmentService)

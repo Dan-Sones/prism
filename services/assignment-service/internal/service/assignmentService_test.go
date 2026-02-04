@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"log/slog"
 	"reflect"
@@ -127,67 +126,4 @@ func TestAssignmentService_GetVariantsForUserId(t *testing.T) {
 		})
 	}
 
-}
-
-type StubAssignmentCache struct {
-	cache map[string]map[string]string
-}
-
-func NewStubAssignmentCache() *StubAssignmentCache {
-	return &StubAssignmentCache{
-		cache: make(map[string]map[string]string),
-	}
-}
-
-func (s *StubAssignmentCache) SetAssignmentsForBucket(ctx context.Context, bucketId int32, assignments map[string]string) error {
-	bucketIdStr := fmt.Sprintf("%d", bucketId)
-	s.cache[bucketIdStr] = assignments
-	return nil
-}
-
-func (s *StubAssignmentCache) GetAssignmentsForBucket(ctx context.Context, bucketId int32) (map[string]string, error) {
-	bucketIdStr := fmt.Sprintf("%d", bucketId)
-	if assignments, exists := s.cache[bucketIdStr]; exists {
-		return assignments, nil
-	}
-	return nil, nil
-}
-
-func (s *StubAssignmentCache) InvalidateAssignmentsForBucket(ctx context.Context, bucketId int32) error {
-	bucketIdStr := fmt.Sprintf("%d", bucketId)
-	delete(s.cache, bucketIdStr)
-	return nil
-}
-
-func (s *StubAssignmentCache) ClearCache() {
-	s.cache = make(map[string]map[string]string)
-}
-
-type StubAssignmentClient struct {
-	assignments map[int32]map[string]string
-}
-
-func NewStubAssignmentClient() *StubAssignmentClient {
-	return &StubAssignmentClient{
-		assignments: make(map[int32]map[string]string),
-	}
-}
-
-func (s *StubAssignmentClient) GetExperimentsAndVariantsForBucket(ctx context.Context, id int32) (map[string]string, error) {
-	if assignments, exists := s.assignments[id]; exists {
-		return assignments, nil
-	}
-	return nil, nil
-}
-
-func (s *StubAssignmentClient) SetAssignmentsForBucket(id int32, assignments map[string]string) {
-	s.assignments[id] = assignments
-}
-
-func (s *StubAssignmentClient) ClearAssignments() {
-	s.assignments = make(map[int32]map[string]string)
-}
-
-func (s *StubAssignmentClient) Close() error {
-	return nil
 }
