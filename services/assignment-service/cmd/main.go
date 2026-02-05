@@ -6,6 +6,7 @@ import (
 	"assignment-service/internal/controller"
 	"assignment-service/internal/service"
 	"assignment-service/internal/utils"
+	"context"
 	"fmt"
 	"log"
 	"log/slog"
@@ -20,7 +21,6 @@ func main() {
 	loadEnv()
 
 	logger := initLogger()
-	logger.Info("assignment-service started")
 
 	utils.ValidateEnvVars(logger,
 		"APP_ENV",
@@ -28,16 +28,34 @@ func main() {
 		"ADMIN_SERVICE_GRPC_SERVER_PORT",
 		"BUCKET_COUNT",
 		"SALT_VALUE",
+		"REDIS_HOST",
+		"REDIS_PORT",
+		"ASSIGNMENT_SERVICE_KAFKA_CONSUMER_GROUP_ID",
+		"KAFKA_BOOTSTRAP_SERVER_HOST",
+		"KAFKA_BOOTSTRAP_SERVER_PORT",
+		"KAFKA_CACHE_INVALIDATIONS_TOPIC",
 	)
 
-	grpcClient := getGrpcClient()
+	grpcClient := getGrpcAssignmentClient()
 	defer grpcClient.Close()
+
+	redisClient := clients.NewRedisClient()
+	defer redisClient.Close()
+
+	kafkaClient, err := clients.GetKafkaClient()
+	if err != nil {
+		log.Fatal("Failed to create Kafka client: ", err)
+	}
+	defer kafkaClient.Close()
 
 	salt, bucketCount := utils.GetBucketConfig()
 
 	// Services
 	bucketService := service.NewBucketService(salt, bucketCount)
-	assignmentService := service.NewAssignmentService(logger, bucketService, *grpcClient)
+	assignmentCacheService := service.NewAssignmentCache(redisClient, logger)
+	assignmentService := service.NewAssignmentService(logger, bucketService, grpcClient, assignmentCacheService)
+	kafkaConsumer := service.NewKafkaConsumerImp(kafkaClient, logger)
+	assignmentCacheInvalidationService := service.NewCacheInvalidationServiceKafka(kafkaConsumer, logger, assignmentCacheService)
 
 	// Controllers
 	assignmentController := controller.NewAssignmentController(assignmentService)
@@ -47,6 +65,9 @@ func main() {
 		AssignmentController: assignmentController,
 	})
 
+	go assignmentCacheInvalidationService.ListenForInvalidations(context.Background())
+
+	logger.Info("assignment-service started")
 	http2.ListenAndServe(":8082", router)
 
 }
@@ -67,7 +88,7 @@ func initLogger() *slog.Logger {
 	return prismLog.GetLogger()
 }
 
-func getGrpcClient() *clients.GrpcClient {
+func getGrpcAssignmentClient() clients.AssignmentClient {
 	address := fmt.Sprintf("%s:%s", os.Getenv("ADMIN_SERVICE_GRPC_SERVER_ADDRESS"), os.Getenv("ADMIN_SERVICE_GRPC_SERVER_PORT"))
 	client, err := clients.NewGrpcClient(address)
 	if err != nil {
