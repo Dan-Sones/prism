@@ -10,29 +10,29 @@ import (
 	pb "assignment-service/internal/grpc/generated/assignment/v1"
 )
 
-type AssignmentClient interface {
+type ExperimentClient interface {
 	GetExperimentsAndVariantsForBucket(ctx context.Context, id int32) ([]model.ExperimentWithVariants, error)
 	Close() error
 }
 
-type GrpcAssignmentClient struct {
+type GrpcExperimentClient struct {
 	conn   *grpc.ClientConn
 	client pb.AssignmentServiceClient
 }
 
-func NewGrpcClient(adminAddr string) (*GrpcAssignmentClient, error) {
+func NewGrpcClient(adminAddr string) (*GrpcExperimentClient, error) {
 	conn, err := grpc.NewClient(adminAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
 
-	return &GrpcAssignmentClient{
+	return &GrpcExperimentClient{
 		conn:   conn,
 		client: pb.NewAssignmentServiceClient(conn),
 	}, nil
 }
 
-func (c *GrpcAssignmentClient) GetExperimentsAndVariantsForBucket(ctx context.Context, id int32) ([]model.ExperimentWithVariants, error) {
+func (c *GrpcExperimentClient) GetExperimentsAndVariantsForBucket(ctx context.Context, id int32) ([]model.ExperimentWithVariants, error) {
 	resp, err := c.client.GetExperimentsAndVariantsForBucket(ctx, &pb.GetExperimentsAndVariantsForBucketRequest{
 		BucketId: id,
 	})
@@ -60,6 +60,6 @@ func (c *GrpcAssignmentClient) GetExperimentsAndVariantsForBucket(ctx context.Co
 	return experimentsAndVariants, nil
 }
 
-func (c *GrpcAssignmentClient) Close() error {
+func (c *GrpcExperimentClient) Close() error {
 	return c.conn.Close()
 }

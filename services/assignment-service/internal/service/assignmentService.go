@@ -14,16 +14,14 @@ import (
 type AssignmentService struct {
 	logger           *slog.Logger
 	bucketService    *BucketService
-	assignmentCache  AssignmentCache
-	assignmentClient clients.AssignmentClient
+	experimentClient clients.ExperimentClient
 }
 
-func NewAssignmentService(logger *slog.Logger, bService *BucketService, assignmentClient clients.AssignmentClient, assignmentCache AssignmentCache) *AssignmentService {
+func NewAssignmentService(logger *slog.Logger, bService *BucketService, experimentClient clients.ExperimentClient) *AssignmentService {
 	return &AssignmentService{
 		logger:           logger.With(slog.String("component", "AssignmentService")),
 		bucketService:    bService,
-		assignmentCache:  assignmentCache,
-		assignmentClient: assignmentClient,
+		experimentClient: experimentClient,
 	}
 }
 
@@ -43,7 +41,7 @@ func (e *AssignmentService) GetAssignmentsForUserId(ctx context.Context, userId 
 	// We still need the same operations in the cache, but I am not sure on the structure of the cache....
 	// we currently use hmap in redis, but we would now be storing an entire object as the value, I'm not sure if this is an anti-pattern or not?
 
-	experiments, err := e.assignmentClient.GetExperimentsAndVariantsForBucket(ctx, bucket)
+	experiments, err := e.experimentClient.GetExperimentsAndVariantsForBucket(ctx, bucket)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get experiments and variants for bucket %d: %w", bucket, err)
 	}

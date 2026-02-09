@@ -36,7 +36,7 @@ func main() {
 		"KAFKA_CACHE_INVALIDATIONS_TOPIC",
 	)
 
-	grpcClient := getGrpcAssignmentClient()
+	grpcClient := getGrpcExperimentClient()
 	defer grpcClient.Close()
 
 	redisClient := clients.NewRedisClient()
@@ -88,7 +88,7 @@ func initLogger() *slog.Logger {
 	return prismLog.GetLogger()
 }
 
-func getGrpcAssignmentClient() clients.AssignmentClient {
+func getGrpcExperimentClient() clients.ExperimentClient {
 	address := fmt.Sprintf("%s:%s", os.Getenv("ADMIN_SERVICE_GRPC_SERVER_ADDRESS"), os.Getenv("ADMIN_SERVICE_GRPC_SERVER_PORT"))
 	client, err := clients.NewGrpcClient(address)
 	if err != nil {
