@@ -9,19 +9,22 @@ import (
 	"fmt"
 	"log/slog"
 	"math/big"
+	"time"
 )
 
 type AssignmentService struct {
 	logger           *slog.Logger
 	bucketService    *BucketService
 	experimentClient clients.ExperimentClient
+	experimentCache  ExperimentConfigCache
 }
 
-func NewAssignmentService(logger *slog.Logger, bService *BucketService, experimentClient clients.ExperimentClient) *AssignmentService {
+func NewAssignmentService(logger *slog.Logger, bService *BucketService, experimentClient clients.ExperimentClient, experimentCache ExperimentConfigCache) *AssignmentService {
 	return &AssignmentService{
 		logger:           logger.With(slog.String("component", "AssignmentService")),
 		bucketService:    bService,
 		experimentClient: experimentClient,
+		experimentCache:  experimentCache,
 	}
 }
 
@@ -41,11 +44,20 @@ func (e *AssignmentService) GetAssignmentsForUserId(ctx context.Context, userId 
 	// We still need the same operations in the cache, but I am not sure on the structure of the cache....
 	// we currently use hmap in redis, but we would now be storing an entire object as the value, I'm not sure if this is an anti-pattern or not?
 
-	experiments, err := e.experimentClient.GetExperimentsAndVariantsForBucket(ctx, bucket)
+	experiments, err := e.experimentCache.GetExperimentsForBucket(ctx, bucket)
 	if err != nil {
-		return nil, fmt.Errorf("failed to get experiments and variants for bucket %d: %w", bucket, err)
+		return nil, err
 	}
-	e.logger.Info("Fetched assignments from gRPC", "bucket", bucket)
+
+	if len(experiments) > 0 {
+		e.logger.Info("Fetched assignments from cache", "bucket", bucket)
+	} else {
+		experiments, err = e.experimentClient.GetExperimentsAndVariantsForBucket(ctx, bucket)
+		if err != nil {
+			return nil, fmt.Errorf("failed to get experiments and variants for bucket %d: %w", bucket, err)
+		}
+		e.logger.Info("Fetched assignments from gRPC", "bucket", bucket)
+	}
 
 	assignments := make(map[string]string)
 	for _, experiment := range experiments {
@@ -56,6 +68,16 @@ func (e *AssignmentService) GetAssignmentsForUserId(ctx context.Context, userId 
 		}
 		assignments[experiment.ExperimentKey] = variant
 	}
+
+	go func() {
+		cacheCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+
+		err := e.experimentCache.SetExperimentsForBucket(cacheCtx, bucket, experiments)
+		if err != nil {
+			e.logger.Error("Failed to cache experiments for bucket", "bucket", bucket, "error", err)
+		}
+	}()
 
 	return assignments, nil
 }
