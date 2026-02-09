@@ -1,6 +1,7 @@
 package clients
 
 import (
+	"assignment-service/internal/model"
 	"context"
 
 	"google.golang.org/grpc"
@@ -10,7 +11,7 @@ import (
 )
 
 type AssignmentClient interface {
-	GetExperimentsAndVariantsForBucket(ctx context.Context, id int32) (map[string]string, error)
+	GetExperimentsAndVariantsForBucket(ctx context.Context, id int32) ([]model.ExperimentWithVariants, error)
 	Close() error
 }
 
@@ -31,14 +32,32 @@ func NewGrpcClient(adminAddr string) (*GrpcAssignmentClient, error) {
 	}, nil
 }
 
-func (c *GrpcAssignmentClient) GetExperimentsAndVariantsForBucket(ctx context.Context, id int32) (map[string]string, error) {
+func (c *GrpcAssignmentClient) GetExperimentsAndVariantsForBucket(ctx context.Context, id int32) ([]model.ExperimentWithVariants, error) {
 	resp, err := c.client.GetExperimentsAndVariantsForBucket(ctx, &pb.GetExperimentsAndVariantsForBucketRequest{
 		BucketId: id,
 	})
 	if err != nil {
 		return nil, err
 	}
-	return resp.ExperimentVariants, nil
+
+	var experimentsAndVariants []model.ExperimentWithVariants
+	for _, exp := range resp.Experiments {
+		var variants []model.Variant
+		for _, v := range exp.Variants {
+			variants = append(variants, model.Variant{
+				VariantKey: v.VariantKey,
+				UpperBound: v.UpperBound,
+				LowerBound: *v.LowerBound,
+			})
+		}
+		experimentsAndVariants = append(experimentsAndVariants, model.ExperimentWithVariants{
+			ExperimentKey: exp.ExperimentKey,
+			UniqueSalt:    exp.UniqueSalt,
+			Variants:      variants,
+		})
+	}
+
+	return experimentsAndVariants, nil
 }
 
 func (c *GrpcAssignmentClient) Close() error {

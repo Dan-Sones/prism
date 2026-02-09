@@ -27,7 +27,7 @@ func TestAssignmentService_GetVariantsForUserId_ShouldUpdateCache(t *testing.T) 
 	}
 	assignmentClient.SetAssignmentsForBucket(expectedBucket, assignmentsFromClient)
 
-	_, err := assignmentService.GetVariantsForUserId(context.Background(), userId)
+	_, err := assignmentService.GetAssignmentsForUserId(context.Background(), userId)
 	if err != nil {
 		t.Fatalf("Unexpected error: %v", err)
 	}
@@ -115,7 +115,7 @@ func TestAssignmentService_GetVariantsForUserId(t *testing.T) {
 				assignmentClient.SetAssignmentsForBucket(tt.expectedBucket, tt.assignmentsFromClient)
 			}
 
-			assignments, err := assignmentService.GetVariantsForUserId(context.Background(), tt.userId)
+			assignments, err := assignmentService.GetAssignmentsForUserId(context.Background(), tt.userId)
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)
 			}
