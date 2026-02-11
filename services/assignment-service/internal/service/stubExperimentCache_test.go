@@ -49,9 +49,8 @@ func (s *StubExperimentCache) RemoveBucketExperimentKey(ctx context.Context, buc
 	key := s.buildKeyForBucket(bucketId)
 	if keys, exists := s.cache[key]; exists {
 		experimentKeys := keys.([]string)
-		for i, key := range experimentKeys {
-			if key == experimentKey {
-				// split the slice to remove the experimentKey
+		for i, expKey := range experimentKeys {
+			if expKey == experimentKey {
 				experimentKeys = append(experimentKeys[:i], experimentKeys[i+1:]...)
 				s.cache[key] = experimentKeys
 				break
@@ -73,7 +72,7 @@ func (s *StubExperimentCache) GetExperiment(ctx context.Context, experimentKey s
 	if experiment, exists := s.cache[key]; exists {
 		return experiment.(*model.ExperimentWithVariants), nil
 	}
-	return nil, fmt.Errorf("experiment not found")
+	return nil, nil
 }
 
 func (s *StubExperimentCache) SetExperiment(ctx context.Context, experimentKey string, experiment *model.ExperimentWithVariants) error {

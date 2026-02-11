@@ -103,6 +103,7 @@ func (e *ExperimentConfigCacheRedis) RemoveBucketExperimentKey(ctx context.Conte
 	return e.RedisClient.SRem(ctx, key, experimentKey).Err()
 }
 
+// thinking about it I see no reason why we would ever want to invalidate the entire bucket?
 func (e *ExperimentConfigCacheRedis) InvalidateBucket(ctx context.Context, bucketId int32) error {
 	key := buildKeyForBucket(bucketId)
 	return e.RedisClient.Del(ctx, key).Err()
