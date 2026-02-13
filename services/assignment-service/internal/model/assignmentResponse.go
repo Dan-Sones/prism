@@ -1,9 +1,9 @@
 package model
 
 type ExperimentWithVariants struct {
-	ExperimentKey string
-	UniqueSalt    string
-	Variants      []Variant
+	ExperimentKey string    `json:"experiment_key"`
+	UniqueSalt    string    `json:"unique_salt"`
+	Variants      []Variant `json:"variants"`
 }
 
 type Variant struct {

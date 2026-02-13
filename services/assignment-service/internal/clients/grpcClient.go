@@ -3,6 +3,7 @@ package clients
 import (
 	"assignment-service/internal/model"
 	"context"
+	"fmt"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -44,6 +45,11 @@ func (c *GrpcExperimentClient) GetExperimentsAndVariantsForBucket(ctx context.Co
 	for _, exp := range resp.Experiments {
 		var variants []model.Variant
 		for _, v := range exp.Variants {
+
+			if v.LowerBound == nil {
+				return nil, fmt.Errorf("variant %s has no lower bound", v)
+			}
+
 			variants = append(variants, model.Variant{
 				VariantKey: v.VariantKey,
 				UpperBound: v.UpperBound,
