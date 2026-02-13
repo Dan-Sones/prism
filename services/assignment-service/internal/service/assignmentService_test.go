@@ -140,7 +140,7 @@ func TestAssignmentService_GetAssignmentsForUserId_shouldUpdateCacheOnMissAndGrp
 
 	experiments, err := experimentCache.GetBucketExperimentKeys(context.Background(), bucketId)
 	if err != nil {
-		return
+		t.Fatalf("failed to get experiments: %v", err)
 	}
 
 	fmt.Printf("Cached experiment keys for bucket %d: %v\n", bucketId, experiments)
