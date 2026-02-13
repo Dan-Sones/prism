@@ -16,7 +16,11 @@ CREATE TABLE IF NOT EXISTS prism.bucket_allocations (
 ALTER TABLE prism.experiments ADD COLUMN IF NOT EXISTS start_time TIMESTAMP;
 ALTER TABLE prism.experiments ADD COLUMN IF NOT EXISTS end_time TIMESTAMP;
 
-ALTER TABLE prism.variants ADD COLUMN IF NOT EXISTS lower_bound INTEGER;
-ALTER TABLE prism.variants ADD COLUMN IF NOT EXISTS upper_bound INTEGER;
+-- we set a default of 0 for these when we alter the table and then drop it straight away - just so the migration can complete
+ALTER TABLE prism.variants ADD COLUMN IF NOT EXISTS lower_bound INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE prism.variants ADD COLUMN IF NOT EXISTS upper_bound INTEGER NOT NULL DEFAULT 0;
+
+ALTER TABLE prism.variants ALTER COLUMN lower_bound DROP DEFAULT;
+ALTER TABLE prism.variants ALTER COLUMN upper_bound DROP DEFAULT;
 
 ALTER TABLE prism.experiments ADD COLUMN IF NOT EXISTS unique_salt UUID UNIQUE DEFAULT gen_random_uuid();
