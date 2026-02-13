@@ -46,6 +46,7 @@ func NewExperimentConfigCache(redisClient *redis.Client, logger *slog.Logger) *E
 }
 
 func (e *ExperimentConfigCacheRedis) GetExperimentsForBucket(ctx context.Context, bucketId int32) ([]model.ExperimentWithVariants, error) {
+	// TODO considering maybe making it so we renew the ttl on each read, rather than just letting them expire at 24 hours regardless of usage
 	experimentKeys, err := e.GetBucketExperimentKeys(ctx, bucketId)
 	if err != nil {
 		return nil, err
@@ -157,8 +158,16 @@ func (e *ExperimentConfigCacheRedis) UpdateExperiment(ctx context.Context, exper
 	if err != nil {
 		return err
 	}
-	if ttl <= 0 {
+
+	if ttl == -2 {
+		// the key doesn't exist
+		// TODO: we could either store the experiment config with a new TTL or just consume it and rely on the next request to cache it
+		// at the moment doing the latter
 		return nil
+	}
+
+	if ttl == -1 {
+		ttl = experimentCacheTTL
 	}
 
 	data, err := json.Marshal(experiment)

@@ -33,7 +33,7 @@ func (e *AssignmentService) GetAssignmentsForUserId(ctx context.Context, userId 
 
 	experiments, err := e.experimentCache.GetExperimentsForBucket(ctx, bucket)
 	if err != nil {
-		return nil, err
+		e.logger.Error("Failed to get experiments for bucket from cache, falling back to gRPC", "bucket", bucket, "error", err)
 	}
 
 	if len(experiments) > 0 {
