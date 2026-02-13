@@ -46,22 +46,27 @@ func NewExperimentConfigCache(redisClient *redis.Client, logger *slog.Logger) *E
 }
 
 func (e *ExperimentConfigCacheRedis) GetExperimentsForBucket(ctx context.Context, bucketId int32) ([]model.ExperimentWithVariants, error) {
-	// TODO considering maybe making it so we renew the ttl on each read, rather than just letting them expire at 24 hours regardless of usage
 	experimentKeys, err := e.GetBucketExperimentKeys(ctx, bucketId)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(experimentKeys) == 0 {
+		return nil, nil
 	}
 
 	var experiments []model.ExperimentWithVariants
 	for _, experimentKey := range experimentKeys {
 		experiment, err := e.GetExperiment(ctx, experimentKey)
 		if err != nil {
-			e.Logger.Error("Failed to get experiment config from cache for bucket", "bucketId", bucketId, "experimentKey", experimentKey, "error", err)
-			continue
+			return nil, err
 		}
-		if experiment != nil {
-			experiments = append(experiments, *experiment)
+		if experiment == nil {
+			// treat a partial miss as a full miss and make a GRPC call happen to ensure assignments remain up to date
+			e.Logger.Warn("Partial cache miss, treating as full miss", "bucketId", bucketId, "missingKey", experimentKey)
+			return nil, nil
 		}
+		experiments = append(experiments, *experiment)
 	}
 
 	return experiments, nil
