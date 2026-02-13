@@ -1,11 +1,12 @@
 package model
 
+import "encoding/json"
+
 type InvalidationAction string
 
 const (
-	ActionRemove         InvalidationAction = "REMOVE"
-	ActionUpdate         InvalidationAction = "UPDATE"
-	ActionFullInvalidate InvalidationAction = "FULL_INVALIDATE"
+	ActionRemove InvalidationAction = "REMOVE"
+	ActionUpdate InvalidationAction = "UPDATE"
 )
 
 func (a InvalidationAction) String() string {
@@ -13,8 +14,15 @@ func (a InvalidationAction) String() string {
 }
 
 type InvalidationMessage struct {
-	Bucket   int32              `json:"bucket"`
-	Flag     string             `json:"flag"`
-	Action   InvalidationAction `json:"action"`
-	NewValue string             `json:"new_value,omitempty"`
+	Action InvalidationAction `json:"action"`
+	Data   json.RawMessage    `json:"data"`
+}
+
+type ExperimentRemoveMessage struct {
+	ExperimentKey string  `json:"experiment_key"`
+	Buckets       []int32 `json:"buckets"`
+}
+type ExperimentUpdateMessage struct {
+	ExperimentKey string                 `json:"experiment_key"`
+	NewExperiment ExperimentWithVariants `json:"new_experiment"`
 }

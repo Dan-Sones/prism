@@ -24,20 +24,32 @@ func NewAssignmentServer(assignmentService *service.AssignmentService) *Assignme
 }
 
 func (s *AssignmentServer) GetExperimentsAndVariantsForBucket(ctx context.Context, req *pb.GetExperimentsAndVariantsForBucketRequest) (*pb.GetExperimentsAndVariantsForBucketResponse, error) {
-	variants, err := s.assignmentService.GetExperimentsAndVariantsForBucket(ctx, req.BucketId)
+	experimentsAndVariants, err := s.assignmentService.GetExperimentsAndVariantsForBucket(ctx, req.BucketId)
 	if err != nil {
 		return nil, s.handleError(err)
 	}
 
-	pbVariants := make(map[string]string)
-	for i, v := range variants {
-		pbVariants[v.FeatureFlagID] = variants[i].VariantID
+	response := &pb.GetExperimentsAndVariantsForBucketResponse{
+		Experiments: make([]*pb.ExperimentDetails, len(experimentsAndVariants)),
 	}
 
-	return &pb.GetExperimentsAndVariantsForBucketResponse{
-		ExperimentVariants: pbVariants,
-	}, nil
+	for i, exp := range experimentsAndVariants {
+		response.Experiments[i] = &pb.ExperimentDetails{
+			ExperimentKey: exp.FeatureFlagID,
+			UniqueSalt:    exp.UniqueSalt,
+			Variants:      make([]*pb.VariantDetails, len(exp.Variants)),
+		}
+		for j, variant := range exp.Variants {
+			lowerBound := int32(variant.LowerBound)
+			response.Experiments[i].Variants[j] = &pb.VariantDetails{
+				VariantKey: variant.VariantKey,
+				UpperBound: int32(variant.UpperBound),
+				LowerBound: &lowerBound,
+			}
+		}
+	}
 
+	return response, nil
 }
 
 func (s *AssignmentServer) handleError(err error) error {

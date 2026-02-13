@@ -10,16 +10,16 @@ import (
 )
 
 type mockExperimentRepository struct {
-	getFunc func(ctx context.Context, bucketId int32) ([]*model.ExperimentVariant, error)
+	getFunc func(ctx context.Context, bucketId int32) ([]*model.ExperimentWithVariants, error)
 }
 
-func (m *mockExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*model.ExperimentVariant, error) {
+func (m *mockExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*model.ExperimentWithVariants, error) {
 	return m.getFunc(ctx, bucketId)
 }
 
 func TestGetExperimentsAndVariantsForBucket_RepoErrorsShouldPropagate(t *testing.T) {
 	mockRepo := &mockExperimentRepository{
-		getFunc: func(ctx context.Context, bucketId int32) ([]*model.ExperimentVariant, error) {
+		getFunc: func(ctx context.Context, bucketId int32) ([]*model.ExperimentWithVariants, error) {
 			return nil, errors.New("repo error")
 		},
 	}

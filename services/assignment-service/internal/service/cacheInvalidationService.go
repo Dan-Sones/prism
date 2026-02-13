@@ -56,10 +56,10 @@ type CacheInvalidationService interface {
 type CacheInvalidationServiceKafka struct {
 	consumer KafkaConsumer
 	logger   *slog.Logger
-	cache    AssignmentCache
+	cache    ExperimentConfigCache
 }
 
-func NewCacheInvalidationServiceKafka(consumer KafkaConsumer, logger *slog.Logger, cache AssignmentCache) *CacheInvalidationServiceKafka {
+func NewCacheInvalidationServiceKafka(consumer KafkaConsumer, logger *slog.Logger, cache ExperimentConfigCache) *CacheInvalidationServiceKafka {
 	return &CacheInvalidationServiceKafka{
 		consumer: consumer,
 		logger:   logger.With(slog.String("component", "CacheInvalidationService")),
@@ -93,49 +93,82 @@ func (c *CacheInvalidationServiceKafka) processBatch(ctx context.Context) error 
 	}
 
 	for _, msg := range messages {
-		var invalidationBody model.InvalidationMessage
-		err := json.Unmarshal(msg.Value, &invalidationBody)
+		var invalidationMessage model.InvalidationMessage
+		err := json.Unmarshal(msg.Value, &invalidationMessage)
 		if err != nil {
 			c.logger.Error("Failed to unmarshal cache invalidation message", "error", err)
 			continue
 		}
 
-		switch invalidationBody.Action {
-		case model.ActionFullInvalidate:
-			err = c.fullInvalidateWithRetry(ctx, invalidationBody.Bucket)
-		case model.ActionUpdate:
-			err = c.updateWithRetry(ctx, invalidationBody.Bucket, invalidationBody.Flag, invalidationBody.NewValue)
+		switch invalidationMessage.Action {
 		case model.ActionRemove:
-			err = c.removeExperimentFromBucketWithRetry(ctx, invalidationBody.Bucket, invalidationBody.Flag)
+			var removeMsg model.ExperimentRemoveMessage
+			if err := json.Unmarshal(invalidationMessage.Data, &removeMsg); err != nil {
+				c.logger.Error("Failed to unmarshal remove message", "error", err)
+				continue
+			}
+			if err := c.processActionRemove(removeMsg); err != nil {
+				c.logger.Error("Failed to process remove action", "error", err)
+			}
+		case model.ActionUpdate:
+			var updateMsg model.ExperimentUpdateMessage
+			if err := json.Unmarshal(invalidationMessage.Data, &updateMsg); err != nil {
+				c.logger.Error("Failed to unmarshal update message", "error", err)
+				continue
+			}
+			if err := c.processActionUpdate(updateMsg); err != nil {
+				c.logger.Error("Failed to process update action", "error", err)
+			}
 		default:
-			c.logger.Warn("Received invalidation message with unknown action", "action", invalidationBody.Action)
-			continue
+			c.logger.Warn("unknown action", "action", invalidationMessage.Action)
 		}
 
-		if err != nil {
-			c.logger.Error("Failed to process cache invalidation message after retries", "error", err, "message", invalidationBody)
-		}
 	}
 
 	return nil
 }
 
-func (c *CacheInvalidationServiceKafka) updateWithRetry(ctx context.Context, bucket int32, flag, newValue string) error {
-	return c.withRetry(fmt.Sprintf("update flag %s for bucket %d", flag, bucket), func() error {
-		return c.cache.ActionUpdateValueForBucketAndFlag(ctx, bucket, flag, newValue)
+func (c *CacheInvalidationServiceKafka) processActionRemove(removeMessage model.ExperimentRemoveMessage) error {
+	ctx := context.Background()
+
+	err := c.withRetry("invalidate_experiment", func() error {
+		return c.cache.InvalidateExperiment(ctx, removeMessage.ExperimentKey)
 	})
+	if err != nil {
+		c.logger.Error("Failed to invalidate experiment", "experimentKey", removeMessage.ExperimentKey, "error", err)
+		return err
+	}
+
+	for _, bucketId := range removeMessage.Buckets {
+		err := c.withRetry(fmt.Sprintf("remove_%s_from_bucket_%d", removeMessage.ExperimentKey, bucketId), func() error {
+			return c.cache.RemoveBucketExperimentKey(ctx, bucketId, removeMessage.ExperimentKey)
+		})
+		if err != nil {
+			c.logger.Error("Failed to remove experiment from bucket", "experimentKey", removeMessage.ExperimentKey, "bucketId", bucketId, "error", err)
+			// don't break if there is an error, try anyway for the other buckets
+		}
+	}
+
+	c.logger.Info("Successfully removed experiment from cache", "experimentKey", removeMessage.ExperimentKey, "buckets", removeMessage.Buckets)
+
+	return nil
 }
 
-func (c *CacheInvalidationServiceKafka) removeExperimentFromBucketWithRetry(ctx context.Context, bucket int32, flag string) error {
-	return c.withRetry(fmt.Sprintf("remove flag %s from bucket %d", flag, bucket), func() error {
-		return c.cache.ActionRemoveFlagFromBucket(ctx, bucket, flag)
-	})
-}
+// I don't think there is many reasons that this would ever be called - it would probably be used quite heavily in MAB where bounds change (if my understanding of MAB outputs is correct)
+func (c *CacheInvalidationServiceKafka) processActionUpdate(updateMessage model.ExperimentUpdateMessage) error {
+	ctx := context.Background()
 
-func (c *CacheInvalidationServiceKafka) fullInvalidateWithRetry(ctx context.Context, bucket int32) error {
-	return c.withRetry(fmt.Sprintf("invalidate bucket %d", bucket), func() error {
-		return c.cache.ActionFullInvalidateBucket(ctx, bucket)
+	err := c.withRetry("update_experiment", func() error {
+		return c.cache.UpdateExperiment(ctx, updateMessage.ExperimentKey, &updateMessage.NewExperiment)
 	})
+	if err != nil {
+		c.logger.Error("Failed to update experiment", "experimentKey", updateMessage.ExperimentKey, "error", err)
+		return err
+	}
+
+	c.logger.Info("Successfully updated experiment in cache", "experimentKey", updateMessage.ExperimentKey)
+
+	return nil
 }
 
 func (c *CacheInvalidationServiceKafka) withRetry(operation string, fn func() error) error {

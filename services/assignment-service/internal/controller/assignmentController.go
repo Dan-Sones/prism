@@ -35,7 +35,7 @@ func (a *AssignmentController) GetExperimentsAndVariantsForBucket(w http.Respons
 		return
 	}
 
-	assignments, err := a.assignmentService.GetVariantsForUserId(ctx, userId)
+	assignments, err := a.assignmentService.GetAssignmentsForUserId(ctx, userId)
 	if err != nil {
 		status := http.StatusInternalServerError
 		problemDetail := utility.ProblemDetail{

@@ -9,7 +9,7 @@ import (
 )
 
 type ExperimentRepositoryInterface interface {
-	GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*model.ExperimentVariant, error)
+	GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*model.ExperimentWithVariants, error)
 }
 
 type ExperimentRepository struct {
@@ -36,17 +36,23 @@ func (r *ExperimentRepository) CreateNewExperiment(ctx context.Context, experime
 	return nil
 }
 
-func (r *ExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*model.ExperimentVariant, error) {
+func (r *ExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*model.ExperimentWithVariants, error) {
 	sql := `SELECT
+    e.id,
+    e.name,
     e.feature_flag_id,
-    v.variant_id,
-    v.buckets
+    e.unique_salt,
+    v.variant_key,
+    v.upper_bound,
+    v.lower_bound
 	FROM
 		prism.experiments e
 	JOIN
 		prism.variants v ON v.experiment_id = e.id
+	JOIN 
+		prism.bucket_allocations ba ON ba.experiment_id = e.id
 	WHERE
-		$1 = ANY(v.buckets);
+		$1 = ba.bucket_number
 	`
 
 	rows, err := r.pgxPool.Query(ctx, sql, bucketId)
@@ -59,15 +65,31 @@ func (r *ExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Co
 		return nil, err
 	}
 
-	var results []*model.ExperimentVariant
+	experimentMap := make(map[int32]*model.ExperimentWithVariants)
+
 	for rows.Next() {
+		var experimentId int32
+		var exp model.Experiment
 		var ev model.ExperimentVariant
-		err := rows.Scan(&ev.FeatureFlagID, &ev.VariantID, &ev.Buckets)
+		err := rows.Scan(&experimentId, &exp.Name, &exp.FeatureFlagID, &exp.UniqueSalt, &ev.VariantKey, &ev.UpperBound, &ev.LowerBound)
 		if err != nil {
-			//TODO: this approach means that if one row fails, the whole thing fails. Consider logging and continuing?
 			return nil, err
 		}
-		results = append(results, &ev)
+
+		if _, exists := experimentMap[experimentId]; !exists {
+			experimentMap[experimentId] = &model.ExperimentWithVariants{
+				Experiment: exp,
+				Variants:   []model.ExperimentVariant{},
+			}
+		}
+
+		experimentMap[experimentId].Variants = append(experimentMap[experimentId].Variants, ev)
+	}
+
+	var results []*model.ExperimentWithVariants
+
+	for _, expWithVariants := range experimentMap {
+		results = append(results, expWithVariants)
 	}
 
 	return results, nil
