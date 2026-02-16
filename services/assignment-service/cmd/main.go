@@ -36,7 +36,7 @@ func main() {
 		"KAFKA_CACHE_INVALIDATIONS_TOPIC",
 	)
 
-	grpcClient := getGrpcAssignmentClient()
+	grpcClient := getGrpcExperimentClient()
 	defer grpcClient.Close()
 
 	redisClient := clients.NewRedisClient()
@@ -52,10 +52,10 @@ func main() {
 
 	// Services
 	bucketService := service.NewBucketService(salt, bucketCount)
-	assignmentCacheService := service.NewAssignmentCache(redisClient, logger)
-	assignmentService := service.NewAssignmentService(logger, bucketService, grpcClient, assignmentCacheService)
+	experimentCache := service.NewExperimentConfigCache(redisClient, logger)
+	assignmentService := service.NewAssignmentService(logger, bucketService, grpcClient, experimentCache)
 	kafkaConsumer := service.NewKafkaConsumerImp(kafkaClient, logger)
-	assignmentCacheInvalidationService := service.NewCacheInvalidationServiceKafka(kafkaConsumer, logger, assignmentCacheService)
+	assignmentCacheInvalidationService := service.NewCacheInvalidationServiceKafka(kafkaConsumer, logger, experimentCache)
 
 	// Controllers
 	assignmentController := controller.NewAssignmentController(assignmentService)
@@ -88,7 +88,7 @@ func initLogger() *slog.Logger {
 	return prismLog.GetLogger()
 }
 
-func getGrpcAssignmentClient() clients.AssignmentClient {
+func getGrpcExperimentClient() clients.ExperimentClient {
 	address := fmt.Sprintf("%s:%s", os.Getenv("ADMIN_SERVICE_GRPC_SERVER_ADDRESS"), os.Getenv("ADMIN_SERVICE_GRPC_SERVER_PORT"))
 	client, err := clients.NewGrpcClient(address)
 	if err != nil {

@@ -23,7 +23,7 @@ func NewAssignmentService(experimentRepo *repository.ExperimentRepository, bCoun
 	}
 }
 
-func (a *AssignmentService) GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*model.ExperimentVariant, error) {
+func (a *AssignmentService) GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*model.ExperimentWithVariants, error) {
 	if bucketId < 0 {
 		return nil, &errors.ValidationError{
 			Field:   "bucket_id",

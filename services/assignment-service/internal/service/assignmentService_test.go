@@ -1,10 +1,11 @@
 package service
 
 import (
+	"assignment-service/internal/model"
 	"context"
+	"fmt"
 	"io"
 	"log/slog"
-	"reflect"
 	"testing"
 	"time"
 )
@@ -12,118 +13,140 @@ import (
 const salt = "ULTRA_SECRET_SALT"
 const bucketCount = 10000
 
-func TestAssignmentService_GetVariantsForUserId_ShouldUpdateCache(t *testing.T) {
-	assignmentCache := NewStubAssignmentCache()
-	assignmentClient := NewStubAssignmentClient()
-	bucketService := NewBucketService(salt, bucketCount)
+func TestAssignmentService_GetAssignmentsForUserId_shouldAttemptToReadFromCacheFirst(t *testing.T) {
+	experimentClient := NewStubExperimentClient()
+	experimentCache := NewStubExperimentCache()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	assignmentService := NewAssignmentService(logger, bucketService, assignmentClient, assignmentCache)
-	userId := "21"
-	expectedBucket := int32(3930)
+	assignmentService := NewAssignmentService(logger, NewBucketService(salt, bucketCount), experimentClient, experimentCache)
 
-	assignmentsFromClient := map[string]string{
-		"flag_c": "variant3",
-		"flag_d": "variant4",
-	}
-	assignmentClient.SetAssignmentsForBucket(expectedBucket, assignmentsFromClient)
+	bucketId := int32(3930)
 
-	_, err := assignmentService.GetVariantsForUserId(context.Background(), userId)
+	experimentKey := "button_color_v1"
+	uniqueSalt := "4e770d52-b2b0-42ed-8ccb-2321ff48e143"
+
+	err := experimentCache.SetExperiment(context.Background(), experimentKey, &model.ExperimentWithVariants{
+		ExperimentKey: experimentKey,
+		UniqueSalt:    uniqueSalt,
+		Variants: []model.Variant{
+			{
+				VariantKey: "button_blue",
+				LowerBound: 0,
+				UpperBound: 49,
+			},
+			{
+				VariantKey: "button_green",
+				LowerBound: 50,
+				UpperBound: 99,
+			},
+		},
+	})
 	if err != nil {
-		t.Fatalf("Unexpected error: %v", err)
+		t.Fatalf("failed to set experiment: %v", err)
+	}
+
+	err = experimentCache.AddBucketExperimentKey(context.Background(), bucketId, experimentKey)
+	if err != nil {
+		t.Fatalf("failed to add experiment key to bucket: %v", err)
+	}
+
+	assignments, err := assignmentService.GetAssignmentsForUserId(context.Background(), "21")
+	if err != nil {
+		t.Fatalf("failed to get assignments: %v", err)
+	}
+
+	expectedVariant := "button_green"
+	if assignments[experimentKey] != expectedVariant {
+		t.Errorf("Expected variant %s for experiment %s, got %s", expectedVariant, experimentKey, assignments[experimentKey])
+	}
+
+}
+
+func TestAssignmentService_GetAssignmentsForUserId_shouldCallGrpcOnCacheMiss(t *testing.T) {
+	experimentClient := NewStubExperimentClient()
+	experimentCache := NewStubExperimentCache()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	assignmentService := NewAssignmentService(logger, NewBucketService(salt, bucketCount), experimentClient, experimentCache)
+
+	bucketId := int32(3930)
+
+	experimentKey := "button_color_v1"
+	uniqueSalt := "4e770d52-b2b0-42ed-8ccb-2321ff48e143"
+
+	experimentClient.SetExperimentsForBucket(bucketId, []model.ExperimentWithVariants{{
+		ExperimentKey: experimentKey,
+		UniqueSalt:    uniqueSalt,
+		Variants: []model.Variant{
+			{
+				VariantKey: "button_blue",
+				LowerBound: 0,
+				UpperBound: 49,
+			},
+			{
+				VariantKey: "button_green",
+				LowerBound: 50,
+				UpperBound: 99,
+			},
+		},
+	}})
+
+	assignments, err := assignmentService.GetAssignmentsForUserId(context.Background(), "21")
+	if err != nil {
+		t.Fatalf("failed to get assignments: %v", err)
+	}
+
+	expectedVariant := "button_green"
+	if assignments[experimentKey] != expectedVariant {
+		t.Errorf("Expected variant %s for experiment %s, got %s", expectedVariant, experimentKey, assignments[experimentKey])
+	}
+}
+
+func TestAssignmentService_GetAssignmentsForUserId_shouldUpdateCacheOnMissAndGrpcCall(t *testing.T) {
+	experimentClient := NewStubExperimentClient()
+	experimentCache := NewStubExperimentCache()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	assignmentService := NewAssignmentService(logger, NewBucketService(salt, bucketCount), experimentClient, experimentCache)
+
+	bucketId := int32(3930)
+
+	experimentKey := "button_color_v1"
+	uniqueSalt := "4e770d52-b2b0-42ed-8ccb-2321ff48e143"
+
+	experiment := model.ExperimentWithVariants{
+		ExperimentKey: experimentKey,
+		UniqueSalt:    uniqueSalt,
+		Variants: []model.Variant{
+			{
+				VariantKey: "button_blue",
+				LowerBound: 0,
+				UpperBound: 49,
+			},
+			{
+				VariantKey: "button_green",
+				LowerBound: 50,
+				UpperBound: 99,
+			},
+		},
+	}
+
+	experimentClient.SetExperimentsForBucket(bucketId, []model.ExperimentWithVariants{experiment})
+
+	_, err := assignmentService.GetAssignmentsForUserId(context.Background(), "21")
+	if err != nil {
+		t.Fatalf("failed to get assignments: %v", err)
 	}
 
 	// The cache is written to asynchronously as to not block the request, so wait a bit or the test may fail
 	time.Sleep(5 * time.Second)
 
-	cachedAssignments, err := assignmentCache.GetAssignmentsForBucket(context.Background(), expectedBucket)
+	experiments, err := experimentCache.GetBucketExperimentKeys(context.Background(), bucketId)
 	if err != nil {
-		t.Fatalf("Unexpected error retrieving from cache: %v", err)
+		t.Fatalf("failed to get experiments: %v", err)
 	}
 
-	if !reflect.DeepEqual(cachedAssignments, assignmentsFromClient) {
-		t.Errorf("Expected cached assignments %v, got %v", assignmentsFromClient, cachedAssignments)
-	}
-}
+	fmt.Printf("Cached experiment keys for bucket %d: %v\n", bucketId, experiments)
 
-func TestAssignmentService_GetVariantsForUserId(t *testing.T) {
-
-	tests := []struct {
-		name                  string
-		userId                string
-		expectedBucket        int32
-		assignmentsInCache    map[string]string
-		assignmentsFromClient map[string]string
-		expectedAssignments   map[string]string
-	}{
-		{
-			name:           "Should return assignments from cache when available",
-			userId:         "21",
-			expectedBucket: 3930,
-			assignmentsInCache: map[string]string{
-				"flag_a": "variant1",
-				"flag_b": "variant2",
-			},
-			assignmentsFromClient: nil,
-			expectedAssignments: map[string]string{
-				"flag_a": "variant1",
-				"flag_b": "variant2",
-			},
-		}, {
-			name:               "Should return assignments from client when not in cache",
-			userId:             "21",
-			expectedBucket:     3930,
-			assignmentsInCache: nil, // No cache
-			assignmentsFromClient: map[string]string{
-				"flag_c": "variant3",
-				"flag_d": "variant4",
-			},
-			expectedAssignments: map[string]string{
-				"flag_c": "variant3",
-				"flag_d": "variant4",
-			},
-		}, {
-			name:                  "Should return empty assignments when neither cache nor client have data",
-			userId:                "99999",
-			expectedBucket:        9842,
-			assignmentsInCache:    nil, // No cache
-			assignmentsFromClient: nil, // No data from client
-			expectedAssignments:   nil,
-		},
-	}
-
-	assignmentCache := NewStubAssignmentCache()
-	assignmentClient := NewStubAssignmentClient()
-	bucketService := NewBucketService(salt, bucketCount)
-
-	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-
-	assignmentService := NewAssignmentService(logger, bucketService, assignmentClient, assignmentCache)
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assignmentCache.ClearCache()
-			assignmentClient.ClearAssignments()
-
-			if tt.assignmentsInCache != nil {
-				err := assignmentService.assignmentCache.SetAssignmentsForBucket(context.Background(), tt.expectedBucket, tt.assignmentsInCache)
-				if err != nil {
-					t.Fatal("Failed to set up cache:", err)
-				}
-			}
-
-			if tt.assignmentsFromClient != nil {
-				assignmentClient.SetAssignmentsForBucket(tt.expectedBucket, tt.assignmentsFromClient)
-			}
-
-			assignments, err := assignmentService.GetVariantsForUserId(context.Background(), tt.userId)
-			if err != nil {
-				t.Fatalf("Unexpected error: %v", err)
-			}
-
-			if !reflect.DeepEqual(assignments, tt.expectedAssignments) {
-				t.Errorf("Expected assignments %v, got %v", tt.expectedAssignments, assignments)
-			}
-		})
+	if len(experiments) != 1 || experiments[0] != experimentKey {
+		t.Errorf("Expected experiment key %s to be cached for bucket %d, got %v", experimentKey, bucketId, experiments)
 	}
 
 }

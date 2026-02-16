@@ -65,16 +65,136 @@ func (x *GetExperimentsAndVariantsForBucketRequest) GetBucketId() int32 {
 	return 0
 }
 
+type VariantDetails struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	VariantKey    string                 `protobuf:"bytes,1,opt,name=variant_key,json=variantKey,proto3" json:"variant_key,omitempty"`
+	UpperBound    int32                  `protobuf:"varint,2,opt,name=upper_bound,json=upperBound,proto3" json:"upper_bound,omitempty"`
+	LowerBound    *int32                 `protobuf:"varint,3,opt,name=lower_bound,json=lowerBound,proto3,oneof" json:"lower_bound,omitempty"` // Optional is required for 0 values
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *VariantDetails) Reset() {
+	*x = VariantDetails{}
+	mi := &file_assignment_v1_assignment_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VariantDetails) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VariantDetails) ProtoMessage() {}
+
+func (x *VariantDetails) ProtoReflect() protoreflect.Message {
+	mi := &file_assignment_v1_assignment_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VariantDetails.ProtoReflect.Descriptor instead.
+func (*VariantDetails) Descriptor() ([]byte, []int) {
+	return file_assignment_v1_assignment_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *VariantDetails) GetVariantKey() string {
+	if x != nil {
+		return x.VariantKey
+	}
+	return ""
+}
+
+func (x *VariantDetails) GetUpperBound() int32 {
+	if x != nil {
+		return x.UpperBound
+	}
+	return 0
+}
+
+func (x *VariantDetails) GetLowerBound() int32 {
+	if x != nil && x.LowerBound != nil {
+		return *x.LowerBound
+	}
+	return 0
+}
+
+type ExperimentDetails struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ExperimentKey string                 `protobuf:"bytes,1,opt,name=experiment_key,json=experimentKey,proto3" json:"experiment_key,omitempty"`
+	UniqueSalt    string                 `protobuf:"bytes,2,opt,name=unique_salt,json=uniqueSalt,proto3" json:"unique_salt,omitempty"`
+	Variants      []*VariantDetails      `protobuf:"bytes,3,rep,name=variants,proto3" json:"variants,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExperimentDetails) Reset() {
+	*x = ExperimentDetails{}
+	mi := &file_assignment_v1_assignment_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExperimentDetails) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExperimentDetails) ProtoMessage() {}
+
+func (x *ExperimentDetails) ProtoReflect() protoreflect.Message {
+	mi := &file_assignment_v1_assignment_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExperimentDetails.ProtoReflect.Descriptor instead.
+func (*ExperimentDetails) Descriptor() ([]byte, []int) {
+	return file_assignment_v1_assignment_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *ExperimentDetails) GetExperimentKey() string {
+	if x != nil {
+		return x.ExperimentKey
+	}
+	return ""
+}
+
+func (x *ExperimentDetails) GetUniqueSalt() string {
+	if x != nil {
+		return x.UniqueSalt
+	}
+	return ""
+}
+
+func (x *ExperimentDetails) GetVariants() []*VariantDetails {
+	if x != nil {
+		return x.Variants
+	}
+	return nil
+}
+
 type GetExperimentsAndVariantsForBucketResponse struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	ExperimentVariants map[string]string      `protobuf:"bytes,1,rep,name=experiment_variants,json=experimentVariants,proto3" json:"experiment_variants,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Experiments   []*ExperimentDetails   `protobuf:"bytes,1,rep,name=experiments,proto3" json:"experiments,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *GetExperimentsAndVariantsForBucketResponse) Reset() {
 	*x = GetExperimentsAndVariantsForBucketResponse{}
-	mi := &file_assignment_v1_assignment_proto_msgTypes[1]
+	mi := &file_assignment_v1_assignment_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -86,7 +206,7 @@ func (x *GetExperimentsAndVariantsForBucketResponse) String() string {
 func (*GetExperimentsAndVariantsForBucketResponse) ProtoMessage() {}
 
 func (x *GetExperimentsAndVariantsForBucketResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_assignment_v1_assignment_proto_msgTypes[1]
+	mi := &file_assignment_v1_assignment_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -99,12 +219,12 @@ func (x *GetExperimentsAndVariantsForBucketResponse) ProtoReflect() protoreflect
 
 // Deprecated: Use GetExperimentsAndVariantsForBucketResponse.ProtoReflect.Descriptor instead.
 func (*GetExperimentsAndVariantsForBucketResponse) Descriptor() ([]byte, []int) {
-	return file_assignment_v1_assignment_proto_rawDescGZIP(), []int{1}
+	return file_assignment_v1_assignment_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *GetExperimentsAndVariantsForBucketResponse) GetExperimentVariants() map[string]string {
+func (x *GetExperimentsAndVariantsForBucketResponse) GetExperiments() []*ExperimentDetails {
 	if x != nil {
-		return x.ExperimentVariants
+		return x.Experiments
 	}
 	return nil
 }
@@ -115,12 +235,22 @@ const file_assignment_v1_assignment_proto_rawDesc = "" +
 	"\n" +
 	"\x1eassignment/v1/assignment.proto\x12\rassignment.v1\"H\n" +
 	")GetExperimentsAndVariantsForBucketRequest\x12\x1b\n" +
-	"\tbucket_id\x18\x01 \x01(\x05R\bbucketId\"\xf8\x01\n" +
-	"*GetExperimentsAndVariantsForBucketResponse\x12\x82\x01\n" +
-	"\x13experiment_variants\x18\x01 \x03(\v2Q.assignment.v1.GetExperimentsAndVariantsForBucketResponse.ExperimentVariantsEntryR\x12experimentVariants\x1aE\n" +
-	"\x17ExperimentVariantsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\xaf\x01\n" +
+	"\tbucket_id\x18\x01 \x01(\x05R\bbucketId\"\x88\x01\n" +
+	"\x0eVariantDetails\x12\x1f\n" +
+	"\vvariant_key\x18\x01 \x01(\tR\n" +
+	"variantKey\x12\x1f\n" +
+	"\vupper_bound\x18\x02 \x01(\x05R\n" +
+	"upperBound\x12$\n" +
+	"\vlower_bound\x18\x03 \x01(\x05H\x00R\n" +
+	"lowerBound\x88\x01\x01B\x0e\n" +
+	"\f_lower_bound\"\x96\x01\n" +
+	"\x11ExperimentDetails\x12%\n" +
+	"\x0eexperiment_key\x18\x01 \x01(\tR\rexperimentKey\x12\x1f\n" +
+	"\vunique_salt\x18\x02 \x01(\tR\n" +
+	"uniqueSalt\x129\n" +
+	"\bvariants\x18\x03 \x03(\v2\x1d.assignment.v1.VariantDetailsR\bvariants\"p\n" +
+	"*GetExperimentsAndVariantsForBucketResponse\x12B\n" +
+	"\vexperiments\x18\x01 \x03(\v2 .assignment.v1.ExperimentDetailsR\vexperiments2\xaf\x01\n" +
 	"\x11AssignmentService\x12\x99\x01\n" +
 	"\"GetExperimentsAndVariantsForBucket\x128.assignment.v1.GetExperimentsAndVariantsForBucketRequest\x1a9.assignment.v1.GetExperimentsAndVariantsForBucketResponseB9Z7admin-service/server/api/proto/assignment/v1;assignmentb\x06proto3"
 
@@ -136,21 +266,23 @@ func file_assignment_v1_assignment_proto_rawDescGZIP() []byte {
 	return file_assignment_v1_assignment_proto_rawDescData
 }
 
-var file_assignment_v1_assignment_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_assignment_v1_assignment_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_assignment_v1_assignment_proto_goTypes = []any{
 	(*GetExperimentsAndVariantsForBucketRequest)(nil),  // 0: assignment.v1.GetExperimentsAndVariantsForBucketRequest
-	(*GetExperimentsAndVariantsForBucketResponse)(nil), // 1: assignment.v1.GetExperimentsAndVariantsForBucketResponse
-	nil, // 2: assignment.v1.GetExperimentsAndVariantsForBucketResponse.ExperimentVariantsEntry
+	(*VariantDetails)(nil),                             // 1: assignment.v1.VariantDetails
+	(*ExperimentDetails)(nil),                          // 2: assignment.v1.ExperimentDetails
+	(*GetExperimentsAndVariantsForBucketResponse)(nil), // 3: assignment.v1.GetExperimentsAndVariantsForBucketResponse
 }
 var file_assignment_v1_assignment_proto_depIdxs = []int32{
-	2, // 0: assignment.v1.GetExperimentsAndVariantsForBucketResponse.experiment_variants:type_name -> assignment.v1.GetExperimentsAndVariantsForBucketResponse.ExperimentVariantsEntry
-	0, // 1: assignment.v1.AssignmentService.GetExperimentsAndVariantsForBucket:input_type -> assignment.v1.GetExperimentsAndVariantsForBucketRequest
-	1, // 2: assignment.v1.AssignmentService.GetExperimentsAndVariantsForBucket:output_type -> assignment.v1.GetExperimentsAndVariantsForBucketResponse
-	2, // [2:3] is the sub-list for method output_type
-	1, // [1:2] is the sub-list for method input_type
-	1, // [1:1] is the sub-list for extension type_name
-	1, // [1:1] is the sub-list for extension extendee
-	0, // [0:1] is the sub-list for field type_name
+	1, // 0: assignment.v1.ExperimentDetails.variants:type_name -> assignment.v1.VariantDetails
+	2, // 1: assignment.v1.GetExperimentsAndVariantsForBucketResponse.experiments:type_name -> assignment.v1.ExperimentDetails
+	0, // 2: assignment.v1.AssignmentService.GetExperimentsAndVariantsForBucket:input_type -> assignment.v1.GetExperimentsAndVariantsForBucketRequest
+	3, // 3: assignment.v1.AssignmentService.GetExperimentsAndVariantsForBucket:output_type -> assignment.v1.GetExperimentsAndVariantsForBucketResponse
+	3, // [3:4] is the sub-list for method output_type
+	2, // [2:3] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_assignment_v1_assignment_proto_init() }
@@ -158,13 +290,14 @@ func file_assignment_v1_assignment_proto_init() {
 	if File_assignment_v1_assignment_proto != nil {
 		return
 	}
+	file_assignment_v1_assignment_proto_msgTypes[1].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_assignment_v1_assignment_proto_rawDesc), len(file_assignment_v1_assignment_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
