@@ -62,7 +62,7 @@ func (e *ExperimentConfigCacheRedis) GetExperimentsForBucket(ctx context.Context
 			return nil, err
 		}
 		if experiment == nil {
-			// treat a partial miss as a full miss and make a GRPC call happen to ensure assignments remain up to date
+			// treat a partial miss as a full miss and make a GRPC call happen to ensure assignments remain up to date (achieved by returning nil)
 			e.Logger.Warn("Partial cache miss, treating as full miss", "bucketId", bucketId, "missingKey", experimentKey)
 			return nil, nil
 		}
