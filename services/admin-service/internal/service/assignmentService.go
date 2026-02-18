@@ -1,8 +1,9 @@
 package service
 
 import (
-	"admin-service/internal/errors"
+	"admin-service/internal/problems"
 	"admin-service/internal/repository"
+	"admin-service/internal/validators"
 	"context"
 	"log/slog"
 
@@ -23,20 +24,12 @@ func NewAssignmentService(experimentRepo *repository.ExperimentRepository, bCoun
 	}
 }
 
-func (a *AssignmentService) GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*model.ExperimentWithVariants, error) {
-	if bucketId < 0 {
-		return nil, &errors.ValidationError{
-			Field:   "bucket_id",
-			Message: "must be non-negative",
-		}
+func (a *AssignmentService) GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*model.ExperimentWithVariants, []problems.Violation, error) {
+	violations := validators.ValidateBucketId(bucketId, a.bucketCount)
+	if len(violations) > 0 {
+		return nil, violations, nil
 	}
 
-	if bucketId >= a.bucketCount {
-		return nil, &errors.ValidationError{
-			Field:   "bucket_id",
-			Message: "exceeds maximum bucket count",
-		}
-	}
-
-	return a.experimentRepository.GetExperimentsAndVariantsForBucket(ctx, bucketId)
+	results, err := a.experimentRepository.GetExperimentsAndVariantsForBucket(ctx, bucketId)
+	return results, nil, err
 }
