@@ -14,6 +14,7 @@ type EventsCatalogRepositoryInterface interface {
 	DeleteEventType(ctx context.Context, eventTypeId string) error
 	GetEventTypes(ctx context.Context) ([]*model.EventType, error)
 	SearchEventTypes(ctx context.Context, searchQuery string) ([]*model.EventType, error)
+	IsFieldKeyAvailableForEventType(ctx context.Context, eventTypeId string, fieldKey string) (bool, error)
 }
 
 type EventsCatalogRepository struct {
@@ -44,7 +45,7 @@ func (e *EventsCatalogRepository) CreateEventType(ctx context.Context, eventType
 
 	for _, field := range eventType.Fields {
 		sql = `INSERT INTO prism.event_fields (event_type_id, name, field_key, data_type) VALUES ($1, $2, $3, $4)`
-		_, err = tx.Exec(ctx, sql, eventType.ID, field.Name, field.FieldKey, field.DataType)
+		_, err = tx.Exec(ctx, sql, eventTypeId, field.Name, field.FieldKey, field.DataType)
 		if err != nil {
 			return err
 		}
@@ -127,4 +128,10 @@ func combineEventTypesAndFields(eventTypes []*model.EventType, fields []model.Ev
 	}
 
 	return eventTypes
+}
+
+func (e *EventsCatalogRepository) IsFieldKeyAvailableForEventType(ctx context.Context, eventTypeId string, fieldKey string) (bool, error) {
+	//TODO implement me
+	panic("implement me")
+	// this will be used when creating a new field in an event type, the frontend wil query before allowing the form to be submitted.
 }

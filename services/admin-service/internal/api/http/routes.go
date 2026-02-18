@@ -23,6 +23,7 @@ func RegisterRoutes(router *chi.Mux, c Controllers) {
 
 		r.Route("/events-catalog", func(r chi.Router) {
 			r.Get("/", c.EventsCatalogController.GetEventTypes)
+			r.Post("/", c.EventsCatalogController.CreateEventType)
 		})
 	})
 }

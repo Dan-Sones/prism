@@ -8,11 +8,11 @@ import (
 )
 
 type EventType struct {
-	ID          uuid.UUID    `json:"id"`
+	ID          uuid.UUID    `json:"id,omitempty"`
 	Name        string       `json:"name"`
-	Version     int          `json:"version"`
+	Version     int          `json:"version,omitempty"`
 	Description *string      `json:"description,omitempty"`
-	CreatedAt   time.Time    `json:"createdAt"`
+	CreatedAt   time.Time    `json:"createdAt,omitempty"`
 	Fields      []EventField `json:"fields" db:"-"`
 }
 
@@ -33,6 +33,15 @@ const (
 	DataTypeBoolean   DataType = "boolean"
 	DataTypeTimestamp DataType = "timestamp"
 )
+
+func (d *DataType) IsValid() bool {
+	switch *d {
+	case DataTypeString, DataTypeInt, DataTypeFloat, DataTypeBoolean, DataTypeTimestamp:
+		return true
+	default:
+		return false
+	}
+}
 
 func (d *DataType) Scan(src any) error {
 	s, ok := src.(string)
