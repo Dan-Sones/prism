@@ -52,20 +52,24 @@ func main() {
 	}
 
 	// Repositories
-	experimentRepository := repository.NewExperimentRepository(pgPool, logger)
+	experimentRepository := repository.NewExperimentRepository(pgPool)
+	_ = repository.NewEventsCatalogRepository(pgPool)
 
 	// Services
 	experimentService := service.NewExperimentService(experimentRepository, logger)
 	assignmentService := service.NewAssignmentService(experimentRepository, bucketCount, logger)
+	eventsCatalogService := service.NewEventsCatalogService(repository.NewEventsCatalogRepository(pgPool), logger)
 
 	// Controllers
 	experimentController := controller.NewExperimentController(experimentService)
+	eventsCatalogController := controller.NewEventsCatalogController(eventsCatalogService)
 
 	go startGrpcServer(logger, assignmentService)
 
 	router := http.NewRouter()
 	http.RegisterRoutes(router, http.Controllers{
-		ExperimentController: experimentController,
+		ExperimentController:    experimentController,
+		EventsCatalogController: eventsCatalogController,
 	})
 
 	httpPort := fmt.Sprintf(":%s", os.Getenv("ADMIN_SERVICE_HTTP_PORT"))

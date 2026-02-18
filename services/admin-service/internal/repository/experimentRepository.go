@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"log/slog"
 
 	"github.com/Dan-Sones/prismdbmodels/model"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -14,13 +13,11 @@ type ExperimentRepositoryInterface interface {
 
 type ExperimentRepository struct {
 	pgxPool *pgxpool.Pool
-	logger  *slog.Logger
 }
 
-func NewExperimentRepository(pgxPool *pgxpool.Pool, logger *slog.Logger) *ExperimentRepository {
+func NewExperimentRepository(pgxPool *pgxpool.Pool) *ExperimentRepository {
 	return &ExperimentRepository{
 		pgxPool: pgxPool,
-		logger:  logger,
 	}
 }
 
@@ -29,7 +26,6 @@ func (r *ExperimentRepository) CreateNewExperiment(ctx context.Context, experime
 
 	err := r.pgxPool.QueryRow(ctx, sql, experiment.Name).Scan(&experiment.ID)
 	if err != nil {
-		r.logger.Error("Failed to create new experiment", slog.String("error", err.Error()))
 		return err
 	}
 
