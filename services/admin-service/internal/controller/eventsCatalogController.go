@@ -56,7 +56,7 @@ func (e *EventsCatalogController) GetEventTypes(w http.ResponseWriter, r *http.R
 	if searchQuery == "" {
 		eventTypes, err := e.eventsCatalogService.GetEventTypes(ctx)
 		if err != nil {
-			WriteInternalServerError(w)
+			problems.NewInternalServerError().Write(w)
 			return
 		}
 		WriteResponse(w, http.StatusOK, eventTypes)
@@ -64,7 +64,7 @@ func (e *EventsCatalogController) GetEventTypes(w http.ResponseWriter, r *http.R
 	}
 	eventTypes, err := e.eventsCatalogService.SearchEventTypes(ctx, searchQuery)
 	if err != nil {
-		WriteInternalServerError(w)
+		problems.NewInternalServerError().Write(w)
 		return
 	}
 

@@ -1,8 +1,9 @@
 package service
 
 import (
-	"admin-service/internal/errors"
+	"admin-service/internal/problems"
 	"admin-service/internal/repository"
+	"admin-service/internal/validators"
 	"context"
 	"log/slog"
 
@@ -21,16 +22,16 @@ func NewExperimentService(experimentRepository *repository.ExperimentRepository,
 	}
 }
 
-func (s *ExperimentService) CreateExperiment(ctx context.Context, experiment model.Experiment) error {
-
-	if experiment.Name == "" {
-		return &errors.MissingFieldError{Field: "Name"}
+func (s *ExperimentService) CreateExperiment(ctx context.Context, experiment model.Experiment) ([]problems.Violation, error) {
+	violations := validators.ValidateExperiment(experiment)
+	if len(violations) > 0 {
+		return violations, nil
 	}
 
 	err := s.experimentRepository.CreateNewExperiment(ctx, experiment)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return nil, nil
 }
