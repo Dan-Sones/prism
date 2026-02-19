@@ -34,9 +34,9 @@ func NewEventsCatalogService(eventsCatalogRepository repository.EventsCatalogRep
 }
 
 func (e *EventsCatalogService) CreateEventType(ctx context.Context, eventType model.EventType) (error, []problems.Violation) {
-	validationResult := validators.ValidateEventType(eventType)
-	if !validationResult.IsValid {
-		return nil, validationResult.Violations
+	violations := validators.ValidateEventType(eventType)
+	if len(violations) > 0 {
+		return nil, violations
 	}
 
 	err := e.eventsCatalogRepository.CreateEventType(ctx, eventType)

@@ -2,22 +2,13 @@ package validators
 
 import (
 	"admin-service/internal/problems"
+	"regexp"
 
 	"github.com/Dan-Sones/prismdbmodels/model"
 )
 
-type EventTypeValidationResult struct {
-	IsValid    bool
-	Violations []problems.Violation
-}
-
-type EventFieldValidationResult struct {
-	IsValid    bool
-	Violations []problems.Violation
-}
-
 // TODO: Update length validation rules based on frontend ui work later on, they're just set to match db schema atm.
-func ValidateEventType(eventType model.EventType) *EventTypeValidationResult {
+func ValidateEventType(eventType model.EventType) []problems.Violation {
 	var violations []problems.Violation
 
 	if eventType.Name == "" {
@@ -41,20 +32,14 @@ func ValidateEventType(eventType model.EventType) *EventTypeValidationResult {
 	}
 
 	for _, field := range eventType.Fields {
-		fieldValidationResult := ValidateEventField(field)
-		if !fieldValidationResult.IsValid {
-			violations = append(violations, fieldValidationResult.Violations...)
-		}
+		fieldViolations := ValidateEventField(field)
+		violations = append(violations, fieldViolations...)
 	}
 
-	return &EventTypeValidationResult{
-		IsValid:    len(violations) == 0,
-		Violations: violations,
-	}
-
+	return violations
 }
 
-func ValidateEventField(field model.EventField) *EventFieldValidationResult {
+func ValidateEventField(field model.EventField) []problems.Violation {
 	var violations []problems.Violation
 
 	if field.Name == "" {
@@ -78,13 +63,23 @@ func ValidateEventField(field model.EventField) *EventFieldValidationResult {
 		})
 	}
 
+	if field.FieldKey != "" {
+		fieldKeyRegex := regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9_-]*$`)
+		if !fieldKeyRegex.MatchString(field.FieldKey) {
+			violations = append(violations, problems.Violation{
+				Field:   "fieldKey",
+				Message: "FieldKey must start with a letter and contain only alphanumeric characters, underscores, or dashes",
+			})
+		}
+	}
+
 	if len(field.FieldKey) > 255 {
 		violations = append(violations, problems.Violation{
 			Field:   "fieldKey",
 			Message: "FieldKey must be less than 255 characters",
 		})
 	}
-	
+
 	if !field.DataType.IsValid() {
 		violations = append(violations, problems.Violation{
 			Field:   "dataType",
@@ -92,8 +87,5 @@ func ValidateEventField(field model.EventField) *EventFieldValidationResult {
 		})
 	}
 
-	return &EventFieldValidationResult{
-		IsValid:    len(violations) == 0,
-		Violations: violations,
-	}
+	return violations
 }
