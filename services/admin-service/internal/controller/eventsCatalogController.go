@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/Dan-Sones/prismdbmodels/model"
+	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 )
 
 type EventsCatalogController struct {
@@ -23,15 +25,14 @@ func (e *EventsCatalogController) CreateEventType(w http.ResponseWriter, r *http
 	ctx := r.Context()
 
 	if r.Body == nil {
-		err := problems.NewBadRequestError()
-		err.Write(w)
+		problems.NewBadRequestError("Request body is required").Write(w)
 		return
 	}
 
 	var body model.EventType
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
-		problems.NewBadRequestError().Write(w)
+		problems.NewBadRequestError("Invalid request body").Write(w)
 		return
 	}
 
@@ -69,4 +70,27 @@ func (e *EventsCatalogController) GetEventTypes(w http.ResponseWriter, r *http.R
 	}
 
 	WriteResponse(w, http.StatusOK, eventTypes)
+}
+
+func (e *EventsCatalogController) IsFieldKeyAvailable(w http.ResponseWriter, r *http.Request) {
+	eventTypeId := chi.URLParam(r, "eventTypeId")
+	fieldKey := r.URL.Query().Get("fieldKey")
+
+	if eventTypeId == "" || fieldKey == "" {
+		problems.NewBadRequestError("eventTypeId and fieldKey are required").Write(w)
+		return
+	}
+
+	if _, err := uuid.Parse(eventTypeId); err != nil {
+		problems.NewBadRequestError("eventTypeId must be a valid UUID").Write(w)
+		return
+	}
+
+	available, err := e.eventsCatalogService.IsFieldKeyAvailableForEventType(r.Context(), eventTypeId, fieldKey)
+	if err != nil {
+		problems.NewInternalServerError().Write(w)
+		return
+	}
+
+	WriteResponse(w, http.StatusOK, map[string]bool{"available": available})
 }

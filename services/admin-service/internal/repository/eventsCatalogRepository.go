@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 
 	"github.com/Dan-Sones/prismdbmodels/model"
 	"github.com/google/uuid"
@@ -118,6 +119,24 @@ func (e *EventsCatalogRepository) SearchEventTypes(ctx context.Context, searchQu
 	return combineEventTypesAndFields(eventTypes, fields), nil
 }
 
+func (e *EventsCatalogRepository) IsFieldKeyAvailableForEventType(ctx context.Context, eventTypeId string, fieldKey string) (bool, error) {
+	var existing *string
+	err := e.pgx.QueryRow(ctx, "SELECT id FROM prism.event_fields WHERE event_type_id = $1 AND field_key = $2", eventTypeId, fieldKey).Scan(&existing)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			// field key is available
+			return true, nil
+		}
+		return false, err
+	}
+
+	if existing != nil {
+		return false, nil
+	}
+
+	return true, nil
+}
+
 func combineEventTypesAndFields(eventTypes []*model.EventType, fields []model.EventField) []*model.EventType {
 	fieldMap := make(map[uuid.UUID][]model.EventField)
 	for _, f := range fields {
@@ -128,10 +147,4 @@ func combineEventTypesAndFields(eventTypes []*model.EventType, fields []model.Ev
 	}
 
 	return eventTypes
-}
-
-func (e *EventsCatalogRepository) IsFieldKeyAvailableForEventType(ctx context.Context, eventTypeId string, fieldKey string) (bool, error) {
-	//TODO implement me
-	panic("implement me")
-	// this will be used when creating a new field in an event type, the frontend wil query before allowing the form to be submitted.
 }

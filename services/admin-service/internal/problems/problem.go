@@ -49,10 +49,10 @@ func NewInternalServerError() ProblemDetail {
 	}
 }
 
-func NewBadRequestError() ProblemDetail {
+func NewBadRequestError(detail string) ProblemDetail {
 	return ProblemDetail{
 		Title:  "Bad Request",
 		Status: http.StatusBadRequest,
-		Detail: "Request body is required",
+		Detail: detail,
 	}
 }

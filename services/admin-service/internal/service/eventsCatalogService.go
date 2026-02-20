@@ -87,6 +87,12 @@ func (e *EventsCatalogService) SearchEventTypes(ctx context.Context, searchQuery
 }
 
 func (e *EventsCatalogService) IsFieldKeyAvailableForEventType(ctx context.Context, eventTypeId string, fieldKey string) (bool, error) {
-	//TODO implement me
-	panic("implement me")
+	available, err := e.eventsCatalogRepository.IsFieldKeyAvailableForEventType(ctx, eventTypeId, fieldKey)
+	if err != nil {
+		e.logger.Error("Error checking field key availability", "error", err, "eventTypeId", eventTypeId, "fieldKey", fieldKey)
+		// default to it not being available if there's an error to be safe.
+		return false, err
+	}
+
+	return available, nil
 }

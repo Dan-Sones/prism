@@ -23,14 +23,14 @@ func (c *ExperimentController) CreateExperiment(w http.ResponseWriter, r *http.R
 	ctx := r.Context()
 
 	if r.Body == nil {
-		problems.NewBadRequestError().Write(w)
+		problems.NewBadRequestError("Request body is required").Write(w)
 		return
 	}
 
 	var body model.Experiment
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
-		problems.NewBadRequestError().Write(w)
+		problems.NewBadRequestError("Invalid request body").Write(w)
 		return
 	}
 
