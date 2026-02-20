@@ -26,6 +26,7 @@ func RegisterRoutes(router *chi.Mux, c Controllers) {
 			r.Post("/", c.EventsCatalogController.CreateEventType)
 
 			r.Route("/{eventTypeId}", func(r chi.Router) {
+				r.Get("/", c.EventsCatalogController.GetEventType)
 				r.Delete("/", c.EventsCatalogController.DeleteEventType)
 				r.Get("/field-key-available", c.EventsCatalogController.IsFieldKeyAvailable)
 			})

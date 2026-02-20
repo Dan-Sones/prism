@@ -13,6 +13,7 @@ import (
 type EventsCatalogRepositoryInterface interface {
 	CreateEventType(ctx context.Context, eventType model.EventType) error
 	DeleteEventType(ctx context.Context, eventTypeId string) error
+	GetEventTypeById(ctx context.Context, eventTypeId string) (*model.EventType, error)
 	GetEventTypes(ctx context.Context) ([]*model.EventType, error)
 	SearchEventTypes(ctx context.Context, searchQuery string) ([]*model.EventType, error)
 	IsFieldKeyAvailableForEventType(ctx context.Context, eventTypeId string, fieldKey string) (bool, error)
@@ -68,6 +69,28 @@ func (e *EventsCatalogRepository) DeleteEventType(ctx context.Context, eventType
 	}
 
 	return nil
+}
+
+func (e *EventsCatalogRepository) GetEventTypeById(ctx context.Context, eventTypeId string) (*model.EventType, error) {
+	var eventType model.EventType
+	err := e.pgx.QueryRow(ctx, "SELECT id, name, version, description, created_at FROM prism.event_types WHERE id = $1", eventTypeId).Scan(
+		&eventType.ID, &eventType.Name, &eventType.Version, &eventType.Description, &eventType.CreatedAt,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err := e.pgx.Query(ctx, "SELECT id, event_type_id, name, field_key, data_type FROM prism.event_fields WHERE event_type_id = $1", eventTypeId)
+	if err != nil {
+		return nil, err
+	}
+	fields, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.EventField])
+	if err != nil {
+		return nil, err
+	}
+
+	eventType.Fields = fields
+	return &eventType, nil
 }
 
 func (e *EventsCatalogRepository) GetEventTypes(ctx context.Context) ([]*model.EventType, error) {

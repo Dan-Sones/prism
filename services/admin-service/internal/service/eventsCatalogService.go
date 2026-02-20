@@ -16,6 +16,7 @@ import (
 type EventsCatalogServiceInterface interface {
 	CreateEventType(ctx context.Context, eventType model.EventType) (error, []problems.Violation)
 	DeleteEventType(ctx context.Context, eventTypeId string) error
+	GetEventTypeById(ctx context.Context, eventTypeId string) (*model.EventType, error)
 	GetEventTypes(ctx context.Context) ([]*model.EventType, error)
 	SearchEventTypes(ctx context.Context, searchQuery string) ([]*model.EventType, error)
 	IsFieldKeyAvailableForEventType(ctx context.Context, eventTypeId string, fieldKey string) (bool, error)
@@ -72,6 +73,15 @@ func (e *EventsCatalogService) DeleteEventType(ctx context.Context, eventTypeId 
 
 	return nil
 
+}
+
+func (e *EventsCatalogService) GetEventTypeById(ctx context.Context, eventTypeId string) (*model.EventType, error) {
+	eventType, err := e.eventsCatalogRepository.GetEventTypeById(ctx, eventTypeId)
+	if err != nil {
+		e.logger.Error("Error fetching event type", "error", err, "eventTypeId", eventTypeId)
+		return nil, err
+	}
+	return eventType, nil
 }
 
 func (e *EventsCatalogService) GetEventTypes(ctx context.Context) ([]*model.EventType, error) {

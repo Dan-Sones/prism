@@ -4,11 +4,13 @@ import (
 	"admin-service/internal/problems"
 	"admin-service/internal/service"
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/Dan-Sones/prismdbmodels/model"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 type EventsCatalogController struct {
@@ -72,7 +74,37 @@ func (e *EventsCatalogController) GetEventTypes(w http.ResponseWriter, r *http.R
 	WriteResponse(w, http.StatusOK, eventTypes)
 }
 
+func (e *EventsCatalogController) GetEventType(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	eventTypeId := chi.URLParam(r, "eventTypeId")
+
+	if eventTypeId == "" {
+		problems.NewBadRequestError("eventTypeId is required").Write(w)
+		return
+	}
+
+	if _, err := uuid.Parse(eventTypeId); err != nil {
+		problems.NewBadRequestError("eventTypeId must be a valid UUID").Write(w)
+		return
+	}
+
+	eventType, err := e.eventsCatalogService.GetEventTypeById(ctx, eventTypeId)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			problems.NewNotFound("Event type not found").Write(w)
+			return
+		}
+		problems.NewInternalServerError().Write(w)
+		return
+	}
+
+	WriteResponse(w, http.StatusOK, eventType)
+}
+
 func (e *EventsCatalogController) IsFieldKeyAvailable(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
 	eventTypeId := chi.URLParam(r, "eventTypeId")
 	fieldKey := r.URL.Query().Get("fieldKey")
 
@@ -86,7 +118,7 @@ func (e *EventsCatalogController) IsFieldKeyAvailable(w http.ResponseWriter, r *
 		return
 	}
 
-	available, err := e.eventsCatalogService.IsFieldKeyAvailableForEventType(r.Context(), eventTypeId, fieldKey)
+	available, err := e.eventsCatalogService.IsFieldKeyAvailableForEventType(ctx, eventTypeId, fieldKey)
 	if err != nil {
 		problems.NewInternalServerError().Write(w)
 		return
@@ -96,6 +128,7 @@ func (e *EventsCatalogController) IsFieldKeyAvailable(w http.ResponseWriter, r *
 }
 
 func (e *EventsCatalogController) DeleteEventType(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	eventTypeId := chi.URLParam(r, "eventTypeId")
 
 	if eventTypeId == "" {
@@ -108,7 +141,7 @@ func (e *EventsCatalogController) DeleteEventType(w http.ResponseWriter, r *http
 		return
 	}
 
-	err := e.eventsCatalogService.DeleteEventType(r.Context(), eventTypeId)
+	err := e.eventsCatalogService.DeleteEventType(ctx, eventTypeId)
 	if err != nil {
 		problems.NewInternalServerError().Write(w)
 		return
