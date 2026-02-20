@@ -94,3 +94,25 @@ func (e *EventsCatalogController) IsFieldKeyAvailable(w http.ResponseWriter, r *
 
 	WriteResponse(w, http.StatusOK, map[string]bool{"available": available})
 }
+
+func (e *EventsCatalogController) DeleteEventType(w http.ResponseWriter, r *http.Request) {
+	eventTypeId := chi.URLParam(r, "eventTypeId")
+
+	if eventTypeId == "" {
+		problems.NewBadRequestError("eventTypeId is required").Write(w)
+		return
+	}
+
+	if _, err := uuid.Parse(eventTypeId); err != nil {
+		problems.NewBadRequestError("eventTypeId must be a valid UUID").Write(w)
+		return
+	}
+
+	err := e.eventsCatalogService.DeleteEventType(r.Context(), eventTypeId)
+	if err != nil {
+		problems.NewInternalServerError().Write(w)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}

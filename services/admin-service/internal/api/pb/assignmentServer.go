@@ -1,8 +1,8 @@
 package pb
 
 import (
-	"admin-service/internal/problems"
 	pb "admin-service/internal/grpc/generated/assignment/v1"
+	"admin-service/internal/problems"
 	"admin-service/internal/service"
 	"context"
 

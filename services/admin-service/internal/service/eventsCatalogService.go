@@ -64,8 +64,14 @@ func (e *EventsCatalogService) CreateEventType(ctx context.Context, eventType mo
 }
 
 func (e *EventsCatalogService) DeleteEventType(ctx context.Context, eventTypeId string) error {
-	//TODO implement me
-	panic("implement me")
+	err := e.eventsCatalogRepository.DeleteEventType(ctx, eventTypeId)
+	if err != nil {
+		e.logger.Error("Error deleting event type", "error", err, "eventTypeId", eventTypeId)
+		return err
+	}
+
+	return nil
+
 }
 
 func (e *EventsCatalogService) GetEventTypes(ctx context.Context) ([]*model.EventType, error) {

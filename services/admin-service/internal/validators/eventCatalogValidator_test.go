@@ -169,7 +169,7 @@ func TestValidateEventField(t *testing.T) {
 			if len(got) != len(tt.want) {
 				t.Errorf("Expected %d violations, got %d: %v", len(tt.want), len(got), got)
 			}
-			
+
 			for i, v := range got {
 				if v != tt.want[i] {
 					t.Errorf("Expected violation %v, got %v", tt.want[i], v)
