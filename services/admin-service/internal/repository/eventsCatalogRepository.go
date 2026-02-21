@@ -63,9 +63,13 @@ func (e *EventsCatalogRepository) CreateEventType(ctx context.Context, eventType
 func (e *EventsCatalogRepository) DeleteEventType(ctx context.Context, eventTypeId string) error {
 	sql := `DELETE FROM prism.event_types WHERE id = $1`
 
-	_, err := e.pgx.Exec(ctx, sql, eventTypeId)
+	result, err := e.pgx.Exec(ctx, sql, eventTypeId)
 	if err != nil {
 		return err
+	}
+
+	if result.RowsAffected() == 0 {
+		return pgx.ErrNoRows
 	}
 
 	return nil

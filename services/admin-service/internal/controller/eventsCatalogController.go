@@ -144,6 +144,10 @@ func (e *EventsCatalogController) DeleteEventType(w http.ResponseWriter, r *http
 
 	err := e.eventsCatalogService.DeleteEventType(ctx, eventTypeId)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			problems.NewNotFound("Event type not found").Write(w)
+			return
+		}
 		problems.NewInternalServerError().Write(w)
 		return
 	}
