@@ -3,7 +3,7 @@ import EventsCatalogTableFilters from "./EventsCatalogTableFilters";
 
 const EventsCatalogTableActions = () => {
   return (
-    <div className="flex flex-row gap-2">
+    <div className="flex flex-col gap-2 lg:flex-row">
       <EventsCatalogSearch />
       <EventsCatalogTableFilters />
     </div>

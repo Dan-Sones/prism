@@ -7,16 +7,14 @@ import XCircleIcon from "../icons/XCircleIcon";
 interface FilterPillProps {
   label: string;
   filterItems?: Array<FilterItem>;
-  onSelect?: (filter: FilterItem) => void;
-  onClear?: () => void;
+  selected: FilterItem | null;
+  onSelect: (filter: FilterItem) => void;
+  onClear: () => void;
 }
 
 const FilterPill = (props: FilterPillProps) => {
-  const { label, onSelect } = props;
+  const { label, filterItems, selected, onSelect, onClear } = props;
 
-  const [selectedItem, setSelectedItem] = React.useState<FilterItem | null>(
-    null,
-  );
   const [showDropdown, setShowDropdown] = React.useState(false);
 
   const handleExpandClick = () => {
@@ -24,21 +22,15 @@ const FilterPill = (props: FilterPillProps) => {
   };
 
   const handleItemClick = (item: FilterItem) => {
-    setSelectedItem(item);
-    onSelect?.(item);
+    onSelect(item);
     setShowDropdown(false);
-  };
-
-  const handleClearSelection = () => {
-    setSelectedItem(null);
-    props.onClear?.();
   };
 
   return (
     <div>
       <div
         className={`flex cursor-pointer flex-row items-center justify-center gap-2 rounded-full border px-3 py-1 text-sm transition-colors duration-200 ${
-          selectedItem
+          selected
             ? "border-purple-400 bg-purple-100 text-purple-700"
             : "border-gray-300 bg-white text-slate-600 hover:border-gray-400"
         }`}
@@ -54,15 +46,15 @@ const FilterPill = (props: FilterPillProps) => {
             <ChevronUpIcon className="size-3" />
           )}
         </span>
-        {selectedItem && (
-          <button onClick={handleClearSelection} className="cursor-pointer">
+        {selected && (
+          <button onClick={onClear} className="cursor-pointer">
             <XCircleIcon className="size-4" />
           </button>
         )}
       </div>
-      {showDropdown && props.filterItems && (
+      {showDropdown && filterItems && (
         <div className="absolute z-10 mt-2 w-48 cursor-pointer rounded-md border border-gray-200 bg-white shadow-lg">
-          {props.filterItems.map((item) => (
+          {filterItems.map((item) => (
             <button
               key={item.value}
               onClick={() => handleItemClick(item)}

@@ -6,7 +6,7 @@ interface EventsCatalogSearchProps {
 
 const EventsCatalogSearch = ({ onSearch }: EventsCatalogSearchProps) => {
   return (
-    <div className="flex h-12 w-full max-w-96 flex-row items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 shadow-sm focus-within:border-gray-400">
+    <div className="flex h-12 flex-row items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 shadow-sm focus-within:border-gray-400 w-full lg:max-w-96">
       <SearchIcon className="size-5 shrink-0 text-gray-400" />
       <input
         type="text"
