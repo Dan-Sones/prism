@@ -1,0 +1,272 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: Prism
+meta:
+  id: wrk_4dfaccd7d2454d969ebeeac69d665313
+  created: 1767360120726
+  modified: 1767360120726
+  description: ""
+collection:
+  - name: Assignment Service
+    meta:
+      id: fld_cbdf83abae1c40219c2c3b8a17bfe0cf
+      created: 1768745222103
+      modified: 1768745222103
+      sortKey: -1768745222103
+      description: ""
+    children:
+      - url: localhost:8082/api/assignments/:user_id
+        name: Get Assignments
+        meta:
+          id: req_df0dbfe00f0944e693012c56d6fcb906
+          created: 1768745224862
+          modified: 1770635625635
+          isPrivate: false
+          description: ""
+          sortKey: -1768745224863
+        method: GET
+        headers:
+          - name: User-Agent
+            value: insomnia/12.3.1
+        settings:
+          renderRequestBody: true
+          encodeUrl: true
+          followRedirects: global
+          cookies:
+            send: true
+            store: true
+          rebuildPath: true
+        pathParameters:
+          - name: user_id
+            value: "21"
+  - name: Admin Service
+    meta:
+      id: fld_5b499d459e2f46c69f202c66527dad64
+      created: 1769159014127
+      modified: 1769159014127
+      sortKey: -1769159014127
+      description: ""
+    children:
+      - name: Experiments
+        meta:
+          id: fld_experiments
+          created: 1767360120730
+          modified: 1767360120730
+          sortKey: -1767360120730
+          description: ""
+        children:
+          - url: localhost:8081/api/experiments
+            name: Create Experiment
+            meta:
+              id: req_1e32219cc50c400eab49cc91677a326c
+              created: 1767360120730
+              modified: 1767360216256
+              isPrivate: false
+              description: ""
+              sortKey: -1767360120730
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "name": "The Best Experiment Ever"
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+              - name: User-Agent
+                value: insomnia/12.3.1
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+      - name: Event Catalog
+        meta:
+          id: fld_199379d9c0694c029b0e7e1b58f78e34
+          created: 1771446585076
+          modified: 1771446585076
+          sortKey: -1771446585076
+          description: ""
+        children:
+          - url: localhost:8081/api/events-catalog
+            name: Get Event Types
+            meta:
+              id: req_d2e5606655474ecaadb8bf13f90319c0
+              created: 1771446602879
+              modified: 1771448963504
+              isPrivate: false
+              description: ""
+              sortKey: -1771446602879
+            method: GET
+            parameters:
+              - name: search
+                value: ""
+                description: "Search query"
+                disabled: true
+            headers:
+              - name: User-Agent
+                value: insomnia/12.3.1
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: localhost:8081/api/events-catalog
+            name: Create Event Type
+            meta:
+              id: req_526b8a0d3ff04cfe80c3ae644a783f5c
+              created: 1771448967269
+              modified: 1771451623814
+              isPrivate: false
+              description: ""
+              sortKey: -1771448967269
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "name": "purchase_completed",
+                  "description": "Fired when a user completes a purchase",
+                  "fields": [
+                    {
+                      "name": "Order Total",
+                      "fieldKey": "order_total",
+                      "dataType": "float"
+                    },
+                    {
+                      "name": "Currency",
+                      "fieldKey": "currency",
+                      "dataType": "string"
+                    }
+                  ]
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+              - name: User-Agent
+                value: insomnia/12.3.1
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: localhost:8081/api/events-catalog/:eventTypeId
+            name: Get Event Type
+            meta:
+              id: req_geteventtype
+              created: 1771451623814
+              modified: 1771451623814
+              isPrivate: false
+              description: ""
+              sortKey: -1771451623817
+            method: GET
+            headers:
+              - name: User-Agent
+                value: insomnia/12.3.1
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+            pathParameters:
+              - name: eventTypeId
+                value: ""
+          - url: localhost:8081/api/events-catalog/:eventTypeId
+            name: Delete Event Type
+            meta:
+              id: req_deleteeventtype
+              created: 1771451623814
+              modified: 1771451623814
+              isPrivate: false
+              description: ""
+              sortKey: -1771451623816
+            method: DELETE
+            headers:
+              - name: User-Agent
+                value: insomnia/12.3.1
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+            pathParameters:
+              - name: eventTypeId
+                value: ""
+          - url: localhost:8081/api/events-catalog/:eventTypeId/field-key-available
+            name: Is Field Key Available
+            meta:
+              id: req_fieldkeyavailable
+              created: 1771451623814
+              modified: 1771451623814
+              isPrivate: false
+              description: ""
+              sortKey: -1771451623815
+            method: GET
+            parameters:
+              - name: fieldKey
+                value: order_total
+                description: ""
+            headers:
+              - name: User-Agent
+                value: insomnia/12.3.1
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+            pathParameters:
+              - name: eventTypeId
+                value: ""
+      - url: localhost:50052
+        name: Get Assignments (gRPC)
+        meta:
+          id: greq_0016d059183b4e12bc903c659281323d
+          created: 1769156981957
+          modified: 1771453011877
+          isPrivate: false
+          description: ""
+          sortKey: -1769159018717
+        body:
+          text: |-
+            {
+              "bucket_id": 10000
+            }
+        protoFileId: ""
+        protoMethodName: /assignment.v1.AssignmentService/GetExperimentsAndVariantsForBucket
+        reflectionApi:
+          enabled: false
+          url: https://buf.build
+          apiKey: ""
+          module: buf.build/connectrpc/eliza
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_b07ab46320e1d23cacd9adb83084bd274c3e010b
+    created: 1767360120728
+    modified: 1767360120728
+environments:
+  name: Base Environment
+  meta:
+    id: env_b07ab46320e1d23cacd9adb83084bd274c3e010b
+    created: 1767360120727
+    modified: 1767360120727
+    isPrivate: false

@@ -1,3 +1,7 @@
+---
+sidebar_position: 3
+---
+
 # Assignment Service
 
 The Assignment Service is a lightweight but core component of the Prism Experimentation Platform.
