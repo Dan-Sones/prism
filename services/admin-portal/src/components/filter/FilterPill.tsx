@@ -16,6 +16,20 @@ const FilterPill = (props: FilterPillProps) => {
   const { label, filterItems, selected, onSelect, onClear } = props;
 
   const [showDropdown, setShowDropdown] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  const handleClickOutside = (event: MouseEvent) => {
+    if (ref.current && !ref.current.contains(event.target as Node)) {
+      setShowDropdown(false);
+    }
+  };
+
+  React.useEffect(() => {
+    document.addEventListener("click", handleClickOutside, true);
+    return () => {
+      document.removeEventListener("click", handleClickOutside, true);
+    };
+  }, []);
 
   const handleExpandClick = () => {
     setShowDropdown((prev) => !prev);
@@ -27,7 +41,7 @@ const FilterPill = (props: FilterPillProps) => {
   };
 
   return (
-    <div>
+    <div ref={ref}>
       <div
         className={`flex cursor-pointer flex-row items-center justify-center gap-2 rounded-full border px-3 py-1 text-sm transition-colors duration-200 ${
           selected
