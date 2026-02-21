@@ -1,12 +1,8 @@
 openapi: 3.0.3
 info:
   title: Assignment Service API
-  description: >
-    The assignment Service is responsible for providing users with their
-    experiment variant assignments given their user ID.
 servers:
   - url: http://localhost:8082
-    description: Local development server
 tags:
   - name: Assignments
 paths:
@@ -51,27 +47,9 @@ paths:
                   summary: No active experiments for user's bucket
                   value: {}
         '400':
-          description: Bad request - missing user_id parameter
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetail'
-              example:
-                title: Bad Request
-                status: 400
-                detail: user_id path parameter is required
+          $ref: '#/components/responses/BadRequest'
         '500':
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemDetail'
-              example:
-                title: Internal Server Error
-                status: 500
-                detail: >-
-                  Failed to get assignments for user_id user_12345: connection
-                  failed
+          $ref: '#/components/responses/InternalServerError'
 components:
   schemas:
     GetExperimentsAndVariantsForBucketResponse:
@@ -79,30 +57,44 @@ components:
       additionalProperties:
         type: string
       description: Map of feature flag IDs to variant IDs
+    Violation:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
     ProblemDetail:
       type: object
-      description: |
-        Used to provide structured error information to clients.
       properties:
         title:
           type: string
-          description: A short, human-readable summary of the problem type
-          example: Bad Request
         status:
           type: integer
-          description: The HTTP status code
-          example: 400
         detail:
           type: string
-          description: >-
-            A human-readable explanation specific to this occurrence of the
-            problem
-          example: user_id path parameter is required
-        toDisplay:
-          type: string
-          description: A user-friendly message suitable for displaying to end users
-          example: Something went wrong. Please try again later.
-        structuredDetail:
-          type: object
-          description: Additional structured details about the error
-          additionalProperties: true
+        violations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Violation'
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+          example:
+            title: Bad Request
+            status: 400
+            detail: Request body is required
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetail'
+          example:
+            title: Internal Server Error
+            status: 500
+            detail: An unexpected error occurred
