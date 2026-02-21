@@ -4,8 +4,10 @@ import PlusCircleIcon from "../../components/icons/PlusCircleIcon";
 const EventsCatalogHeader = () => {
   return (
     <div className="mb-6 min-w-full">
-      <div className="mb-4 flex flex-row items-center justify-between">
-        <h1 className="text-4xl font-semibold">Events Catalog</h1>
+      <div className="mb-3 flex flex-row items-center justify-between">
+        <h1 className="truncate text-3xl font-semibold lg:text-4xl">
+          Events Catalog
+        </h1>
         <PrimaryButton
           onClick={() => alert("Create Event")}
           className="text-sm"
