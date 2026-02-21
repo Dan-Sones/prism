@@ -1,11 +1,11 @@
 import EventsCatalogHeader from "./EventsCatalogHeader";
-import EventsCatalogSearch from "./EventsCatalogSearch";
+import EventsCatalogTableActions from "./EventsCatalogTableActions";
 
 const EventsCatalog = () => {
   return (
     <div className="flex h-full w-full flex-col px-20 pt-10">
       <EventsCatalogHeader />
-      <EventsCatalogSearch />
+      <EventsCatalogTableActions />
     </div>
   );
 };
