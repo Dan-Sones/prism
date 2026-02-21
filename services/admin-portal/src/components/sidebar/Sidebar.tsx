@@ -1,4 +1,5 @@
 import PrismLogo from "../../assets/prism-logo-minimal-dark.svg";
+import EventCatalogIcon from "./icons/EventCatalogIcon";
 import HomeIcon from "./icons/HomeIcon";
 import SliderIcon from "./icons/SliderIcon";
 import NavItem, { type NavItemProps } from "./NavItem";
@@ -15,10 +16,15 @@ const Sidebar = () => {
       href: "/test",
       icon: SliderIcon,
     },
+    {
+      name: "Event Catalog",
+      href: "/events-catalog",
+      icon: EventCatalogIcon,
+    },
   ];
 
   return (
-    <section id="sidebar" className="w-72 border-r border-gray-200 bg-gray-50">
+    <section id="sidebar" className="w-80 bg-white">
       <div className="flex flex-col gap-3 pt-1 pl-1">
         <a
           href="/home"

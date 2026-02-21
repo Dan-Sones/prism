@@ -1,4 +1,4 @@
-import type { IconProps } from "./IconType";
+import type { IconProps } from "../../icons/IconType";
 
 const HomeIcon = (props: IconProps) => {
   return (
