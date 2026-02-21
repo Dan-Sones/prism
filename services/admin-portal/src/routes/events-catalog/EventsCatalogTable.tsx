@@ -1,33 +1,30 @@
+import type { EventType } from "../../api/eventsCatalog";
 import Table from "../../components/table/Table";
 
-type EventType = {
+type EventTypeRow = {
   name: string;
   owner: string;
   lastUsed: string;
   createdAt: string;
 };
 
-const EventsCatalogTable = () => {
-  const items: Array<EventType> = [
-    {
-      name: "Payment Processed",
-      owner: "Obi-Wan Kenobi",
-      lastUsed: "2024-06-01",
-      createdAt: "2024-01-15",
-    },
-    {
-      name: "User Signed Up",
-      owner: "Philip J. Fry",
-      lastUsed: "2024-05-28",
-      createdAt: "2024-02-20",
-    },
-    {
-      name: "Order Shipped",
+interface EventsCatalogTableProps {
+  data?: Array<EventType>;
+  isLoading: boolean;
+  error: Error | null;
+}
+
+const EventsCatalogTable = (props: EventsCatalogTableProps) => {
+  const { data, isLoading, error } = props;
+
+  const transformData = (data: Array<EventType>): Array<EventTypeRow> => {
+    return data.map((event) => ({
+      name: event.name,
       owner: "Jeff",
-      lastUsed: "2024-06-03",
-      createdAt: "2024-03-10",
-    },
-  ];
+      lastUsed: new Date().toLocaleDateString(),
+      createdAt: new Date(event.createdAt).toLocaleDateString(),
+    }));
+  };
 
   const columns = [
     { header: "Name", accessor: "name" },
@@ -36,7 +33,14 @@ const EventsCatalogTable = () => {
     { header: "Created at", accessor: "createdAt" },
   ];
 
-  return <Table data={items} columns={columns} />;
+  return (
+    <Table
+      data={transformData(data || [])}
+      columns={columns}
+      loading={isLoading}
+      error={error}
+    />
+  );
 };
 
 export default EventsCatalogTable;

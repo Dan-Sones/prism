@@ -1,4 +1,6 @@
 export interface TableProps<T> {
+  loading: boolean;
+  error: Error | null;
   columns: Column<T>[];
   data: T[];
 }

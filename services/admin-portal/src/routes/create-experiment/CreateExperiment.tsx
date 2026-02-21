@@ -9,9 +9,9 @@ import {
   type Experiment,
 } from "../../api/experiments";
 import type { AxiosError } from "axios";
-import type { ProblemDetail } from "../../api/base/ProblemDetails";
 import React from "react";
 import CreateExperimentError from "./CreateExperimentError";
+import type { ProblemDetail } from "../../api/base/problem";
 
 const CreateExperiment = () => {
   const formItems: Array<ConfigurationElementType> = [
@@ -64,8 +64,8 @@ const CreateExperiment = () => {
   >({
     mutationFn: createExperiment,
     onError: (error) => {
-      if (error.response?.data.toDisplay) {
-        setError(error.response.data.toDisplay);
+      if (error.response?.data.detail) {
+        setError(error.response.data.detail);
       } else {
         setError("Something went wrong creating the experiment.");
       }
