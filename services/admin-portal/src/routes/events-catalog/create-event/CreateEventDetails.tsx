@@ -1,6 +1,11 @@
+import { useFormContext } from "react-hook-form";
 import TextInput from "../../../components/form/TextInput";
+import type { CreateEventTypeRequest } from "../../../api/eventsCatalog";
 
 const CreateEventDetails = () => {
+  const { register, formState } = useFormContext<CreateEventTypeRequest>();
+  const { errors } = formState;
+
   return (
     <section className="rounded-md bg-white p-6 shadow-xs">
       <h2 className="mb-4 text-sm font-semibold text-gray-700">
@@ -13,19 +18,25 @@ const CreateEventDetails = () => {
           </label>
           <TextInput
             id="name"
-            name="name"
             placeholder="e.g. purchase_completed"
+            {...register("name", {
+              required: true,
+            })}
           />
+          {errors.name && (
+            <p className="text-xs text-red-500">{errors.name.message}</p>
+          )}
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-sm text-gray-600" htmlFor="description">
             Description
           </label>
           <textarea
+            {...register("description")}
             id="description"
             name="description"
             rows={3}
-            placeholder="Describe when this event is fired..."
+            placeholder="Described the context in which this event is triggered, what it represents, and any other relevant details."
             className="w-full rounded-md border border-slate-200 bg-gray-50 px-3 py-2 text-sm text-slate-800 transition duration-300 placeholder:text-slate-400 hover:border-slate-300 focus:border-slate-400 focus:outline-none"
           />
         </div>

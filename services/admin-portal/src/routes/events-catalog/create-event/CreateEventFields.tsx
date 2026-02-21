@@ -1,7 +1,29 @@
+import { useFieldArray, useFormContext } from "react-hook-form";
 import PlusCircleIcon from "../../../components/icons/PlusCircleIcon";
 import FieldsRow from "./FieldsRow";
+import type { CreateEventTypeRequest } from "../../../api/eventsCatalog";
 
 const CreateEventFields = () => {
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext<CreateEventTypeRequest>();
+
+  const { fields, append, remove } = useFieldArray({
+    name: "fields",
+    rules: { required: true, minLength: 1 },
+    control,
+  });
+
+  const onAddField = () => {
+    append({ name: "", fieldKey: "", dataType: "string" });
+  };
+
+  const onRemoveField = (index: number) => {
+    if (fields.length === 1) return;
+    remove(index);
+  };
+
   return (
     <section className="rounded-md bg-white p-6 shadow-xs">
       <div className="mb-4 flex items-center justify-between">
@@ -11,39 +33,37 @@ const CreateEventFields = () => {
             Field Key MUST match the key found in the event payload EXACTLY.
           </p>
         </div>
-        <button className="flex cursor-pointer items-center gap-1.5 text-sm text-blue-500 hover:text-blue-600">
+        <button
+          type="button"
+          className="flex cursor-pointer items-center gap-1.5 text-sm text-blue-500 hover:text-blue-600"
+          onClick={onAddField}
+        >
           <PlusCircleIcon className="size-4" />
           Add Field
         </button>
       </div>
 
-      <table className="w-full [&_td]:pb-3 [&_td:not(:last-child)]:pr-3 [&_th]:pb-2">
-        <colgroup>
-          <col className="w-[35%]" />
-          <col className="w-[35%]" />
-          <col className="w-[25%]" />
-          <col className="w-8" />
-        </colgroup>
-        <thead>
-          <tr>
-            <th className="text-left text-xs font-normal text-gray-400">
-              Name
-            </th>
-            <th className="text-left text-xs font-normal text-gray-400">
-              Field Key
-            </th>
-            <th className="text-left text-xs font-normal text-gray-400">
-              Data Type
-            </th>
-            <th />
-          </tr>
-        </thead>
-        <tbody>
-          {[1, 2].map((i) => (
-            <FieldsRow key={i} />
-          ))}
-        </tbody>
-      </table>
+      <div className="flex flex-col gap-3">
+        <div className="flex gap-3 text-xs text-gray-400">
+          <span className="flex-1">Name</span>
+          <span className="flex-1">Field Key</span>
+          <span className="w-32">Data Type</span>
+          <span className="w-5" />
+        </div>
+        {fields.map((field, index) => (
+          <FieldsRow
+            key={field.id}
+            index={index}
+            remove={() => onRemoveField(index)}
+          />
+        ))}
+      </div>
+
+      {errors.fields?.root && (
+        <p className="mt-2 text-xs text-red-500">
+          At least one field is required.
+        </p>
+      )}
     </section>
   );
 };
