@@ -1,6 +1,6 @@
 import React from "react";
-import type { FilterItem } from "../../components/filter/Filter";
-import FilterPill from "../../components/filter/FilterPill";
+import type { FilterItem } from "../../../components/filter/Filter";
+import FilterPill from "../../../components/filter/FilterPill";
 
 const EventsCatalogTableFilters = () => {
   const filterItems: Array<FilterItem> = [

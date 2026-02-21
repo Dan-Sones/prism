@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import EventsCatalogHeader from "./EventsCatalogHeader";
 import EventsCatalogTable from "./EventsCatalogTable";
 import EventsCatalogTableActions from "./EventsCatalogTableActions";
-import { getEventTypes } from "../../api/eventsCatalog";
+import { getEventTypes } from "../../../api/eventsCatalog";
 import { useState } from "react";
 
 const EventsCatalog = () => {

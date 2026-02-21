@@ -2,7 +2,7 @@ import { Routes, Route, Navigate } from "react-router";
 import NotFound from "../routes/error/NotFound";
 import Home from "../routes/home/Home";
 import CreateExperiment from "../routes/create-experiment/CreateExperiment";
-import EventsCatalog from "../routes/events-catalog/EventsCatalog";
+import EventsCatalog from "../routes/events-catalog/list/EventsCatalog";
 import Layout from "../components/layout/Layout";
 
 const Router = () => {

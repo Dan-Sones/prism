@@ -1,6 +1,6 @@
 import React from "react";
 import { debounce } from "lodash";
-import SearchIcon from "../../components/icons/SearchIcon";
+import SearchIcon from "../../../components/icons/SearchIcon";
 
 interface EventsCatalogSearchProps {
   onSearch?: (query: string) => void;

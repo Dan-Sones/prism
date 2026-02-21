@@ -1,5 +1,5 @@
-import type { EventType } from "../../api/eventsCatalog";
-import Table from "../../components/table/Table";
+import type { EventType } from "../../../api/eventsCatalog";
+import Table from "../../../components/table/Table";
 
 type EventTypeRow = {
   name: string;

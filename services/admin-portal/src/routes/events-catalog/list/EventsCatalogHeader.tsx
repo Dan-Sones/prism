@@ -1,5 +1,5 @@
-import PrimaryButton from "../../components/button/PrimaryButton";
-import PlusCircleIcon from "../../components/icons/PlusCircleIcon";
+import PrimaryButton from "../../../components/button/PrimaryButton";
+import PlusCircleIcon from "../../../components/icons/PlusCircleIcon";
 
 const EventsCatalogHeader = () => {
   return (
