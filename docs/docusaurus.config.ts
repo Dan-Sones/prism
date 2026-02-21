@@ -53,6 +53,10 @@ const config: Config = {
             spec: 'openapi/assignment-service.yaml',
             route: '/api/assignment-service',
           },
+          {
+            spec: 'openapi/admin-service/admin-service.yaml',
+            route: '/api/admin-service',
+          },
         ],
         theme: {
           primaryColor: '#1890ff',

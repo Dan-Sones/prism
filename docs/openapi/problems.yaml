@@ -1,0 +1,59 @@
+responses:
+  BadRequest:
+    description: Bad request
+    content:
+      application/problem+json:
+        schema:
+          $ref: "#/schemas/ProblemDetail"
+        example:
+          title: "Bad Request"
+          status: 400
+          detail: "Request body is required"
+
+  ValidationError:
+    description: Validation error
+    content:
+      application/problem+json:
+        schema:
+          $ref: "#/schemas/ProblemDetail"
+        example:
+          title: "Validation Error"
+          status: 422
+          detail: "One or more fields failed validation"
+          violations:
+            - field: "name"
+              message: "Name is required"
+
+  InternalServerError:
+    description: Internal server error
+    content:
+      application/problem+json:
+        schema:
+          $ref: "#/schemas/ProblemDetail"
+        example:
+          title: "Internal Server Error"
+          status: 500
+          detail: "An unexpected error occurred"
+
+schemas:
+  ProblemDetail:
+    type: object
+    properties:
+      title:
+        type: string
+      status:
+        type: integer
+      detail:
+        type: string
+      violations:
+        type: array
+        items:
+          $ref: "#/schemas/Violation"
+
+  Violation:
+    type: object
+    properties:
+      field:
+        type: string
+      message:
+        type: string

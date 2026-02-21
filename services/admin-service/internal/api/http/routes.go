@@ -8,7 +8,8 @@ import (
 )
 
 type Controllers struct {
-	ExperimentController *controller.ExperimentController
+	ExperimentController    *controller.ExperimentController
+	EventsCatalogController *controller.EventsCatalogController
 }
 
 func RegisterRoutes(router *chi.Mux, c Controllers) {
@@ -19,5 +20,16 @@ func RegisterRoutes(router *chi.Mux, c Controllers) {
 		})
 
 		r.Post("/experiments", c.ExperimentController.CreateExperiment)
+
+		r.Route("/events-catalog", func(r chi.Router) {
+			r.Get("/", c.EventsCatalogController.GetEventTypes)
+			r.Post("/", c.EventsCatalogController.CreateEventType)
+
+			r.Route("/{eventTypeId}", func(r chi.Router) {
+				r.Get("/", c.EventsCatalogController.GetEventType)
+				r.Delete("/", c.EventsCatalogController.DeleteEventType)
+				r.Get("/field-key-available", c.EventsCatalogController.IsFieldKeyAvailable)
+			})
+		})
 	})
 }

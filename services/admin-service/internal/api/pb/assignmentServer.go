@@ -1,11 +1,10 @@
 package pb
 
 import (
-	appErrors "admin-service/internal/errors"
 	pb "admin-service/internal/grpc/generated/assignment/v1"
+	"admin-service/internal/problems"
 	"admin-service/internal/service"
 	"context"
-	"errors"
 
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"
@@ -24,9 +23,12 @@ func NewAssignmentServer(assignmentService *service.AssignmentService) *Assignme
 }
 
 func (s *AssignmentServer) GetExperimentsAndVariantsForBucket(ctx context.Context, req *pb.GetExperimentsAndVariantsForBucketRequest) (*pb.GetExperimentsAndVariantsForBucketResponse, error) {
-	experimentsAndVariants, err := s.assignmentService.GetExperimentsAndVariantsForBucket(ctx, req.BucketId)
+	experimentsAndVariants, violations, err := s.assignmentService.GetExperimentsAndVariantsForBucket(ctx, req.BucketId)
 	if err != nil {
-		return nil, s.handleError(err)
+		return nil, status.Errorf(codes.Internal, "internal server error")
+	}
+	if len(violations) > 0 {
+		return nil, violationsToGrpcError(violations)
 	}
 
 	response := &pb.GetExperimentsAndVariantsForBucketResponse{
@@ -52,31 +54,19 @@ func (s *AssignmentServer) GetExperimentsAndVariantsForBucket(ctx context.Contex
 	return response, nil
 }
 
-func (s *AssignmentServer) handleError(err error) error {
-	var notFoundErr *appErrors.NotFoundError
-	var validationErr *appErrors.ValidationError
-
-	switch {
-	case errors.As(err, &notFoundErr):
-		return status.Errorf(codes.NotFound, "bucket %d not found", notFoundErr.ID)
-	case errors.As(err, &validationErr):
-		st := status.New(codes.InvalidArgument, "validation failed")
-		br := &errdetails.BadRequest{
-			FieldViolations: []*errdetails.BadRequest_FieldViolation{
-				{
-					Field:       validationErr.Field,
-					Description: validationErr.Message,
-				},
-			},
+func violationsToGrpcError(violations []problems.Violation) error {
+	st := status.New(codes.InvalidArgument, "validation failed")
+	fieldViolations := make([]*errdetails.BadRequest_FieldViolation, len(violations))
+	for i, v := range violations {
+		fieldViolations[i] = &errdetails.BadRequest_FieldViolation{
+			Field:       v.Field,
+			Description: v.Message,
 		}
-		st, err = st.WithDetails(br)
-		if err != nil {
-			return status.Errorf(codes.InvalidArgument, "validation failed: %s", validationErr.Message)
-		}
-		return st.Err()
-
-	default:
-		return status.Errorf(codes.Internal, "internal server error")
 	}
-
+	br := &errdetails.BadRequest{FieldViolations: fieldViolations}
+	st, err := st.WithDetails(br)
+	if err != nil {
+		return status.Errorf(codes.InvalidArgument, "validation failed")
+	}
+	return st.Err()
 }
