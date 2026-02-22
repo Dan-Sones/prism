@@ -5,6 +5,11 @@ spring:
 server:
   port: 5678
 
+grpc:
+    server:
+        port: 50052
+        host: localhost
+
 logging:
   level:
     root: INFO

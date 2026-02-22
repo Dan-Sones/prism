@@ -25,28 +25,31 @@ const (
 type DataType int32
 
 const (
-	DataType_string    DataType = 0
-	DataType_int       DataType = 1
-	DataType_float     DataType = 2
-	DataType_bool      DataType = 3
-	DataType_timestamp DataType = 4
+	DataType_DATA_TYPE_UNSPECIFIED DataType = 0
+	DataType_DATA_TYPE_STRING      DataType = 1
+	DataType_DATA_TYPE_INT         DataType = 2
+	DataType_DATA_TYPE_FLOAT       DataType = 3
+	DataType_DATA_TYPE_BOOL        DataType = 4
+	DataType_DATA_TYPE_TIMESTAMP   DataType = 5
 )
 
 // Enum value maps for DataType.
 var (
 	DataType_name = map[int32]string{
-		0: "string",
-		1: "int",
-		2: "float",
-		3: "bool",
-		4: "timestamp",
+		0: "DATA_TYPE_UNSPECIFIED",
+		1: "DATA_TYPE_STRING",
+		2: "DATA_TYPE_INT",
+		3: "DATA_TYPE_FLOAT",
+		4: "DATA_TYPE_BOOL",
+		5: "DATA_TYPE_TIMESTAMP",
 	}
 	DataType_value = map[string]int32{
-		"string":    0,
-		"int":       1,
-		"float":     2,
-		"bool":      3,
-		"timestamp": 4,
+		"DATA_TYPE_UNSPECIFIED": 0,
+		"DATA_TYPE_STRING":      1,
+		"DATA_TYPE_INT":         2,
+		"DATA_TYPE_FLOAT":       3,
+		"DATA_TYPE_BOOL":        4,
+		"DATA_TYPE_TIMESTAMP":   5,
 	}
 )
 
@@ -286,7 +289,7 @@ func (x *EventField) GetDataType() DataType {
 	if x != nil {
 		return x.DataType
 	}
-	return DataType_string
+	return DataType_DATA_TYPE_UNSPECIFIED
 }
 
 var File_events_catalog_v1_events_catalog_proto protoreflect.FileDescriptor
@@ -312,16 +315,17 @@ const file_events_catalog_v1_events_catalog_proto_rawDesc = "" +
 	"\revent_type_id\x18\x02 \x01(\tR\veventTypeId\x12\x12\n" +
 	"\x04name\x18\x03 \x01(\tR\x04name\x12\x1b\n" +
 	"\tfield_key\x18\x04 \x01(\tR\bfieldKey\x128\n" +
-	"\tdata_type\x18\x05 \x01(\x0e2\x1b.events_catalog.v1.DataTypeR\bdataType*C\n" +
-	"\bDataType\x12\n" +
-	"\n" +
-	"\x06string\x10\x00\x12\a\n" +
-	"\x03int\x10\x01\x12\t\n" +
-	"\x05float\x10\x02\x12\b\n" +
-	"\x04bool\x10\x03\x12\r\n" +
-	"\ttimestamp\x10\x042v\n" +
+	"\tdata_type\x18\x05 \x01(\x0e2\x1b.events_catalog.v1.DataTypeR\bdataType*\x90\x01\n" +
+	"\bDataType\x12\x19\n" +
+	"\x15DATA_TYPE_UNSPECIFIED\x10\x00\x12\x14\n" +
+	"\x10DATA_TYPE_STRING\x10\x01\x12\x11\n" +
+	"\rDATA_TYPE_INT\x10\x02\x12\x13\n" +
+	"\x0fDATA_TYPE_FLOAT\x10\x03\x12\x12\n" +
+	"\x0eDATA_TYPE_BOOL\x10\x04\x12\x17\n" +
+	"\x13DATA_TYPE_TIMESTAMP\x10\x052v\n" +
 	"\x14EventsCatalogService\x12^\n" +
-	"\x11GetEventTypeByKey\x12+.events_catalog.v1.GetEventTypeByKeyRequest\x1a\x1c.events_catalog.v1.EventTypeBAZ?admin-service/server/api/proto/events_catalog/v1;events_catalogb\x06proto3"
+	"\x11GetEventTypeByKey\x12+.events_catalog.v1.GetEventTypeByKeyRequest\x1a\x1c.events_catalog.v1.EventTypeBs\n" +
+	".org.prism.eventsservice.grpc.events_catalog.v1P\x01Z?admin-service/server/api/proto/events_catalog/v1;events_catalogb\x06proto3"
 
 var (
 	file_events_catalog_v1_events_catalog_proto_rawDescOnce sync.Once

@@ -5,6 +5,8 @@ package events_catalog.v1;
 import "google/protobuf/timestamp.proto";
 
 option go_package = "admin-service/server/api/proto/events_catalog/v1;events_catalog";
+option java_multiple_files = true;
+option java_package = "org.prism.eventsservice.grpc.events_catalog.v1";
 
 service EventsCatalogService {
   rpc GetEventTypeByKey(GetEventTypeByKeyRequest) returns (EventType);
@@ -33,9 +35,10 @@ message EventField {
 }
 
 enum DataType {
-  string = 0;
-  int = 1;
-  float = 2;
-  bool = 3;
-  timestamp = 4;
+  DATA_TYPE_UNSPECIFIED = 0;
+  DATA_TYPE_STRING = 1;
+  DATA_TYPE_INT = 2;
+  DATA_TYPE_FLOAT = 3;
+  DATA_TYPE_BOOL = 4;
+  DATA_TYPE_TIMESTAMP = 5;
 }

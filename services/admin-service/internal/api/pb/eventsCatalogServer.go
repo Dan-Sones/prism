@@ -4,7 +4,6 @@ import (
 	"admin-service/internal/grpc/generated/events_catalog/v1"
 	"admin-service/internal/service"
 	"context"
-	"fmt"
 
 	"github.com/Dan-Sones/prismdbmodels/model"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -45,8 +44,25 @@ func convertEventFields(fields []model.EventField) []*events_catalog.EventField 
 			Id:       field.ID.String(),
 			Name:     field.Name,
 			FieldKey: field.FieldKey,
-			DataType: events_catalog.DataType(events_catalog.DataType_value[fmt.Sprintf("%s", field.DataType)]),
+			DataType: convertDataType(field.DataType),
 		}
 	}
 	return converted
+}
+
+func convertDataType(dataType model.DataType) events_catalog.DataType {
+	switch dataType {
+	case model.DataTypeString:
+		return events_catalog.DataType_DATA_TYPE_STRING
+	case model.DataTypeInt:
+		return events_catalog.DataType_DATA_TYPE_INT
+	case model.DataTypeFloat:
+		return events_catalog.DataType_DATA_TYPE_FLOAT
+	case model.DataTypeBoolean:
+		return events_catalog.DataType_DATA_TYPE_BOOL
+	case model.DataTypeTimestamp:
+		return events_catalog.DataType_DATA_TYPE_TIMESTAMP
+	default:
+		return events_catalog.DataType_DATA_TYPE_UNSPECIFIED
+	}
 }
