@@ -29,8 +29,11 @@ const CreateEventFields = () => {
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h2 className="text-sm font-semibold text-gray-700">Fields</h2>
-          <p className="text-xs text-gray-400">
-            Field Key MUST match the key found in the event payload EXACTLY.
+          <p className="max-w-md text-xs text-gray-400">
+            Field keys map to the top-level keys in the event's{" "}
+            <code className="rounded bg-gray-100 px-1">properties</code> object.
+            <span className="font-semibold"> Nesting is not supported</span>,
+            all events must appear as top-level keys.
           </p>
         </div>
         <button

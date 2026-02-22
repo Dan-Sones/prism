@@ -24,6 +24,30 @@ func ValidateEventType(eventType model.EventType) []problems.Violation {
 		})
 	}
 
+	if eventType.EventKey == "" {
+		violations = append(violations, problems.Violation{
+			Field:   "eventKey",
+			Message: "Event key is required",
+		})
+	}
+
+	if eventType.EventKey != "" {
+		eventKeyRegex := regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9_-]*$`)
+		if !eventKeyRegex.MatchString(eventType.EventKey) {
+			violations = append(violations, problems.Violation{
+				Field:   "eventKey",
+				Message: "Event key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
+			})
+		}
+	}
+
+	if len(eventType.EventKey) > 50 {
+		violations = append(violations, problems.Violation{
+			Field:   "eventKey",
+			Message: "Event key must be less than 50 characters",
+		})
+	}
+
 	if len(eventType.Fields) == 0 {
 		violations = append(violations, problems.Violation{
 			Field:   "fields",

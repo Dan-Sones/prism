@@ -37,10 +37,10 @@ func (e *EventsCatalogRepository) CreateEventType(ctx context.Context, eventType
 
 	defer tx.Rollback(ctx)
 
-	sql := `INSERT INTO prism.event_types (name, version, description) VALUES ($1, $2, $3) RETURNING id`
+	sql := `INSERT INTO prism.event_types (name, event_key, version, description) VALUES ($1, $2, $3, $4) RETURNING id`
 
 	var eventTypeId uuid.UUID
-	err = tx.QueryRow(ctx, sql, eventType.Name, eventType.Version, eventType.Description).Scan(&eventTypeId)
+	err = tx.QueryRow(ctx, sql, eventType.Name, eventType.EventKey, eventType.Version, eventType.Description).Scan(&eventTypeId)
 	if err != nil {
 		return err
 	}
@@ -77,8 +77,8 @@ func (e *EventsCatalogRepository) DeleteEventType(ctx context.Context, eventType
 
 func (e *EventsCatalogRepository) GetEventTypeById(ctx context.Context, eventTypeId string) (*model.EventType, error) {
 	var eventType model.EventType
-	err := e.pgx.QueryRow(ctx, "SELECT id, name, version, description, created_at FROM prism.event_types WHERE id = $1", eventTypeId).Scan(
-		&eventType.ID, &eventType.Name, &eventType.Version, &eventType.Description, &eventType.CreatedAt,
+	err := e.pgx.QueryRow(ctx, "SELECT id, name, event_key, version, description, created_at FROM prism.event_types WHERE id = $1", eventTypeId).Scan(
+		&eventType.ID, &eventType.Name, &eventType.EventKey, &eventType.Version, &eventType.Description, &eventType.CreatedAt,
 	)
 	if err != nil {
 		return nil, err
@@ -98,7 +98,7 @@ func (e *EventsCatalogRepository) GetEventTypeById(ctx context.Context, eventTyp
 }
 
 func (e *EventsCatalogRepository) GetEventTypes(ctx context.Context) ([]*model.EventType, error) {
-	rows, err := e.pgx.Query(ctx, "SELECT id, name, version, description, created_at FROM prism.event_types")
+	rows, err := e.pgx.Query(ctx, "SELECT id, name, event_key, version, description, created_at FROM prism.event_types")
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func (e *EventsCatalogRepository) GetEventTypes(ctx context.Context) ([]*model.E
 }
 
 func (e *EventsCatalogRepository) SearchEventTypes(ctx context.Context, searchQuery string) ([]*model.EventType, error) {
-	rows, err := e.pgx.Query(ctx, "SELECT id, name, version, description, created_at FROM prism.event_types WHERE name ILIKE '%' || $1 || '%'", searchQuery)
+	rows, err := e.pgx.Query(ctx, "SELECT id, name, event_key, version, description, created_at FROM prism.event_types WHERE name ILIKE '%' || $1 || '%'", searchQuery)
 	if err != nil {
 		return nil, err
 	}

@@ -34,7 +34,10 @@ const FieldsRow = ({ index, remove }: FieldsRowProps) => {
           placeholder="e.g. Order Total"
           {...register(`fields.${index}.name`, {
             required: "Name is required",
-            maxLength: { value: 100, message: "Name must be less than 100 characters" },
+            maxLength: {
+              value: 100,
+              message: "Name must be less than 100 characters",
+            },
           })}
         />
         {fieldErrors?.name && (
@@ -48,7 +51,10 @@ const FieldsRow = ({ index, remove }: FieldsRowProps) => {
           placeholder="e.g. order_total"
           {...register(`fields.${index}.fieldKey`, {
             required: "Field key is required",
-            maxLength: { value: 50, message: "Field key must be less than 50 characters" },
+            maxLength: {
+              value: 50,
+              message: "Field key must be less than 50 characters",
+            },
             pattern: {
               value: /^[a-zA-Z][a-zA-Z0-9_-]*$/,
               message:

@@ -10,6 +10,7 @@ export type EventField = {
 export type EventType = {
   id: string;
   name: string;
+  eventKey: string;
   version: number;
   description: string | null;
   createdAt: string;
@@ -24,6 +25,7 @@ export type EventFieldRequest = {
 
 export type CreateEventTypeRequest = {
   name: string;
+  eventKey: string;
   description?: string;
   fields: EventFieldRequest[];
 };

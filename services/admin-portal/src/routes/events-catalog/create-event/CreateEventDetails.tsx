@@ -18,14 +18,44 @@ const CreateEventDetails = () => {
           </label>
           <TextInput
             id="name"
-            placeholder="e.g. purchase_completed"
+            placeholder="e.g. Purchase Completed"
             {...register("name", {
               required: "Name is required",
-              maxLength: { value: 100, message: "Name must be less than 100 characters" },
+              maxLength: {
+                value: 100,
+                message: "Name must be less than 100 characters",
+              },
             })}
           />
           {errors.name && (
             <p className="text-xs text-red-500">{errors.name.message}</p>
+          )}
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-sm text-gray-600" htmlFor="eventKey">
+            Event Key <span className="text-red-400">*</span>
+          </label>
+          <p className="text-xs text-gray-400">
+            The event key must match the key found in the event payload EXACTLY.
+          </p>
+          <TextInput
+            id="eventKey"
+            placeholder="e.g. purchase_completed"
+            {...register("eventKey", {
+              required: "Event key is required",
+              maxLength: {
+                value: 50,
+                message: "Event key must be less than 50 characters",
+              },
+              pattern: {
+                value: /^[a-zA-Z][a-zA-Z0-9_-]*$/,
+                message:
+                  "Must start with a letter and only contain letters, numbers, underscores, or hyphens.",
+              },
+            })}
+          />
+          {errors.eventKey && (
+            <p className="text-xs text-red-500">{errors.eventKey.message}</p>
           )}
         </div>
         <div className="flex flex-col gap-1">

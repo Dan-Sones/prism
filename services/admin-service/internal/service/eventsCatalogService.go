@@ -48,6 +48,8 @@ func (e *EventsCatalogService) CreateEventType(ctx context.Context, eventType mo
 			switch pgErr.ConstraintName {
 			case "unique_event_type_name":
 				violation = problems.Violation{Field: "name", Message: "An event type with this name already exists"}
+			case "unique_event_type_event_key":
+				violation = problems.Violation{Field: "eventKey", Message: "An event type with this event key already exists"}
 			case "unique_event_type_field_key":
 				violation = problems.Violation{Field: "fieldKey", Message: "A field with this key already exists for this event type"}
 			default:
