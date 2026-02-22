@@ -18,6 +18,7 @@
     "@types/lodash": "^4.17.23",
     "axios": "^1.13.2",
     "clsx": "^2.1.1",
+    "framer-motion": "^12.34.3",
     "lodash": "^4.17.23",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",

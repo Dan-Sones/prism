@@ -1,6 +1,7 @@
 import React from "react";
 import Sidebar from "../sidebar/Sidebar";
 import Bars3Icon from "../icons/Bars3Icon";
+import ErrorBanner from "../errorBanner/ErrorBanner";
 
 const Layout = (props: React.PropsWithChildren) => {
   const { children } = props;
@@ -17,7 +18,7 @@ const Layout = (props: React.PropsWithChildren) => {
 
       <Sidebar isOpen={sidebarOpen} />
 
-      <section className="flex h-full w-full grow flex-col bg-[rgb(244,243,245)]">
+      <section className="relative flex h-full w-full grow flex-col bg-[rgb(244,243,245)]">
         <div className="flex items-center p-3 lg:hidden">
           <button
             onClick={() => setSidebarOpen(true)}
@@ -26,6 +27,8 @@ const Layout = (props: React.PropsWithChildren) => {
             <Bars3Icon className="size-5" />
           </button>
         </div>
+        <ErrorBanner />
+
         {children}
       </section>
     </div>

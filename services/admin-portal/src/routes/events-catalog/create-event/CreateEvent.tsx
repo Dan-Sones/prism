@@ -10,9 +10,12 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import type { ProblemDetail } from "../../../api/base/problem";
+import { useErrorBanner } from "../../../context/ErrorBannerContext";
 
 const CreateEvent = () => {
   const navigate = useNavigate();
+
+  const { setErrorMessage } = useErrorBanner();
 
   const form = useForm<CreateEventTypeRequest>({
     mode: "onChange",
@@ -39,9 +42,16 @@ const CreateEvent = () => {
       // TODO: redirect to event type details page after creation instead of just going back to the list
       navigate("/events-catalog");
     },
+    onError: (error) => {
+      const baseErrorMessage = "Failed to create event type:";
 
-    // todo handle error on form submission
-    // I think I need to create an error context / toast setup to actually display this
+      if (error.response?.data.detail) {
+        setErrorMessage(baseErrorMessage + " " + error.response.data.detail);
+        return;
+      }
+
+      setErrorMessage(baseErrorMessage);
+    },
   });
 
   return (
