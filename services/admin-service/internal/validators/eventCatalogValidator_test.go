@@ -39,14 +39,14 @@ func TestValidateEventField(t *testing.T) {
 		{
 			name: "Name exceeds max length",
 			field: model.EventField{
-				Name:     string(make([]rune, 256)),
+				Name:     string(make([]rune, 101)),
 				FieldKey: "valid_key",
 				DataType: model.DataTypeString,
 			},
 			want: []problems.Violation{
 				{
 					Field:   "name",
-					Message: "Name must be less than 255 characters",
+					Message: "Name must be less than 100 characters",
 				},
 			},
 		},
@@ -114,7 +114,7 @@ func TestValidateEventField(t *testing.T) {
 			name: "Field key exceeds max length",
 			field: model.EventField{
 				Name:     "Valid Name",
-				FieldKey: string(make([]rune, 256)),
+				FieldKey: string(make([]rune, 51)),
 				DataType: model.DataTypeString,
 			},
 			want: []problems.Violation{
@@ -124,7 +124,7 @@ func TestValidateEventField(t *testing.T) {
 				},
 				{
 					Field:   "fieldKey",
-					Message: "FieldKey must be less than 255 characters",
+					Message: "FieldKey must be less than 50 characters",
 				},
 			},
 		},
@@ -202,7 +202,7 @@ func TestValidateEventType(t *testing.T) {
 		{
 			name: "Name too long",
 			event: model.EventType{
-				Name: string(make([]rune, 256)),
+				Name: string(make([]rune, 101)),
 				Fields: []model.EventField{
 					{
 						Name:     "User Email",
@@ -214,7 +214,7 @@ func TestValidateEventType(t *testing.T) {
 			want: []problems.Violation{
 				{
 					Field:   "name",
-					Message: "Name must be less than 255 characters",
+					Message: "Name must be less than 100 characters",
 				},
 			},
 		},

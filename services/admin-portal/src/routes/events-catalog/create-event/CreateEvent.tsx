@@ -15,6 +15,7 @@ const CreateEvent = () => {
   const navigate = useNavigate();
 
   const form = useForm<CreateEventTypeRequest>({
+    mode: "onChange",
     defaultValues: {
       fields: [{ name: "", fieldKey: "", dataType: "string" }],
     },

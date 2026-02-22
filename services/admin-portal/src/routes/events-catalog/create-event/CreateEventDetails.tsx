@@ -20,7 +20,8 @@ const CreateEventDetails = () => {
             id="name"
             placeholder="e.g. purchase_completed"
             {...register("name", {
-              required: true,
+              required: "Name is required",
+              maxLength: { value: 100, message: "Name must be less than 100 characters" },
             })}
           />
           {errors.name && (
