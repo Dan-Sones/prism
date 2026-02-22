@@ -21,3 +21,8 @@ export interface TableRowProps<T> {
   row: T;
   columns: Column<T>[];
 }
+
+export interface TableSorting<T> {
+  accessor: keyof T;
+  direction: "asc" | "desc";
+}

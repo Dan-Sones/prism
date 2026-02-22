@@ -3,6 +3,7 @@ import Table from "../../../components/table/Table";
 
 type EventTypeRow = {
   name: string;
+  eventKey: string;
   owner: string;
   lastUsed: string;
   createdAt: string;
@@ -21,6 +22,7 @@ const EventsCatalogTable = (props: EventsCatalogTableProps) => {
     return data.map((event) => ({
       name: event.name,
       owner: "Jeff",
+      eventKey: event.eventKey,
       lastUsed: new Date().toLocaleDateString(),
       createdAt: new Date(event.createdAt).toLocaleDateString(),
     }));
@@ -28,6 +30,7 @@ const EventsCatalogTable = (props: EventsCatalogTableProps) => {
 
   const columns = [
     { header: "Name", accessor: "name" },
+    { header: "Event Key", accessor: "eventKey" },
     { header: "Owner", accessor: "owner" },
     { header: "Last Used", accessor: "lastUsed" },
     { header: "Created at", accessor: "createdAt" },
