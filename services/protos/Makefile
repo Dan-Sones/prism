@@ -15,7 +15,8 @@ generate:
 		--go_opt=paths=source_relative \
 		--go-grpc_out=$(ADMIN_GEN_DIR) \
 		--go-grpc_opt=paths=source_relative \
-		assignment/v1/*.proto
+		assignment/v1/*.proto \
+		events_catalog/v1/*.proto
 	@echo "Files Generated in $(ADMIN_GEN_DIR)"
 	@echo "Generating protos for assignment-service..."
 	@mkdir -p $(ASSIGNMENT_GEN_DIR)
@@ -27,6 +28,7 @@ generate:
 		--go-grpc_opt=paths=source_relative \
 		assignment/v1/*.proto
 	@echo "Files Generated in $(ASSIGNMENT_GEN_DIR)"
+
 
 clean:
 	rm -rf $(ADMIN_GEN_DIR)/*
