@@ -26,7 +26,7 @@ const EventsCatalogTableFilters = () => {
   };
 
   return (
-    <div className="flex flex-1 flex-row items-center justify-between gap-2 rounded-md bg-white px-4 py-2 shadow-xs">
+    <div className="flex flex-1 flex-row items-center justify-between gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 shadow-xs">
       <div>
         <FilterPill
           label="Owner"

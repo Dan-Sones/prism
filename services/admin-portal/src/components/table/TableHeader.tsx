@@ -53,7 +53,9 @@ const TableHeader = <T,>(props: TableHeaderProps<T>) => {
             </span>
           </th>
         ))}
-        <th className="text-left text-xs font-light text-gray-500">Actions</th>
+        <th className="text-center text-xs font-light text-gray-500">
+          Actions
+        </th>
       </tr>
     </thead>
   );

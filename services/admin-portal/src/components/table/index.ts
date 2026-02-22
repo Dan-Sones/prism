@@ -3,6 +3,7 @@ export interface TableProps<T> {
   error: Error | null;
   columns: Column<T>[];
   data: T[];
+  actions?: TableActions<T>;
 }
 
 export interface Column<T> {
@@ -20,9 +21,17 @@ export interface Column<T> {
 export interface TableRowProps<T> {
   row: T;
   columns: Column<T>[];
+  actions?: TableActions<T>;
 }
 
 export interface TableSorting<T> {
   accessor: keyof T;
   direction: "asc" | "desc";
 }
+
+export interface TableAction<T> {
+  label: string;
+  onClick: (row: T) => void;
+}
+
+export type TableActions<T> = Array<TableAction<T>>;

@@ -4,7 +4,13 @@ import Spinner from "../spinner/Spinner";
 import TableHeader from "./TableHeader";
 import TableRow from "./TableRow";
 
-const Table = <T,>({ data, columns, loading, error }: TableProps<T>) => {
+const Table = <T,>({
+  data,
+  columns,
+  loading,
+  error,
+  actions,
+}: TableProps<T>) => {
   // TODO: Pagination
   // TODO: Row Actions (Edit, delete, etc.)
   // TODO: View
@@ -29,7 +35,12 @@ const Table = <T,>({ data, columns, loading, error }: TableProps<T>) => {
         {!loading && !error && sortedData.length > 0 && (
           <tbody>
             {sortedData.map((row, index) => (
-              <TableRow key={index} row={row} columns={columns} />
+              <TableRow
+                key={index}
+                row={row}
+                columns={columns}
+                actions={actions}
+              />
             ))}
           </tbody>
         )}

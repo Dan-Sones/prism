@@ -13,6 +13,7 @@ interface EventsCatalogTableProps {
   data?: Array<EventType>;
   isLoading: boolean;
   error: Error | null;
+  deleteTable: (id: string) => void;
 }
 
 const EventsCatalogTable = (props: EventsCatalogTableProps) => {
@@ -36,12 +37,24 @@ const EventsCatalogTable = (props: EventsCatalogTableProps) => {
     { header: "Created at", accessor: "createdAt" },
   ];
 
+  const deleteTableAction = (row: EventTypeRow) => {
+    props.deleteTable(row.eventKey);
+  };
+
+  const actions = [
+    {
+      label: "Delete",
+      onClick: deleteTableAction,
+    },
+  ];
+
   return (
     <Table
       data={transformData(data || [])}
       columns={columns}
       loading={isLoading}
       error={error}
+      actions={actions}
     />
   );
 };
