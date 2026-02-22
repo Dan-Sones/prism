@@ -17,6 +17,7 @@ type EventsCatalogRepositoryInterface interface {
 	GetEventTypes(ctx context.Context) ([]*model.EventType, error)
 	SearchEventTypes(ctx context.Context, searchQuery string) ([]*model.EventType, error)
 	IsFieldKeyAvailableForEventType(ctx context.Context, eventTypeId string, fieldKey string) (bool, error)
+	IsEventKeyAvailable(ctx context.Context, eventKey string) (bool, error)
 }
 
 type EventsCatalogRepository struct {
@@ -37,10 +38,10 @@ func (e *EventsCatalogRepository) CreateEventType(ctx context.Context, eventType
 
 	defer tx.Rollback(ctx)
 
-	sql := `INSERT INTO prism.event_types (name, version, description) VALUES ($1, $2, $3) RETURNING id`
+	sql := `INSERT INTO prism.event_types (name, event_key, version, description) VALUES ($1, $2, $3, $4) RETURNING id`
 
 	var eventTypeId uuid.UUID
-	err = tx.QueryRow(ctx, sql, eventType.Name, eventType.Version, eventType.Description).Scan(&eventTypeId)
+	err = tx.QueryRow(ctx, sql, eventType.Name, eventType.EventKey, eventType.Version, eventType.Description).Scan(&eventTypeId)
 	if err != nil {
 		return err
 	}
@@ -77,8 +78,8 @@ func (e *EventsCatalogRepository) DeleteEventType(ctx context.Context, eventType
 
 func (e *EventsCatalogRepository) GetEventTypeById(ctx context.Context, eventTypeId string) (*model.EventType, error) {
 	var eventType model.EventType
-	err := e.pgx.QueryRow(ctx, "SELECT id, name, version, description, created_at FROM prism.event_types WHERE id = $1", eventTypeId).Scan(
-		&eventType.ID, &eventType.Name, &eventType.Version, &eventType.Description, &eventType.CreatedAt,
+	err := e.pgx.QueryRow(ctx, "SELECT id, name, event_key, version, description, created_at FROM prism.event_types WHERE id = $1", eventTypeId).Scan(
+		&eventType.ID, &eventType.Name, &eventType.EventKey, &eventType.Version, &eventType.Description, &eventType.CreatedAt,
 	)
 	if err != nil {
 		return nil, err
@@ -98,7 +99,7 @@ func (e *EventsCatalogRepository) GetEventTypeById(ctx context.Context, eventTyp
 }
 
 func (e *EventsCatalogRepository) GetEventTypes(ctx context.Context) ([]*model.EventType, error) {
-	rows, err := e.pgx.Query(ctx, "SELECT id, name, version, description, created_at FROM prism.event_types")
+	rows, err := e.pgx.Query(ctx, "SELECT id, name, event_key, version, description, created_at FROM prism.event_types")
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +121,7 @@ func (e *EventsCatalogRepository) GetEventTypes(ctx context.Context) ([]*model.E
 }
 
 func (e *EventsCatalogRepository) SearchEventTypes(ctx context.Context, searchQuery string) ([]*model.EventType, error) {
-	rows, err := e.pgx.Query(ctx, "SELECT id, name, version, description, created_at FROM prism.event_types WHERE name ILIKE '%' || $1 || '%'", searchQuery)
+	rows, err := e.pgx.Query(ctx, "SELECT id, name, event_key, version, description, created_at FROM prism.event_types WHERE name ILIKE '%' || $1 || '%'", searchQuery)
 	if err != nil {
 		return nil, err
 	}
@@ -152,6 +153,24 @@ func (e *EventsCatalogRepository) IsFieldKeyAvailableForEventType(ctx context.Co
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			// field key is available
+			return true, nil
+		}
+		return false, err
+	}
+
+	if existing != nil {
+		return false, nil
+	}
+
+	return true, nil
+}
+
+func (e *EventsCatalogRepository) IsEventKeyAvailable(ctx context.Context, eventKey string) (bool, error) {
+	var existing *string
+	err := e.pgx.QueryRow(ctx, "SELECT id FROM prism.event_types WHERE event_key = $1", eventKey).Scan(&existing)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			// event key is available
 			return true, nil
 		}
 		return false, err

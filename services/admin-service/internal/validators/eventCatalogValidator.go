@@ -17,10 +17,34 @@ func ValidateEventType(eventType model.EventType) []problems.Violation {
 			Message: "Name is required",
 		})
 	}
-	if len(eventType.Name) > 255 {
+	if len(eventType.Name) > 100 {
 		violations = append(violations, problems.Violation{
 			Field:   "name",
-			Message: "Name must be less than 255 characters",
+			Message: "Name must be less than 100 characters",
+		})
+	}
+
+	if eventType.EventKey == "" {
+		violations = append(violations, problems.Violation{
+			Field:   "eventKey",
+			Message: "Event key is required",
+		})
+	}
+
+	if eventType.EventKey != "" {
+		eventKeyRegex := regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9_-]*$`)
+		if !eventKeyRegex.MatchString(eventType.EventKey) {
+			violations = append(violations, problems.Violation{
+				Field:   "eventKey",
+				Message: "Event key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
+			})
+		}
+	}
+
+	if len(eventType.EventKey) > 50 {
+		violations = append(violations, problems.Violation{
+			Field:   "eventKey",
+			Message: "Event key must be less than 50 characters",
 		})
 	}
 
@@ -49,10 +73,10 @@ func ValidateEventField(field model.EventField) []problems.Violation {
 		})
 	}
 
-	if len(field.Name) > 255 {
+	if len(field.Name) > 100 {
 		violations = append(violations, problems.Violation{
 			Field:   "name",
-			Message: "Name must be less than 255 characters",
+			Message: "Name must be less than 100 characters",
 		})
 	}
 
@@ -73,10 +97,10 @@ func ValidateEventField(field model.EventField) []problems.Violation {
 		}
 	}
 
-	if len(field.FieldKey) > 255 {
+	if len(field.FieldKey) > 50 {
 		violations = append(violations, problems.Violation{
 			Field:   "fieldKey",
-			Message: "FieldKey must be less than 255 characters",
+			Message: "FieldKey must be less than 50 characters",
 		})
 	}
 

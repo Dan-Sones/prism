@@ -20,6 +20,7 @@ type EventsCatalogServiceInterface interface {
 	GetEventTypes(ctx context.Context) ([]*model.EventType, error)
 	SearchEventTypes(ctx context.Context, searchQuery string) ([]*model.EventType, error)
 	IsFieldKeyAvailableForEventType(ctx context.Context, eventTypeId string, fieldKey string) (bool, error)
+	IsEventKeyAvailable(ctx context.Context, eventKey string) (bool, error)
 }
 
 type EventsCatalogService struct {
@@ -48,6 +49,8 @@ func (e *EventsCatalogService) CreateEventType(ctx context.Context, eventType mo
 			switch pgErr.ConstraintName {
 			case "unique_event_type_name":
 				violation = problems.Violation{Field: "name", Message: "An event type with this name already exists"}
+			case "unique_event_type_event_key":
+				violation = problems.Violation{Field: "eventKey", Message: "An event type with this event key already exists"}
 			case "unique_event_type_field_key":
 				violation = problems.Violation{Field: "fieldKey", Message: "A field with this key already exists for this event type"}
 			default:
@@ -106,6 +109,17 @@ func (e *EventsCatalogService) IsFieldKeyAvailableForEventType(ctx context.Conte
 	available, err := e.eventsCatalogRepository.IsFieldKeyAvailableForEventType(ctx, eventTypeId, fieldKey)
 	if err != nil {
 		e.logger.Error("Error checking field key availability", "error", err, "eventTypeId", eventTypeId, "fieldKey", fieldKey)
+		// default to it not being available if there's an error to be safe.
+		return false, err
+	}
+
+	return available, nil
+}
+
+func (e *EventsCatalogService) IsEventKeyAvailable(ctx context.Context, eventKey string) (bool, error) {
+	available, err := e.eventsCatalogRepository.IsEventKeyAvailable(ctx, eventKey)
+	if err != nil {
+		e.logger.Error("Error checking event key availability", "error", err, "eventKey", eventKey)
 		// default to it not being available if there's an error to be safe.
 		return false, err
 	}

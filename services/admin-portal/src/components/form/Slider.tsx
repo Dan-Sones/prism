@@ -28,7 +28,7 @@ const Slider = (props: ConfigurationElementType) => {
         type="range"
         value={value}
         onChange={(e) => setValue(Number(e.target.value))}
-        className="h-2 w-full cursor-pointer appearance-none rounded-full bg-gray-100 accent-green-400"
+        className="h-2 w-full cursor-pointer appearance-none rounded-full bg-gray-100 accent-purple-300"
       />
     </div>
   );

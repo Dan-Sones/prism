@@ -38,7 +38,8 @@ Events exist in the following format:
 ```json
 {
   "id": "4522d155-df00-4877-b77a-9ce999c99446",
-  "name": "purchase_completed",
+  "name": "Purchase Completed",
+  "eventKey": "purchase_completed",
   "description": "Fired when a user completes a purchase",
   "createdAt": "2026-02-18T21:53:44.867961Z",
   "fields": [
@@ -64,6 +65,7 @@ Events exist in the following format:
 | ------------- | ----------------- | -------------------------------------------------------------- |
 | `id`          | string (UUID)     | Unique identifier for the event                                |
 | `name`        | string            | Display name of the event                                      |
+| `eventKey`    | string            | The unique key used to identify the event                      |
 | `description` | string            | Human-readable description of what the event represents        |
 | `createdAt`   | string (ISO 8601) | Timestamp when the event was created                           |
 | `fields`      | array             | Array of field definitions that can be tracked with this event |
@@ -77,20 +79,18 @@ Events exist in the following format:
 | `fieldKey` | string        | The key used when sending this field in events                             |
 | `dataType` | string        | The data type of the field (e.g., `string`, `float`, `integer`, `boolean`) |
 
-Think of event fields as the keys in the event payload. See the below JSON. As a user you may want to track payment events and extract the `order_total` field from those events to use in your metrics. In the case of nested events, the `fieldKey` also serves as the path to the field in the event payload using dot-notation. Therefore, if we wanted to use the `order_total` property in our metric calculations the `fieldKey` for that event field within an EventType would be `purchase_details.order_total`.
+Think of event fields as the keys in the event payload. See the below JSON. As a user you may want to track payment events and extract the `order_total` field from those events to use in your metrics. When creating an event in the event catalog, you would define an event with the name `purchase_completed` and a field with the field_key of `order_total` and a data type of `float`.
 
 ```json
 {
-  "event": "purchase_completed",
+  "eventKey": "purchase_completed",
+  "user_details": {
+    "id": "123",
+    "loyalty_member": true
+  },
   "properties": {
-    "customer": {
-      "id": "123",
-      "loyalty_member": true
-    },
-    "purchase_details": {
-      "order_total": 100.0,
-      "currency": "USD"
-    }
+    "order_total": 100.0,
+    "currency": "USD"
   }
 }
 ```

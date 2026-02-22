@@ -1,9 +1,16 @@
 import PrismLogo from "../../assets/prism-logo-minimal-dark.svg";
+import EventCatalogIcon from "./icons/EventCatalogIcon";
 import HomeIcon from "./icons/HomeIcon";
 import SliderIcon from "./icons/SliderIcon";
 import NavItem, { type NavItemProps } from "./NavItem";
 
-const Sidebar = () => {
+interface SidebarProps {
+  isOpen: boolean;
+}
+
+const Sidebar = (props: SidebarProps) => {
+  const { isOpen } = props;
+
   const navItems: Array<NavItemProps> = [
     {
       name: "Home",
@@ -15,10 +22,18 @@ const Sidebar = () => {
       href: "/test",
       icon: SliderIcon,
     },
+    {
+      name: "Event Catalog",
+      href: "/events-catalog",
+      icon: EventCatalogIcon,
+    },
   ];
 
   return (
-    <section id="sidebar" className="w-72 border-r border-gray-200 bg-gray-50">
+    <aside
+      id="sidebar"
+      className={`fixed z-30 h-full w-80 bg-white transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"} `}
+    >
       <div className="flex flex-col gap-3 pt-1 pl-1">
         <a
           href="/home"
@@ -35,7 +50,7 @@ const Sidebar = () => {
           ))}
         </nav>
       </div>
-    </section>
+    </aside>
   );
 };
 

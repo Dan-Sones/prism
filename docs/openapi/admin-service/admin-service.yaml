@@ -43,8 +43,9 @@ paths:
             schema:
               $ref: "#/components/schemas/CreateEventTypeRequest"
             example:
-              name: "purchase_completed"
-              description: "This Event Type is fired when a user complete a purchase"
+              name: "Purchase Completed"
+              eventKey: "purchase_completed"
+              description: 'Fired when a user completes a purchase. This example maps to the object: { "order_total": 100.0, "currency": "USD" }'
               fields:
                 - name: "Order Total"
                   fieldKey: "order_total"
@@ -107,6 +108,35 @@ paths:
         "500":
           $ref: "../problems.yaml#/responses/InternalServerError"
 
+  /events-catalog/event-key-available:
+    get:
+      tags:
+        - Event Catalog
+      summary: Check if an event key is available
+      operationId: isEventKeyAvailableForExperiment
+      parameters:
+        - name: eventKey
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "purchase_completed"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  available:
+                    type: boolean
+              example:
+                available: true
+        "400":
+          $ref: "../problems.yaml#/responses/BadRequest"
+        "500":
+          $ref: "../problems.yaml#/responses/InternalServerError"
+
   /events-catalog/{eventTypeId}/field-key-available:
     get:
       tags:
@@ -146,18 +176,24 @@ components:
       schema:
         type: string
         format: uuid
-      example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
+      example: "989618ba-efce-4854-be23-ede08787a6d1"
 
   schemas:
     CreateEventTypeRequest:
       type: object
       required:
         - name
+        - eventKey
         - fields
       properties:
         name:
           type: string
-          maxLength: 255
+          maxLength: 100
+          example: "Purchase Completed"
+        eventKey:
+          type: string
+          maxLength: 50
+          pattern: "^[a-zA-Z][a-zA-Z0-9_-]*$"
           example: "purchase_completed"
         description:
           type: string
@@ -177,11 +213,11 @@ components:
       properties:
         name:
           type: string
-          maxLength: 255
+          maxLength: 100
           example: "Order Total"
         fieldKey:
           type: string
-          maxLength: 255
+          maxLength: 50
           pattern: "^[a-zA-Z][a-zA-Z0-9_-]*$"
           example: "order_total"
         dataType:
@@ -193,7 +229,10 @@ components:
         id:
           type: string
           format: uuid
+          example: "989618ba-efce-4854-be23-ede08787a6d1"
         name:
+          type: string
+        eventKey:
           type: string
         version:
           type: integer
@@ -214,6 +253,7 @@ components:
         id:
           type: string
           format: uuid
+          example: "250bf027-d8d9-436d-ba21-57f46162c1b0"
         name:
           type: string
         fieldKey:

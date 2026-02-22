@@ -21,7 +21,7 @@ const NavItem = (item: NavItemProps) => {
     >
       <span className="flex items-center justify-center">
         <Icon
-          className={`size-6 ${isActive ? "text-green-600" : "text-slate-600"}`}
+          className={`size-6 ${isActive ? "text-purple-500" : "text-slate-600"}`}
         />
       </span>
       <p className={`${isActive ? "font-semibold" : "text-slate-600"}`}>

@@ -1,23 +1,20 @@
-import { Routes, Route, Navigate } from "react-router";
+import { Navigate, useRoutes } from "react-router";
+import Layout from "../components/layout/Layout";
 import NotFound from "../routes/error/NotFound";
 import Home from "../routes/home/Home";
-import Sidebar from "../components/sidebar/Sidebar";
-import CreateExperiment from "../routes/create-experiment/CreateExperiment";
+import { experimentRoutes } from "../routes/create-experiment/ExperimentRoutes";
+import { eventsCatalogRoutes } from "../routes/events-catalog/EventsCatalogRoutes";
 
 const Router = () => {
-  return (
-    <div id="page-container" className="flex h-full w-full flex-row">
-      <Sidebar />
-      <section className="h-full w-full flex-grow">
-        <Routes>
-          <Route path="/" element={<Navigate to={"/home"} />} />
-          <Route path="/*" element={<NotFound />} />
-          <Route path="/home" element={<Home />} />
-          <Route path="/create-experiment" element={<CreateExperiment />} />
-        </Routes>
-      </section>
-    </div>
-  );
+  const element = useRoutes([
+    { path: "/", element: <Navigate to="/home" /> },
+    { path: "/*", element: <NotFound /> },
+    { path: "/home", element: <Home /> },
+    ...experimentRoutes,
+    ...eventsCatalogRoutes,
+  ]);
+
+  return <Layout>{element}</Layout>;
 };
 
 export default Router;
