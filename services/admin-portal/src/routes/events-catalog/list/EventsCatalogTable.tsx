@@ -7,6 +7,7 @@ type EventTypeRow = {
   owner: string;
   lastUsed: string;
   createdAt: string;
+  eventId: string;
 };
 
 interface EventsCatalogTableProps {
@@ -26,6 +27,7 @@ const EventsCatalogTable = (props: EventsCatalogTableProps) => {
       eventKey: event.eventKey,
       lastUsed: new Date().toLocaleDateString(),
       createdAt: new Date(event.createdAt).toLocaleDateString(),
+      eventId: event.id,
     }));
   };
 
@@ -38,7 +40,7 @@ const EventsCatalogTable = (props: EventsCatalogTableProps) => {
   ];
 
   const deleteTableAction = (row: EventTypeRow) => {
-    props.deleteTable(row.eventKey);
+    props.deleteTable(row.eventId);
   };
 
   const actions = [

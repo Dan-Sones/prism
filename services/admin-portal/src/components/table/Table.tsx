@@ -57,7 +57,7 @@ const Table = <T,>({
         </div>
       )}
       {!loading && !error && data.length === 0 && (
-        <div className="flex justify-center py-20 text-sm text-gray-400">
+        <div className="flex justify-center py-20 text-xs text-gray-400">
           No results found.
         </div>
       )}
