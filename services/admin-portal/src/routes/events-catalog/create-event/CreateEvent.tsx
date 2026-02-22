@@ -11,6 +11,7 @@ import { useMutation } from "@tanstack/react-query";
 import type { AxiosError } from "axios";
 import type { ProblemDetail } from "../../../api/base/problem";
 import { useErrorBanner } from "../../../context/ErrorBannerContext";
+import { toast } from "sonner";
 
 const CreateEvent = () => {
   const navigate = useNavigate();
@@ -41,6 +42,7 @@ const CreateEvent = () => {
     onSuccess: () => {
       // TODO: redirect to event type details page after creation instead of just going back to the list
       navigate("/events-catalog");
+      toast.success("Event type created successfully");
     },
     onError: (error) => {
       const baseErrorMessage = "Failed to create event type:";

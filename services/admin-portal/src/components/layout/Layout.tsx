@@ -2,6 +2,7 @@ import React from "react";
 import Sidebar from "../sidebar/Sidebar";
 import Bars3Icon from "../icons/Bars3Icon";
 import ErrorBanner from "../errorBanner/ErrorBanner";
+import { Toaster } from "sonner";
 
 const Layout = (props: React.PropsWithChildren) => {
   const { children } = props;
@@ -28,6 +29,15 @@ const Layout = (props: React.PropsWithChildren) => {
           </button>
         </div>
         <ErrorBanner />
+        <Toaster
+          position="bottom-right"
+          richColors
+          toastOptions={{
+            classNames: {
+              toast: "text-sm rounded-lg shadow-md",
+            },
+          }}
+        />
 
         {children}
       </section>

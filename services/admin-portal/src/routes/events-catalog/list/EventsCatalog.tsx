@@ -5,6 +5,7 @@ import EventsCatalogTableActions from "./EventsCatalogTableActions";
 import { deleteEventType, getEventTypes } from "../../../api/eventsCatalog";
 import { useState } from "react";
 import DeleteEventModal from "./delete-modal/DeleteEventModalBody";
+import { toast } from "sonner";
 
 const EventsCatalog = () => {
   const [searchQuery, setSearchQuery] = useState<string | undefined>(undefined);
@@ -33,6 +34,7 @@ const EventsCatalog = () => {
     onSuccess: () => {
       setDeleteId(null);
       refreshEvents();
+      toast.success("Event type deleted successfully");
     },
   });
 
