@@ -30,21 +30,27 @@ const Table = <T,>({
 
   return (
     <div className="w-full rounded-md bg-white shadow-xs">
-      <table className="w-full [&_td]:px-3 [&_td]:py-5 [&_th]:px-3 [&_th]:py-4">
-        <TableHeader columns={columns} setSorting={setSortBy} sortBy={sortBy} />
-        {!loading && !error && sortedData.length > 0 && (
-          <tbody>
-            {sortedData.map((row, index) => (
-              <TableRow
-                key={index}
-                row={row}
-                columns={columns}
-                actions={actions}
-              />
-            ))}
-          </tbody>
-        )}
-      </table>
+      <div className="scrollbar-thin overflow-x-auto">
+        <table className="w-full [&_td]:px-3 [&_td]:py-5 [&_th]:px-3 [&_th]:py-4">
+          <TableHeader
+            columns={columns}
+            setSorting={setSortBy}
+            sortBy={sortBy}
+          />
+          {!loading && !error && sortedData.length > 0 && (
+            <tbody>
+              {sortedData.map((row, index) => (
+                <TableRow
+                  key={index}
+                  row={row}
+                  columns={columns}
+                  actions={actions}
+                />
+              ))}
+            </tbody>
+          )}
+        </table>
+      </div>
       {loading && (
         <div className="flex justify-center py-20">
           <Spinner />
