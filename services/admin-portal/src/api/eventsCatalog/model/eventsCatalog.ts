@@ -33,3 +33,7 @@ export type CreateEventTypeRequest = {
 export type FieldKeyAvailableResponse = {
   available: boolean;
 };
+
+export type EventKeyAvailableResponse = {
+  available: boolean;
+};

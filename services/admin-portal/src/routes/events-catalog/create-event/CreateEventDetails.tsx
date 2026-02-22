@@ -1,10 +1,27 @@
+import { useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 import TextInput from "../../../components/form/TextInput";
-import type { CreateEventTypeRequest } from "../../../api/eventsCatalog";
+import {
+  checkEventKeyAvailable,
+  type CreateEventTypeRequest,
+} from "../../../api/eventsCatalog";
+import debounce from "lodash/debounce";
 
 const CreateEventDetails = () => {
   const { register, formState } = useFormContext<CreateEventTypeRequest>();
   const { errors } = formState;
+
+  const validateEventKey = useMemo(
+    () =>
+      debounce((value: string, resolve: (result: string | boolean) => void) => {
+        checkEventKeyAvailable(value)
+          .then((res) =>
+            resolve(res.available || "This event key is already in use"),
+          )
+          .catch(() => resolve("Error checking event key availability"));
+      }, 500),
+    [],
+  );
 
   return (
     <section className="rounded-md bg-white p-6 shadow-xs">
@@ -52,6 +69,8 @@ const CreateEventDetails = () => {
                 message:
                   "Must start with a letter and only contain letters, numbers, underscores, or hyphens.",
               },
+              validate: (value) =>
+                new Promise((resolve) => validateEventKey(value, resolve)),
             })}
           />
           {errors.eventKey && (

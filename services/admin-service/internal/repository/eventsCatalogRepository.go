@@ -17,6 +17,7 @@ type EventsCatalogRepositoryInterface interface {
 	GetEventTypes(ctx context.Context) ([]*model.EventType, error)
 	SearchEventTypes(ctx context.Context, searchQuery string) ([]*model.EventType, error)
 	IsFieldKeyAvailableForEventType(ctx context.Context, eventTypeId string, fieldKey string) (bool, error)
+	IsEventKeyAvailable(ctx context.Context, eventKey string) (bool, error)
 }
 
 type EventsCatalogRepository struct {
@@ -152,6 +153,24 @@ func (e *EventsCatalogRepository) IsFieldKeyAvailableForEventType(ctx context.Co
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			// field key is available
+			return true, nil
+		}
+		return false, err
+	}
+
+	if existing != nil {
+		return false, nil
+	}
+
+	return true, nil
+}
+
+func (e *EventsCatalogRepository) IsEventKeyAvailable(ctx context.Context, eventKey string) (bool, error) {
+	var existing *string
+	err := e.pgx.QueryRow(ctx, "SELECT id FROM prism.event_types WHERE event_key = $1", eventKey).Scan(&existing)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			// event key is available
 			return true, nil
 		}
 		return false, err

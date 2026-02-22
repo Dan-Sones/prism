@@ -3,6 +3,7 @@ export { createEventType } from "./create-event-type";
 export { getEventType } from "./get-event-type";
 export { deleteEventType } from "./delete-event-type";
 export { checkFieldKeyAvailable } from "./check-field-key";
+export { checkEventKeyAvailable } from "./check-event-key";
 
 export type {
   DataType,
@@ -11,4 +12,5 @@ export type {
   EventType,
   CreateEventTypeRequest,
   FieldKeyAvailableResponse,
+  EventKeyAvailableResponse,
 } from "./model/eventsCatalog";

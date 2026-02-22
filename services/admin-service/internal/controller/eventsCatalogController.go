@@ -154,3 +154,22 @@ func (e *EventsCatalogController) DeleteEventType(w http.ResponseWriter, r *http
 
 	w.WriteHeader(http.StatusNoContent)
 }
+
+func (e *EventsCatalogController) IsEventKeyAvailable(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	eventKey := r.URL.Query().Get("eventKey")
+
+	if eventKey == "" {
+		problems.NewBadRequestError("eventKey is required").Write(w)
+		return
+	}
+
+	available, err := e.eventsCatalogService.IsEventKeyAvailable(ctx, eventKey)
+	if err != nil {
+		problems.NewInternalServerError().Write(w)
+		return
+	}
+
+	WriteResponse(w, http.StatusOK, map[string]bool{"available": available})
+}
