@@ -9,6 +9,7 @@ import org.prism.eventsservice.grpc.events_catalog.v1.EventsCatalogServiceGrpc;
 import org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyRequest;
 import org.prism.eventsservice.model.EventPropertiesValidationResult;
 import org.prism.eventsservice.model.EventRequest;
+import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -16,9 +17,11 @@ import org.springframework.stereotype.Service;
 public class EventService {
 
     private final EventsCatalogServiceGrpc.EventsCatalogServiceBlockingStub eventsCatalogStub;
+    private final CacheManager cacheManager;
 
-    public EventService(ManagedChannel channel) {
+    public EventService(ManagedChannel channel, CacheManager cacheManager) {
         this.eventsCatalogStub = EventsCatalogServiceGrpc.newBlockingStub(channel);
+        this.cacheManager = cacheManager;
     }
 
     public void IngestEvent(EventRequest eventToIngest) {
@@ -49,9 +52,15 @@ public class EventService {
         return new EventPropertiesValidationResult(missingFields.isEmpty(), missingFields);
     }
 
-    private EventType lookupEventType(String eventKey) {
-        // TODO: First look in the redis cache, if not found then make a GRPC call and cache-aside
-        return eventsCatalogStub.getEventTypeByKey(
+    public EventType lookupEventType(String eventKey) {
+        var cachedEventType = cacheManager.getCache("eventTypes").get(eventKey, EventType.class);
+        if (cachedEventType != null) {
+            return cachedEventType;
+        }
+
+        var eventType = eventsCatalogStub.getEventTypeByKey(
                 GetEventTypeByKeyRequest.newBuilder().setEventKey(eventKey).build());
+        cacheManager.getCache("eventTypes").put(eventKey, eventType);
+        return eventType;
     }
 }
