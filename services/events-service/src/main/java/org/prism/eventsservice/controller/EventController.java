@@ -14,9 +14,8 @@ public class EventController {
     private EventService eventService;
 
     @PostMapping("/event")
-    public ResponseEntity<String> publishEvent(@RequestBody EventRequest eventRequest) {
-        eventService.IngestEvent(eventRequest);
-
-        return ResponseEntity.ok("hello");
+    public ResponseEntity<Void> publishEvent(@RequestBody EventRequest eventRequest) {
+        eventService.ingestEvent(eventRequest);
+        return ResponseEntity.noContent().build();
     }
 }

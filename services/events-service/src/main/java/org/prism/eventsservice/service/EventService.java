@@ -26,15 +26,27 @@ public class EventService {
         this.eventPublisher = eventPublisher;
     }
 
-    public void IngestEvent(EventRequest eventToIngest) {
-        var eventType = lookupEventType(eventToIngest.getEventKey());
+    public void ingestEvent(EventRequest eventToIngest) {
+        EventType eventType;
+        try {
+            eventType = lookupEventType(eventToIngest.getEventKey());
+        } catch (Exception e) {
+            log.error("Failed to lookup event type for key {}: {}", eventToIngest.getEventKey(), e.getMessage());
+            // we failed internally, not the clients fault, we should send them a 200 and we deal with retrying later on
+            return;
+        }
 
         var validationResult = validateEventProperties(eventToIngest.getProperties(), eventType);
         if (!validationResult.isValid()) {
             return;
         }
 
-        eventPublisher.publish(eventToIngest);
+        try {
+            eventPublisher.publish(eventToIngest);
+        } catch (Exception e) {
+            log.error("Failed to publish event: {}", e.getMessage());
+            throw e;
+        }
     }
 
     private EventPropertiesValidationResult validateEventProperties(
@@ -59,9 +71,7 @@ public class EventService {
             return cachedEventType;
         }
 
-        var eventType = eventsCatalogStub.getEventTypeByKey(
+        return eventsCatalogStub.getEventTypeByKey(
                 GetEventTypeByKeyRequest.newBuilder().setEventKey(eventKey).build());
-        cacheManager.getCache("eventTypes").put(eventKey, eventType);
-        return eventType;
     }
 }

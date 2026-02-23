@@ -1,7 +1,9 @@
 package org.prism.eventsservice.service;
 
 import java.util.concurrent.CompletableFuture;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.prism.eventsservice.exception.EventIngestionException;
 import org.prism.eventsservice.model.EventRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -11,6 +13,7 @@ import tools.jackson.databind.ObjectMapper;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class EventPublisher {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
@@ -18,11 +21,6 @@ public class EventPublisher {
 
     @Value("${kafka.topic}")
     private String eventTopic;
-
-    public EventPublisher(KafkaTemplate<String, String> kafkaTemplate, ObjectMapper objectMapper) {
-        this.kafkaTemplate = kafkaTemplate;
-        this.objectMapper = objectMapper;
-    }
 
     public void publish(EventRequest event) {
         try {
@@ -35,10 +33,14 @@ public class EventPublisher {
                             result.getRecordMetadata().offset());
                 } else {
                     log.error("Failed to publish event: {}", ex.getMessage());
+                    // TODO: we can't throw an exception here as we're in a seperate thread,
+                    // this should be the point that we append to a DLQ for retries.
+                    // the client (sender) should get a 200 response as they have done their job.
                 }
             });
         } catch (Exception e) {
             log.error("Failed to serialize event: {}", e.getMessage());
+            throw new EventIngestionException("Failed to serialize event: " + e.getMessage());
         }
     }
 }
