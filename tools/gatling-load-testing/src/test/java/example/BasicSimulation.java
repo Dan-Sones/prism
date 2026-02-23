@@ -7,28 +7,37 @@ import io.gatling.javaapi.core.*;
 import io.gatling.javaapi.http.*;
 
 public class BasicSimulation extends Simulation {
+    // The test assumes that the application is running and the following event schemas are available in the database:
 
-    // Load VU count from system properties
-    // Reference: https://docs.gatling.io/guides/passing-parameters/
     private static final int virtualUsers = Integer.getInteger("virtualUsers", 10000);
 
-    // Define HTTP configuration
-    // Reference: https://docs.gatling.io/reference/script/protocols/http/protocol/
     private static final HttpProtocolBuilder httpProtocol = http.baseUrl("http://localhost:5678")
             .acceptHeader("application/json")
             .userAgentHeader(
                     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36");
 
-    // Define scenario
-    // Reference: https://docs.gatling.io/reference/script/core/scenario/
-    private static final ScenarioBuilder scenario =
-            scenario("Scenario").exec(http("Session").post("/event").check(status().is(200)));
+    private static final ScenarioBuilder scenario = scenario("Scenario")
+            .exec(http("Event Post")
+                    .post("/event")
+                    .header("Content-Type", "application/json")
+                    .body(StringBody("{\n" + "  \"event_key\": \"order_shipped\",\n"
+                            + "  \"user_details\": {\n"
+                            + "    \"id\": \"123\"\n"
+                            + "  },\n"
+                            + "  \"properties\": {\n"
+                            + "    \"final_order_total\": 100.00,\n"
+                            + "    \"order_total_without_discounts\": 125.99,\n"
+                            + "    \"postage_total\": 4.99\n"
+                            + "  }\n"
+                            + "}"))
+                    .check(status().is(200)));
 
-    // Define injection profile and execute the test
-    // Reference: https://docs.gatling.io/reference/script/core/injection/
-    // Reference: https://docs.gatling.io/reference/script/core/assertions/
     {
-        setUp(scenario.injectOpen(atOnceUsers(virtualUsers)))
+        setUp(scenario.injectOpen(
+                        rampUsers(virtualUsers).during(30), // Ramp up
+                        constantUsersPerSec(virtualUsers / 30).during(60), // Hold
+                        rampUsersPerSec(virtualUsers / 30).to(0).during(30) // Ramp down
+                        ))
                 .assertions(
                         global().failedRequests().count().lt(1L),
                         global().responseTime().max().lt(800))
