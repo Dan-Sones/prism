@@ -10,6 +10,10 @@ grpc:
         port: 50052
         host: localhost
 
+kafka:
+  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+  topic: ${KAFKA_EVENTS_TOPIC:events}
+
 logging:
   level:
     root: INFO

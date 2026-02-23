@@ -18,10 +18,12 @@ public class EventService {
 
     private final EventsCatalogServiceGrpc.EventsCatalogServiceBlockingStub eventsCatalogStub;
     private final CacheManager cacheManager;
+    private final EventPublisher eventPublisher;
 
-    public EventService(ManagedChannel channel, CacheManager cacheManager) {
+    public EventService(ManagedChannel channel, CacheManager cacheManager, EventPublisher eventPublisher) {
         this.eventsCatalogStub = EventsCatalogServiceGrpc.newBlockingStub(channel);
         this.cacheManager = cacheManager;
+        this.eventPublisher = eventPublisher;
     }
 
     public void IngestEvent(EventRequest eventToIngest) {
@@ -32,8 +34,7 @@ public class EventService {
             return;
         }
 
-        log.info(
-                "Ingesting event of type " + eventType.getName() + " with properties " + eventToIngest.getProperties());
+        eventPublisher.publish(eventToIngest);
     }
 
     private EventPropertiesValidationResult validateEventProperties(
