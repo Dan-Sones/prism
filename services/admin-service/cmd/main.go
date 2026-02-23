@@ -93,9 +93,7 @@ func initLogger() *slog.Logger {
 }
 
 func loadEnv() {
-	if err := godotenv.Load("../../infrastructure/.env"); err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	_ = godotenv.Load("../../infrastructure/.env")
 }
 
 func startGrpcServer(logger *slog.Logger, assignmentService *service.AssignmentService, eventsCatalogService *service.EventsCatalogService) {
