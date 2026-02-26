@@ -4,6 +4,9 @@ spring:
 
 server:
   port: 5678
+  tomcat:
+    threads:
+      max: 800
 
 grpc:
     server:
@@ -16,5 +19,5 @@ kafka:
 
 logging:
   level:
-    root: INFO
-    org.prism.eventsservice: DEBUG
+    root: WARN
+    org.prism.eventsservice: WARN
