@@ -11,7 +11,7 @@ public class BasicSimulation extends Simulation {
 
     private static final int virtualUsers = Integer.getInteger("virtualUsers", 10000);
 
-    private static final HttpProtocolBuilder httpProtocol = http.baseUrl("http://localhost:5678")
+    private static final HttpProtocolBuilder httpProtocol = http.baseUrl(System.getProperty("baseUrl", "http://localhost:5678"))
             .acceptHeader("application/json")
             .userAgentHeader(
                     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36");
