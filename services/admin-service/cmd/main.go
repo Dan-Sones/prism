@@ -22,7 +22,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	pb2 "admin-service/internal/grpc/generated/assignment/v1"
+	pbAssignment "admin-service/internal/grpc/generated/assignment/v1"
+	pbEventsCatalog "admin-service/internal/grpc/generated/events_catalog/v1"
 )
 
 func main() {
@@ -64,7 +65,7 @@ func main() {
 	experimentController := controller.NewExperimentController(experimentService)
 	eventsCatalogController := controller.NewEventsCatalogController(eventsCatalogService)
 
-	go startGrpcServer(logger, assignmentService)
+	go startGrpcServer(logger, assignmentService, eventsCatalogService)
 
 	router := http.NewRouter()
 	http.RegisterRoutes(router, http.Controllers{
@@ -92,16 +93,16 @@ func initLogger() *slog.Logger {
 }
 
 func loadEnv() {
-	if err := godotenv.Load("../../infrastructure/.env"); err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	_ = godotenv.Load("../../infrastructure/.env")
 }
 
-func startGrpcServer(logger *slog.Logger, assignmentService *service.AssignmentService) {
+func startGrpcServer(logger *slog.Logger, assignmentService *service.AssignmentService, eventsCatalogService *service.EventsCatalogService) {
 	grpcServer := grpc.NewServer()
 
 	assignmentServer := pb.NewAssignmentServer(assignmentService)
-	pb2.RegisterAssignmentServiceServer(grpcServer, assignmentServer)
+	eventsCatalogServer := pb.NewEventsCatalogServer(eventsCatalogService)
+	pbAssignment.RegisterAssignmentServiceServer(grpcServer, assignmentServer)
+	pbEventsCatalog.RegisterEventsCatalogServiceServer(grpcServer, eventsCatalogServer)
 
 	reflection.Register(grpcServer)
 

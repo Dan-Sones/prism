@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: events-service
+
+server:
+  port: 5678
+  tomcat:
+    threads:
+      max: 800
+
+grpc:
+    server:
+        port: 50052
+        host: localhost
+
+kafka:
+  bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+  topic: ${KAFKA_EVENTS_TOPIC:events}
+
+logging:
+  level:
+    root: WARN
+    org.prism.eventsservice: WARN

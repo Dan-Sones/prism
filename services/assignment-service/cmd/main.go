@@ -73,9 +73,7 @@ func main() {
 }
 
 func loadEnv() {
-	if err := godotenv.Load("../../infrastructure/.env"); err != nil {
-		log.Fatal("Error loading .env file")
-	}
+	_ = godotenv.Load("../../infrastructure/.env")
 }
 
 func initLogger() *slog.Logger {
