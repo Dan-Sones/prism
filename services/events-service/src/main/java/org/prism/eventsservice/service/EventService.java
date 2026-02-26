@@ -71,7 +71,9 @@ public class EventService {
             return cachedEventType;
         }
 
-        return eventsCatalogStub.getEventTypeByKey(
+        var eventType = eventsCatalogStub.getEventTypeByKey(
                 GetEventTypeByKeyRequest.newBuilder().setEventKey(eventKey).build());
+        cacheManager.getCache("eventTypes").put(eventKey, eventType);
+        return eventType;
     }
 }
