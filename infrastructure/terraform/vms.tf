@@ -16,7 +16,8 @@ resource "google_compute_instance" "app" {
   }
 
   metadata = {
-    ssh-keys = "ubuntu:${file(var.ssh_public_key)}"
+    ssh-keys       = "ubuntu:${file(var.ssh_public_key)}"
+    startup-script = file("scripts/app-setup.sh")
   }
 }
 
@@ -39,6 +40,7 @@ resource "google_compute_instance" "gatling" {
   }
 
   metadata = {
-    ssh-keys = "ubuntu:${file(var.ssh_public_key)}"
+    ssh-keys       = "ubuntu:${file(var.ssh_public_key)}"
+    startup-script = file("scripts/gatling-setup.sh")
   }
 }

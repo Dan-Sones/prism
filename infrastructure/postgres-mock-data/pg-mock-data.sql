@@ -18,13 +18,13 @@ VALUES (1, 0),
        (1, 9);
 
 WITH page_view AS (
-    INSERT INTO prism.event_types (name, version, description)
-    VALUES ('page_view', 1, 'Fired when a user views a page')
+    INSERT INTO prism.event_types (name, version, description, event_key)
+    VALUES ('page_view', 1, 'Fired when a user views a page', 'page_view')
     RETURNING id
 ),
 button_click AS (
-    INSERT INTO prism.event_types (name, version, description)
-    VALUES ('button_click', 1, 'Fired when a user clicks a button')
+    INSERT INTO prism.event_types (name, version, description, event_key)
+    VALUES ('button_click', 1, 'Fired when a user clicks a button', 'button_click')
     RETURNING id
 )
 INSERT INTO prism.event_fields (event_type_id, name, field_key, data_type)
