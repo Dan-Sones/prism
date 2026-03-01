@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package events_catalog.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "admin-service/server/api/proto/events_catalog/v1;events_catalog";
+option java_multiple_files = true;
+option java_package = "org.prism.eventsservice.grpc.events_catalog.v1";
+
+service EventsCatalogService {
+  rpc GetEventTypeByKey(GetEventTypeByKeyRequest) returns (EventType);
+}
+
+message GetEventTypeByKeyRequest {
+  string event_key = 1;
+}
+
+message EventType {
+  string id = 1;
+  string name = 2;
+  string event_key = 3;
+  int32 version = 4;
+  optional string description = 5;
+  google.protobuf.Timestamp created_at = 6;
+  repeated EventField fields = 7;
+}
+
+message EventField {
+  string id = 1;
+  string event_type_id = 2;
+  string name = 3;
+  string field_key = 4;
+  DataType data_type = 5;
+}
+
+enum DataType {
+  DATA_TYPE_UNSPECIFIED = 0;
+  DATA_TYPE_STRING = 1;
+  DATA_TYPE_INT = 2;
+  DATA_TYPE_FLOAT = 3;
+  DATA_TYPE_BOOL = 4;
+  DATA_TYPE_TIMESTAMP = 5;
+}

@@ -6,3 +6,5 @@ infrastructure/.env
 services/admin-portal/coverage
 
 openfeature-provider-react/.DS_Store
+
+.DS_Store
