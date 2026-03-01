@@ -10,7 +10,10 @@ import (
 
 	"github.com/Dan-Sones/prismdbmodels/model"
 	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type EventsCatalogServiceInterface interface {
@@ -131,6 +134,11 @@ func (e *EventsCatalogService) GetEventTypeByKey(ctx context.Context, eventTypeI
 	eventType, err := e.eventsCatalogRepository.GetEventTypeByKey(ctx, eventTypeId)
 	if err != nil {
 		e.logger.Error("Error fetching event type by key", "error", err, "eventTypeKey", eventTypeId)
+
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, status.Error(codes.NotFound, "event not found")
+		}
+
 		return nil, err
 	}
 	return eventType, nil

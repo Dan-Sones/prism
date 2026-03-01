@@ -2,9 +2,13 @@ package org.prism.eventsservice.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Map;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 @Data
+@Builder
+@AllArgsConstructor
 public class EventRequest {
     @JsonProperty("event_key")
     private String eventKey;
