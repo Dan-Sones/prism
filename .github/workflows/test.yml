@@ -5,7 +5,7 @@ on:
     branches: [main]
 
 jobs:
-  go-service-tests:
+  admin-service-tests:
     runs-on: ubuntu-latest
 
     steps:
@@ -19,8 +19,32 @@ jobs:
       - name: Run admin-service tests
         run: cd services/admin-service && go test ./...
 
+  assignment-service-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.25"
+
       - name: Run assignment-service tests
         run: cd services/assignment-service && go test ./...
+
+  clickhouse-writer-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.25"
+
+      - name: Run clickhouse-writer tests
+        run: cd services/clickhouse-writer && go test ./...
 
   openfeature-provider-tests:
     runs-on: ubuntu-latest
