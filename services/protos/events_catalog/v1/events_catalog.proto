@@ -4,18 +4,22 @@ package events_catalog.v1;
 
 import "google/protobuf/timestamp.proto";
 
+
 option go_package = "admin-service/server/api/proto/events_catalog/v1;events_catalog";
 option java_multiple_files = true;
 option java_package = "org.prism.eventsservice.grpc.events_catalog.v1";
 
 service EventsCatalogService {
-  rpc GetEventTypeByKey(GetEventTypeByKeyRequest) returns (EventType);
+  rpc GetEventTypeByKey(GetEventTypeByKeyRequest) returns (GetEventTypeByKeyResponse);
 }
 
 message GetEventTypeByKeyRequest {
   string event_key = 1;
 }
 
+message GetEventTypeByKeyResponse {
+  optional EventType event_type = 1;
+}
 message EventType {
   string id = 1;
   string name = 2;

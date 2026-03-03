@@ -4,7 +4,7 @@ import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.prism.eventsservice.exception.EventIngestionException;
-import org.prism.eventsservice.model.EventRequest;
+import org.prism.eventsservice.model.DownstreamEvent;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
@@ -22,7 +22,7 @@ public class EventPublisher {
     @Value("${kafka.topic}")
     private String eventTopic;
 
-    public void publish(EventRequest event) {
+    public void publish(DownstreamEvent event) {
         try {
             String json = objectMapper.writeValueAsString(event);
             CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(eventTopic, json);

@@ -1,12 +1,16 @@
 package org.prism.eventsservice.service;
 
 import io.grpc.ManagedChannel;
+import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import java.util.ArrayList;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
+import org.prism.eventsservice.exception.EventIngestionException;
 import org.prism.eventsservice.grpc.events_catalog.v1.EventType;
 import org.prism.eventsservice.grpc.events_catalog.v1.EventsCatalogServiceGrpc;
 import org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyRequest;
+import org.prism.eventsservice.model.DownstreamEvent;
 import org.prism.eventsservice.model.EventPropertiesValidationResult;
 import org.prism.eventsservice.model.EventRequest;
 import org.springframework.cache.CacheManager;
@@ -33,6 +37,10 @@ public class EventService {
         } catch (Exception e) {
             log.error("Failed to lookup event type for key {}: {}", eventToIngest.getEventKey(), e.getMessage());
             // we failed internally, not the clients fault, we should send them a 200 and we deal with retrying later on
+            if (e instanceof EventIngestionException) {
+                // we need to report this to the user as they are sending events with misconfigure event keys!!
+                throw e;
+            }
             return;
         }
 
@@ -41,8 +49,10 @@ public class EventService {
             return;
         }
 
+        DownstreamEvent downstreamEvent = new DownstreamEvent(eventType, eventToIngest);
+
         try {
-            eventPublisher.publish(eventToIngest);
+            eventPublisher.publish(downstreamEvent);
         } catch (Exception e) {
             log.error("Failed to publish event: {}", e.getMessage());
             throw e;
@@ -71,9 +81,16 @@ public class EventService {
             return cachedEventType;
         }
 
-        var eventType = eventsCatalogStub.getEventTypeByKey(
-                GetEventTypeByKeyRequest.newBuilder().setEventKey(eventKey).build());
-        cacheManager.getCache("eventTypes").put(eventKey, eventType);
-        return eventType;
+        try {
+            var eventType = eventsCatalogStub.getEventTypeByKey(
+                    GetEventTypeByKeyRequest.newBuilder().setEventKey(eventKey).build());
+            cacheManager.getCache("eventTypes").put(eventKey, eventType);
+            return eventType;
+        } catch (StatusRuntimeException e) {
+            if (e.getStatus().getCode() == Status.Code.NOT_FOUND) {
+                throw new EventIngestionException("Event type not found for key: " + eventKey, e);
+            }
+            throw e;
+        }
     }
 }

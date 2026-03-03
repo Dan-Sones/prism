@@ -1,12 +1,15 @@
 spring:
   application:
     name: events-service
+  threads:
+    virtual:
+      enabled: true
+
+
 
 server:
   port: 5678
-  tomcat:
-    threads:
-      max: 800
+
 
 grpc:
     server:
