@@ -1,5 +1,6 @@
 package org.prism.eventsservice.model;
 
+import java.time.Instant;
 import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -62,9 +63,11 @@ public class DownstreamEventTest {
                 System.currentTimeMillis(),
                 "is_premium",
                 true);
+        Instant sentAt = Instant.now();
         EventRequest event = EventRequest.builder()
                 .eventKey(eventKey)
                 .userDetails(userDetails)
+                .sentAt(sentAt)
                 .properties(properties)
                 .build();
 
@@ -96,5 +99,8 @@ public class DownstreamEventTest {
 
         Assertions.assertEquals(
                 userDetails.getId(), downstreamEvent.getUserDetails().getId());
+
+        Assertions.assertEquals(sentAt, downstreamEvent.getSentAt());
+        Assertions.assertNotNull(downstreamEvent.getReceivedAt());
     }
 }

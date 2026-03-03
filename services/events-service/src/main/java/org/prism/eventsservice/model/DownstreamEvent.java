@@ -1,5 +1,6 @@
 package org.prism.eventsservice.model;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.Data;
@@ -12,12 +13,16 @@ public class DownstreamEvent {
     private String id;
     private String eventKey;
     private UserDetails userDetails;
+    private Instant sentAt;
+    private Instant receivedAt;
     private Map<String, OutboundEventField> properties;
 
     public DownstreamEvent(EventType eventDefinition, EventRequest eventRequest) {
         this.id = eventDefinition.getId();
         this.eventKey = eventDefinition.getEventKey();
         this.userDetails = eventRequest.getUserDetails();
+        this.sentAt = eventRequest.getSentAt();
+        this.receivedAt = Instant.now();
 
         // By streaming like this events without definitions will be ignored and NOT written to kafka
         this.properties = eventDefinition.getFieldsList().stream()

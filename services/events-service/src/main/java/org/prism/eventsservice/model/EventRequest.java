@@ -1,6 +1,7 @@
 package org.prism.eventsservice.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.Instant;
 import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,6 +16,9 @@ public class EventRequest {
 
     @JsonProperty("user_details")
     private UserDetails userDetails;
+
+    @JsonProperty("sent_at")
+    private Instant sentAt;
 
     private Map<String, Object> properties;
 }
