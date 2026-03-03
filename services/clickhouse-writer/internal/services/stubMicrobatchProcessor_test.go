@@ -1,5 +1,7 @@
 package services
 
+import "context"
+
 type StubMicrobatchProcessor struct {
 	processedBatches [][][]byte
 }
@@ -10,7 +12,7 @@ func NewStubMicrobatchProcessor() *StubMicrobatchProcessor {
 	}
 }
 
-func (s *StubMicrobatchProcessor) ProcessMicrobatch(microbatch [][]byte) error {
+func (s *StubMicrobatchProcessor) ProcessMicrobatch(ctx context.Context, microbatch [][]byte) error {
 	s.processedBatches = append(s.processedBatches, microbatch)
 	return nil
 }

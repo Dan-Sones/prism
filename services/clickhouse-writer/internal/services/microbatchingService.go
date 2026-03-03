@@ -27,9 +27,9 @@ func (m *MicroBatchingService) Start(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			remaining := m.flushFullBatches(currentBatch)
+			remaining := m.flushFullBatches(ctx, currentBatch)
 			if len(remaining) > 0 {
-				err := m.microBatchProcessor.ProcessMicrobatch(remaining)
+				err := m.microBatchProcessor.ProcessMicrobatch(ctx, remaining)
 				if err != nil {
 					m.logger.Error("Error processing final microbatch", "error", err)
 				}
@@ -46,14 +46,16 @@ func (m *MicroBatchingService) Start(ctx context.Context) {
 				currentBatch = append(currentBatch, msg)
 			}
 
-			currentBatch = m.flushFullBatches(currentBatch)
+			currentBatch = m.flushFullBatches(ctx, currentBatch)
 		}
 	}
 }
 
-func (m *MicroBatchingService) flushFullBatches(batch [][]byte) [][]byte {
+func (m *MicroBatchingService) flushFullBatches(ctx context.Context, batch [][]byte) [][]byte {
 	for len(batch) >= m.microBatchSize {
-		err := m.microBatchProcessor.ProcessMicrobatch(batch[:m.microBatchSize])
+		// TODO: what if the insert fails, do we set it aside in a queue or do we not letter the buffer empty?
+		// this might cause backpressure tho
+		err := m.microBatchProcessor.ProcessMicrobatch(ctx, batch[:m.microBatchSize])
 		if err != nil {
 			m.logger.Error("Error processing microbatch", "error", err)
 			return batch
