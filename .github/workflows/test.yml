@@ -46,6 +46,21 @@ jobs:
       - name: Run clickhouse-writer tests
         run: cd services/clickhouse-writer && go test ./...
 
+  events-service-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "21"
+
+      - name: Run events-service verify
+        run: cd services/events-service && ./mvnw --batch-mode verify
+
   openfeature-provider-tests:
     runs-on: ubuntu-latest
 
