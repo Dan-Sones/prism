@@ -30,8 +30,8 @@ const EventUsageGraph = ({ event_type_key }: EventUsageGraphProps) => {
   });
 
   return (
-    <div className="flex w-full flex-col rounded-md bg-white p-4 shadow">
-      <div className="ml-5 flex justify-between">
+    <div className="flex w-full flex-col gap-1 rounded-md bg-white p-4 shadow md:h-auto">
+      <div className="flex justify-between gap-2 md:ml-5">
         <TimescaleSelector
           selectedTimeScale={selectedTimeScale}
           setSelectedTimeScale={setSelectedTimeScale}

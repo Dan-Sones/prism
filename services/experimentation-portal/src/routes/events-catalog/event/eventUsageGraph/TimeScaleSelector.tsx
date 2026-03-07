@@ -14,12 +14,12 @@ const TimescaleSelector = (props: TimeScaleSelectorProps) => {
   const { selectedTimeScale, setSelectedTimeScale } = props;
 
   return (
-    <div className="flex max-h-fit max-w-fit gap-2">
+    <div className="flex flex-wrap gap-2">
       {USAGE_TIME_SCALES.map((scale) => (
         <button
           key={scale}
           onClick={() => setSelectedTimeScale(scale)}
-          className={`cursor-pointer rounded-full border px-2 py-0.5 text-xs transition-colors duration-200 ${
+          className={`cursor-pointer rounded-full border px-3 py-1 text-xs text-nowrap transition-colors duration-200 ${
             scale === selectedTimeScale
               ? "border-purple-400 bg-purple-100 text-purple-700"
               : "border-gray-300 bg-white text-slate-600 hover:border-gray-400"
