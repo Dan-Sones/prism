@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Admin Service API
+  title: Experimentation Service API
 servers:
   - url: http://localhost:8081/api
 tags:
