@@ -43,7 +43,6 @@ func (e *EventsRepository) GetEventKeyUsageForLastXMinutesWithMinuteInterval(ctx
 	return e.handleDataPointsResult(rows)
 }
 
-
 func (e *EventsRepository) GetEventKeyUsageForLastHourWith5MinuteInterval(ctx context.Context, eventKey string, xMinutes int) ([]graph.TimeScaleDataPoint, error) {
 	query := `
 	SELECT
@@ -57,6 +56,28 @@ func (e *EventsRepository) GetEventKeyUsageForLastHourWith5MinuteInterval(ctx co
 	FROM toStartOfFiveMinute(now() - INTERVAL 1 Hour)
 		TO toStartOfFiveMinute(now())
 		STEP INTERVAL 5 MINUTE
+  `
+
+	rows, err := e.connection.Query(ctx, query, clickhouse.Named("event_key", eventKey))
+	if err != nil {
+		return nil, err
+	}
+	return e.handleDataPointsResult(rows)
+}
+
+func (e *EventsRepository) GetEventKeyUsageForLast24HoursWith1HourInterval(ctx context.Context, eventKey string, xMinutes int) ([]graph.TimeScaleDataPoint, error) {
+	query := `
+	SELECT
+		toStartOfHour(received_at) AS timestamp_aggregation,
+		count() AS event_count
+	FROM events
+	WHERE received_at >= toStartOfHour(now() - INTERVAL 1 Day)
+	  AND event_key = @event_key
+	GROUP BY timestamp_aggregation
+	ORDER BY timestamp_aggregation WITH FILL
+	FROM toStartOfHour(now() - INTERVAL 1 DAY)
+		TO toStartOfHour(now())
+    	STEP INTERVAL 1 Hour
   `
 
 	rows, err := e.connection.Query(ctx, query, clickhouse.Named("event_key", eventKey))
