@@ -24,22 +24,37 @@ func NewEventsService(eventsRepository *repository.EventsRepository, logger *slo
 }
 
 var scaleToMinutes = map[model2.GraphTimeScale]int{
-	model2.Minute:    1,
 	model2.TenMinute: 10,
 	model2.HalfHour:  30,
-	model2.ScaleHour: 60,
 }
 
 func (e *EventService) GetEventUsageOverPeriod(ctx context.Context, scale model2.GraphTimeScale, eventKey string) ([]model2.TimeScaleDataPoint, error) {
-	minutes, ok := scaleToMinutes[scale]
-	if !ok {
-		return nil, nil
+
+	switch scale {
+	case model2.ScaleHour:
+		return e.GetEventUsageOverLastHourWithFiveMinuteInterval(ctx, eventKey)
+	default:
+		minutes, ok := scaleToMinutes[scale]
+		if !ok {
+			return nil, nil
+		}
+
+		res, err := e.eventsRepository.GetEventKeyUsageForLastXMinutesWithMinuteInterval(ctx, eventKey, minutes)
+		if err != nil {
+			e.logger.Error(err.Error())
+			return nil, err
+		}
+		return res, nil
 	}
 
-	res, err := e.eventsRepository.GetEventKeyUsageForLastXMinutesWithMinuteInterval(ctx, eventKey, minutes)
+}
+
+func (e *EventService) GetEventUsageOverLastHourWithFiveMinuteInterval(ctx context.Context, eventKey string) ([]model2.TimeScaleDataPoint, error) {
+	res, err := e.eventsRepository.GetEventKeyUsageForLastHourWith5MinuteInterval(ctx, eventKey, 60)
 	if err != nil {
 		e.logger.Error(err.Error())
 		return nil, err
 	}
 	return res, nil
 }
+

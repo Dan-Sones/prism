@@ -46,6 +46,7 @@ const EventUsageGraph = ({ event_type_key }: EventUsageGraphProps) => {
         graphName={`Event Usage Over Time`}
         data={data}
         yAxisLabel="Num Events"
+        activeScale={selectedTimeScale}
       />
     </div>
   );

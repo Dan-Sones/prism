@@ -1,5 +1,4 @@
 export const USAGE_TIME_SCALES = [
-  "minute",
   "ten_minute",
   "half_hour",
   "hour",
@@ -9,13 +8,12 @@ export const USAGE_TIME_SCALES = [
 ] as const;
 
 export const USAGE_TIME_SCALE_HUMAN_READABLE: Record<UsageTimeScale, string> = {
-  minute: "Minute",
-  ten_minute: "10 Minutes",
-  half_hour: "30 Minutes",
-  hour: "Hour",
-  day: "Day",
-  week: "Week",
-  month: "Month",
+  ten_minute: "Last 10 mins",
+  half_hour: "Last 30 mins",
+  hour: "Last hour",
+  day: "Last 24 hours",
+  week: "Last 7 days",
+  month: "Last 30 days",
 };
 
 export type UsageTimeScale = (typeof USAGE_TIME_SCALES)[number];
