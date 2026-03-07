@@ -3,8 +3,8 @@ import AreaChart from "./AreaChart";
 
 interface TimeScaleAreaChartProps {
   graphName: string;
-  yAxisLabel: string;
-  xAxisLabel: string;
+  yAxisLabel?: string;
+  xAxisLabel?: string;
   data?: TimescaleDataResponse;
 }
 

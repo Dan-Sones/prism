@@ -25,8 +25,8 @@ ChartJS.register(
 
 interface AreaChartProps {
   graphName: string;
-  yAxisLabel: string;
-  xAxisLabel: string;
+  yAxisLabel?: string;
+  xAxisLabel?: string;
   labels?: string[];
   data: number[];
 }
@@ -69,8 +69,8 @@ const AreaChart = (props: AreaChartProps) => {
       {
         fill: true,
         data: data,
-        borderColor: "rgb(53, 162, 235)",
-        backgroundColor: "rgba(53, 162, 235, 0.5)",
+        borderColor: "#c084fc",
+        backgroundColor: "#f3e8ff",
       },
     ],
   };
