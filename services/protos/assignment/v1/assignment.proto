@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 package assignment.v1;
-option go_package = "admin-service/server/api/proto/assignment/v1;assignment";
+option go_package = "experimentation-service/server/api/proto/assignment/v1;assignment";
 
 service AssignmentService {
   rpc GetExperimentsAndVariantsForBucket(GetExperimentsAndVariantsForBucketRequest) returns (GetExperimentsAndVariantsForBucketResponse);

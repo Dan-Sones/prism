@@ -1,9 +1,9 @@
-.PHONY: docker-build docker-build-admin docker-build-assignment docker-build-events
+.PHONY: docker-build docker-build-experimentation docker-build-assignment docker-build-events
 
-docker-build: docker-build-admin docker-build-assignment docker-build-events
+docker-build: docker-build-experimentation docker-build-assignment docker-build-events
 
-docker-build-admin:
-	docker build -f admin-service/Dockerfile -t admin-service .
+docker-build-experimentation:
+	docker build -f experimentation-service/Dockerfile -t experimentation-service .
 
 docker-build-assignment:
 	docker build -f assignment-service/Dockerfile -t assignment-service .

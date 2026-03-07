@@ -39,7 +39,7 @@ collection:
         pathParameters:
           - name: user_id
             value: "21"
-  - name: Admin Service
+  - name: Experimentation Service
     meta:
       id: fld_5b499d459e2f46c69f202c66527dad64
       created: 1769159014127

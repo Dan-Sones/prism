@@ -13,28 +13,28 @@ public final class EventsCatalogServiceGrpc {
 
   // Static method descriptors that strictly reflect the proto.
   private static volatile io.grpc.MethodDescriptor<org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyRequest,
-      org.prism.eventsservice.grpc.events_catalog.v1.EventType> getGetEventTypeByKeyMethod;
+      org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyResponse> getGetEventTypeByKeyMethod;
 
   @io.grpc.stub.annotations.RpcMethod(
       fullMethodName = SERVICE_NAME + '/' + "GetEventTypeByKey",
       requestType = org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyRequest.class,
-      responseType = org.prism.eventsservice.grpc.events_catalog.v1.EventType.class,
+      responseType = org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyResponse.class,
       methodType = io.grpc.MethodDescriptor.MethodType.UNARY)
   public static io.grpc.MethodDescriptor<org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyRequest,
-      org.prism.eventsservice.grpc.events_catalog.v1.EventType> getGetEventTypeByKeyMethod() {
-    io.grpc.MethodDescriptor<org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyRequest, org.prism.eventsservice.grpc.events_catalog.v1.EventType> getGetEventTypeByKeyMethod;
+      org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyResponse> getGetEventTypeByKeyMethod() {
+    io.grpc.MethodDescriptor<org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyRequest, org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyResponse> getGetEventTypeByKeyMethod;
     if ((getGetEventTypeByKeyMethod = EventsCatalogServiceGrpc.getGetEventTypeByKeyMethod) == null) {
       synchronized (EventsCatalogServiceGrpc.class) {
         if ((getGetEventTypeByKeyMethod = EventsCatalogServiceGrpc.getGetEventTypeByKeyMethod) == null) {
           EventsCatalogServiceGrpc.getGetEventTypeByKeyMethod = getGetEventTypeByKeyMethod =
-              io.grpc.MethodDescriptor.<org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyRequest, org.prism.eventsservice.grpc.events_catalog.v1.EventType>newBuilder()
+              io.grpc.MethodDescriptor.<org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyRequest, org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyResponse>newBuilder()
               .setType(io.grpc.MethodDescriptor.MethodType.UNARY)
               .setFullMethodName(generateFullMethodName(SERVICE_NAME, "GetEventTypeByKey"))
               .setSampledToLocalTracing(true)
               .setRequestMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
                   org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyRequest.getDefaultInstance()))
               .setResponseMarshaller(io.grpc.protobuf.ProtoUtils.marshaller(
-                  org.prism.eventsservice.grpc.events_catalog.v1.EventType.getDefaultInstance()))
+                  org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyResponse.getDefaultInstance()))
               .setSchemaDescriptor(new EventsCatalogServiceMethodDescriptorSupplier("GetEventTypeByKey"))
               .build();
         }
@@ -109,7 +109,7 @@ public final class EventsCatalogServiceGrpc {
     /**
      */
     default void getEventTypeByKey(org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyRequest request,
-        io.grpc.stub.StreamObserver<org.prism.eventsservice.grpc.events_catalog.v1.EventType> responseObserver) {
+        io.grpc.stub.StreamObserver<org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyResponse> responseObserver) {
       io.grpc.stub.ServerCalls.asyncUnimplementedUnaryCall(getGetEventTypeByKeyMethod(), responseObserver);
     }
   }
@@ -144,7 +144,7 @@ public final class EventsCatalogServiceGrpc {
     /**
      */
     public void getEventTypeByKey(org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyRequest request,
-        io.grpc.stub.StreamObserver<org.prism.eventsservice.grpc.events_catalog.v1.EventType> responseObserver) {
+        io.grpc.stub.StreamObserver<org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyResponse> responseObserver) {
       io.grpc.stub.ClientCalls.asyncUnaryCall(
           getChannel().newCall(getGetEventTypeByKeyMethod(), getCallOptions()), request, responseObserver);
     }
@@ -168,7 +168,7 @@ public final class EventsCatalogServiceGrpc {
 
     /**
      */
-    public org.prism.eventsservice.grpc.events_catalog.v1.EventType getEventTypeByKey(org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyRequest request) throws io.grpc.StatusException {
+    public org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyResponse getEventTypeByKey(org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyRequest request) throws io.grpc.StatusException {
       return io.grpc.stub.ClientCalls.blockingV2UnaryCall(
           getChannel(), getGetEventTypeByKeyMethod(), getCallOptions(), request);
     }
@@ -192,7 +192,7 @@ public final class EventsCatalogServiceGrpc {
 
     /**
      */
-    public org.prism.eventsservice.grpc.events_catalog.v1.EventType getEventTypeByKey(org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyRequest request) {
+    public org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyResponse getEventTypeByKey(org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyRequest request) {
       return io.grpc.stub.ClientCalls.blockingUnaryCall(
           getChannel(), getGetEventTypeByKeyMethod(), getCallOptions(), request);
     }
@@ -216,7 +216,7 @@ public final class EventsCatalogServiceGrpc {
 
     /**
      */
-    public com.google.common.util.concurrent.ListenableFuture<org.prism.eventsservice.grpc.events_catalog.v1.EventType> getEventTypeByKey(
+    public com.google.common.util.concurrent.ListenableFuture<org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyResponse> getEventTypeByKey(
         org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyRequest request) {
       return io.grpc.stub.ClientCalls.futureUnaryCall(
           getChannel().newCall(getGetEventTypeByKeyMethod(), getCallOptions()), request);
@@ -244,7 +244,7 @@ public final class EventsCatalogServiceGrpc {
       switch (methodId) {
         case METHODID_GET_EVENT_TYPE_BY_KEY:
           serviceImpl.getEventTypeByKey((org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyRequest) request,
-              (io.grpc.stub.StreamObserver<org.prism.eventsservice.grpc.events_catalog.v1.EventType>) responseObserver);
+              (io.grpc.stub.StreamObserver<org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyResponse>) responseObserver);
           break;
         default:
           throw new AssertionError();
@@ -269,7 +269,7 @@ public final class EventsCatalogServiceGrpc {
           io.grpc.stub.ServerCalls.asyncUnaryCall(
             new MethodHandlers<
               org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyRequest,
-              org.prism.eventsservice.grpc.events_catalog.v1.EventType>(
+              org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyResponse>(
                 service, METHODID_GET_EVENT_TYPE_BY_KEY)))
         .build();
   }

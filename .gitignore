@@ -1,6 +1,6 @@
 services/admin-portal/.vite/
-services/admin-service/.env
-services/admin-service/.idea/
+services/experimentation-service/.env
+services/experimentation-service/.idea/
 infrastructure/.env
 .idea/
 services/admin-portal/coverage

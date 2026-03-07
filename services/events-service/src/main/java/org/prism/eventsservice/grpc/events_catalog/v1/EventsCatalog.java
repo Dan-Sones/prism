@@ -32,6 +32,11 @@ public final class EventsCatalog extends com.google.protobuf.GeneratedFile {
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
       internal_static_events_catalog_v1_GetEventTypeByKeyRequest_fieldAccessorTable;
   static final com.google.protobuf.Descriptors.Descriptor
+    internal_static_events_catalog_v1_GetEventTypeByKeyResponse_descriptor;
+  static final 
+    com.google.protobuf.GeneratedMessage.FieldAccessorTable
+      internal_static_events_catalog_v1_GetEventTypeByKeyResponse_fieldAccessorTable;
+  static final com.google.protobuf.Descriptors.Descriptor
     internal_static_events_catalog_v1_EventType_descriptor;
   static final 
     com.google.protobuf.GeneratedMessage.FieldAccessorTable
@@ -53,25 +58,29 @@ public final class EventsCatalog extends com.google.protobuf.GeneratedFile {
       "\n&events_catalog/v1/events_catalog.proto" +
       "\022\021events_catalog.v1\032\037google/protobuf/tim" +
       "estamp.proto\"-\n\030GetEventTypeByKeyRequest" +
-      "\022\021\n\tevent_key\030\001 \001(\t\"\322\001\n\tEventType\022\n\n\002id\030" +
-      "\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\021\n\tevent_key\030\003 \001(\t\022\017" +
-      "\n\007version\030\004 \001(\005\022\030\n\013description\030\005 \001(\tH\000\210\001" +
-      "\001\022.\n\ncreated_at\030\006 \001(\0132\032.google.protobuf." +
-      "Timestamp\022-\n\006fields\030\007 \003(\0132\035.events_catal" +
-      "og.v1.EventFieldB\016\n\014_description\"\200\001\n\nEve" +
-      "ntField\022\n\n\002id\030\001 \001(\t\022\025\n\revent_type_id\030\002 \001" +
-      "(\t\022\014\n\004name\030\003 \001(\t\022\021\n\tfield_key\030\004 \001(\t\022.\n\td" +
-      "ata_type\030\005 \001(\0162\033.events_catalog.v1.DataT" +
-      "ype*\220\001\n\010DataType\022\031\n\025DATA_TYPE_UNSPECIFIE" +
-      "D\020\000\022\024\n\020DATA_TYPE_STRING\020\001\022\021\n\rDATA_TYPE_I" +
-      "NT\020\002\022\023\n\017DATA_TYPE_FLOAT\020\003\022\022\n\016DATA_TYPE_B" +
-      "OOL\020\004\022\027\n\023DATA_TYPE_TIMESTAMP\020\0052v\n\024Events" +
-      "CatalogService\022^\n\021GetEventTypeByKey\022+.ev" +
-      "ents_catalog.v1.GetEventTypeByKeyRequest" +
-      "\032\034.events_catalog.v1.EventTypeBs\n.org.pr" +
-      "ism.eventsservice.grpc.events_catalog.v1" +
-      "P\001Z?admin-service/server/api/proto/event" +
-      "s_catalog/v1;events_catalogb\006proto3"
+      "\022\021\n\tevent_key\030\001 \001(\t\"a\n\031GetEventTypeByKey" +
+      "Response\0225\n\nevent_type\030\001 \001(\0132\034.events_ca" +
+      "talog.v1.EventTypeH\000\210\001\001B\r\n\013_event_type\"\322" +
+      "\001\n\tEventType\022\n\n\002id\030\001 \001(\t\022\014\n\004name\030\002 \001(\t\022\021" +
+      "\n\tevent_key\030\003 \001(\t\022\017\n\007version\030\004 \001(\005\022\030\n\013de" +
+      "scription\030\005 \001(\tH\000\210\001\001\022.\n\ncreated_at\030\006 \001(\013" +
+      "2\032.google.protobuf.Timestamp\022-\n\006fields\030\007" +
+      " \003(\0132\035.events_catalog.v1.EventFieldB\016\n\014_" +
+      "description\"\200\001\n\nEventField\022\n\n\002id\030\001 \001(\t\022\025" +
+      "\n\revent_type_id\030\002 \001(\t\022\014\n\004name\030\003 \001(\t\022\021\n\tf" +
+      "ield_key\030\004 \001(\t\022.\n\tdata_type\030\005 \001(\0162\033.even" +
+      "ts_catalog.v1.DataType*\220\001\n\010DataType\022\031\n\025D" +
+      "ATA_TYPE_UNSPECIFIED\020\000\022\024\n\020DATA_TYPE_STRI" +
+      "NG\020\001\022\021\n\rDATA_TYPE_INT\020\002\022\023\n\017DATA_TYPE_FLO" +
+      "AT\020\003\022\022\n\016DATA_TYPE_BOOL\020\004\022\027\n\023DATA_TYPE_TI" +
+      "MESTAMP\020\0052\206\001\n\024EventsCatalogService\022n\n\021Ge" +
+      "tEventTypeByKey\022+.events_catalog.v1.GetE" +
+      "ventTypeByKeyRequest\032,.events_catalog.v1" +
+      ".GetEventTypeByKeyResponseB}\n.org.prism." +
+      "eventsservice.grpc.events_catalog.v1P\001ZI" +
+      "experimentation-service/server/api/proto" +
+      "/events_catalog/v1;events_catalogb\006proto" +
+      "3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,
@@ -84,14 +93,20 @@ public final class EventsCatalog extends com.google.protobuf.GeneratedFile {
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_events_catalog_v1_GetEventTypeByKeyRequest_descriptor,
         new java.lang.String[] { "EventKey", });
-    internal_static_events_catalog_v1_EventType_descriptor =
+    internal_static_events_catalog_v1_GetEventTypeByKeyResponse_descriptor =
       getDescriptor().getMessageType(1);
+    internal_static_events_catalog_v1_GetEventTypeByKeyResponse_fieldAccessorTable = new
+      com.google.protobuf.GeneratedMessage.FieldAccessorTable(
+        internal_static_events_catalog_v1_GetEventTypeByKeyResponse_descriptor,
+        new java.lang.String[] { "EventType", });
+    internal_static_events_catalog_v1_EventType_descriptor =
+      getDescriptor().getMessageType(2);
     internal_static_events_catalog_v1_EventType_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_events_catalog_v1_EventType_descriptor,
         new java.lang.String[] { "Id", "Name", "EventKey", "Version", "Description", "CreatedAt", "Fields", });
     internal_static_events_catalog_v1_EventField_descriptor =
-      getDescriptor().getMessageType(2);
+      getDescriptor().getMessageType(3);
     internal_static_events_catalog_v1_EventField_fieldAccessorTable = new
       com.google.protobuf.GeneratedMessage.FieldAccessorTable(
         internal_static_events_catalog_v1_EventField_descriptor,
