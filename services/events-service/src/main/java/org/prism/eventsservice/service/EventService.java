@@ -82,8 +82,11 @@ public class EventService {
         }
 
         try {
-            var eventType = eventsCatalogStub.getEventTypeByKey(
-                    GetEventTypeByKeyRequest.newBuilder().setEventKey(eventKey).build()).getEventType();
+            var eventType = eventsCatalogStub
+                    .getEventTypeByKey(GetEventTypeByKeyRequest.newBuilder()
+                            .setEventKey(eventKey)
+                            .build())
+                    .getEventType();
             cacheManager.getCache("eventTypes").put(eventKey, eventType);
             return eventType;
         } catch (StatusRuntimeException e) {
