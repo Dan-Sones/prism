@@ -54,8 +54,8 @@ const config: Config = {
             route: '/api/assignment-service',
           },
           {
-            spec: 'openapi/admin-service/admin-service.yaml',
-            route: '/api/admin-service',
+            spec: 'openapi/experimentation-service/experimentation-service.yaml',
+            route: '/api/experimentation-service',
           },
         ],
         theme: {

@@ -24,8 +24,8 @@ func main() {
 
 	utils.ValidateEnvVars(logger,
 		"APP_ENV",
-		"ADMIN_SERVICE_GRPC_SERVER_ADDRESS",
-		"ADMIN_SERVICE_GRPC_SERVER_PORT",
+		"EXPERIMENTATION_SERVICE_GRPC_SERVER_ADDRESS",
+		"EXPERIMENTATION_SERVICE_GRPC_SERVER_PORT",
 		"BUCKET_COUNT",
 		"SALT_VALUE",
 		"REDIS_HOST",
@@ -87,7 +87,7 @@ func initLogger() *slog.Logger {
 }
 
 func getGrpcExperimentClient() clients.ExperimentClient {
-	address := fmt.Sprintf("%s:%s", os.Getenv("ADMIN_SERVICE_GRPC_SERVER_ADDRESS"), os.Getenv("ADMIN_SERVICE_GRPC_SERVER_PORT"))
+	address := fmt.Sprintf("%s:%s", os.Getenv("EXPERIMENTATION_SERVICE_GRPC_SERVER_ADDRESS"), os.Getenv("EXPERIMENTATION_SERVICE_GRPC_SERVER_PORT"))
 	client, err := clients.NewGrpcClient(address)
 	if err != nil {
 		log.Fatal(err)

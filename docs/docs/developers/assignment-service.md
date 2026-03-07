@@ -8,7 +8,7 @@ The Assignment Service is a lightweight but core component of the Prism Experime
 
 It is responsible for fetching the experiment assignments when they interact with your application.
 
-This is achieved via a GRPC call to the Admin Service, which returns the appropriate assignments based on the user's ID, and therefore bucket.
+This is achieved via a GRPC call to the Experimentation Service, which returns the appropriate assignments based on the user's ID, and therefore bucket.
 
 ## API Specification
 
