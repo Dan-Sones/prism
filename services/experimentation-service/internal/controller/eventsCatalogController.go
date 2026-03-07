@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"experimentation-service/internal/problems"
-	"experimentation-service/internal/service"
 	"encoding/json"
 	"errors"
+	"experimentation-service/internal/problems"
+	"experimentation-service/internal/service"
 	"net/http"
 
 	"github.com/Dan-Sones/prismdbmodels/model"

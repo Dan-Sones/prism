@@ -39,11 +39,23 @@ func main() {
 		"POSTGRES_USER",
 		"POSTGRES_PASSWORD",
 		"POSTGRES_DB",
+		"CLICKHOUSE_HOST",
+		"CLICKHOUSE_NATIVE_PORT",
+		"CLICKHOUSE_DB",
+		"CLICKHOUSE_USER",
+		"CLICKHOUSE_PASSWORD",
 	)
 	logger.Info("experimentation-service started")
 
 	pgPool := clients.GetPostgresConnectionPool()
 	defer pgPool.Close()
+
+	clickhouseConn, err := clients.NewClickhouseConnection()
+	if err != nil {
+		logger.Error("Failed to connect to Clickhouse", "error", err)
+		os.Exit(1)
+	}
+	defer clickhouseConn.Close()
 
 	// Global Values
 	bucketCount, err := utils.GetBucketCount()
@@ -54,16 +66,19 @@ func main() {
 
 	// Repositories
 	experimentRepository := repository.NewExperimentRepository(pgPool)
-	_ = repository.NewEventsCatalogRepository(pgPool)
+	eventsCatalogRepository := repository.NewEventsCatalogRepository(pgPool)
+	eventsRepository := repository.NewEventsRepository(clickhouseConn)
 
 	// Services
 	experimentService := service.NewExperimentService(experimentRepository, logger)
 	assignmentService := service.NewAssignmentService(experimentRepository, bucketCount, logger)
-	eventsCatalogService := service.NewEventsCatalogService(repository.NewEventsCatalogRepository(pgPool), logger)
+	eventsCatalogService := service.NewEventsCatalogService(eventsCatalogRepository, logger)
+	eventService := service.NewEventsService(eventsRepository, logger)
 
 	// Controllers
 	experimentController := controller.NewExperimentController(experimentService)
 	eventsCatalogController := controller.NewEventsCatalogController(eventsCatalogService)
+	eventController := controller.NewEventController(eventService)
 
 	go startGrpcServer(logger, assignmentService, eventsCatalogService)
 
@@ -71,6 +86,7 @@ func main() {
 	http.RegisterRoutes(router, http.Controllers{
 		ExperimentController:    experimentController,
 		EventsCatalogController: eventsCatalogController,
+		EventController:         eventController,
 	})
 
 	httpPort := fmt.Sprintf(":%s", os.Getenv("EXPERIMENTATION_SERVICE_HTTP_PORT"))
