@@ -1,9 +1,9 @@
-services/admin-portal/.vite/
+services/experimentation-portal/.vite/
 services/experimentation-service/.env
 services/experimentation-service/.idea/
 infrastructure/.env
 .idea/
-services/admin-portal/coverage
+services/experimentation-portal/coverage
 
 openfeature-provider-react/.DS_Store
 
