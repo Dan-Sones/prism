@@ -7,7 +7,7 @@ export const getEventUsageOverPeriod = async (
   scale: UsageTimeScale,
 ): Promise<TimescaleDataResponse> => {
   const response = await axiosClient.get<TimescaleDataResponse>(
-    `/events-catalog/byKey/${eventTypeKey}/usage`,
+    `/events-catalog/key/${eventTypeKey}/usage`,
     { params: { graphScale: scale } },
   );
   return response.data;

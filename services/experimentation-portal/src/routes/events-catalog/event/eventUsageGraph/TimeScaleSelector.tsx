@@ -2,8 +2,8 @@ import type { Dispatch, SetStateAction } from "react";
 import {
   USAGE_TIME_SCALE_HUMAN_READABLE,
   USAGE_TIME_SCALES,
-} from "../../../../api/event";
-import type { UsageTimeScale } from "../../../../api/event";
+  type UsageTimeScale,
+} from "../../../../api/eventsCatalog";
 
 interface TimeScaleSelectorProps {
   selectedTimeScale: string;

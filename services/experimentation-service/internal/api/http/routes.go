@@ -27,13 +27,14 @@ func RegisterRoutes(router *chi.Mux, c Controllers) {
 			r.Post("/", c.EventsCatalogController.CreateEventType)
 			r.Get("/event-key-available", c.EventsCatalogController.IsEventKeyAvailable)
 
-			r.Route("/byKey/{eventKey}", func(r chi.Router) {
+			r.Route("/key/{eventKey}", func(r chi.Router) {
 				r.Get("/usage", c.EventController.GetEventUsageOverPeriod)
 				r.Get("/stats", c.EventController.GetLiveEventStats)
+				r.Get("/", c.EventsCatalogController.GetEventTypeByKey)
 			})
 
 			r.Route("/{eventTypeId}", func(r chi.Router) {
-				r.Get("/", c.EventsCatalogController.GetEventType)
+				r.Get("/", c.EventsCatalogController.GetEventTypeById)
 				r.Delete("/", c.EventsCatalogController.DeleteEventType)
 				r.Get("/field-key-available", c.EventsCatalogController.IsFieldKeyAvailable)
 			})

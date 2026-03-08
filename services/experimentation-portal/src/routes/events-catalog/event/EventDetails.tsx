@@ -33,7 +33,7 @@ const EventDetails = (props: EventDetailsProps) => {
               <p className="text-xs text-gray-400">Created</p>
               <p className="font-mono text-sm">
                 {EventDetails?.createdAt
-                  ? new Date(EventDetails.createdAt).toLocaleDateString()
+                  ? new Date(EventDetails.createdAt).toLocaleString()
                   : "—"}
               </p>
             </div>

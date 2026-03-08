@@ -1,12 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import TimeScaleAreaChart from "../../../../components/chart/areaChart/TimeScaleAreaChart";
 import { useState } from "react";
+
+import TimescaleSelector from "./TimeScaleSelector";
+import LastUpdated from "./LastRefreshed";
 import {
   getEventUsageOverPeriod,
   type UsageTimeScale,
-} from "../../../../api/event";
-import TimescaleSelector from "./TimeScaleSelector";
-import LastUpdated from "./LastRefreshed";
+} from "../../../../api/eventsCatalog";
 
 interface EventUsageGraphProps {
   event_type_key?: string;
@@ -15,15 +16,13 @@ interface EventUsageGraphProps {
 const EventUsageGraph = ({ event_type_key }: EventUsageGraphProps) => {
   const [selectedTimeScale, setSelectedTimeScale] =
     useState<UsageTimeScale>("half_hour");
-  const [lastRefreshed, setLastRefreshed] = useState<Date>(new Date());
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, refetch, dataUpdatedAt } = useQuery({
     queryKey: ["eventUsageOverTime", event_type_key, selectedTimeScale],
     queryFn: async () => {
       if (!event_type_key) {
         throw new Error("event_type_key is required");
       }
-      setLastRefreshed(new Date());
       return getEventUsageOverPeriod(event_type_key, selectedTimeScale);
     },
     enabled: !!event_type_key,
@@ -37,7 +36,7 @@ const EventUsageGraph = ({ event_type_key }: EventUsageGraphProps) => {
           setSelectedTimeScale={setSelectedTimeScale}
         />
         <LastUpdated
-          lastUpdated={lastRefreshed}
+          lastUpdated={new Date(dataUpdatedAt)}
           isLoading={isLoading}
           onRefresh={refetch}
         />

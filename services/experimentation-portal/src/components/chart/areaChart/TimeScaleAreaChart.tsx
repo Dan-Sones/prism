@@ -1,7 +1,7 @@
-import {
-  type TimescaleDataResponse,
-  type UsageTimeScale,
-} from "../../../api/event";
+import type {
+  TimescaleDataResponse,
+  UsageTimeScale,
+} from "../../../api/eventsCatalog";
 import AreaChart from "./AreaChart";
 
 interface TimeScaleAreaChartProps {

@@ -2,7 +2,7 @@ import ArrowPathIcon from "../../../../components/icons/ArrowPathIcon";
 import InformationCircleIcon from "../../../../components/icons/InformationCircleIcon";
 
 interface LastUpdatedProps {
-  lastUpdated: Date;
+  lastUpdated?: Date;
   isLoading: boolean;
   onRefresh: () => void;
 }
@@ -21,7 +21,7 @@ const LastUpdated = ({
       </button>
       <div className="flex gap-0.5">
         <p className="text-xs font-extralight text-gray-400">
-          Last Updated: {lastUpdated.toLocaleTimeString()}
+          Last Updated: {lastUpdated && lastUpdated.toLocaleTimeString()}
         </p>
         <div className="relative w-fit">
           <InformationCircleIcon className="peer size-3 text-gray-400" />
