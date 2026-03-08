@@ -16,7 +16,17 @@ const TimeScaleAreaChart = (props: TimeScaleAreaChartProps) => {
   const { graphName, yAxisLabel, xAxisLabel, data, activeScale } = props;
 
   const getTimeLabel = (isoTime: string) => {
+    if (activeScale === "week") {
+      return convertIsoTimestampToDay(isoTime);
+    }
+
     return convertIsoTimestamptoHHMM(isoTime);
+  };
+
+  const convertIsoTimestampToDay = (timestamp: string) => {
+    return new Date(timestamp).toLocaleDateString(undefined, {
+      weekday: "short",
+    });
   };
 
   const convertIsoTimestamptoHHMM = (isoTime: string) => {

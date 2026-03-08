@@ -35,6 +35,9 @@ func (e *EventService) GetEventUsageOverPeriod(ctx context.Context, scale model2
 		return e.GetEventUsageOverLastHourWithFiveMinuteInterval(ctx, eventKey)
 	case model2.ScaleDay:
 		return e.GetEventKeyUsageForLast24HoursWith1HourInterval(ctx, eventKey)
+	case model2.ScaleWeek:
+		return e.GetEventKeyUsageForLast7DaysWith1DayInterval(ctx, eventKey)
+
 	default:
 		minutes, ok := scaleToMinutes[scale]
 		if !ok {
@@ -62,6 +65,15 @@ func (e *EventService) GetEventUsageOverLastHourWithFiveMinuteInterval(ctx conte
 
 func (e *EventService) GetEventKeyUsageForLast24HoursWith1HourInterval(ctx context.Context, eventKey string) ([]model2.TimeScaleDataPoint, error) {
 	res, err := e.eventsRepository.GetEventKeyUsageForLast24HoursWith1HourInterval(ctx, eventKey, 24)
+	if err != nil {
+		e.logger.Error(err.Error())
+		return nil, err
+	}
+	return res, nil
+}
+
+func (e *EventService) GetEventKeyUsageForLast7DaysWith1DayInterval(ctx context.Context, eventKey string) ([]model2.TimeScaleDataPoint, error) {
+	res, err := e.eventsRepository.GetEventKeyUsageForLast7DaysWithDayInterval(ctx, eventKey, 7)
 	if err != nil {
 		e.logger.Error(err.Error())
 		return nil, err
