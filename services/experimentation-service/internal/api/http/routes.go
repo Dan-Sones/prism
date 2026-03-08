@@ -29,6 +29,7 @@ func RegisterRoutes(router *chi.Mux, c Controllers) {
 
 			r.Route("/byKey/{eventKey}", func(r chi.Router) {
 				r.Get("/usage", c.EventController.GetEventUsageOverPeriod)
+				r.Get("/stats", c.EventController.GetLiveEventStats)
 			})
 
 			r.Route("/{eventTypeId}", func(r chi.Router) {

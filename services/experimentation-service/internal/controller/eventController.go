@@ -31,7 +31,7 @@ func (e *EventController) GetEventUsageOverPeriod(w http.ResponseWriter, r *http
 	}
 
 	if eventKey == "" {
-		problems.NewBadRequestError("eventTypeId is required").Write(w)
+		problems.NewBadRequestError("eventKey is required").Write(w)
 		return
 	}
 
@@ -42,4 +42,22 @@ func (e *EventController) GetEventUsageOverPeriod(w http.ResponseWriter, r *http
 	}
 
 	WriteResponse(w, http.StatusOK, dataPoints)
+}
+
+func (e *EventController) GetLiveEventStats(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	eventKey := chi.URLParam(r, "eventKey")
+
+	if eventKey == "" {
+		problems.NewBadRequestError("eventKey is required").Write(w)
+		return
+	}
+
+	stats, err := e.eventService.GetLiveEventStatistics(ctx, eventKey)
+	if err != nil {
+		problems.NewInternalServerError().Write(w)
+		return
+	}
+
+	WriteResponse(w, http.StatusOK, stats)
 }

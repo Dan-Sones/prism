@@ -2,9 +2,11 @@ package service
 
 import (
 	"context"
+	"experimentation-service/internal/model/event"
 	model2 "experimentation-service/internal/model/graph"
 	"experimentation-service/internal/repository"
 	"log/slog"
+	"math/rand"
 )
 
 type EventsServiceInterface interface {
@@ -12,14 +14,16 @@ type EventsServiceInterface interface {
 }
 
 type EventService struct {
-	eventsRepository *repository.EventsRepository
-	logger           *slog.Logger
+	eventsRepository        *repository.EventsRepository
+	eventsCatalogRepository *repository.EventsCatalogRepository
+	logger                  *slog.Logger
 }
 
-func NewEventsService(eventsRepository *repository.EventsRepository, logger *slog.Logger) *EventService {
+func NewEventsService(eventsRepository *repository.EventsRepository, eventsCatalogRepository *repository.EventsCatalogRepository, logger *slog.Logger) *EventService {
 	return &EventService{
-		eventsRepository: eventsRepository,
-		logger:           logger,
+		eventsRepository:        eventsRepository,
+		eventsCatalogRepository: eventsCatalogRepository,
+		logger:                  logger,
 	}
 }
 
@@ -56,4 +60,55 @@ func (e *EventService) GetEventUsageOverPeriod(ctx context.Context, scale model2
 		return nil, err
 	}
 	return res, nil
+}
+
+func (e *EventService) GetLiveEventStatistics(ctx context.Context, eventKey string) (event.LiveEventStatistics, error) {
+	lastReceivedTime, err := e.eventsRepository.GetLastReceivedTimeForEventKey(ctx, eventKey)
+	if err != nil {
+		e.logger.Error(err.Error())
+		return event.LiveEventStatistics{}, err
+	}
+
+	countPast7Days, err := e.eventsRepository.GetTotalEventsPast7DaysForEventKey(ctx, eventKey)
+	if err != nil {
+		e.logger.Error(err.Error())
+		return event.LiveEventStatistics{}, err
+	}
+
+	countPast24Hours, err := e.eventsRepository.GetTotalEventsPast24HoursForEventKey(ctx, eventKey)
+	if err != nil {
+		e.logger.Error(err.Error())
+		return event.LiveEventStatistics{}, err
+	}
+
+	missingRates, err := e.getMissingRatesForEventType(ctx, eventKey)
+	if err != nil {
+		e.logger.Error(err.Error())
+		return event.LiveEventStatistics{}, err
+	}
+
+	// TODO: Fetch actual missing rates
+	// Fetch the fields from the database
+	// Then look up in metrics to get actual missing rates for each field
+	return event.LiveEventStatistics{
+		MissingRates:           missingRates,
+		TotalEventsPast7Days:   countPast7Days,
+		TotalEventsPast24Hours: countPast24Hours,
+		LastReceivedTime:       lastReceivedTime,
+	}, nil
+
+}
+
+func (e *EventService) getMissingRatesForEventType(ctx context.Context, eventKey string) (map[string]int64, error) {
+	eventType, err := e.eventsCatalogRepository.GetEventTypeByKey(ctx, eventKey)
+	if err != nil {
+		return nil, err
+	}
+
+	missingRates := make(map[string]int64)
+	for _, field := range eventType.Fields {
+		missingRates[field.FieldKey] = int64(rand.Intn(100-0) + 0)
+	}
+
+	return missingRates, nil
 }
