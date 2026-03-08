@@ -2,18 +2,18 @@ import ArrowPathIcon from "../../../../components/icons/ArrowPathIcon";
 import InformationCircleIcon from "../../../../components/icons/InformationCircleIcon";
 
 interface LastUpdatedProps {
-  LastUpdated: Date;
+  lastUpdated: Date;
   isLoading: boolean;
   onRefresh: () => void;
 }
 
 const LastUpdated = ({
-  LastUpdated,
+  lastUpdated,
   isLoading,
   onRefresh,
 }: LastUpdatedProps) => {
   return (
-    <span className="flex flex-row items-center gap-2">
+    <span className="flex flex-row items-center gap-1">
       <button onClick={onRefresh}>
         <ArrowPathIcon
           className={`size-3 cursor-pointer text-gray-600 transition-transform duration-500 ${isLoading ? "animate-spin" : ""}`}
@@ -21,7 +21,7 @@ const LastUpdated = ({
       </button>
       <div className="flex gap-0.5">
         <p className="text-xs font-extralight text-gray-400">
-          Last Updated: {LastUpdated.toLocaleTimeString()}
+          Last Updated: {lastUpdated.toLocaleTimeString()}
         </p>
         <div className="relative w-fit">
           <InformationCircleIcon className="peer size-3 text-gray-400" />

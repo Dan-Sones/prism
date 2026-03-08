@@ -1,18 +1,11 @@
 import type { EventType } from "../../../api/eventsCatalog";
 import Spinner from "../../../components/spinner/Spinner";
+import FieldKey from "../../../components/fieldKey/FieldKey";
 
 interface EventDetailsProps {
   EventDetails?: EventType;
   isLoading?: boolean;
 }
-
-const dataTypeBadgeColor: Record<string, string> = {
-  string: "bg-blue-100 text-blue-700",
-  int: "bg-green-100 text-green-700",
-  float: "bg-yellow-100 text-yellow-700",
-  boolean: "bg-purple-100 text-purple-700",
-  timestamp: "bg-orange-100 text-orange-700",
-};
 
 const EventDetails = (props: EventDetailsProps) => {
   const { EventDetails, isLoading } = props;
@@ -38,7 +31,7 @@ const EventDetails = (props: EventDetailsProps) => {
             </div>
             <div>
               <p className="text-xs text-gray-400">Created</p>
-              <p className="text-sm">
+              <p className="font-mono text-sm">
                 {EventDetails?.createdAt
                   ? new Date(EventDetails.createdAt).toLocaleDateString()
                   : "—"}
@@ -54,17 +47,7 @@ const EventDetails = (props: EventDetailsProps) => {
             <p className="mb-2 text-xs text-gray-400">Fields</p>
             <div className="flex flex-wrap gap-2">
               {EventDetails?.fields.map((field) => (
-                <div
-                  key={field.id}
-                  className="flex items-center gap-2 rounded-md border border-gray-200 px-3 py-1.5"
-                >
-                  <span className="font-mono text-xs">{field.fieldKey}</span>
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-xs ${dataTypeBadgeColor[field.dataType] ?? "bg-gray-100 text-gray-600"}`}
-                  >
-                    {field.dataType}
-                  </span>
-                </div>
+                <FieldKey key={field.id} field={field} />
               ))}
             </div>
           </div>

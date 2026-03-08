@@ -37,7 +37,7 @@ const EventUsageGraph = ({ event_type_key }: EventUsageGraphProps) => {
           setSelectedTimeScale={setSelectedTimeScale}
         />
         <LastUpdated
-          LastUpdated={lastRefreshed}
+          lastUpdated={lastRefreshed}
           isLoading={isLoading}
           onRefresh={refetch}
         />
