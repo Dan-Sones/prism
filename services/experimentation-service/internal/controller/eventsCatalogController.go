@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"experimentation-service/internal/problems"
-	"experimentation-service/internal/service"
 	"encoding/json"
 	"errors"
+	"experimentation-service/internal/problems"
+	"experimentation-service/internal/service"
 	"net/http"
 
 	"github.com/Dan-Sones/prismdbmodels/model"
@@ -75,7 +75,7 @@ func (e *EventsCatalogController) GetEventTypes(w http.ResponseWriter, r *http.R
 	WriteResponse(w, http.StatusOK, eventTypes)
 }
 
-func (e *EventsCatalogController) GetEventType(w http.ResponseWriter, r *http.Request) {
+func (e *EventsCatalogController) GetEventTypeById(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	eventTypeId := chi.URLParam(r, "eventTypeId")
@@ -91,6 +91,29 @@ func (e *EventsCatalogController) GetEventType(w http.ResponseWriter, r *http.Re
 	}
 
 	eventType, err := e.eventsCatalogService.GetEventTypeById(ctx, eventTypeId)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			problems.NewNotFound("Event type not found").Write(w)
+			return
+		}
+		problems.NewInternalServerError().Write(w)
+		return
+	}
+
+	WriteResponse(w, http.StatusOK, eventType)
+}
+
+func (e *EventsCatalogController) GetEventTypeByKey(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	eventTypeId := chi.URLParam(r, "eventKey")
+
+	if eventTypeId == "" {
+		problems.NewBadRequestError("eventKey is required").Write(w)
+		return
+	}
+
+	eventType, err := e.eventsCatalogService.GetEventTypeByKey(ctx, eventTypeId)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			problems.NewNotFound("Event type not found").Write(w)

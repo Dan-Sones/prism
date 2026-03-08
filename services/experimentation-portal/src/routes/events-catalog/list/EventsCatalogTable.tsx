@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router";
 import type { EventType } from "../../../api/eventsCatalog";
 import Table from "../../../components/table/Table";
 
@@ -19,6 +20,8 @@ interface EventsCatalogTableProps {
 
 const EventsCatalogTable = (props: EventsCatalogTableProps) => {
   const { data, isLoading, error } = props;
+
+  const navigate = useNavigate();
 
   const transformData = (data: Array<EventType>): Array<EventTypeRow> => {
     return data.map((event) => ({
@@ -57,6 +60,7 @@ const EventsCatalogTable = (props: EventsCatalogTableProps) => {
       loading={isLoading}
       error={error}
       actions={actions}
+      onRowClick={(row) => navigate(`/events-catalog/${row.eventKey}`)}
     />
   );
 };

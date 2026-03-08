@@ -1,9 +1,9 @@
 package pb
 
 import (
+	"context"
 	"experimentation-service/internal/grpc/generated/events_catalog/v1"
 	"experimentation-service/internal/service"
-	"context"
 
 	"github.com/Dan-Sones/prismdbmodels/model"
 	"google.golang.org/protobuf/types/known/timestamppb"

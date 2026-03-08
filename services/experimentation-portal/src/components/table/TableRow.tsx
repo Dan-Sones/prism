@@ -2,9 +2,12 @@ import type { TableRowProps } from ".";
 import TableActionsCell from "./TableActionsCell";
 
 const TableRow = <T,>(props: TableRowProps<T>) => {
-  const { row, columns } = props;
+  const { row, columns, onRowClick } = props;
   return (
-    <tr className="relative border-t border-gray-300">
+    <tr
+      className={`relative border-t border-gray-300 ${onRowClick ? "cursor-pointer hover:bg-gray-50" : ""}`}
+      onClick={() => onRowClick && onRowClick(row)}
+    >
       {columns.map((column) => {
         return (
           <td key={column.accessor} className="text-sm">

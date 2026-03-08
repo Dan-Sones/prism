@@ -10,10 +10,10 @@ const Table = <T,>({
   loading,
   error,
   actions,
+  onRowClick,
 }: TableProps<T>) => {
   // TODO: Pagination
   // TODO: Row Actions (Edit, delete, etc.)
-  // TODO: View
 
   const [sortBy, setSortBy] = React.useState<TableSorting<T> | null>(null);
 
@@ -45,6 +45,7 @@ const Table = <T,>({
                   row={row}
                   columns={columns}
                   actions={actions}
+                  onRowClick={onRowClick}
                 />
               ))}
             </tbody>

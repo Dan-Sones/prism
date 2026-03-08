@@ -4,6 +4,7 @@ export interface TableProps<T> {
   columns: Column<T>[];
   data: T[];
   actions?: TableActions<T>;
+  onRowClick?: (row: T) => void;
 }
 
 export interface Column<T> {
@@ -22,6 +23,7 @@ export interface TableRowProps<T> {
   row: T;
   columns: Column<T>[];
   actions?: TableActions<T>;
+  onRowClick?: (row: T) => void;
 }
 
 export interface TableSorting<T> {

@@ -1,11 +1,11 @@
 package service
 
 import (
+	"context"
+	"errors"
 	"experimentation-service/internal/problems"
 	"experimentation-service/internal/repository"
 	"experimentation-service/internal/validators"
-	"context"
-	"errors"
 	"log/slog"
 
 	"github.com/Dan-Sones/prismdbmodels/model"

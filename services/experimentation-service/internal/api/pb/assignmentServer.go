@@ -1,10 +1,10 @@
 package pb
 
 import (
+	"context"
 	pb "experimentation-service/internal/grpc/generated/assignment/v1"
 	"experimentation-service/internal/problems"
 	"experimentation-service/internal/service"
-	"context"
 
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/codes"

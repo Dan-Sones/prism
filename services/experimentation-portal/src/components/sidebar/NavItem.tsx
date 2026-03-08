@@ -11,7 +11,7 @@ const NavItem = (item: NavItemProps) => {
 
   const location = useLocation();
 
-  const isActive = location.pathname === href;
+  const isActive = location.pathname.includes(href);
 
   return (
     <a

@@ -48,6 +48,7 @@ const FieldsRow = ({ index, remove }: FieldsRowProps) => {
       </div>
       <div className="flex-1">
         <TextInput
+          className="font-mon"
           placeholder="e.g. order_total"
           {...register(`fields.${index}.fieldKey`, {
             required: "Field key is required",
