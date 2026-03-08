@@ -43,7 +43,7 @@ func (e *EventsRepository) GetEventKeyUsageForLastXMinutesWithMinuteInterval(ctx
 	return e.handleDataPointsResult(rows)
 }
 
-func (e *EventsRepository) GetEventKeyUsageForLastHourWith5MinuteInterval(ctx context.Context, eventKey string, xMinutes int) ([]graph.TimeScaleDataPoint, error) {
+func (e *EventsRepository) GetEventKeyUsageForLastHourWith5MinuteInterval(ctx context.Context, eventKey string) ([]graph.TimeScaleDataPoint, error) {
 	query := `
 	SELECT
 	toStartOfFiveMinute(received_at) AS timestamp_aggregation,
@@ -65,7 +65,7 @@ func (e *EventsRepository) GetEventKeyUsageForLastHourWith5MinuteInterval(ctx co
 	return e.handleDataPointsResult(rows)
 }
 
-func (e *EventsRepository) GetEventKeyUsageForLast24HoursWith1HourInterval(ctx context.Context, eventKey string, xMinutes int) ([]graph.TimeScaleDataPoint, error) {
+func (e *EventsRepository) GetEventKeyUsageForLast24HoursWith1HourInterval(ctx context.Context, eventKey string) ([]graph.TimeScaleDataPoint, error) {
 	query := `
 	SELECT
 		toStartOfHour(received_at) AS timestamp_aggregation,
@@ -87,7 +87,7 @@ func (e *EventsRepository) GetEventKeyUsageForLast24HoursWith1HourInterval(ctx c
 	return e.handleDataPointsResult(rows)
 }
 
-func (e *EventsRepository) GetEventKeyUsageForLast7DaysWithDayInterval(ctx context.Context, eventKey string, xMinutes int) ([]graph.TimeScaleDataPoint, error) {
+func (e *EventsRepository) GetEventKeyUsageForLast7DaysWithDayInterval(ctx context.Context, eventKey string) ([]graph.TimeScaleDataPoint, error) {
 	query := `
 		SELECT
 		toStartOfDay(received_at) AS timestamp_aggregation,
@@ -100,6 +100,28 @@ func (e *EventsRepository) GetEventKeyUsageForLast7DaysWithDayInterval(ctx conte
 		FROM toStartOfDay(now() - INTERVAL 1 WEEK)
 			TO toStartOfDay(now())
 			STEP INTERVAL 1 Day
+  `
+
+	rows, err := e.connection.Query(ctx, query, clickhouse.Named("event_key", eventKey))
+	if err != nil {
+		return nil, err
+	}
+	return e.handleDataPointsResult(rows)
+}
+
+func (e *EventsRepository) GetEventKeyUsageForLast30DaysWithDayInterval(ctx context.Context, eventKey string) ([]graph.TimeScaleDataPoint, error) {
+	query := `
+	SELECT
+	toStartOfDay(received_at) AS timestamp_aggregation,
+	count() AS event_count
+	FROM events
+	WHERE received_at >= toStartOfDay(now() - INTERVAL 1 MONTH )
+	  AND event_key = @event_key
+	GROUP BY timestamp_aggregation
+	ORDER BY timestamp_aggregation WITH FILL
+	FROM toStartOfDay(now() - INTERVAL 1 MONTH)
+		TO toStartOfDay(now())
+		STEP INTERVAL 1 Day
   `
 
 	rows, err := e.connection.Query(ctx, query, clickhouse.Named("event_key", eventKey))

@@ -16,17 +16,11 @@ const TimeScaleAreaChart = (props: TimeScaleAreaChartProps) => {
   const { graphName, yAxisLabel, xAxisLabel, data, activeScale } = props;
 
   const getTimeLabel = (isoTime: string) => {
-    if (activeScale === "week") {
-      return convertIsoTimestampToDay(isoTime);
+    if (activeScale === "month" || activeScale === "week") {
+      return convertIsoTimestampToMonthNum(isoTime).toString();
     }
 
     return convertIsoTimestamptoHHMM(isoTime);
-  };
-
-  const convertIsoTimestampToDay = (timestamp: string) => {
-    return new Date(timestamp).toLocaleDateString(undefined, {
-      weekday: "short",
-    });
   };
 
   const convertIsoTimestamptoHHMM = (isoTime: string) => {
@@ -34,6 +28,23 @@ const TimeScaleAreaChart = (props: TimeScaleAreaChartProps) => {
     const hours = date.getHours().toString().padStart(2, "0");
     const minutes = date.getMinutes().toString().padStart(2, "0");
     return `${hours}:${minutes}`;
+  };
+
+  const convertIsoTimestampToMonthNum = (timestamp: string) => {
+    const month = new Date(timestamp)
+      .toLocaleDateString(undefined, {
+        month: "numeric",
+      })
+      .toString()
+      .padStart(2, "0");
+
+    const dayNumber = new Date(timestamp)
+      .toLocaleDateString(undefined, {
+        day: "numeric",
+      })
+      .toString()
+      .padStart(2, "0");
+    return `${month}/${dayNumber}`;
   };
 
   return (
