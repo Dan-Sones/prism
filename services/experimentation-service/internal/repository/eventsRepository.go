@@ -35,12 +35,7 @@ func (e *EventsRepository) GetEventKeyUsageForLastXMinutesWithMinuteInterval(ctx
           STEP INTERVAL 1 MINUTE
   `, xMinutes, xMinutes)
 
-	rows, err := e.connection.Query(ctx, query, clickhouse.Named("event_key", eventKey))
-	if err != nil {
-		return nil, err
-	}
-
-	return e.handleDataPointsResult(rows)
+	return e.handleDataPointsResult(ctx, query, eventKey)
 }
 
 func (e *EventsRepository) GetEventKeyUsageForLastHourWith5MinuteInterval(ctx context.Context, eventKey string) ([]graph.TimeScaleDataPoint, error) {
@@ -58,11 +53,7 @@ func (e *EventsRepository) GetEventKeyUsageForLastHourWith5MinuteInterval(ctx co
 		STEP INTERVAL 5 MINUTE
   `
 
-	rows, err := e.connection.Query(ctx, query, clickhouse.Named("event_key", eventKey))
-	if err != nil {
-		return nil, err
-	}
-	return e.handleDataPointsResult(rows)
+	return e.handleDataPointsResult(ctx, query, eventKey)
 }
 
 func (e *EventsRepository) GetEventKeyUsageForLast24HoursWith1HourInterval(ctx context.Context, eventKey string) ([]graph.TimeScaleDataPoint, error) {
@@ -80,11 +71,7 @@ func (e *EventsRepository) GetEventKeyUsageForLast24HoursWith1HourInterval(ctx c
     	STEP INTERVAL 1 Hour
   `
 
-	rows, err := e.connection.Query(ctx, query, clickhouse.Named("event_key", eventKey))
-	if err != nil {
-		return nil, err
-	}
-	return e.handleDataPointsResult(rows)
+	return e.handleDataPointsResult(ctx, query, eventKey)
 }
 
 func (e *EventsRepository) GetEventKeyUsageForLast7DaysWithDayInterval(ctx context.Context, eventKey string) ([]graph.TimeScaleDataPoint, error) {
@@ -102,11 +89,7 @@ func (e *EventsRepository) GetEventKeyUsageForLast7DaysWithDayInterval(ctx conte
 			STEP INTERVAL 1 Day
   `
 
-	rows, err := e.connection.Query(ctx, query, clickhouse.Named("event_key", eventKey))
-	if err != nil {
-		return nil, err
-	}
-	return e.handleDataPointsResult(rows)
+	return e.handleDataPointsResult(ctx, query, eventKey)
 }
 
 func (e *EventsRepository) GetEventKeyUsageForLast30DaysWithDayInterval(ctx context.Context, eventKey string) ([]graph.TimeScaleDataPoint, error) {
@@ -124,14 +107,16 @@ func (e *EventsRepository) GetEventKeyUsageForLast30DaysWithDayInterval(ctx cont
 		STEP INTERVAL 1 Day
   `
 
+	return e.handleDataPointsResult(ctx, query, eventKey)
+}
+
+func (e *EventsRepository) handleDataPointsResult(ctx context.Context, query, eventKey string) ([]graph.TimeScaleDataPoint, error) {
+
 	rows, err := e.connection.Query(ctx, query, clickhouse.Named("event_key", eventKey))
 	if err != nil {
 		return nil, err
 	}
-	return e.handleDataPointsResult(rows)
-}
 
-func (e *EventsRepository) handleDataPointsResult(rows driver.Rows) ([]graph.TimeScaleDataPoint, error) {
 	defer rows.Close()
 
 	var dataPoints []graph.TimeScaleDataPoint
