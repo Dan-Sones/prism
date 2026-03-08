@@ -14,12 +14,12 @@ type EventsServiceInterface interface {
 }
 
 type EventService struct {
-	eventsRepository        *repository.EventsRepository
+	eventsRepository        EventsRepository
 	eventsCatalogRepository *repository.EventsCatalogRepository
 	logger                  *slog.Logger
 }
 
-func NewEventsService(eventsRepository *repository.EventsRepository, eventsCatalogRepository *repository.EventsCatalogRepository, logger *slog.Logger) *EventService {
+func NewEventsService(eventsRepository EventsRepository, eventsCatalogRepository *repository.EventsCatalogRepository, logger *slog.Logger) *EventService {
 	return &EventService{
 		eventsRepository:        eventsRepository,
 		eventsCatalogRepository: eventsCatalogRepository,

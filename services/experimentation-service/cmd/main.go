@@ -67,7 +67,7 @@ func main() {
 	// Repositories
 	experimentRepository := repository.NewExperimentRepository(pgPool)
 	eventsCatalogRepository := repository.NewEventsCatalogRepository(pgPool)
-	eventsRepository := repository.NewEventsRepository(clickhouseConn)
+	eventsRepository := repository.NewClickHouseEventsRepository(clickhouseConn)
 
 	// Services
 	experimentService := service.NewExperimentService(experimentRepository, logger)
