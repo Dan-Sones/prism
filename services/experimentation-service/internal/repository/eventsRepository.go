@@ -10,17 +10,17 @@ import (
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 )
 
-type EventsRepository struct {
+type ClickHouseEventsRepository struct {
 	connection driver.Conn
 }
 
-func NewEventsRepository(connection driver.Conn) *EventsRepository {
-	return &EventsRepository{
+func NewClickHouseEventsRepository(connection driver.Conn) *ClickHouseEventsRepository {
+	return &ClickHouseEventsRepository{
 		connection: connection,
 	}
 }
 
-func (e *EventsRepository) GetEventKeyUsageForLastXMinutesWithMinuteInterval(ctx context.Context, eventKey string, xMinutes int) ([]graph.TimeScaleDataPoint, error) {
+func (e *ClickHouseEventsRepository) GetEventKeyUsageForLastXMinutesWithMinuteInterval(ctx context.Context, eventKey string, xMinutes int) ([]graph.TimeScaleDataPoint, error) {
 	query := fmt.Sprintf(`
       SELECT
           toStartOfMinute(received_at) AS timestamp_aggregation,
@@ -38,7 +38,7 @@ func (e *EventsRepository) GetEventKeyUsageForLastXMinutesWithMinuteInterval(ctx
 	return e.handleDataPointsResult(ctx, query, eventKey)
 }
 
-func (e *EventsRepository) GetEventKeyUsageForLastHourWith5MinuteInterval(ctx context.Context, eventKey string) ([]graph.TimeScaleDataPoint, error) {
+func (e *ClickHouseEventsRepository) GetEventKeyUsageForLastHourWith5MinuteInterval(ctx context.Context, eventKey string) ([]graph.TimeScaleDataPoint, error) {
 	query := `
 	SELECT
 	toStartOfFiveMinute(received_at) AS timestamp_aggregation,
@@ -56,7 +56,7 @@ func (e *EventsRepository) GetEventKeyUsageForLastHourWith5MinuteInterval(ctx co
 	return e.handleDataPointsResult(ctx, query, eventKey)
 }
 
-func (e *EventsRepository) GetEventKeyUsageForLast24HoursWith1HourInterval(ctx context.Context, eventKey string) ([]graph.TimeScaleDataPoint, error) {
+func (e *ClickHouseEventsRepository) GetEventKeyUsageForLast24HoursWith1HourInterval(ctx context.Context, eventKey string) ([]graph.TimeScaleDataPoint, error) {
 	query := `
 	SELECT
 		toStartOfHour(received_at) AS timestamp_aggregation,
@@ -74,7 +74,7 @@ func (e *EventsRepository) GetEventKeyUsageForLast24HoursWith1HourInterval(ctx c
 	return e.handleDataPointsResult(ctx, query, eventKey)
 }
 
-func (e *EventsRepository) GetEventKeyUsageForLast7DaysWithDayInterval(ctx context.Context, eventKey string) ([]graph.TimeScaleDataPoint, error) {
+func (e *ClickHouseEventsRepository) GetEventKeyUsageForLast7DaysWithDayInterval(ctx context.Context, eventKey string) ([]graph.TimeScaleDataPoint, error) {
 	query := `
 		SELECT
 		toStartOfDay(received_at) AS timestamp_aggregation,
@@ -92,7 +92,7 @@ func (e *EventsRepository) GetEventKeyUsageForLast7DaysWithDayInterval(ctx conte
 	return e.handleDataPointsResult(ctx, query, eventKey)
 }
 
-func (e *EventsRepository) GetEventKeyUsageForLast30DaysWithDayInterval(ctx context.Context, eventKey string) ([]graph.TimeScaleDataPoint, error) {
+func (e *ClickHouseEventsRepository) GetEventKeyUsageForLast30DaysWithDayInterval(ctx context.Context, eventKey string) ([]graph.TimeScaleDataPoint, error) {
 	query := `
 	SELECT
 	toStartOfDay(received_at) AS timestamp_aggregation,
@@ -110,7 +110,7 @@ func (e *EventsRepository) GetEventKeyUsageForLast30DaysWithDayInterval(ctx cont
 	return e.handleDataPointsResult(ctx, query, eventKey)
 }
 
-func (e *EventsRepository) handleDataPointsResult(ctx context.Context, query, eventKey string) ([]graph.TimeScaleDataPoint, error) {
+func (e *ClickHouseEventsRepository) handleDataPointsResult(ctx context.Context, query, eventKey string) ([]graph.TimeScaleDataPoint, error) {
 
 	rows, err := e.connection.Query(ctx, query, clickhouse.Named("event_key", eventKey))
 	if err != nil {
@@ -143,7 +143,7 @@ func (e *EventsRepository) handleDataPointsResult(ctx context.Context, query, ev
 	return dataPoints, nil
 }
 
-func (e *EventsRepository) GetTotalEventsPast24HoursForEventKey(ctx context.Context, eventKey string) (int64, error) {
+func (e *ClickHouseEventsRepository) GetTotalEventsPast24HoursForEventKey(ctx context.Context, eventKey string) (int64, error) {
 	query := `
 	SELECT
 		count() AS event_count
@@ -161,7 +161,7 @@ func (e *EventsRepository) GetTotalEventsPast24HoursForEventKey(ctx context.Cont
 	return int64(eventCount), nil
 }
 
-func (e *EventsRepository) GetTotalEventsPast7DaysForEventKey(ctx context.Context, eventKey string) (int64, error) {
+func (e *ClickHouseEventsRepository) GetTotalEventsPast7DaysForEventKey(ctx context.Context, eventKey string) (int64, error) {
 	query := `
 	SELECT
 		count() AS event_count
@@ -179,7 +179,7 @@ func (e *EventsRepository) GetTotalEventsPast7DaysForEventKey(ctx context.Contex
 	return int64(eventCount), nil
 }
 
-func (e *EventsRepository) GetLastReceivedTimeForEventKey(ctx context.Context, eventKey string) (time.Time, error) {
+func (e *ClickHouseEventsRepository) GetLastReceivedTimeForEventKey(ctx context.Context, eventKey string) (time.Time, error) {
 	query := `
 	SELECT
 	max(received_at) AS last_received_time
