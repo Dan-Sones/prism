@@ -8,6 +8,7 @@ import {
   getEventUsageOverPeriod,
   type UsageTimeScale,
 } from "../../../../api/eventsCatalog";
+import Card from "../../../../components/card/Card";
 
 interface EventUsageGraphProps {
   event_type_key?: string;
@@ -29,7 +30,7 @@ const EventUsageGraph = ({ event_type_key }: EventUsageGraphProps) => {
   });
 
   return (
-    <div className="flex w-full flex-col gap-1 rounded-md bg-white p-4 shadow md:h-auto">
+    <Card className="w-full gap-1 md:h-auto">
       <div className="flex justify-between gap-1">
         <TimescaleSelector
           selectedTimeScale={selectedTimeScale}
@@ -47,7 +48,7 @@ const EventUsageGraph = ({ event_type_key }: EventUsageGraphProps) => {
         yAxisLabel="Num Events"
         activeScale={selectedTimeScale}
       />
-    </div>
+    </Card>
   );
 };
 

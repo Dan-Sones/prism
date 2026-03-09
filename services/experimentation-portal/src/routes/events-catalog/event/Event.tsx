@@ -34,7 +34,7 @@ const Event = () => {
   });
 
   return (
-    <div className="flex w-full flex-col gap-4 px-4 py-6 md:px-10 md:pt-8 lg:px-20 lg:pt-10">
+    <>
       <h1 className="text-2xl font-bold">{eventTypeDetails?.name}</h1>
       <div className="flex flex-col gap-4">
         <EventDetails EventDetails={eventTypeDetails} isLoading={isLoading} />
@@ -48,7 +48,7 @@ const Event = () => {
           />
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

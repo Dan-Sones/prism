@@ -1,6 +1,7 @@
 import type { EventType } from "../../../api/eventsCatalog";
 import Spinner from "../../../components/spinner/Spinner";
 import FieldKey from "../../../components/fieldKey/FieldKey";
+import Card from "../../../components/card/Card";
 
 interface EventDetailsProps {
   EventDetails?: EventType;
@@ -11,7 +12,7 @@ const EventDetails = (props: EventDetailsProps) => {
   const { EventDetails, isLoading } = props;
 
   return (
-    <div className="flex flex-col gap-4 rounded-md bg-white p-4 shadow">
+    <Card>
       {isLoading ? (
         <div className="flex h-32 items-center justify-center">
           <Spinner />
@@ -53,7 +54,7 @@ const EventDetails = (props: EventDetailsProps) => {
           </div>
         </>
       )}
-    </div>
+    </Card>
   );
 };
 

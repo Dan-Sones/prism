@@ -9,6 +9,7 @@ import type {
 import MissingRatesTable, {
   type MissingTableRateRow,
 } from "./MissingRatesTable";
+import Card from "../../../../components/card/Card";
 
 interface EventStatisticsProps {
   event?: EventType;
@@ -31,7 +32,7 @@ const EventStatistics = (props: EventStatisticsProps) => {
   );
 
   return (
-    <div className="flex w-full flex-col gap-1 rounded-md bg-white p-4 shadow md:h-auto">
+    <Card className="w-full gap-1 md:h-auto">
       <div className="flex w-full flex-row justify-between">
         <h2 className="font-semibold">Live Statistics</h2>
         <LastUpdated
@@ -65,7 +66,7 @@ const EventStatistics = (props: EventStatisticsProps) => {
         <h3 className="py-4 font-semibold">Missing Field Rates</h3>
         <MissingRatesTable missingRates={missingRatesRows} />
       </div>
-    </div>
+    </Card>
   );
 };
 
