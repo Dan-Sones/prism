@@ -99,15 +99,15 @@ func (e *EventService) GetLiveEventStatistics(ctx context.Context, eventKey stri
 
 }
 
-func (e *EventService) getMissingRatesForEventType(ctx context.Context, eventKey string) (map[string]int64, error) {
+func (e *EventService) getMissingRatesForEventType(ctx context.Context, eventKey string) (map[string]int, error) {
 	eventType, err := e.eventsCatalogRepository.GetEventTypeByKey(ctx, eventKey)
 	if err != nil {
 		return nil, err
 	}
 
-	missingRates := make(map[string]int64)
+	missingRates := make(map[string]int)
 	for _, field := range eventType.Fields {
-		missingRates[field.FieldKey] = int64(rand.Intn(100-0) + 0)
+		missingRates[field.FieldKey] = int(rand.Intn(100-0) + 0)
 	}
 
 	return missingRates, nil

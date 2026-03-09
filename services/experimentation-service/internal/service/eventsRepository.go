@@ -13,7 +13,7 @@ type EventsRepository interface {
 	GetEventKeyUsageForLast24HoursWith1HourInterval(ctx context.Context, eventKey string) ([]graph.TimeScaleDataPoint, error)
 	GetEventKeyUsageForLast7DaysWithDayInterval(ctx context.Context, eventKey string) ([]graph.TimeScaleDataPoint, error)
 	GetEventKeyUsageForLast30DaysWithDayInterval(ctx context.Context, eventKey string) ([]graph.TimeScaleDataPoint, error)
-	GetTotalEventsPast24HoursForEventKey(ctx context.Context, eventKey string) (int64, error)
-	GetTotalEventsPast7DaysForEventKey(ctx context.Context, eventKey string) (int64, error)
+	GetTotalEventsPast24HoursForEventKey(ctx context.Context, eventKey string) (int, error)
+	GetTotalEventsPast7DaysForEventKey(ctx context.Context, eventKey string) (int, error)
 	GetLastReceivedTimeForEventKey(ctx context.Context, eventKey string) (time.Time, error)
 }
