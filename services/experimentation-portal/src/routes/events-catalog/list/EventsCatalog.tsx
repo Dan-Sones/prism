@@ -51,18 +51,16 @@ const EventsCatalog = () => {
         onConfirm={confirmDeleteEventType}
         onCancel={() => setDeleteId(null)}
       />
-      <div className="flex h-full w-full flex-col px-4 pt-6 md:px-10 md:pt-8 lg:px-20 lg:pt-10">
-        <EventsCatalogHeader />
-        <section className="flex flex-col gap-2">
-          <EventsCatalogTableActions onSearch={setSearchQuery} />
-          <EventsCatalogTable
-            data={data}
-            isLoading={isLoading}
-            error={error}
-            deleteTable={handleDeleteEventTypeIntention}
-          />
-        </section>
-      </div>
+      <EventsCatalogHeader />
+      <section className="flex flex-col gap-2">
+        <EventsCatalogTableActions onSearch={setSearchQuery} />
+        <EventsCatalogTable
+          data={data}
+          isLoading={isLoading}
+          error={error}
+          deleteTable={handleDeleteEventTypeIntention}
+        />
+      </section>
     </>
   );
 };

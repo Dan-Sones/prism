@@ -6,6 +6,7 @@ import {
   type CreateEventTypeRequest,
 } from "../../../api/eventsCatalog";
 import debounce from "lodash/debounce";
+import Card from "../../../components/card/Card";
 
 const CreateEventDetails = () => {
   const { register, formState } = useFormContext<CreateEventTypeRequest>();
@@ -24,7 +25,7 @@ const CreateEventDetails = () => {
   );
 
   return (
-    <section className="rounded-md bg-white p-6 shadow-xs">
+    <Card>
       <h2 className="mb-4 text-sm font-semibold text-gray-700">
         Event Details
       </h2>
@@ -91,7 +92,7 @@ const CreateEventDetails = () => {
           />
         </div>
       </div>
-    </section>
+    </Card>
   );
 };
 

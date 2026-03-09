@@ -2,6 +2,7 @@ import { useFieldArray, useFormContext } from "react-hook-form";
 import PlusCircleIcon from "../../../components/icons/PlusCircleIcon";
 import FieldsRow from "./FieldsRow";
 import type { CreateEventTypeRequest } from "../../../api/eventsCatalog";
+import Card from "../../../components/card/Card";
 
 const CreateEventFields = () => {
   const {
@@ -25,7 +26,7 @@ const CreateEventFields = () => {
   };
 
   return (
-    <section className="rounded-md bg-white p-6 shadow-xs">
+    <Card>
       <div className="mb-4 flex items-center justify-between">
         <div>
           <h2 className="text-sm font-semibold text-gray-700">Fields</h2>
@@ -67,7 +68,7 @@ const CreateEventFields = () => {
           At least one field is required.
         </p>
       )}
-    </section>
+    </Card>
   );
 };
 

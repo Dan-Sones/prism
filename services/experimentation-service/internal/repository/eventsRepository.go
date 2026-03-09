@@ -132,7 +132,7 @@ func (e *ClickHouseEventsRepository) handleDataPointsResult(ctx context.Context,
 
 		dataPoints = append(dataPoints, graph.TimeScaleDataPoint{
 			Time:  timestamp,
-			Value: int64(eventCount),
+			Value: int(eventCount),
 		})
 	}
 
@@ -143,7 +143,7 @@ func (e *ClickHouseEventsRepository) handleDataPointsResult(ctx context.Context,
 	return dataPoints, nil
 }
 
-func (e *ClickHouseEventsRepository) GetTotalEventsPast24HoursForEventKey(ctx context.Context, eventKey string) (int64, error) {
+func (e *ClickHouseEventsRepository) GetTotalEventsPast24HoursForEventKey(ctx context.Context, eventKey string) (int, error) {
 	query := `
 	SELECT
 		count() AS event_count
@@ -158,10 +158,10 @@ func (e *ClickHouseEventsRepository) GetTotalEventsPast24HoursForEventKey(ctx co
 		return 0, err
 	}
 
-	return int64(eventCount), nil
+	return int(eventCount), nil
 }
 
-func (e *ClickHouseEventsRepository) GetTotalEventsPast7DaysForEventKey(ctx context.Context, eventKey string) (int64, error) {
+func (e *ClickHouseEventsRepository) GetTotalEventsPast7DaysForEventKey(ctx context.Context, eventKey string) (int, error) {
 	query := `
 	SELECT
 		count() AS event_count
@@ -176,7 +176,7 @@ func (e *ClickHouseEventsRepository) GetTotalEventsPast7DaysForEventKey(ctx cont
 		return 0, err
 	}
 
-	return int64(eventCount), nil
+	return int(eventCount), nil
 }
 
 func (e *ClickHouseEventsRepository) GetLastReceivedTimeForEventKey(ctx context.Context, eventKey string) (time.Time, error) {
