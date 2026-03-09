@@ -41,8 +41,7 @@ const CreateEvent = () => {
   >({
     mutationFn: createEventType,
     onSuccess: () => {
-      // TODO: redirect to event type details page after creation instead of just going back to the list
-      navigate("/events-catalog");
+      navigate(`/events-catalog/${form.getValues().eventKey}`);
       toast.success("Event type created successfully");
     },
     onError: (error) => {
