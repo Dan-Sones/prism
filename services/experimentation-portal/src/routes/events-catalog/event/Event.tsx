@@ -13,7 +13,11 @@ const Event = () => {
   const params = useParams();
   const { event_type_key } = params;
 
-  const { data: eventTypeDetails, isLoading } = useQuery({
+  const {
+    data: eventTypeDetails,
+    isLoading: isEventDetailsLoading,
+    isError: isEventDetailsError,
+  } = useQuery({
     queryKey: ["eventDetails", event_type_key],
     queryFn: async () => {
       return await getEventTypeByKey(event_type_key!);
@@ -25,6 +29,8 @@ const Event = () => {
     data: liveEventStatistics,
     refetch: refetchLiveEventStatistics,
     dataUpdatedAt: lastStatsFetchTime,
+    isLoading: isLiveEventStatisticsLoading,
+    isError: isLiveEventStatisticsError,
   } = useQuery({
     queryKey: ["liveEventStatistics", event_type_key],
     queryFn: async () => {
@@ -40,7 +46,11 @@ const Event = () => {
         {eventTypeDetails?.name}
       </PageTitle>
       <div className="flex flex-col gap-4">
-        <EventDetails EventDetails={eventTypeDetails} isLoading={isLoading} />
+        <EventDetails
+          EventDetails={eventTypeDetails}
+          isLoading={isEventDetailsLoading}
+          isError={isEventDetailsError}
+        />
         <div className="flex min-w-full flex-col gap-4 xl:flex-row">
           <EventUsageGraph event_type_key={event_type_key} />
           <EventStatistics
@@ -48,6 +58,8 @@ const Event = () => {
             statistics={liveEventStatistics}
             lastUpdateTime={new Date(lastStatsFetchTime)}
             refetchStatistics={refetchLiveEventStatistics}
+            isLoading={isLiveEventStatisticsLoading}
+            isError={isLiveEventStatisticsError}
           />
         </div>
       </div>
