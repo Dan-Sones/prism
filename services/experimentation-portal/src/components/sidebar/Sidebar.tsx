@@ -1,4 +1,5 @@
 import PrismLogo from "../../assets/prism-logo-minimal-dark.svg";
+import BeakerIcon from "../icons/BeakerIcon";
 import EventCatalogIcon from "./icons/EventCatalogIcon";
 import HomeIcon from "./icons/HomeIcon";
 import MetricsCatalogIcon from "./icons/MetricsCatalogIcon";
@@ -17,6 +18,11 @@ const Sidebar = (props: SidebarProps) => {
       name: "Home",
       href: "/home",
       icon: HomeIcon,
+    },
+    {
+      name: "Experiments",
+      href: "/experiments",
+      icon: BeakerIcon,
     },
     {
       name: "Metrics Catalog",
