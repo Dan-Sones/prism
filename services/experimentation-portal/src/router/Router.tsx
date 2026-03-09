@@ -17,7 +17,6 @@ const Router = () => {
     ...eventsCatalogRoutes,
     ...metricsCatalogRoutes,
     ...oldExperimentRoutes,
-    ...experimentRoutes
   ]);
 
   return <Layout>{element}</Layout>;
