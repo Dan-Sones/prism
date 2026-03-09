@@ -12,6 +12,7 @@ import type { AxiosError } from "axios";
 import type { ProblemDetail } from "../../../api/base/problem";
 import { useErrorBanner } from "../../../context/ErrorBannerContext";
 import { toast } from "sonner";
+import PageTitle from "../../../components/title/PageTitle";
 
 const CreateEvent = () => {
   const navigate = useNavigate();
@@ -62,9 +63,7 @@ const CreateEvent = () => {
         onSubmit={form.handleSubmit(onSubmit)}
         className="flex flex-col gap-6"
       >
-        <h1 className="truncate text-3xl font-semibold lg:text-4xl">
-          Create Event Type
-        </h1>
+        <PageTitle>Create Event Type</PageTitle>
         <section className="rounded-md bg-white p-6 shadow-xs">
           <p className="text-sm text-gray-400">
             This form allows you to define a new event type and its associated

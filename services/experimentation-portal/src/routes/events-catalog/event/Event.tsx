@@ -7,6 +7,7 @@ import {
   getLiveEventStatistics,
 } from "../../../api/eventsCatalog";
 import EventStatistics from "./eventStatistics/EventStatistics";
+import PageTitle from "../../../components/title/PageTitle";
 
 const Event = () => {
   const params = useParams();
@@ -35,7 +36,9 @@ const Event = () => {
 
   return (
     <>
-      <h1 className="text-2xl font-bold">{eventTypeDetails?.name}</h1>
+      <PageTitle className="text-2xl font-bold">
+        {eventTypeDetails?.name}
+      </PageTitle>
       <div className="flex flex-col gap-4">
         <EventDetails EventDetails={eventTypeDetails} isLoading={isLoading} />
         <div className="flex min-w-full flex-col gap-4 xl:flex-row">
