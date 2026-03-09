@@ -133,6 +133,77 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /events-catalog/key/{eventKey}:
+    get:
+      tags:
+        - Event Catalog
+      summary: Get an event type by key
+      operationId: getEventTypeByKey
+      parameters:
+        - $ref: '#/components/parameters/eventKey'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventType'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          description: Event type not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+              example:
+                title: Not Found
+                status: 404
+                detail: Event type not found
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /events-catalog/key/{eventKey}/usage:
+    get:
+      tags:
+        - Event Catalog
+      summary: Get TimeSeries data for event over period
+      description: >-
+        returns event count for over a period of time in a time series format.
+        Aggregations are performed server side based on the graphScale
+        parameter.
+      operationId: getEventUsageOverPeriod
+      parameters:
+        - $ref: '#/components/parameters/eventKey'
+        - $ref: '#/components/parameters/graphScale'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TimeScaleDataPoint'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /events-catalog/key/{eventKey}/stats:
+    get:
+      tags:
+        - Event Catalog
+      summary: Get live event statistics
+      operationId: getLiveEventStats
+      parameters:
+        - $ref: '#/components/parameters/eventKey'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LiveEventStatistics'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /events-catalog/{eventTypeId}/field-key-available:
     get:
       tags:
@@ -172,6 +243,21 @@ components:
         type: string
         format: uuid
       example: 989618ba-efce-4854-be23-ede08787a6d1
+    eventKey:
+      name: eventKey
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: ^[a-zA-Z][a-zA-Z0-9_-]*$
+      example: purchase_completed
+    graphScale:
+      name: graphScale
+      in: query
+      required: true
+      schema:
+        $ref: '#/components/schemas/GraphTimeScale'
+      example: hour
   schemas:
     CreateEventTypeRequest:
       type: object
@@ -259,6 +345,41 @@ components:
         - float
         - boolean
         - timestamp
+    GraphTimeScale:
+      type: string
+      enum:
+        - ten_minute
+        - half_hour
+        - hour
+        - day
+        - week
+        - month
+    TimeScaleDataPoint:
+      type: object
+      properties:
+        time:
+          type: string
+          format: date-time
+        value:
+          type: integer
+          format: int
+    LiveEventStatistics:
+      type: object
+      properties:
+        missingRates:
+          type: object
+          additionalProperties:
+            type: integer
+            format: int
+        totalEventsPast24Hours:
+          type: integer
+          format: int
+        totalEventsPast7Days:
+          type: integer
+          format: int
+        lastReceivedTime:
+          type: string
+          format: date-time
     Violation:
       type: object
       properties:
