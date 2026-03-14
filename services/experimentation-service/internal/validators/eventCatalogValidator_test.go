@@ -4,30 +4,30 @@ import (
 	"experimentation-service/internal/problems"
 	"testing"
 
-	"github.com/Dan-Sones/prismdbmodels/model"
+	"github.com/Dan-Sones/prismdbmodels/model/event"
 )
 
 func TestValidateEventField(t *testing.T) {
 	tests := []struct {
 		name  string
-		field model.EventField
+		field event.EventField
 		want  []problems.Violation
 	}{
 		{
 			name: "Valid field",
-			field: model.EventField{
+			field: event.EventField{
 				Name:     "Order Total",
 				FieldKey: "order_total",
-				DataType: model.DataTypeFloat,
+				DataType: event.DataTypeFloat,
 			},
 			want: nil,
 		},
 		{
 			name: "Empty name",
-			field: model.EventField{
+			field: event.EventField{
 				Name:     "",
 				FieldKey: "order_total",
-				DataType: model.DataTypeFloat,
+				DataType: event.DataTypeFloat,
 			},
 			want: []problems.Violation{
 				{
@@ -38,10 +38,10 @@ func TestValidateEventField(t *testing.T) {
 		},
 		{
 			name: "Name exceeds max length",
-			field: model.EventField{
+			field: event.EventField{
 				Name:     string(make([]rune, 101)),
 				FieldKey: "order_total",
-				DataType: model.DataTypeFloat,
+				DataType: event.DataTypeFloat,
 			},
 			want: []problems.Violation{
 				{
@@ -52,10 +52,10 @@ func TestValidateEventField(t *testing.T) {
 		},
 		{
 			name: "Empty field key",
-			field: model.EventField{
+			field: event.EventField{
 				Name:     "Order Total",
 				FieldKey: "",
-				DataType: model.DataTypeFloat,
+				DataType: event.DataTypeFloat,
 			},
 			want: []problems.Violation{
 				{
@@ -66,10 +66,10 @@ func TestValidateEventField(t *testing.T) {
 		},
 		{
 			name: "Field key with special characters",
-			field: model.EventField{
+			field: event.EventField{
 				Name:     "Order Total",
 				FieldKey: "order!total",
-				DataType: model.DataTypeFloat,
+				DataType: event.DataTypeFloat,
 			},
 			want: []problems.Violation{
 				{
@@ -80,28 +80,28 @@ func TestValidateEventField(t *testing.T) {
 		},
 		{
 			name: "Field key with dash separators",
-			field: model.EventField{
+			field: event.EventField{
 				Name:     "Order Total",
 				FieldKey: "order-total",
-				DataType: model.DataTypeFloat,
+				DataType: event.DataTypeFloat,
 			},
 			want: nil,
 		},
 		{
 			name: "Field key with underscore separators",
-			field: model.EventField{
+			field: event.EventField{
 				Name:     "Order Total",
 				FieldKey: "order_total",
-				DataType: model.DataTypeFloat,
+				DataType: event.DataTypeFloat,
 			},
 			want: nil,
 		},
 		{
 			name: "Invalid data type",
-			field: model.EventField{
+			field: event.EventField{
 				Name:     "Order Total",
 				FieldKey: "order_total",
-				DataType: model.DataType("invalid"),
+				DataType: event.DataType("invalid"),
 			},
 			want: []problems.Violation{
 				{
@@ -112,10 +112,10 @@ func TestValidateEventField(t *testing.T) {
 		},
 		{
 			name: "Field key exceeds max length",
-			field: model.EventField{
+			field: event.EventField{
 				Name:     "Order Total",
 				FieldKey: string(make([]rune, 51)),
-				DataType: model.DataTypeFloat,
+				DataType: event.DataTypeFloat,
 			},
 			want: []problems.Violation{
 				{
@@ -130,10 +130,10 @@ func TestValidateEventField(t *testing.T) {
 		},
 		{
 			name: "Field key starting with number",
-			field: model.EventField{
+			field: event.EventField{
 				Name:     "Order Total",
 				FieldKey: "1order_total",
-				DataType: model.DataTypeFloat,
+				DataType: event.DataTypeFloat,
 			},
 			want: []problems.Violation{
 				{
@@ -144,7 +144,7 @@ func TestValidateEventField(t *testing.T) {
 		},
 		{
 			name:  "All fields empty",
-			field: model.EventField{},
+			field: event.EventField{},
 			want: []problems.Violation{
 				{
 					Field:   "name",
@@ -182,24 +182,24 @@ func TestValidateEventField(t *testing.T) {
 func TestValidateEventType(t *testing.T) {
 	tests := []struct {
 		name  string
-		event model.EventType
+		event event.EventType
 		want  []problems.Violation
 	}{
 		{
 			name: "Valid event type",
-			event: model.EventType{
+			event: event.EventType{
 				Name:     "Purchase Completed",
 				EventKey: "purchase_completed",
-				Fields: []model.EventField{
+				Fields: []event.EventField{
 					{
 						Name:     "Order Total",
 						FieldKey: "order_total",
-						DataType: model.DataTypeFloat,
+						DataType: event.DataTypeFloat,
 					},
 					{
 						Name:     "Currency",
 						FieldKey: "currency",
-						DataType: model.DataTypeString,
+						DataType: event.DataTypeString,
 					},
 				},
 			},
@@ -207,14 +207,14 @@ func TestValidateEventType(t *testing.T) {
 		},
 		{
 			name: "Name too long",
-			event: model.EventType{
+			event: event.EventType{
 				Name:     string(make([]rune, 101)),
 				EventKey: "purchase_completed",
-				Fields: []model.EventField{
+				Fields: []event.EventField{
 					{
 						Name:     "Order Total",
 						FieldKey: "order_total",
-						DataType: model.DataTypeFloat,
+						DataType: event.DataTypeFloat,
 					},
 				},
 			},
@@ -227,14 +227,14 @@ func TestValidateEventType(t *testing.T) {
 		},
 		{
 			name: "Empty name",
-			event: model.EventType{
+			event: event.EventType{
 				Name:     "",
 				EventKey: "purchase_completed",
-				Fields: []model.EventField{
+				Fields: []event.EventField{
 					{
 						Name:     "Order Total",
 						FieldKey: "order_total",
-						DataType: model.DataTypeFloat,
+						DataType: event.DataTypeFloat,
 					},
 				},
 			},
@@ -247,14 +247,14 @@ func TestValidateEventType(t *testing.T) {
 		},
 		{
 			name: "Empty event key",
-			event: model.EventType{
+			event: event.EventType{
 				Name:     "Purchase Completed",
 				EventKey: "",
-				Fields: []model.EventField{
+				Fields: []event.EventField{
 					{
 						Name:     "Order Total",
 						FieldKey: "order_total",
-						DataType: model.DataTypeFloat,
+						DataType: event.DataTypeFloat,
 					},
 				},
 			},
@@ -267,14 +267,14 @@ func TestValidateEventType(t *testing.T) {
 		},
 		{
 			name: "Event key too long",
-			event: model.EventType{
+			event: event.EventType{
 				Name:     "Purchase Completed",
 				EventKey: string(make([]rune, 51)),
-				Fields: []model.EventField{
+				Fields: []event.EventField{
 					{
 						Name:     "Order Total",
 						FieldKey: "order_total",
-						DataType: model.DataTypeFloat,
+						DataType: event.DataTypeFloat,
 					},
 				},
 			},
@@ -291,14 +291,14 @@ func TestValidateEventType(t *testing.T) {
 		},
 		{
 			name: "Event key with invalid characters",
-			event: model.EventType{
+			event: event.EventType{
 				Name:     "Purchase Completed",
 				EventKey: "purchase!completed",
-				Fields: []model.EventField{
+				Fields: []event.EventField{
 					{
 						Name:     "Order Total",
 						FieldKey: "order_total",
-						DataType: model.DataTypeFloat,
+						DataType: event.DataTypeFloat,
 					},
 				},
 			},
@@ -311,14 +311,14 @@ func TestValidateEventType(t *testing.T) {
 		},
 		{
 			name: "Event key starting with number",
-			event: model.EventType{
+			event: event.EventType{
 				Name:     "Purchase Completed",
 				EventKey: "1purchase_completed",
-				Fields: []model.EventField{
+				Fields: []event.EventField{
 					{
 						Name:     "Order Total",
 						FieldKey: "order_total",
-						DataType: model.DataTypeFloat,
+						DataType: event.DataTypeFloat,
 					},
 				},
 			},
@@ -331,10 +331,10 @@ func TestValidateEventType(t *testing.T) {
 		},
 		{
 			name: "No fields",
-			event: model.EventType{
+			event: event.EventType{
 				Name:     "Purchase Completed",
 				EventKey: "purchase_completed",
-				Fields:   []model.EventField{},
+				Fields:   []event.EventField{},
 			},
 			want: []problems.Violation{
 				{
@@ -345,7 +345,7 @@ func TestValidateEventType(t *testing.T) {
 		},
 		{
 			name: "Nil fields",
-			event: model.EventType{
+			event: event.EventType{
 				Name:     "Purchase Completed",
 				EventKey: "purchase_completed",
 			},

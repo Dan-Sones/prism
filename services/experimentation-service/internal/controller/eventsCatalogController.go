@@ -7,7 +7,7 @@ import (
 	"experimentation-service/internal/service"
 	"net/http"
 
-	"github.com/Dan-Sones/prismdbmodels/model"
+	"github.com/Dan-Sones/prismdbmodels/model/event"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -31,7 +31,7 @@ func (e *EventsCatalogController) CreateEventType(w http.ResponseWriter, r *http
 		return
 	}
 
-	var body model.EventType
+	var body event.EventType
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
 		problems.NewBadRequestError("Invalid request body").Write(w)

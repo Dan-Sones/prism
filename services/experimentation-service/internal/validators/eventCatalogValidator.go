@@ -4,11 +4,11 @@ import (
 	"experimentation-service/internal/problems"
 	"regexp"
 
-	"github.com/Dan-Sones/prismdbmodels/model"
+	"github.com/Dan-Sones/prismdbmodels/model/event"
 )
 
 // TODO: Update length validation rules based on frontend ui work later on, they're just set to match db schema atm.
-func ValidateEventType(eventType model.EventType) []problems.Violation {
+func ValidateEventType(eventType event.EventType) []problems.Violation {
 	var violations []problems.Violation
 
 	if eventType.Name == "" {
@@ -63,7 +63,7 @@ func ValidateEventType(eventType model.EventType) []problems.Violation {
 	return violations
 }
 
-func ValidateEventField(field model.EventField) []problems.Violation {
+func ValidateEventField(field event.EventField) []problems.Violation {
 	var violations []problems.Violation
 
 	if field.Name == "" {
