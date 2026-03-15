@@ -3,6 +3,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import type { CreateMetricRequest } from "../../../api/metricsCatalog";
 import CreateMetricInitialDetails from "./CreateMetricInitialDetails";
 import CreateSimpleMetric from "./CreateSimpleMetric";
+import SimpleMetricHelp from "./SimpleMetricHelp";
 
 const CreateMetric = () => {
   const form = useForm<CreateMetricRequest>({
@@ -33,6 +34,7 @@ const CreateMetric = () => {
       >
         <PageTitle>Create Metric</PageTitle>
         <CreateMetricInitialDetails />
+        <SimpleMetricHelp />
 
         <CreateSimpleMetric />
       </form>

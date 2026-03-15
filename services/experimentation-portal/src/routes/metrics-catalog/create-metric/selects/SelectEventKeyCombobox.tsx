@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { useFormContext, Controller } from "react-hook-form";
-import { getEventTypeById } from "../../../api/eventsCatalog";
-import type { CreateMetricRequest } from "../../../api/metricsCatalog";
-import Dropdown from "../../../components/form/Dropdown";
-import Label from "../../../components/form/Label";
+import { getEventTypeById } from "../../../../api/eventsCatalog";
+import type { CreateMetricRequest } from "../../../../api/metricsCatalog";
+import Dropdown from "../../../../components/form/Dropdown";
+import Label from "../../../../components/form/Label";
 import { useEffect, useMemo } from "react";
-import FieldKeyDataTypePill from "../../../components/fieldKey/FieldKeyDataTypePill";
+import FieldKeyDataTypePill from "../../../../components/fieldKey/FieldKeyDataTypePill";
 
 const SelectEventKeyCombobox = () => {
   const { control, watch, setValue } = useFormContext<CreateMetricRequest>();
@@ -33,7 +33,7 @@ const SelectEventKeyCombobox = () => {
 
   return (
     <>
-      <div className="max-w-">
+      <div>
         <Label htmlFor="metric_type" required>
           Event Field Key
         </Label>

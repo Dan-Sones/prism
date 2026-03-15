@@ -1,10 +1,10 @@
 import { Controller, useFormContext } from "react-hook-form";
-import type { CreateMetricRequest } from "../../../api/metricsCatalog";
+import type { CreateMetricRequest } from "../../../../api/metricsCatalog";
 import { useState } from "react";
-import { getEventTypes } from "../../../api/eventsCatalog";
+import { getEventTypes } from "../../../../api/eventsCatalog";
 import { useQuery } from "@tanstack/react-query";
-import Combobox from "../../../components/form/Combobox";
-import Label from "../../../components/form/Label";
+import Combobox from "../../../../components/form/Combobox";
+import Label from "../../../../components/form/Label";
 
 const SelectEventTypeCombobox = () => {
   const { control } = useFormContext<CreateMetricRequest>();
@@ -23,7 +23,7 @@ const SelectEventTypeCombobox = () => {
   };
 
   return (
-    <div className="max-w-64">
+    <div>
       <Label htmlFor="name" required>
         Event Type Key
       </Label>
