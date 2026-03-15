@@ -4,6 +4,7 @@ import NotFound from "../routes/error/NotFound";
 import Home from "../routes/home/Home";
 import { experimentRoutes } from "../routes/create-experiment/ExperimentRoutes";
 import { eventsCatalogRoutes } from "../routes/events-catalog/EventsCatalogRoutes";
+import { metricsCatalogRoutes } from "../routes/metrics-catalog/MetricsCatalogRoutes";
 
 const Router = () => {
   const element = useRoutes([
@@ -12,6 +13,7 @@ const Router = () => {
     { path: "/home", element: <Home /> },
     ...experimentRoutes,
     ...eventsCatalogRoutes,
+    ...metricsCatalogRoutes,
   ]);
 
   return <Layout>{element}</Layout>;

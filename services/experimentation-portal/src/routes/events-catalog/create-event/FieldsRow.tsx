@@ -74,10 +74,8 @@ const FieldsRow = ({ index, remove }: FieldsRowProps) => {
                 label: type,
                 value: type,
               }))}
-              value={
-                field.value ? { label: field.value, value: field.value } : null
-              }
-              onChange={(item) => field.onChange(item?.value)}
+              value={field.value}
+              onChange={field.onChange}
             />
           )}
         />

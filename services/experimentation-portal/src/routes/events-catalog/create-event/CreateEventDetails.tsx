@@ -8,6 +8,7 @@ import {
 } from "../../../api/eventsCatalog";
 import debounce from "lodash/debounce";
 import Card from "../../../components/card/Card";
+import Label from "../../../components/form/Label";
 
 const CreateEventDetails = () => {
   const { register, formState } = useFormContext<CreateEventTypeRequest>();
@@ -32,9 +33,9 @@ const CreateEventDetails = () => {
       </h2>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <label className="text-sm text-gray-600" htmlFor="name">
-            Name <span className="text-red-400">*</span>
-          </label>
+          <Label htmlFor="name" required>
+            Name
+          </Label>
           <TextInput
             id="name"
             placeholder="e.g. Purchase Completed"
@@ -49,9 +50,9 @@ const CreateEventDetails = () => {
           <FieldError error={errors.name} />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-sm text-gray-600" htmlFor="eventKey">
-            Event Key <span className="text-red-400">*</span>
-          </label>
+          <Label htmlFor="eventKey" required>
+            Event Key
+          </Label>
           <p className="text-xs text-gray-400">
             The event key must match the key found in the event payload EXACTLY.
           </p>
@@ -76,9 +77,9 @@ const CreateEventDetails = () => {
           <FieldError error={errors.event_key} />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-sm text-gray-600" htmlFor="description">
+          <Label htmlFor="description">
             Description
-          </label>
+          </Label>
           <textarea
             {...register("description")}
             id="description"
