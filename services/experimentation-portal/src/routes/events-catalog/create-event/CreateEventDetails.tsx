@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useFormContext } from "react-hook-form";
+import FieldError from "../../../components/form/FieldError";
 import TextInput from "../../../components/form/TextInput";
 import {
   checkEventKeyAvailable,
@@ -45,9 +46,7 @@ const CreateEventDetails = () => {
               },
             })}
           />
-          {errors.name && (
-            <p className="text-xs text-red-500">{errors.name.message}</p>
-          )}
+          <FieldError error={errors.name} />
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-sm text-gray-600" htmlFor="eventKey">
@@ -74,9 +73,7 @@ const CreateEventDetails = () => {
                 new Promise((resolve) => validateEventKey(value, resolve)),
             })}
           />
-          {errors.event_key && (
-            <p className="text-xs text-red-500">{errors.event_key.message}</p>
-          )}
+          <FieldError error={errors.event_key} />
         </div>
         <div className="flex flex-col gap-1">
           <label className="text-sm text-gray-600" htmlFor="description">

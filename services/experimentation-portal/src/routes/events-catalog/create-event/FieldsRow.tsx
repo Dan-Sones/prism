@@ -3,6 +3,7 @@ import type {
   CreateEventTypeRequest,
   DataType,
 } from "../../../api/eventsCatalog";
+import FieldError from "../../../components/form/FieldError";
 import TextInput from "../../../components/form/TextInput";
 import XCircleIcon from "../../../components/icons/XCircleIcon";
 import Dropdown from "../../../components/form/Dropdown";
@@ -42,11 +43,7 @@ const FieldsRow = ({ index, remove }: FieldsRowProps) => {
             },
           })}
         />
-        {fieldErrors?.name && (
-          <p className="mt-1 text-xs text-red-500">
-            {fieldErrors.name.message}
-          </p>
-        )}
+        <FieldError error={fieldErrors?.name} className="mt-1" />
       </div>
       <div className="flex-1">
         <TextInput
@@ -65,11 +62,7 @@ const FieldsRow = ({ index, remove }: FieldsRowProps) => {
             },
           })}
         />
-        {fieldErrors?.field_key && (
-          <p className="mt-1 text-xs text-red-500">
-            {fieldErrors.field_key.message}
-          </p>
-        )}
+        <FieldError error={fieldErrors?.field_key} className="mt-1" />
       </div>
       <div className="w-32">
         <Controller
