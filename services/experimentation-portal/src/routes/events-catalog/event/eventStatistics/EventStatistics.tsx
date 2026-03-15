@@ -33,9 +33,9 @@ const EventStatistics = (props: EventStatisticsProps) => {
   const missingRatesRows: MissingTableRateRow[] | undefined = event?.fields.map(
     (field) => {
       return {
-        fieldKey: field.fieldKey,
-        missingRate: statistics?.missingRates[field.fieldKey] ?? 0,
-        fieldType: field.dataType,
+        fieldKey: field.field_key,
+        missingRate: statistics?.missingRates[field.field_key] ?? 0,
+        fieldType: field.data_type,
       };
     },
   );

@@ -27,9 +27,9 @@ const EventsCatalogTable = (props: EventsCatalogTableProps) => {
     return data.map((event) => ({
       name: event.name,
       owner: "Jeff",
-      eventKey: event.eventKey,
+      eventKey: event.event_key,
       lastUsed: new Date().toLocaleDateString(),
-      createdAt: new Date(event.createdAt).toLocaleDateString(),
+      createdAt: new Date(event.created_at).toLocaleDateString(),
       eventId: event.id,
     }));
   };

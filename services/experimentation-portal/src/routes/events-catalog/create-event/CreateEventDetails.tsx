@@ -59,7 +59,7 @@ const CreateEventDetails = () => {
           <TextInput
             id="eventKey"
             placeholder="e.g. purchase_completed"
-            {...register("eventKey", {
+            {...register("event_key", {
               required: "Event key is required",
               maxLength: {
                 value: 50,
@@ -74,8 +74,8 @@ const CreateEventDetails = () => {
                 new Promise((resolve) => validateEventKey(value, resolve)),
             })}
           />
-          {errors.eventKey && (
-            <p className="text-xs text-red-500">{errors.eventKey.message}</p>
+          {errors.event_key && (
+            <p className="text-xs text-red-500">{errors.event_key.message}</p>
           )}
         </div>
         <div className="flex flex-col gap-1">

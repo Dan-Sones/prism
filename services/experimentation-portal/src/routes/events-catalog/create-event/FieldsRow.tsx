@@ -1,10 +1,11 @@
-import { useFormContext } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import type {
   CreateEventTypeRequest,
   DataType,
 } from "../../../api/eventsCatalog";
 import TextInput from "../../../components/form/TextInput";
 import XCircleIcon from "../../../components/icons/XCircleIcon";
+import Dropdown from "../../../components/form/Dropdown";
 
 interface FieldsRowProps {
   index: number;
@@ -22,6 +23,7 @@ const DATA_TYPES: DataType[] = [
 const FieldsRow = ({ index, remove }: FieldsRowProps) => {
   const {
     register,
+    control,
     formState: { errors },
   } = useFormContext<CreateEventTypeRequest>();
 
@@ -50,7 +52,7 @@ const FieldsRow = ({ index, remove }: FieldsRowProps) => {
         <TextInput
           className="font-mon"
           placeholder="e.g. order_total"
-          {...register(`fields.${index}.fieldKey`, {
+          {...register(`fields.${index}.field_key`, {
             required: "Field key is required",
             maxLength: {
               value: 50,
@@ -63,23 +65,29 @@ const FieldsRow = ({ index, remove }: FieldsRowProps) => {
             },
           })}
         />
-        {fieldErrors?.fieldKey && (
+        {fieldErrors?.field_key && (
           <p className="mt-1 text-xs text-red-500">
-            {fieldErrors.fieldKey.message}
+            {fieldErrors.field_key.message}
           </p>
         )}
       </div>
       <div className="w-32">
-        <select
-          className="w-full rounded-md border border-slate-200 bg-gray-50 px-3 py-2 text-sm text-slate-800 transition duration-300 hover:border-slate-300 focus:border-slate-400 focus:outline-none"
-          {...register(`fields.${index}.dataType`)}
-        >
-          {DATA_TYPES.map((type) => (
-            <option key={type} value={type}>
-              {type}
-            </option>
-          ))}
-        </select>
+        <Controller
+          control={control}
+          name={`fields.${index}.data_type`}
+          render={({ field }) => (
+            <Dropdown
+              items={DATA_TYPES.map((type) => ({
+                label: type,
+                value: type,
+              }))}
+              value={
+                field.value ? { label: field.value, value: field.value } : null
+              }
+              onChange={(item) => field.onChange(item?.value)}
+            />
+          )}
+        />
       </div>
       <button
         type="button"

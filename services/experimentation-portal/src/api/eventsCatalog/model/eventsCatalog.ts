@@ -3,29 +3,29 @@ export type DataType = "string" | "int" | "float" | "boolean" | "timestamp";
 export type EventField = {
   id: string;
   name: string;
-  fieldKey: string;
-  dataType: DataType;
+  field_key: string;
+  data_type: DataType;
 };
 
 export type EventType = {
   id: string;
   name: string;
-  eventKey: string;
+  event_key: string;
   version: number;
   description: string | null;
-  createdAt: string;
+  created_at: string;
   fields: EventField[];
 };
 
 export type EventFieldRequest = {
   name: string;
-  fieldKey: string;
-  dataType: DataType;
+  field_key: string;
+  data_type: DataType;
 };
 
 export type CreateEventTypeRequest = {
   name: string;
-  eventKey: string;
+  event_key: string;
   description?: string;
   fields: EventFieldRequest[];
 };
