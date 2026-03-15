@@ -59,8 +59,8 @@ func TestValidateEventField(t *testing.T) {
 			},
 			want: []problems.Violation{
 				{
-					Field:   "fieldKey",
-					Message: "FieldKey is required",
+					Field:   "field_key",
+					Message: "field_key is required",
 				},
 			},
 		},
@@ -73,8 +73,8 @@ func TestValidateEventField(t *testing.T) {
 			},
 			want: []problems.Violation{
 				{
-					Field:   "fieldKey",
-					Message: "FieldKey must start with a letter and contain only alphanumeric characters, underscores, or dashes",
+					Field:   "field_key",
+					Message: "field_key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
 				},
 			},
 		},
@@ -105,8 +105,8 @@ func TestValidateEventField(t *testing.T) {
 			},
 			want: []problems.Violation{
 				{
-					Field:   "dataType",
-					Message: "DataType must be one of: string, int, float, boolean, timestamp",
+					Field:   "data_type",
+					Message: "data_type must be one of: string, int, float, boolean, timestamp",
 				},
 			},
 		},
@@ -119,12 +119,12 @@ func TestValidateEventField(t *testing.T) {
 			},
 			want: []problems.Violation{
 				{
-					Field:   "fieldKey",
-					Message: "FieldKey must start with a letter and contain only alphanumeric characters, underscores, or dashes",
+					Field:   "field_key",
+					Message: "field_key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
 				},
 				{
-					Field:   "fieldKey",
-					Message: "FieldKey must be less than 50 characters",
+					Field:   "field_key",
+					Message: "field_key must be less than 50 characters",
 				},
 			},
 		},
@@ -137,8 +137,8 @@ func TestValidateEventField(t *testing.T) {
 			},
 			want: []problems.Violation{
 				{
-					Field:   "fieldKey",
-					Message: "FieldKey must start with a letter and contain only alphanumeric characters, underscores, or dashes",
+					Field:   "field_key",
+					Message: "field_key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
 				},
 			},
 		},
@@ -151,12 +151,12 @@ func TestValidateEventField(t *testing.T) {
 					Message: "Name is required",
 				},
 				{
-					Field:   "fieldKey",
-					Message: "FieldKey is required",
+					Field:   "field_key",
+					Message: "field_key is required",
 				},
 				{
-					Field:   "dataType",
-					Message: "DataType must be one of: string, int, float, boolean, timestamp",
+					Field:   "data_type",
+					Message: "data_type must be one of: string, int, float, boolean, timestamp",
 				},
 			},
 		},
@@ -167,7 +167,7 @@ func TestValidateEventField(t *testing.T) {
 			got := ValidateEventField(tt.field)
 
 			if len(got) != len(tt.want) {
-				t.Errorf("Expected %d violations, got %d: %v", len(tt.want), len(got), got)
+				t.Fatalf("Expected %d violations, got %d: %v", len(tt.want), len(got), got)
 			}
 
 			for i, v := range got {
@@ -260,8 +260,8 @@ func TestValidateEventType(t *testing.T) {
 			},
 			want: []problems.Violation{
 				{
-					Field:   "eventKey",
-					Message: "Event key is required",
+					Field:   "event_key",
+					Message: "event_key is required",
 				},
 			},
 		},
@@ -280,12 +280,12 @@ func TestValidateEventType(t *testing.T) {
 			},
 			want: []problems.Violation{
 				{
-					Field:   "eventKey",
-					Message: "Event key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
+					Field:   "event_key",
+					Message: "event_key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
 				},
 				{
-					Field:   "eventKey",
-					Message: "Event key must be less than 50 characters",
+					Field:   "event_key",
+					Message: "event_key must be less than 50 characters",
 				},
 			},
 		},
@@ -304,8 +304,8 @@ func TestValidateEventType(t *testing.T) {
 			},
 			want: []problems.Violation{
 				{
-					Field:   "eventKey",
-					Message: "Event key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
+					Field:   "event_key",
+					Message: "event_key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
 				},
 			},
 		},
@@ -324,8 +324,8 @@ func TestValidateEventType(t *testing.T) {
 			},
 			want: []problems.Violation{
 				{
-					Field:   "eventKey",
-					Message: "Event key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
+					Field:   "event_key",
+					Message: "event_key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
 				},
 			},
 		},
@@ -363,7 +363,7 @@ func TestValidateEventType(t *testing.T) {
 			got := ValidateEventType(tt.event)
 
 			if len(got) != len(tt.want) {
-				t.Errorf("Expected %d violations, got %d: %v", len(tt.want), len(got), got)
+				t.Fatalf("Expected %d violations, got %d: %v", len(tt.want), len(got), got)
 			}
 			for i, v := range got {
 				if v != tt.want[i] {

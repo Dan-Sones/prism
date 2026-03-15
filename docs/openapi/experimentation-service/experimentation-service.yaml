@@ -5,6 +5,7 @@ servers:
   - url: http://localhost:8081/api
 tags:
   - name: Event Catalog
+  - name: Metric Catalog
 
 paths:
   /events-catalog:
@@ -44,15 +45,15 @@ paths:
               $ref: "#/components/schemas/CreateEventTypeRequest"
             example:
               name: "Purchase Completed"
-              eventKey: "purchase_completed"
+              event_key: "purchase_completed"
               description: 'Fired when a user completes a purchase. This example maps to the object: { "order_total": 100.0, "currency": "USD" }'
               fields:
                 - name: "Order Total"
-                  fieldKey: "order_total"
-                  dataType: "float"
+                  field_key: "order_total"
+                  data_type: "float"
                 - name: "Currency"
-                  fieldKey: "currency"
-                  dataType: "string"
+                  field_key: "currency"
+                  data_type: "string"
       responses:
         "201":
           description: Event type created successfully
@@ -238,6 +239,28 @@ paths:
         "500":
           $ref: "../problems.yaml#/responses/InternalServerError"
 
+  /metrics-catalog/:
+    post:
+      tags:
+        - Metric Catalog
+      summary: Create Metric
+      operationId: createMetric
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMetricRequest"
+      responses:
+        "201":
+          description: Event type created successfully
+        "400":
+          $ref: "../problems.yaml#/responses/BadRequest"
+        "422":
+          $ref: "../problems.yaml#/responses/ValidationError"
+        "500":
+          $ref: "../problems.yaml#/responses/InternalServerError"
+
 components:
   parameters:
     eventTypeId:
@@ -271,14 +294,14 @@ components:
       type: object
       required:
         - name
-        - eventKey
+        - event_key
         - fields
       properties:
         name:
           type: string
           maxLength: 100
           example: "Purchase Completed"
-        eventKey:
+        event_key:
           type: string
           maxLength: 50
           pattern: "^[a-zA-Z][a-zA-Z0-9_-]*$"
@@ -296,19 +319,19 @@ components:
       type: object
       required:
         - name
-        - fieldKey
-        - dataType
+        - field_key
+        - data_type
       properties:
         name:
           type: string
           maxLength: 100
           example: "Order Total"
-        fieldKey:
+        field_key:
           type: string
           maxLength: 50
           pattern: "^[a-zA-Z][a-zA-Z0-9_-]*$"
           example: "order_total"
-        dataType:
+        data_type:
           $ref: "#/components/schemas/DataType"
 
     EventType:
@@ -320,14 +343,14 @@ components:
           example: "989618ba-efce-4854-be23-ede08787a6d1"
         name:
           type: string
-        eventKey:
+        event_key:
           type: string
         version:
           type: integer
         description:
           type: string
           nullable: true
-        createdAt:
+        created_at:
           type: string
           format: date-time
         fields:
@@ -344,9 +367,9 @@ components:
           example: "250bf027-d8d9-436d-ba21-57f46162c1b0"
         name:
           type: string
-        fieldKey:
+        field_key:
           type: string
-        dataType:
+        data_type:
           $ref: "#/components/schemas/DataType"
 
     DataType:
@@ -395,3 +418,82 @@ components:
         lastReceivedTime:
           type: string
           format: date-time
+
+    CreateMetricRequest:
+      type: object
+      required:
+        - name
+        - metric_key
+        - metric_type
+        - analysis_unit
+        - components
+      properties:
+        name:
+          type: string
+          maxLength: 255
+          example: "Average Order Value"
+        description:
+          type: string
+          example: "Average value of completed orders"
+        metric_key:
+          type: string
+          maxLength: 50
+          example: "avg_order_value"
+        metric_type:
+          $ref: "#/components/schemas/MetricType"
+        analysis_unit:
+          $ref: "#/components/schemas/AnalysisUnit"
+        components:
+          type: array
+          minItems: 1
+          items:
+            $ref: "#/components/schemas/CreateMetricRequestComponent"
+
+    CreateMetricRequestComponent:
+      type: object
+      required:
+        - role
+        - event_type_id
+        - event_field_id
+        - aggregation_operation
+      properties:
+        role:
+          $ref: "#/components/schemas/ComponentRole"
+        event_type_id:
+          type: string
+          format: uuid
+          example: "989618ba-efce-4854-be23-ede08787a6d1"
+        event_field_id:
+          type: string
+          format: uuid
+          example: "250bf027-d8d9-436d-ba21-57f46162c1b0"
+        aggregation_operation:
+          $ref: "#/components/schemas/AggregationOperation"
+
+    MetricType:
+      type: string
+      enum:
+        - simple
+        - ratio
+
+    AnalysisUnit:
+      type: string
+      enum:
+        - user
+
+    ComponentRole:
+      type: string
+      enum:
+        - base_event
+        - numerator
+        - denominator
+
+    AggregationOperation:
+      type: string
+      enum:
+        - COUNT
+        - SUM
+        - AVG
+        - MIN
+        - MAX
+        - COUNT_DISTINCT
