@@ -1,11 +1,10 @@
 package services
 
 import (
+	"clickhouse-writer/internal/model"
 	"clickhouse-writer/internal/repository"
 	"context"
 	"encoding/json"
-
-	"github.com/Dan-Sones/prismdbmodels/model"
 )
 
 type MicroBatchProcessorImp struct {

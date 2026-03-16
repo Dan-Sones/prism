@@ -11,6 +11,7 @@ require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.43.0 // indirect
 	github.com/Dan-Sones/prismlogger v0.0.0
 	github.com/Dan-Sones/prismmicrobatcher v0.0.0
+	github.com/Dan-Sones/prismdbmodels v0.0.0 // indirect
 	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
@@ -31,3 +32,4 @@ require (
 
 replace github.com/Dan-Sones/prismlogger => ../../libs/prismlogger
 replace github.com/Dan-Sones/prismmicrobatcher => ../../libs/prismmicrobatcher
+replace github.com/Dan-Sones/prismdbmodels => ../../libs/prismdbmodels

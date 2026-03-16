@@ -1,11 +1,11 @@
 package repository
 
 import (
-	"clickhouse-writer/internal/model"
 	"context"
 	"time"
 
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
+	"github.com/Dan-Sones/prismdbmodels/model"
 )
 
 type EventsRepository interface {
