@@ -13,7 +13,7 @@ func GetKafkaClient() (*kgo.Client, error) {
 
 	cl, err := kgo.NewClient(
 		kgo.SeedBrokers(broker),
-		kgo.ConsumerGroup(os.Getenv("ASSIGNMENT_SERVICE_KAFKA_CONSUMER_GROUP_ID")),
+		kgo.ConsumerGroup(os.Getenv("CLICKHOUSE_WRITER_KAFKA_CONSUMER_GROUP_ID")),
 		kgo.ConsumeTopics(os.Getenv("KAFKA_EVENTS_TOPIC")),
 		kgo.FetchMinBytes(1000000),
 		kgo.FetchMaxWait(2*time.Second),
