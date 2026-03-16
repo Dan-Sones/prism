@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package assignment_service.v1;
+option go_package = "assignment-service/server/api/proto/assignment_service/v1;assignment_service";
+
+service AssignmentService {
+  rpc GetExperimentsAndVariantsForUsers(GetExperimentsAndVariantsForUsersRequest) returns (GetExperimentsAndVariantsForUsersResponse);
+  rpc GetExperimentsAndVariantsForUser(GetExperimentsAndVariantsForUserRequest) returns (GetExperimentsAndVariantsForUserResponse);
+}
+
+message GetExperimentsAndVariantsForUserRequest {
+  string user_id = 1;
+}
+
+message GetExperimentsAndVariantsForUsersRequest {
+  repeated string user_ids = 1;
+}
+
+message GetExperimentsAndVariantsForUserResponse {
+  map<string, string> assignments = 1;
+}
+
+message UserAssignments {
+  map<string, string> assignments = 1;
+}
+
+message GetExperimentsAndVariantsForUsersResponse {
+  map<string, UserAssignments> user_assignments = 1;
+}
+
