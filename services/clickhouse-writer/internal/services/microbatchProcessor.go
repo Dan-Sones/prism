@@ -7,10 +7,6 @@ import (
 	"encoding/json"
 )
 
-type MicrobatchProcessor interface {
-	ProcessMicrobatch(ctx context.Context, microbatch [][]byte) error
-}
-
 type MicroBatchProcessorImp struct {
 	eventsRepository repository.EventsRepository
 }
