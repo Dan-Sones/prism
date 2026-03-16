@@ -2,16 +2,20 @@ package services
 
 import (
 	"context"
+	"data-cooking-service/internal/repository"
 	"encoding/json"
 
 	"github.com/Dan-Sones/prismdbmodels/model"
 )
 
 type MicroBatchProcessorImp struct {
+	cookedEventsRepository repository.CookedEventsRepository
 }
 
-func NewMicroBatchProcessorImp() *MicroBatchProcessorImp {
-	return &MicroBatchProcessorImp{}
+func NewMicroBatchProcessorImp(repository repository.CookedEventsRepository) *MicroBatchProcessorImp {
+	return &MicroBatchProcessorImp{
+		cookedEventsRepository: repository,
+	}
 }
 
 func (p *MicroBatchProcessorImp) ProcessMicrobatch(ctx context.Context, microbatch [][]byte) error {

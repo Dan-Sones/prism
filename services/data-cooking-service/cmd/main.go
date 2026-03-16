@@ -1,14 +1,20 @@
 package main
 
 import (
+	"context"
 	"data-cooking-service/internal/clients"
+	"data-cooking-service/internal/repository"
+	"data-cooking-service/internal/services"
 	"data-cooking-service/internal/utils"
 	"log"
 	"log/slog"
 	"os"
+	"os/signal"
 	"strconv"
+	"syscall"
 
 	prismLog "github.com/Dan-Sones/prismlogger"
+	microbatcher "github.com/Dan-Sones/prismmicrobatcher"
 	"github.com/joho/godotenv"
 )
 
@@ -38,7 +44,7 @@ func main() {
 	}
 	defer clickhouseConn.Close()
 
-	_, err = clients.GetKafkaClient()
+	kafkaClient, err := clients.GetKafkaClient()
 	if err != nil {
 		logger.Error("Failed to create Kafka client: ", "error", err)
 		os.Exit(1)
@@ -50,6 +56,17 @@ func main() {
 		os.Exit(1)
 	}
 
+	// repository
+	cookedEventsRepository := repository.NewCookedEventsRepositoryClickhouse(clickhouseConn)
+
+	// service
+	microBatchProcessor := services.NewMicroBatchProcessorImp(cookedEventsRepository)
+	eventReader := microbatcher.NewEventReaderImp(kafkaClient, logger)
+	microBatchService := microbatcher.NewMicroBatchingService(microBatchSizeInt, eventReader, microBatchProcessor, logger)
+
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+	microBatchService.Start(ctx)
 }
 
 func initLogger() *slog.Logger {
