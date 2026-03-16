@@ -17,7 +17,7 @@ generate:
 		--go_opt=paths=source_relative \
 		--go-grpc_out=$(EXPERIMENTATION_GEN_DIR) \
 		--go-grpc_opt=paths=source_relative \
-		assignment/v1/*.proto \
+		experimentation_service_assignment/v1/*.proto \
 		events_catalog/v1/*.proto
 	@echo "Files Generated in $(EXPERIMENTATION_GEN_DIR)"
 	@echo "Generating protos for assignment-service..."
@@ -28,10 +28,8 @@ generate:
 		--go_opt=paths=source_relative \
 		--go-grpc_out=$(ASSIGNMENT_GEN_DIR) \
 		--go-grpc_opt=paths=source_relative \
-		assignment/v1/*.proto
+		experimentation_service_assignment/v1/*.proto 
 	@echo "Files Generated in $(ASSIGNMENT_GEN_DIR)"
-
-
 	@echo "Generating protos for events-service..."
 	protoc \
 		--proto_path=. \

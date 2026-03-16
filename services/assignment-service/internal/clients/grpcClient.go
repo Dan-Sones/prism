@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 
-	pb "assignment-service/internal/grpc/generated/assignment/v1"
+	pb "assignment-service/internal/grpc/generated/experimentation_service_assignment/v1"
 )
 
 type ExperimentClient interface {
@@ -18,7 +18,7 @@ type ExperimentClient interface {
 
 type GrpcExperimentClient struct {
 	conn   *grpc.ClientConn
-	client pb.AssignmentServiceClient
+	client pb.ExperimentationServiceAssignmentClient
 }
 
 func NewGrpcClient(adminAddr string) (*GrpcExperimentClient, error) {
@@ -29,7 +29,7 @@ func NewGrpcClient(adminAddr string) (*GrpcExperimentClient, error) {
 
 	return &GrpcExperimentClient{
 		conn:   conn,
-		client: pb.NewAssignmentServiceClient(conn),
+		client: pb.NewExperimentationServiceAssignmentClient(conn),
 	}, nil
 }
 

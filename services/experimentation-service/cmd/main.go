@@ -22,8 +22,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 
-	pbAssignment "experimentation-service/internal/grpc/generated/assignment/v1"
 	pbEventsCatalog "experimentation-service/internal/grpc/generated/events_catalog/v1"
+	pbExperimentationAssignment "experimentation-service/internal/grpc/generated/experimentation_service_assignment/v1"
 )
 
 func main() {
@@ -115,9 +115,9 @@ func loadEnv() {
 func startGrpcServer(logger *slog.Logger, assignmentService *service.AssignmentService, eventsCatalogService *service.EventsCatalogService) {
 	grpcServer := grpc.NewServer()
 
-	assignmentServer := pb.NewAssignmentServer(assignmentService)
+	experimentationAssignmentServer := pb.NewAssignmentServer(assignmentService)
 	eventsCatalogServer := pb.NewEventsCatalogServer(eventsCatalogService)
-	pbAssignment.RegisterAssignmentServiceServer(grpcServer, assignmentServer)
+	pbExperimentationAssignment.RegisterExperimentationServiceAssignmentServer(grpcServer, experimentationAssignmentServer)
 	pbEventsCatalog.RegisterEventsCatalogServiceServer(grpcServer, eventsCatalogServer)
 
 	reflection.Register(grpcServer)
