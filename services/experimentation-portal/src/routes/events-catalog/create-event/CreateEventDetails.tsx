@@ -77,9 +77,7 @@ const CreateEventDetails = () => {
           <FieldError error={errors.event_key} />
         </div>
         <div className="flex flex-col gap-1">
-          <Label htmlFor="description">
-            Description
-          </Label>
+          <Label htmlFor="description">Description</Label>
           <textarea
             {...register("description")}
             id="description"

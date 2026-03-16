@@ -10,7 +10,9 @@ export type AggregationOperation =
   | "AVG"
   | "MIN"
   | "MAX"
-  | "COUNT_DISTINCT";
+  | "COUNT_DISTINCT"
+  | "PERCENTILE_95"
+  | "PERCENTILE_99";
 
 export type CreateMetricRequestComponent = {
   role: ComponentRole;

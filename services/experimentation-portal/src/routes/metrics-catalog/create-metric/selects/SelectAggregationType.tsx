@@ -12,11 +12,13 @@ const SelectAggregationType = () => {
     "MIN",
     "MAX",
     "COUNT_DISTINCT",
+    "PERCENTILE_95",
+    "PERCENTILE_99",
   ];
 
   return (
     <div>
-      <Label htmlFor="aggregation_operation" required>
+      <Label htmlFor="aggregation_operation)" required>
         User Level Aggregation
       </Label>
       <Controller

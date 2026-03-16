@@ -11,6 +11,8 @@ const (
 	AggregationOperationMin           AggregationOperation = "MIN"
 	AggregationOperationMax           AggregationOperation = "MAX"
 	AggregationOperationCountDistinct AggregationOperation = "COUNT_DISTINCT"
+	AggregationOperationPercentile95  AggregationOperation = "PERCENTILE_95"
+	AggregationOperationPercentile99  AggregationOperation = "PERCENTILE_99"
 )
 
 func (a *AggregationOperation) Scan(src any) error {
@@ -20,7 +22,7 @@ func (a *AggregationOperation) Scan(src any) error {
 	}
 	dt := AggregationOperation(s)
 	switch dt {
-	case AggregationOperationCount, AggregationOperationSum, AggregationOperationAvg, AggregationOperationMin, AggregationOperationMax, AggregationOperationCountDistinct:
+	case AggregationOperationCount, AggregationOperationSum, AggregationOperationAvg, AggregationOperationMin, AggregationOperationMax, AggregationOperationCountDistinct, AggregationOperationPercentile95, AggregationOperationPercentile99:
 		*a = dt
 		return nil
 	default:

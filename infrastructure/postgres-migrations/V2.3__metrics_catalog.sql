@@ -1,7 +1,8 @@
 CREATE TYPE prism.metric_type AS ENUM ('simple', 'ratio');
 CREATE TYPE prism.analysis_unit AS ENUM ('user_id');
 CREATE TYPE prism.component_role AS ENUM ('base_event', 'numerator', 'denominator');
-CREATE TYPE prism.aggregation_operation AS ENUM ('COUNT', 'SUM', 'AVG', 'MIN', 'MAX', 'COUNT_DISTINCT');
+CREATE TYPE prism.aggregation_operation AS ENUM ('COUNT', 'SUM', 'AVG', 'MIN', 'MAX', 'COUNT_DISTINCT', 'PERCENTILE_95', 'PERCENTILE_99');
+
 
 
 CREATE TABLE IF NOT EXISTS prism.metrics
