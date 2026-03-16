@@ -77,6 +77,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-replace github.com/Dan-Sones/prismdbmodels => ../prismdbmodels
+replace github.com/Dan-Sones/prismdbmodels => ../../libs/prismdbmodels
 
-replace github.com/Dan-Sones/prismlogger => ../prismlogger
+replace github.com/Dan-Sones/prismlogger => ../../libs/prismlogger

@@ -41,6 +41,6 @@ require (
 	golang.org/x/text v0.33.0 // indirect
 )
 
-replace github.com/Dan-Sones/prismdbmodels => ../prismdbmodels
+replace github.com/Dan-Sones/prismdbmodels => ../../libs/prismdbmodels
 
-replace github.com/Dan-Sones/prismlogger => ../prismlogger
+replace github.com/Dan-Sones/prismlogger => ../../libs/prismlogger
