@@ -7,17 +7,19 @@ experiment_1:
   events:
     experiment_exposure:
       fields:
-        - feature_flag_key:
-            type: string
+        feature_flag_key:
+          type: string
+        variant_key:
+          type: string
       count_to_publish_for_variant:
         button_blue: 500
         button_green: 500
     purchase:
       fields:
-        - order_total:
-            type: float
-            min: 10.0
-            max: 500.0
+        order_total:
+          type: float
+          min: 10.0
+          max: 500.0
       count_to_publish_for_variant:
         button_blue: 300
         button_green: 400
