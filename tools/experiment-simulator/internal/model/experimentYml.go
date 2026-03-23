@@ -6,7 +6,7 @@ type ExperimentConfig struct {
 	DurationSeconds int                      `yaml:"duration_seconds"`
 	FeatureFlagKey  string                   `yaml:"feature_flag_key"`
 	VariantKeys     []string                 `yaml:"variant_keys"`
-	Events          []map[string]EventConfig `yaml:"events"`
+	Events          map[string]EventConfig `yaml:"events"`
 }
 
 type EventConfig struct {
