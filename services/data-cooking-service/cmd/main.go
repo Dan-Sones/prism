@@ -6,6 +6,7 @@ import (
 	"data-cooking-service/internal/repository"
 	"data-cooking-service/internal/services"
 	"data-cooking-service/internal/utils"
+	"fmt"
 	"log"
 	"log/slog"
 	"os"
@@ -35,7 +36,12 @@ func main() {
 		"CLICKHOUSE_DB",
 		"CLICKHOUSE_NATIVE_PORT",
 		"DATA_COOKING_SERVICE_MICROBATCH_SIZE",
+		"ASSIGNMENT_SERVICE_GRPC_SERVER_ADDRESS",
+		"ASSIGNMENT_SERVICE_GRPC_SERVER_PORT",
 	)
+
+	assignmentGrpcClient := getGrpcAssignmentClient()
+	defer assignmentGrpcClient.Close()
 
 	clickhouseConn, err := clients.NewClickhouseConnection()
 	if err != nil {
@@ -60,7 +66,7 @@ func main() {
 	cookedEventsRepository := repository.NewCookedEventsRepositoryClickhouse(clickhouseConn)
 
 	// service
-	microBatchProcessor := services.NewMicroBatchProcessorImp(cookedEventsRepository)
+	microBatchProcessor := services.NewMicroBatchProcessorImp(cookedEventsRepository, assignmentGrpcClient)
 	eventReader := microbatcher.NewEventReaderImp(kafkaClient, logger)
 	microBatchService := microbatcher.NewMicroBatchingService(microBatchSizeInt, eventReader, microBatchProcessor, logger)
 
@@ -81,4 +87,14 @@ func initLogger() *slog.Logger {
 
 func loadEnv() {
 	_ = godotenv.Load("../../infrastructure/.env")
+}
+
+func getGrpcAssignmentClient() clients.AssignmentClient {
+	address := fmt.Sprintf("%s:%s", os.Getenv("ASSIGNMENT_SERVICE_GRPC_SERVER_ADDRESS"), os.Getenv("ASSIGNMENT_SERVICE_GRPC_SERVER_PORT"))
+	client, err := clients.NewGrpcAssignmentClient(address)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return client
 }
