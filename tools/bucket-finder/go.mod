@@ -3,6 +3,7 @@ module bucket-finder
 go 1.25
 
 require (
+	github.com/goccy/go-yaml v1.19.2 // indirect
 	github.com/joho/godotenv v1.5.1 // indirect
 	golang.design/x/clipboard v0.7.1 // indirect
 	golang.org/x/exp/shiny v0.0.0-20250606033433-dcc06ee1d476 // indirect

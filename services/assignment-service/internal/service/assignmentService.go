@@ -80,8 +80,8 @@ func (e *AssignmentService) getVariantForExperiment(experiments model.Experiment
 	return "", fmt.Errorf("no variant found for user %s in experiment %s with number line position %d", userId, experiments.ExperimentKey, numberLinePosition)
 }
 
-func (e *AssignmentService) getNumberLinePositionForUserAndExperiment(userId, experimentId, uniqueSalt string) int32 {
-	toHash := fmt.Sprintf("%s:%s:%s", userId, experimentId, uniqueSalt)
+func (e *AssignmentService) getNumberLinePositionForUserAndExperiment(userId, experimentKey, uniqueSalt string) int32 {
+	toHash := fmt.Sprintf("%s:%s:%s", userId, experimentKey, uniqueSalt)
 	hash := md5.Sum([]byte(toHash))
 
 	hashHex := hex.EncodeToString(hash[:])

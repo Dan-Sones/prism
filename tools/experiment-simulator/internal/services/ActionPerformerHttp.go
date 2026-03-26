@@ -33,7 +33,7 @@ func (a *ActionPerformerHttp) PerformAction(request model.EventRequest) {
 		log.Fatalf("Error sending request: %v", err)
 	}
 
-	if res.StatusCode != http.StatusOK {
+	if res.StatusCode != http.StatusNoContent {
 		log.Fatalf("Error response from server: %s", res.Status)
 	}
 }

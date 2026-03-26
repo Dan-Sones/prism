@@ -105,7 +105,8 @@ func (es *ExperimentSimulation) GetParticipantsForVariant(variantKey string) []E
 
 				properties[fieldKey] = generateDataForField(config)
 			}
-			usersForVariant[i].AddAction(NewParticipantEventParameters(eventTypeKey, properties))
+			// Allows us to cycle through the users that are assigned
+			usersForVariant[i%len(usersForVariant)].AddAction(NewParticipantEventParameters(eventTypeKey, properties))
 		}
 
 	}
