@@ -4,9 +4,18 @@ import (
 	"experiment-simulator/internal/model"
 	"experiment-simulator/internal/services"
 	"fmt"
+	"os"
+	"strconv"
+
+	"github.com/joho/godotenv"
 )
 
+func loadEnv() {
+	_ = godotenv.Load("../../infrastructure/.env")
+}
+
 func main() {
+	loadEnv()
 	fmt.Print(
 		"  _____                      _                      _     ____  _                 _       _             \n" +
 			" | ____|_  ___ __   ___ _ __(_)_ __ ___   ___ _ __ | |_  / ___|(_)_ __ ___  _   _| | __ _| |_ ___  _ __ \n" +
@@ -16,7 +25,14 @@ func main() {
 			"            |_|\n",
 	)
 
-	performer := services.ActionPerformerPrint{}
+	port := os.Getenv("EVENTS_SERVICE_SERVER_PORT")
+	portInt, err := strconv.Atoi(port)
+	if err != nil {
+		fmt.Printf("Error converting port to int: %v\n", err)
+		return
+	}
+
+	performer := services.NewActionPerformerHttp(os.Getenv("EVENTS_SERVICE_SERVER_HOST"), portInt)
 
 	simDetails := services.GetSimulation()
 	// TODO: maybe add support for conucrrent, but for now just get the first one.
