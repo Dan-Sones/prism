@@ -4,17 +4,23 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"maps"
 	"math/big"
 	"os"
-	"slices"
 	"strconv"
+
+	"golang.design/x/clipboard"
+	"gopkg.in/yaml.v3"
 
 	"github.com/joho/godotenv"
 )
 
 func main() {
 	loadEnv()
+
+	err := clipboard.Init()
+	if err != nil {
+		panic(err)
+	}
 
 	salt := os.Getenv("SALT_VALUE")
 	bucketCount := int32(100)
@@ -26,11 +32,40 @@ func main() {
 		bucketToUserId[bucket] = append(bucketToUserId[bucket], i)
 	}
 
-	sortedBucketIds := slices.Sorted(maps.Keys(bucketToUserId))
+	for {
+		fmt.Println("Please enter a bucket id between 0 and 99 to see the user ids in that bucket, or type 'exit' to quit:")
+		var input string
+		fmt.Scanln(&input)
 
-	for _, bucketId := range sortedBucketIds {
-		fmt.Println("Bucket", bucketId, "has user ids:", bucketToUserId[bucketId])
+		if input == "exit" {
+			break
+		}
+
+		bucketId, err := strconv.Atoi(input)
+		if err != nil || bucketId < 0 || bucketId >= int(bucketCount) {
+			fmt.Println("Invalid bucket id. Please enter a number between 0 and 99.")
+			continue
+		}
+
+		userIds := bucketToUserId[int32(bucketId)]
+		fmt.Printf("Bucket %d contains user ids: %v\n", bucketId, userIds)
+		fmt.Println("Do you want to copy the yml array for these user ids to your clipboard? (y/n)")
+		var copyInput string
+		fmt.Scanln(&copyInput)
+
+		if copyInput == "y" {
+
+			data, err := yaml.Marshal(userIds)
+			if err != nil {
+				fmt.Printf("Error marshalling user ids to YAML: %v\n", err)
+				continue
+			}
+
+			clipboard.Write(clipboard.FmtText, data)
+			fmt.Printf("YAML array for bucket %d copied to clipboard.\n", bucketId)
+		}
 	}
+
 }
 
 func GetBucketFor(userId string, bucketCount int32, salt string) int32 {
