@@ -3,18 +3,21 @@ package services
 import (
 	"context"
 	"log/slog"
+	"time"
 )
 
 type MicroBatchingService struct {
 	microBatchSize      int
+	flushTimeout   time.Duration
 	eventReader         EventReader
 	microBatchProcessor MicrobatchProcessor
 	logger              *slog.Logger
 }
 
-func NewMicroBatchingService(microBatchSize int, eventReader EventReader, microbatchProcessor MicrobatchProcessor, logger *slog.Logger) *MicroBatchingService {
+func NewMicroBatchingService(microBatchSize int, flushTimeout time.Duration, eventReader EventReader, microbatchProcessor MicrobatchProcessor, logger *slog.Logger) *MicroBatchingService {
 	return &MicroBatchingService{
 		microBatchSize:      microBatchSize,
+		flushTimeout:   flushTimeout,
 		eventReader:         eventReader,
 		microBatchProcessor: microbatchProcessor,
 		logger:              logger,
@@ -24,6 +27,28 @@ func NewMicroBatchingService(microBatchSize int, eventReader EventReader, microb
 func (m *MicroBatchingService) Start(ctx context.Context) {
 	currentBatch := make([][]byte, 0, m.microBatchSize)
 	m.logger.Info("Micro Batching started with microbatch size", "size", m.microBatchSize)
+
+	batchFlushTimeout := time.NewTicker(m.flushTimeout)
+
+	messageCh := make(chan [][]byte)
+
+	go func() {
+		for {
+			messages, err := m.eventReader.PollEvents(ctx)
+			if err != nil {
+				m.logger.Error("Error polling events", "error", err)
+				continue
+			}
+
+			if ctx.Err() != nil {
+				return
+			}
+
+			if len(messages) > 0 {
+				messageCh <- messages
+			}
+		}
+	}()
 
 	for {
 		select {
@@ -36,18 +61,24 @@ func (m *MicroBatchingService) Start(ctx context.Context) {
 				}
 			}
 			return
-		default:
-			messages, err := m.eventReader.PollEvents(ctx)
-			if err != nil {
-				m.logger.Error("Error polling events", "error", err)
-				continue
+		case <-batchFlushTimeout.C:
+			if len(currentBatch) > 0 {
+				m.logger.Info("Flush timeout reached, flushing partial batch", "size", len(currentBatch))
+				err := m.microBatchProcessor.ProcessMicrobatch(ctx, currentBatch)
+				if err != nil {
+					m.logger.Error("Error processing timeout flush", "error", err)
+				} else {
+					currentBatch = make([][]byte, 0, m.microBatchSize)
+				}
 			}
-
+			batchFlushTimeout.Reset(m.flushTimeout)
+		case messages := <-messageCh:
 			for _, msg := range messages {
 				currentBatch = append(currentBatch, msg)
 			}
 
 			currentBatch = m.flushFullBatches(ctx, currentBatch)
+			batchFlushTimeout.Reset(m.flushTimeout)
 		}
 	}
 }

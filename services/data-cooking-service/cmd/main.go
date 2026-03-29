@@ -36,6 +36,7 @@ func main() {
 		"CLICKHOUSE_DB",
 		"CLICKHOUSE_NATIVE_PORT",
 		"DATA_COOKING_SERVICE_MICROBATCH_SIZE",
+		"DATA_COOKING_SERVICE_MICROBATCH_FLUSH_TIMEOUT_SECONDS",
 		"ASSIGNMENT_SERVICE_GRPC_SERVER_ADDRESS",
 		"ASSIGNMENT_SERVICE_GRPC_SERVER_PORT",
 	)
@@ -68,7 +69,7 @@ func main() {
 	// service
 	microBatchProcessor := services.NewMicroBatchProcessorImp(cookedEventsRepository, assignmentGrpcClient)
 	eventReader := microbatcher.NewEventReaderImp(kafkaClient, logger)
-	microBatchService := microbatcher.NewMicroBatchingService(microBatchSizeInt, eventReader, microBatchProcessor, logger)
+	microBatchService := microbatcher.NewMicroBatchingService(microBatchSizeInt, utils.GetFlushTimeoutDuration(), eventReader, microBatchProcessor, logger)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
