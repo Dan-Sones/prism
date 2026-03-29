@@ -23,6 +23,7 @@ func NewMicroBatchingService(microBatchSize int, eventReader EventReader, microb
 
 func (m *MicroBatchingService) Start(ctx context.Context) {
 	currentBatch := make([][]byte, 0, m.microBatchSize)
+	m.logger.Info("Micro Batching started with microbatch size", "size", m.microBatchSize)
 
 	for {
 		select {

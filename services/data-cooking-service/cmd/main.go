@@ -72,6 +72,8 @@ func main() {
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
+
+	logger.Info("Data Cooking Service Started")
 	microBatchService.Start(ctx)
 }
 

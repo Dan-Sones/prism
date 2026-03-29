@@ -25,7 +25,8 @@ services:
       FLYWAY_USER: ${POSTGRES_USER}
       FLYWAY_PASSWORD: ${POSTGRES_PASSWORD}
       FLYWAY_BASELINE_ON_MIGRATE: "true"
-      FLYWAY_SCHEMAS: public
+      FLYWAY_CLEAN_DISABLED: "false"
+      FLYWAY_SCHEMAS: public,prism
     env_file:
       - .env
     depends_on:

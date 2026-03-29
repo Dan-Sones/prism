@@ -2,7 +2,6 @@ package model
 
 import (
 	"math/rand/v2"
-	"strconv"
 	"time"
 )
 
@@ -19,14 +18,14 @@ func NewParticipantEventParameters(eventField string, properties map[string]inte
 }
 
 type ExperimentParticipant struct {
-	UserId          int
+	UserId          string
 	VariantKey      string
 	FeatureFlagKey  string
 	Actions         []ParticipantEventParameters
 	ActionPerformer ActionPerformer
 }
 
-func NewExperimentParticipant(userId int, variantKey string, featureFlagKey string, performer ActionPerformer) ExperimentParticipant {
+func NewExperimentParticipant(userId string, variantKey string, featureFlagKey string, performer ActionPerformer) ExperimentParticipant {
 	return ExperimentParticipant{
 		UserId:          userId,
 		VariantKey:      variantKey,
@@ -47,7 +46,7 @@ func (ep *ExperimentParticipant) PerformActionsWithDelay() {
 		eventReq := EventRequest{
 			EventKey: action.EventField,
 			UserDetails: UserDetails{
-				Id: strconv.Itoa(ep.UserId),
+				Id: ep.UserId,
 			},
 			SentAt:     time.Now(),
 			Properties: action.properties,

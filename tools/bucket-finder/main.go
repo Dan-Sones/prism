@@ -1,12 +1,10 @@
 package main
 
 import (
-	"crypto/md5"
-	"encoding/hex"
-	"encoding/json"
+	"bucket-finder/internal/clients"
+	"context"
 	"fmt"
-	"math/big"
-	"net/http"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -24,12 +22,17 @@ func main() {
 		panic(err)
 	}
 
-	salt := os.Getenv("SALT_VALUE")
-	bucketCount := int32(100)
+	bucketCountEnv, err := strconv.Atoi(os.Getenv("BUCKET_COUNT"))
+	if err != nil || bucketCountEnv <= 0 {
+		log.Fatal("BUCKET_COUNT must be a positive integer")
+	}
+	bucketCount := int32(bucketCountEnv)
 
-	assignementServiceGetAssignmentsUrl := fmt.Sprintf("http://%s:%s/api/assignments/", "localhost", os.Getenv("ASSIGNMENT_SERVICE_HTTP_PORT"))
-
-	bucketToUserId := make(map[int32][]int, int(bucketCount))
+	address := fmt.Sprintf("%s:%s", os.Getenv("ASSIGNMENT_SERVICE_GRPC_SERVER_ADDRESS"), os.Getenv("ASSIGNMENT_SERVICE_GRPC_SERVER_PORT"))
+	client, err := clients.NewGrpcAssignmentClient(address)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	fmt.Println("Please enter the number of users to bucket (e.g. 10000000):")
 	var input string
@@ -54,42 +57,22 @@ func main() {
 		}
 	}
 
+	userIds := make([]string, userCount)
 	for i := 0; i < userCount; i++ {
-		bucket := GetBucketFor(strconv.Itoa(i), bucketCount, salt)
-		bucketToUserId[bucket] = append(bucketToUserId[bucket], i)
+		userIds[i] = fmt.Sprintf("user-%d", i)
 	}
 
-	var userIds []int
-	for _, bucketStr := range buckets {
-		bucketId, _ := strconv.Atoi(bucketStr)
-		userIds = append(userIds, bucketToUserId[int32(bucketId)]...)
+	variantUserIds := make(map[string][]string)
+
+	ctx := context.Background()
+	experimentsAndContext, err := client.GetExperimentsAndVariantsForUsers(ctx, userIds)
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	variantUserIds := make(map[string][]int)
-
-	for _, userId := range userIds {
-		address := fmt.Sprintf("%s%d", assignementServiceGetAssignmentsUrl, userId)
-		fmt.Println(address)
-		res, err := http.Get(address)
-		if err != nil {
-			fmt.Printf("Failed to get assignments for user id %d: %v\n", userId, err)
-			return
-		}
-
-		if res.StatusCode == http.StatusOK {
-			var assignments map[string]string
-			err = json.NewDecoder(res.Body).Decode(&assignments)
-			if err != nil {
-				fmt.Printf("Failed to decode response for user id %d: %v\n", userId, err)
-				return
-			}
-
-			for _, variant := range assignments {
-				variantUserIds[variant] = append(variantUserIds[variant], userId)
-			}
-
-		} else {
-			fmt.Printf("Received non-OK response for user id %d: %s\n", userId, res.Status)
+	for userId, experiments := range experimentsAndContext {
+		for _, variant := range experiments {
+			variantUserIds[variant] = append(variantUserIds[variant], userId)
 		}
 	}
 
@@ -99,7 +82,7 @@ func main() {
 
 }
 
-func writeVariantUserIdsFile(variantKey string, userIds []int) {
+func writeVariantUserIdsFile(variantKey string, userIds []string) {
 	data, err := yaml.Marshal(userIds)
 	if err != nil {
 		fmt.Printf("Error marshalling user ids for variant %s: %v\n", variantKey, err)
@@ -114,24 +97,6 @@ func writeVariantUserIdsFile(variantKey string, userIds []int) {
 	}
 
 	fmt.Printf("Written %d user ids for variant %s to %s\n", len(userIds), variantKey, fileName)
-}
-
-func GetBucketFor(userId string, bucketCount int32, salt string) int32 {
-	hash := createMD5For(userId, salt)
-	hashHex := hex.EncodeToString(hash[:])
-
-	hashInt := new(big.Int)
-	hashInt.SetString(hashHex, 16)
-
-	bucket := new(big.Int)
-	bucket.Mod(hashInt, big.NewInt(int64(bucketCount)))
-
-	return int32(bucket.Int64())
-}
-
-func createMD5For(userId, salt string) [16]byte {
-	toHash := fmt.Sprintf("%s:%s", salt, userId)
-	return md5.Sum([]byte(toHash))
 }
 
 func loadEnv() {

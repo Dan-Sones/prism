@@ -49,22 +49,3 @@ func main() {
 	}
 
 }
-
-//func beginSimulation(experimentName string, experimentConfig model.ExperimentConfig) {
-//	var wg sync.WaitGroup
-//
-//	variantUserIds := make(model.VariantUserIds)
-//	for _, variantKey := range experimentConfig.VariantKeys {
-//		variantUserIds[variantKey] = services.GetUserIdsForVariant(variantKey)
-//	}
-//
-//	simulation := model.NewExperimentSimulation(experimentConfig, variantUserIds)
-//
-//	for _, variantKey := range experimentConfig.VariantKeys {
-//		wg.Add(1)
-//		go simulation.PerformForVariant(variantKey, &wg)
-//	}
-//
-//	wg.Wait()
-//
-//}

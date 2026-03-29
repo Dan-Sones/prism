@@ -45,7 +45,6 @@ func main() {
 		"CLICKHOUSE_USER",
 		"CLICKHOUSE_PASSWORD",
 	)
-	logger.Info("experimentation-service started")
 
 	pgPool := clients.GetPostgresConnectionPool()
 	defer pgPool.Close()
@@ -90,6 +89,8 @@ func main() {
 	})
 
 	httpPort := fmt.Sprintf(":%s", os.Getenv("EXPERIMENTATION_SERVICE_HTTP_PORT"))
+
+	logger.Info("experimentation-service started")
 
 	err = http2.ListenAndServe(httpPort, router)
 	if err != nil {
