@@ -5,7 +5,7 @@ package events_catalog.v1;
 import "google/protobuf/timestamp.proto";
 
 
-option go_package = "experimentation-service/server/api/proto/events_catalog/v1;events_catalog";
+option go_package = "experimentation-service/internal/grpc/generated/events_catalog/v1;events_catalog";
 option java_multiple_files = true;
 option java_package = "org.prism.eventsservice.grpc.events_catalog.v1";
 

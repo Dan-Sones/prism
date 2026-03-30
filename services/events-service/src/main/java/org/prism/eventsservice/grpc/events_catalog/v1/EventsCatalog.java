@@ -76,11 +76,11 @@ public final class EventsCatalog extends com.google.protobuf.GeneratedFile {
       "MESTAMP\020\0052\206\001\n\024EventsCatalogService\022n\n\021Ge" +
       "tEventTypeByKey\022+.events_catalog.v1.GetE" +
       "ventTypeByKeyRequest\032,.events_catalog.v1" +
-      ".GetEventTypeByKeyResponseB}\n.org.prism." +
-      "eventsservice.grpc.events_catalog.v1P\001ZI" +
-      "experimentation-service/server/api/proto" +
-      "/events_catalog/v1;events_catalogb\006proto" +
-      "3"
+      ".GetEventTypeByKeyResponseB\204\001\n.org.prism" +
+      ".eventsservice.grpc.events_catalog.v1P\001Z" +
+      "Pexperimentation-service/internal/grpc/g" +
+      "enerated/events_catalog/v1;events_catalo" +
+      "gb\006proto3"
     };
     descriptor = com.google.protobuf.Descriptors.FileDescriptor
       .internalBuildGeneratedFileFrom(descriptorData,

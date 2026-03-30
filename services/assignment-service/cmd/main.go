@@ -2,19 +2,25 @@ package main
 
 import (
 	"assignment-service/internal/api/http"
+	"assignment-service/internal/api/pb"
 	"assignment-service/internal/clients"
 	"assignment-service/internal/controller"
+	"assignment-service/internal/grpc/generated/assignment_service/v1"
 	"assignment-service/internal/service"
 	"assignment-service/internal/utils"
 	"context"
 	"fmt"
 	"log"
 	"log/slog"
+	"net"
 	http2 "net/http"
 	"os"
+	"strings"
 
 	prismLog "github.com/Dan-Sones/prismlogger"
 	"github.com/joho/godotenv"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
 func main() {
@@ -34,6 +40,8 @@ func main() {
 		"KAFKA_BOOTSTRAP_SERVER_HOST",
 		"KAFKA_BOOTSTRAP_SERVER_PORT",
 		"KAFKA_CACHE_INVALIDATIONS_TOPIC",
+		"ASSIGNMENT_SERVICE_GRPC_SERVER_ADDRESS",
+		"ASSIGNMENT_SERVICE_GRPC_SERVER_PORT",
 	)
 
 	grpcClient := getGrpcExperimentClient()
@@ -66,6 +74,7 @@ func main() {
 	})
 
 	go assignmentCacheInvalidationService.ListenForInvalidations(context.Background())
+	go startGrpcServer(logger, assignmentService)
 
 	logger.Info("assignment-service started")
 	http2.ListenAndServe(":8082", router)
@@ -94,4 +103,28 @@ func getGrpcExperimentClient() clients.ExperimentClient {
 	}
 
 	return client
+}
+
+func startGrpcServer(logger *slog.Logger, assignmentService *service.AssignmentService) {
+	grpcServer := grpc.NewServer()
+
+	assignmentServer := pb.NewAssignmentServer(assignmentService, logger)
+	assignment_service.RegisterAssignmentServiceServer(grpcServer, assignmentServer)
+
+	reflection.Register(grpcServer)
+
+	grpcAddress := os.Getenv("ASSIGNMENT_SERVICE_GRPC_SERVER_ADDRESS")
+	grpcPort := os.Getenv("ASSIGNMENT_SERVICE_GRPC_SERVER_PORT")
+
+	lis, err := net.Listen("tcp", strings.Join([]string{grpcAddress, grpcPort}, ":"))
+	if err != nil {
+		logger.Error("failed to listen", "error", err)
+		os.Exit(1)
+	}
+
+	logger.Info("gRPC server started on " + grpcAddress)
+	if err := grpcServer.Serve(lis); err != nil {
+		logger.Error("failed to serve grpc", "error", err)
+		os.Exit(1)
+	}
 }

@@ -2,7 +2,7 @@ package pb
 
 import (
 	"context"
-	pb "experimentation-service/internal/grpc/generated/assignment/v1"
+	pb "experimentation-service/internal/grpc/generated/experimentation_service_assignment/v1"
 	"experimentation-service/internal/problems"
 	"experimentation-service/internal/service"
 
@@ -12,7 +12,7 @@ import (
 )
 
 type AssignmentServer struct {
-	pb.UnimplementedAssignmentServiceServer
+	pb.UnimplementedExperimentationServiceAssignmentServer
 	assignmentService *service.AssignmentService
 }
 

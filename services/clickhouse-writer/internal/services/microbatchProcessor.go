@@ -1,15 +1,12 @@
 package services
 
 import (
-	"clickhouse-writer/internal/model"
 	"clickhouse-writer/internal/repository"
 	"context"
 	"encoding/json"
-)
 
-type MicrobatchProcessor interface {
-	ProcessMicrobatch(ctx context.Context, microbatch [][]byte) error
-}
+	"github.com/Dan-Sones/prismdbmodels/model"
+)
 
 type MicroBatchProcessorImp struct {
 	eventsRepository repository.EventsRepository

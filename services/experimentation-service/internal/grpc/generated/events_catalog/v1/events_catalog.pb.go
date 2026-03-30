@@ -372,8 +372,8 @@ const file_events_catalog_v1_events_catalog_proto_rawDesc = "" +
 	"\x0eDATA_TYPE_BOOL\x10\x04\x12\x17\n" +
 	"\x13DATA_TYPE_TIMESTAMP\x10\x052\x86\x01\n" +
 	"\x14EventsCatalogService\x12n\n" +
-	"\x11GetEventTypeByKey\x12+.events_catalog.v1.GetEventTypeByKeyRequest\x1a,.events_catalog.v1.GetEventTypeByKeyResponseB}\n" +
-	".org.prism.eventsservice.grpc.events_catalog.v1P\x01ZIexperimentation-service/server/api/proto/events_catalog/v1;events_catalogb\x06proto3"
+	"\x11GetEventTypeByKey\x12+.events_catalog.v1.GetEventTypeByKeyRequest\x1a,.events_catalog.v1.GetEventTypeByKeyResponseB\x84\x01\n" +
+	".org.prism.eventsservice.grpc.events_catalog.v1P\x01ZPexperimentation-service/internal/grpc/generated/events_catalog/v1;events_catalogb\x06proto3"
 
 var (
 	file_events_catalog_v1_events_catalog_proto_rawDescOnce sync.Once

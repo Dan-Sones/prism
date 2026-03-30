@@ -3,8 +3,8 @@ FROM golang:1.25
 WORKDIR /app
 
 COPY experimentation-service/go.mod experimentation-service/go.sum ./
-COPY prismdbmodels /prismdbmodels
-COPY prismlogger /prismlogger
+COPY libs/prismdbmodels /libs/prismdbmodels
+COPY libs/prismlogger /libs/prismlogger
 
 RUN go mod download
 

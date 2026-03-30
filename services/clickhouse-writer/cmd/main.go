@@ -12,8 +12,10 @@ import (
 	"os/signal"
 	"strconv"
 	"syscall"
+	"time"
 
 	prismLog "github.com/Dan-Sones/prismlogger"
+	microbatcher "github.com/Dan-Sones/prismmicrobatcher"
 	"github.com/joho/godotenv"
 )
 
@@ -26,6 +28,7 @@ func main() {
 		"APP_ENV",
 		"KAFKA_BOOTSTRAP_SERVER_HOST",
 		"KAFKA_BOOTSTRAP_SERVER_PORT",
+		"CLICKHOUSE_WRITER_KAFKA_CONSUMER_GROUP_ID",
 		"KAFKA_EVENTS_TOPIC",
 		"CLICKHOUSE_HOST",
 		"CLICKHOUSE_USER",
@@ -50,7 +53,7 @@ func main() {
 
 	microBatchSizeInt, err := strconv.Atoi(os.Getenv("CLICKHOUSE_WRITER_MICROBATCH_SIZE"))
 	if err != nil {
-		logger.Error("Invalid MICROBATCH_SIZE, must be an integer", "error", err)
+		logger.Error("Invalid CLICKHOUSE_WRITER_MICROBATCH_SIZE, must be an integer", "error", err)
 		os.Exit(1)
 	}
 
@@ -59,8 +62,8 @@ func main() {
 
 	// services
 	microBatchProcessor := services.NewMicroBatchProcessorImp(eventsRepository)
-	eventReader := services.NewEventReaderImp(kafkaClient, logger)
-	microBatchService := services.NewMicroBatchingService(microBatchSizeInt, eventReader, microBatchProcessor, logger)
+	eventReader := microbatcher.NewEventReaderImp(kafkaClient, logger)
+	microBatchService := microbatcher.NewMicroBatchingService(microBatchSizeInt, 10*time.Minute, eventReader, microBatchProcessor, logger)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
