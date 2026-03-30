@@ -1,6 +1,6 @@
 module assignment-service
 
-go 1.25
+go 1.25.0
 
 require (
 	github.com/Dan-Sones/prismdbmodels v0.0.0-00010101000000-000000000000
@@ -71,6 +71,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.38.0 // indirect
 	golang.org/x/crypto v0.45.0 // indirect
 	golang.org/x/net v0.47.0 // indirect
+	golang.org/x/sync v0.20.0 // indirect
 	golang.org/x/sys v0.38.0 // indirect
 	golang.org/x/text v0.33.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251029180050-ab9386a59fda // indirect

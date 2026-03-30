@@ -4,7 +4,9 @@ import (
 	"assignment-service/internal/grpc/generated/assignment_service/v1"
 	"assignment-service/internal/service"
 	"log/slog"
+	"sync"
 
+	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 )
 
@@ -22,21 +24,27 @@ func NewAssignmentServer(assignmentService *service.AssignmentService, logger *s
 }
 
 func (s *AssignmentServer) GetExperimentsAndVariantsForUsers(req *assignment_service.GetExperimentsAndVariantsForUsersRequest, stream grpc.ServerStreamingServer[assignment_service.UserAssignments]) error {
-	for _, userID := range req.GetUserIds() {
+	var mu sync.Mutex
+	g, ctx := errgroup.WithContext(stream.Context())
+	g.SetLimit(10)
 
-		assignments, err := s.assignmentService.GetAssignmentsForUserId(stream.Context(), userID)
-		if err != nil {
-			// TODO: Look into how errors should be handled in a streaming response - should we send an error message down the stream, or just log and continue?
-			s.logger.Error("Failed to get assignments for user", "userID", userID, "error", err)
-			continue
-		}
+	for _, userId := range req.GetUserIds() {
+		g.Go(func() error {
+			result, err := s.assignmentService.GetAssignmentsForUserId(ctx, userId)
+			if err != nil {
+				s.logger.Error("Error getting assignments for user", "userId", userId, "error", err)
+				return nil
+			}
 
-		if err := stream.Send(&assignment_service.UserAssignments{
-			UserId:      userID,
-			Assignments: assignments,
-		}); err != nil {
+			mu.Lock()
+			err = stream.Send(&assignment_service.UserAssignments{
+				UserId:      userId,
+				Assignments: result,
+			})
+			mu.Unlock()
+
 			return err
-		}
+		})
 	}
-	return nil
+	return g.Wait()
 }

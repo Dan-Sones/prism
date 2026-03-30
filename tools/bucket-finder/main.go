@@ -102,7 +102,7 @@ func writeVariantUserIdsFile(variantKey string, userIds []string) {
 }
 
 func getExperimentsAndVariantsForUsers(ctx context.Context, userIds []string, client *clients.GrpcAssignmentClient) (map[string]map[string]string, error) {
-	sem := make(chan struct{}, 100)
+	sem := make(chan struct{}, 10)
 	var wg sync.WaitGroup
 	var sm sync.Map
 
