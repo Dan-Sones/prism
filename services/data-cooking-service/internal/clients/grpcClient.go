@@ -3,6 +3,7 @@ package clients
 import (
 	"context"
 	"data-cooking-service/internal/grpc/generated/assignment_service/v1"
+	"io"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -31,7 +32,7 @@ func NewGrpcAssignmentClient(experimentationServiceAddr string) (*GrpcAssignment
 }
 
 func (c *GrpcAssignmentClient) GetExperimentsAndVariantsForUsers(ctx context.Context, userIds []string) (map[string]map[string]string, error) {
-	resp, err := c.client.GetExperimentsAndVariantsForUsers(ctx, &assignment_service.GetExperimentsAndVariantsForUsersRequest{
+	stream, err := c.client.GetExperimentsAndVariantsForUsers(ctx, &assignment_service.GetExperimentsAndVariantsForUsersRequest{
 		UserIds: userIds,
 	})
 	if err != nil {
@@ -40,8 +41,15 @@ func (c *GrpcAssignmentClient) GetExperimentsAndVariantsForUsers(ctx context.Con
 
 	assignments := make(map[string]map[string]string)
 
-	for userId, userAssignments := range resp.UserAssignments {
-		assignments[userId] = userAssignments.Assignments
+	for {
+		resp, err := stream.Recv()
+		if err == io.EOF {
+			return assignments, nil // End of stream
+		}
+		if err != nil {
+			return nil, err
+		}
+		assignments[resp.UserId] = resp.Assignments
 	}
 
 	return assignments, nil

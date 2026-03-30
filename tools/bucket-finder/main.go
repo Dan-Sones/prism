@@ -6,8 +6,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/goccy/go-yaml"
 	"github.com/joho/godotenv"
@@ -65,7 +67,7 @@ func main() {
 	variantUserIds := make(map[string][]string)
 
 	ctx := context.Background()
-	experimentsAndContext, err := client.GetExperimentsAndVariantsForUsers(ctx, userIds)
+	experimentsAndContext, err := getExperimentsAndVariantsForUsers(ctx, userIds, client)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -97,6 +99,39 @@ func writeVariantUserIdsFile(variantKey string, userIds []string) {
 	}
 
 	fmt.Printf("Written %d user ids for variant %s to %s\n", len(userIds), variantKey, fileName)
+}
+
+func getExperimentsAndVariantsForUsers(ctx context.Context, userIds []string, client *clients.GrpcAssignmentClient) (map[string]map[string]string, error) {
+	sem := make(chan struct{}, 100)
+	var wg sync.WaitGroup
+	var sm sync.Map
+
+	for batch := range slices.Chunk(userIds, 2000) {
+		sem <- struct{}{}
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			defer func() { <-sem }()
+			assignments, err := client.GetExperimentsAndVariantsForUsers(ctx, batch)
+			if err != nil {
+				fmt.Printf("Error fetching assignments for batch: %v\n", err)
+				return
+			}
+			for userId, experiments := range assignments {
+				sm.Store(userId, experiments)
+			}
+		}()
+	}
+	wg.Wait()
+
+	result := make(map[string]map[string]string)
+	sm.Range(func(key, value any) bool {
+		assignments := value.(map[string]string)
+		result[key.(string)] = assignments
+		return true
+	})
+
+	return result, nil
 }
 
 func loadEnv() {

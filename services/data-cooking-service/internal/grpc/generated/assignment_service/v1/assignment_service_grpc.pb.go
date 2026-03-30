@@ -19,16 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AssignmentService_GetExperimentsAndVariantsForUsers_FullMethodName = "/assignment_service.v1.AssignmentService/GetExperimentsAndVariantsForUsers"
 	AssignmentService_GetExperimentsAndVariantsForUser_FullMethodName  = "/assignment_service.v1.AssignmentService/GetExperimentsAndVariantsForUser"
+	AssignmentService_GetExperimentsAndVariantsForUsers_FullMethodName = "/assignment_service.v1.AssignmentService/GetExperimentsAndVariantsForUsers"
 )
 
 // AssignmentServiceClient is the client API for AssignmentService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AssignmentServiceClient interface {
-	GetExperimentsAndVariantsForUsers(ctx context.Context, in *GetExperimentsAndVariantsForUsersRequest, opts ...grpc.CallOption) (*GetExperimentsAndVariantsForUsersResponse, error)
 	GetExperimentsAndVariantsForUser(ctx context.Context, in *GetExperimentsAndVariantsForUserRequest, opts ...grpc.CallOption) (*GetExperimentsAndVariantsForUserResponse, error)
+	GetExperimentsAndVariantsForUsers(ctx context.Context, in *GetExperimentsAndVariantsForUsersRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[UserAssignments], error)
 }
 
 type assignmentServiceClient struct {
@@ -37,16 +37,6 @@ type assignmentServiceClient struct {
 
 func NewAssignmentServiceClient(cc grpc.ClientConnInterface) AssignmentServiceClient {
 	return &assignmentServiceClient{cc}
-}
-
-func (c *assignmentServiceClient) GetExperimentsAndVariantsForUsers(ctx context.Context, in *GetExperimentsAndVariantsForUsersRequest, opts ...grpc.CallOption) (*GetExperimentsAndVariantsForUsersResponse, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetExperimentsAndVariantsForUsersResponse)
-	err := c.cc.Invoke(ctx, AssignmentService_GetExperimentsAndVariantsForUsers_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *assignmentServiceClient) GetExperimentsAndVariantsForUser(ctx context.Context, in *GetExperimentsAndVariantsForUserRequest, opts ...grpc.CallOption) (*GetExperimentsAndVariantsForUserResponse, error) {
@@ -59,12 +49,31 @@ func (c *assignmentServiceClient) GetExperimentsAndVariantsForUser(ctx context.C
 	return out, nil
 }
 
+func (c *assignmentServiceClient) GetExperimentsAndVariantsForUsers(ctx context.Context, in *GetExperimentsAndVariantsForUsersRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[UserAssignments], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &AssignmentService_ServiceDesc.Streams[0], AssignmentService_GetExperimentsAndVariantsForUsers_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[GetExperimentsAndVariantsForUsersRequest, UserAssignments]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AssignmentService_GetExperimentsAndVariantsForUsersClient = grpc.ServerStreamingClient[UserAssignments]
+
 // AssignmentServiceServer is the server API for AssignmentService service.
 // All implementations must embed UnimplementedAssignmentServiceServer
 // for forward compatibility.
 type AssignmentServiceServer interface {
-	GetExperimentsAndVariantsForUsers(context.Context, *GetExperimentsAndVariantsForUsersRequest) (*GetExperimentsAndVariantsForUsersResponse, error)
 	GetExperimentsAndVariantsForUser(context.Context, *GetExperimentsAndVariantsForUserRequest) (*GetExperimentsAndVariantsForUserResponse, error)
+	GetExperimentsAndVariantsForUsers(*GetExperimentsAndVariantsForUsersRequest, grpc.ServerStreamingServer[UserAssignments]) error
 	mustEmbedUnimplementedAssignmentServiceServer()
 }
 
@@ -75,11 +84,11 @@ type AssignmentServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedAssignmentServiceServer struct{}
 
-func (UnimplementedAssignmentServiceServer) GetExperimentsAndVariantsForUsers(context.Context, *GetExperimentsAndVariantsForUsersRequest) (*GetExperimentsAndVariantsForUsersResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetExperimentsAndVariantsForUsers not implemented")
-}
 func (UnimplementedAssignmentServiceServer) GetExperimentsAndVariantsForUser(context.Context, *GetExperimentsAndVariantsForUserRequest) (*GetExperimentsAndVariantsForUserResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetExperimentsAndVariantsForUser not implemented")
+}
+func (UnimplementedAssignmentServiceServer) GetExperimentsAndVariantsForUsers(*GetExperimentsAndVariantsForUsersRequest, grpc.ServerStreamingServer[UserAssignments]) error {
+	return status.Error(codes.Unimplemented, "method GetExperimentsAndVariantsForUsers not implemented")
 }
 func (UnimplementedAssignmentServiceServer) mustEmbedUnimplementedAssignmentServiceServer() {}
 func (UnimplementedAssignmentServiceServer) testEmbeddedByValue()                           {}
@@ -102,24 +111,6 @@ func RegisterAssignmentServiceServer(s grpc.ServiceRegistrar, srv AssignmentServ
 	s.RegisterService(&AssignmentService_ServiceDesc, srv)
 }
 
-func _AssignmentService_GetExperimentsAndVariantsForUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetExperimentsAndVariantsForUsersRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(AssignmentServiceServer).GetExperimentsAndVariantsForUsers(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: AssignmentService_GetExperimentsAndVariantsForUsers_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AssignmentServiceServer).GetExperimentsAndVariantsForUsers(ctx, req.(*GetExperimentsAndVariantsForUsersRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _AssignmentService_GetExperimentsAndVariantsForUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetExperimentsAndVariantsForUserRequest)
 	if err := dec(in); err != nil {
@@ -138,6 +129,17 @@ func _AssignmentService_GetExperimentsAndVariantsForUser_Handler(srv interface{}
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AssignmentService_GetExperimentsAndVariantsForUsers_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(GetExperimentsAndVariantsForUsersRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(AssignmentServiceServer).GetExperimentsAndVariantsForUsers(m, &grpc.GenericServerStream[GetExperimentsAndVariantsForUsersRequest, UserAssignments]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type AssignmentService_GetExperimentsAndVariantsForUsersServer = grpc.ServerStreamingServer[UserAssignments]
+
 // AssignmentService_ServiceDesc is the grpc.ServiceDesc for AssignmentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -146,14 +148,16 @@ var AssignmentService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*AssignmentServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetExperimentsAndVariantsForUsers",
-			Handler:    _AssignmentService_GetExperimentsAndVariantsForUsers_Handler,
-		},
-		{
 			MethodName: "GetExperimentsAndVariantsForUser",
 			Handler:    _AssignmentService_GetExperimentsAndVariantsForUser_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "GetExperimentsAndVariantsForUsers",
+			Handler:       _AssignmentService_GetExperimentsAndVariantsForUsers_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "assignment_service/v1/assignment_service.proto",
 }

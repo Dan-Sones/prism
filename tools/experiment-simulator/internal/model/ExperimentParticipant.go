@@ -1,7 +1,6 @@
 package model
 
 import (
-	"math/rand/v2"
 	"time"
 )
 
@@ -41,7 +40,7 @@ func (ep *ExperimentParticipant) AddAction(action ParticipantEventParameters) {
 func (ep *ExperimentParticipant) PerformActionsWithDelay() {
 	for _, action := range ep.Actions {
 		// Simulate some delay between actions
-		time.Sleep(time.Duration(rand.IntN(1000)) * time.Millisecond)
+		//time.Sleep(time.Duration(rand.IntN(1000)) * time.Millisecond)
 
 		eventReq := EventRequest{
 			EventKey: action.EventField,

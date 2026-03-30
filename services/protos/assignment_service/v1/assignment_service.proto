@@ -4,8 +4,9 @@ package assignment_service.v1;
 option go_package = "assignment-service/server/api/proto/assignment_service/v1;assignment_service";
 
 service AssignmentService {
-  rpc GetExperimentsAndVariantsForUsers(GetExperimentsAndVariantsForUsersRequest) returns (GetExperimentsAndVariantsForUsersResponse);
   rpc GetExperimentsAndVariantsForUser(GetExperimentsAndVariantsForUserRequest) returns (GetExperimentsAndVariantsForUserResponse);
+  rpc GetExperimentsAndVariantsForUsers(GetExperimentsAndVariantsForUsersRequest)
+      returns (stream UserAssignments);
 }
 
 message GetExperimentsAndVariantsForUserRequest {
@@ -21,10 +22,7 @@ message GetExperimentsAndVariantsForUserResponse {
 }
 
 message UserAssignments {
-  map<string, string> assignments = 1;
-}
-
-message GetExperimentsAndVariantsForUsersResponse {
-  map<string, UserAssignments> user_assignments = 1;
+  string user_id = 1;
+  map<string, string> assignments = 2;
 }
 

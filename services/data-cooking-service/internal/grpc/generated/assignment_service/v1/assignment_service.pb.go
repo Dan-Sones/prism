@@ -155,7 +155,8 @@ func (x *GetExperimentsAndVariantsForUserResponse) GetAssignments() map[string]s
 
 type UserAssignments struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Assignments   map[string]string      `protobuf:"bytes,1,rep,name=assignments,proto3" json:"assignments,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Assignments   map[string]string      `protobuf:"bytes,2,rep,name=assignments,proto3" json:"assignments,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -190,53 +191,16 @@ func (*UserAssignments) Descriptor() ([]byte, []int) {
 	return file_assignment_service_v1_assignment_service_proto_rawDescGZIP(), []int{3}
 }
 
+func (x *UserAssignments) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
 func (x *UserAssignments) GetAssignments() map[string]string {
 	if x != nil {
 		return x.Assignments
-	}
-	return nil
-}
-
-type GetExperimentsAndVariantsForUsersResponse struct {
-	state           protoimpl.MessageState      `protogen:"open.v1"`
-	UserAssignments map[string]*UserAssignments `protobuf:"bytes,1,rep,name=user_assignments,json=userAssignments,proto3" json:"user_assignments,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
-}
-
-func (x *GetExperimentsAndVariantsForUsersResponse) Reset() {
-	*x = GetExperimentsAndVariantsForUsersResponse{}
-	mi := &file_assignment_service_v1_assignment_service_proto_msgTypes[4]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetExperimentsAndVariantsForUsersResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetExperimentsAndVariantsForUsersResponse) ProtoMessage() {}
-
-func (x *GetExperimentsAndVariantsForUsersResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_assignment_service_v1_assignment_service_proto_msgTypes[4]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetExperimentsAndVariantsForUsersResponse.ProtoReflect.Descriptor instead.
-func (*GetExperimentsAndVariantsForUsersResponse) Descriptor() ([]byte, []int) {
-	return file_assignment_service_v1_assignment_service_proto_rawDescGZIP(), []int{4}
-}
-
-func (x *GetExperimentsAndVariantsForUsersResponse) GetUserAssignments() map[string]*UserAssignments {
-	if x != nil {
-		return x.UserAssignments
 	}
 	return nil
 }
@@ -254,20 +218,16 @@ const file_assignment_service_v1_assignment_service_proto_rawDesc = "" +
 	"\vassignments\x18\x01 \x03(\v2P.assignment_service.v1.GetExperimentsAndVariantsForUserResponse.AssignmentsEntryR\vassignments\x1a>\n" +
 	"\x10AssignmentsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xac\x01\n" +
-	"\x0fUserAssignments\x12Y\n" +
-	"\vassignments\x18\x01 \x03(\v27.assignment_service.v1.UserAssignments.AssignmentsEntryR\vassignments\x1a>\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc5\x01\n" +
+	"\x0fUserAssignments\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12Y\n" +
+	"\vassignments\x18\x02 \x03(\v27.assignment_service.v1.UserAssignments.AssignmentsEntryR\vassignments\x1a>\n" +
 	"\x10AssignmentsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x9a\x02\n" +
-	")GetExperimentsAndVariantsForUsersResponse\x12\x80\x01\n" +
-	"\x10user_assignments\x18\x01 \x03(\v2U.assignment_service.v1.GetExperimentsAndVariantsForUsersResponse.UserAssignmentsEntryR\x0fuserAssignments\x1aj\n" +
-	"\x14UserAssignmentsEntry\x12\x10\n" +
-	"\x03key\x18\x01 \x01(\tR\x03key\x12<\n" +
-	"\x05value\x18\x02 \x01(\v2&.assignment_service.v1.UserAssignmentsR\x05value:\x028\x012\xe2\x02\n" +
-	"\x11AssignmentService\x12\xa6\x01\n" +
-	"!GetExperimentsAndVariantsForUsers\x12?.assignment_service.v1.GetExperimentsAndVariantsForUsersRequest\x1a@.assignment_service.v1.GetExperimentsAndVariantsForUsersResponse\x12\xa3\x01\n" +
-	" GetExperimentsAndVariantsForUser\x12>.assignment_service.v1.GetExperimentsAndVariantsForUserRequest\x1a?.assignment_service.v1.GetExperimentsAndVariantsForUserResponseBNZLassignment-service/server/api/proto/assignment_service/v1;assignment_serviceb\x06proto3"
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\xca\x02\n" +
+	"\x11AssignmentService\x12\xa3\x01\n" +
+	" GetExperimentsAndVariantsForUser\x12>.assignment_service.v1.GetExperimentsAndVariantsForUserRequest\x1a?.assignment_service.v1.GetExperimentsAndVariantsForUserResponse\x12\x8e\x01\n" +
+	"!GetExperimentsAndVariantsForUsers\x12?.assignment_service.v1.GetExperimentsAndVariantsForUsersRequest\x1a&.assignment_service.v1.UserAssignments0\x01BNZLassignment-service/server/api/proto/assignment_service/v1;assignment_serviceb\x06proto3"
 
 var (
 	file_assignment_service_v1_assignment_service_proto_rawDescOnce sync.Once
@@ -281,31 +241,27 @@ func file_assignment_service_v1_assignment_service_proto_rawDescGZIP() []byte {
 	return file_assignment_service_v1_assignment_service_proto_rawDescData
 }
 
-var file_assignment_service_v1_assignment_service_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_assignment_service_v1_assignment_service_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_assignment_service_v1_assignment_service_proto_goTypes = []any{
-	(*GetExperimentsAndVariantsForUserRequest)(nil),   // 0: assignment_service.v1.GetExperimentsAndVariantsForUserRequest
-	(*GetExperimentsAndVariantsForUsersRequest)(nil),  // 1: assignment_service.v1.GetExperimentsAndVariantsForUsersRequest
-	(*GetExperimentsAndVariantsForUserResponse)(nil),  // 2: assignment_service.v1.GetExperimentsAndVariantsForUserResponse
-	(*UserAssignments)(nil),                           // 3: assignment_service.v1.UserAssignments
-	(*GetExperimentsAndVariantsForUsersResponse)(nil), // 4: assignment_service.v1.GetExperimentsAndVariantsForUsersResponse
-	nil, // 5: assignment_service.v1.GetExperimentsAndVariantsForUserResponse.AssignmentsEntry
-	nil, // 6: assignment_service.v1.UserAssignments.AssignmentsEntry
-	nil, // 7: assignment_service.v1.GetExperimentsAndVariantsForUsersResponse.UserAssignmentsEntry
+	(*GetExperimentsAndVariantsForUserRequest)(nil),  // 0: assignment_service.v1.GetExperimentsAndVariantsForUserRequest
+	(*GetExperimentsAndVariantsForUsersRequest)(nil), // 1: assignment_service.v1.GetExperimentsAndVariantsForUsersRequest
+	(*GetExperimentsAndVariantsForUserResponse)(nil), // 2: assignment_service.v1.GetExperimentsAndVariantsForUserResponse
+	(*UserAssignments)(nil),                          // 3: assignment_service.v1.UserAssignments
+	nil,                                              // 4: assignment_service.v1.GetExperimentsAndVariantsForUserResponse.AssignmentsEntry
+	nil,                                              // 5: assignment_service.v1.UserAssignments.AssignmentsEntry
 }
 var file_assignment_service_v1_assignment_service_proto_depIdxs = []int32{
-	5, // 0: assignment_service.v1.GetExperimentsAndVariantsForUserResponse.assignments:type_name -> assignment_service.v1.GetExperimentsAndVariantsForUserResponse.AssignmentsEntry
-	6, // 1: assignment_service.v1.UserAssignments.assignments:type_name -> assignment_service.v1.UserAssignments.AssignmentsEntry
-	7, // 2: assignment_service.v1.GetExperimentsAndVariantsForUsersResponse.user_assignments:type_name -> assignment_service.v1.GetExperimentsAndVariantsForUsersResponse.UserAssignmentsEntry
-	3, // 3: assignment_service.v1.GetExperimentsAndVariantsForUsersResponse.UserAssignmentsEntry.value:type_name -> assignment_service.v1.UserAssignments
-	1, // 4: assignment_service.v1.AssignmentService.GetExperimentsAndVariantsForUsers:input_type -> assignment_service.v1.GetExperimentsAndVariantsForUsersRequest
-	0, // 5: assignment_service.v1.AssignmentService.GetExperimentsAndVariantsForUser:input_type -> assignment_service.v1.GetExperimentsAndVariantsForUserRequest
-	4, // 6: assignment_service.v1.AssignmentService.GetExperimentsAndVariantsForUsers:output_type -> assignment_service.v1.GetExperimentsAndVariantsForUsersResponse
-	2, // 7: assignment_service.v1.AssignmentService.GetExperimentsAndVariantsForUser:output_type -> assignment_service.v1.GetExperimentsAndVariantsForUserResponse
-	6, // [6:8] is the sub-list for method output_type
-	4, // [4:6] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	4, // 0: assignment_service.v1.GetExperimentsAndVariantsForUserResponse.assignments:type_name -> assignment_service.v1.GetExperimentsAndVariantsForUserResponse.AssignmentsEntry
+	5, // 1: assignment_service.v1.UserAssignments.assignments:type_name -> assignment_service.v1.UserAssignments.AssignmentsEntry
+	0, // 2: assignment_service.v1.AssignmentService.GetExperimentsAndVariantsForUser:input_type -> assignment_service.v1.GetExperimentsAndVariantsForUserRequest
+	1, // 3: assignment_service.v1.AssignmentService.GetExperimentsAndVariantsForUsers:input_type -> assignment_service.v1.GetExperimentsAndVariantsForUsersRequest
+	2, // 4: assignment_service.v1.AssignmentService.GetExperimentsAndVariantsForUser:output_type -> assignment_service.v1.GetExperimentsAndVariantsForUserResponse
+	3, // 5: assignment_service.v1.AssignmentService.GetExperimentsAndVariantsForUsers:output_type -> assignment_service.v1.UserAssignments
+	4, // [4:6] is the sub-list for method output_type
+	2, // [2:4] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_assignment_service_v1_assignment_service_proto_init() }
@@ -319,7 +275,7 @@ func file_assignment_service_v1_assignment_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_assignment_service_v1_assignment_service_proto_rawDesc), len(file_assignment_service_v1_assignment_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   8,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

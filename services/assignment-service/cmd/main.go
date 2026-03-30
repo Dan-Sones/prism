@@ -106,10 +106,7 @@ func getGrpcExperimentClient() clients.ExperimentClient {
 }
 
 func startGrpcServer(logger *slog.Logger, assignmentService *service.AssignmentService) {
-	grpcServer := grpc.NewServer(
-		grpc.MaxRecvMsgSize(256*1024*1024),
-		grpc.MaxSendMsgSize(256*1024*1024),
-	)
+	grpcServer := grpc.NewServer()
 
 	assignmentServer := pb.NewAssignmentServer(assignmentService, logger)
 	assignment_service.RegisterAssignmentServiceServer(grpcServer, assignmentServer)

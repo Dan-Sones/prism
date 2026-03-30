@@ -3,6 +3,7 @@ package clients
 import (
 	"bucket-finder/internal/grpc/generated/assignment_service/v1"
 	"context"
+	"io"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -21,10 +22,7 @@ type GrpcAssignmentClient struct {
 func NewGrpcAssignmentClient(experimentationServiceAddr string) (*GrpcAssignmentClient, error) {
 	conn, err := grpc.NewClient(experimentationServiceAddr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithDefaultCallOptions(
-			grpc.MaxCallRecvMsgSize(256*1024*1024),
-			grpc.MaxCallSendMsgSize(256*1024*1024),
-		),
+		grpc.WithDefaultCallOptions(),
 	)
 	if err != nil {
 		return nil, err
@@ -37,7 +35,7 @@ func NewGrpcAssignmentClient(experimentationServiceAddr string) (*GrpcAssignment
 }
 
 func (c *GrpcAssignmentClient) GetExperimentsAndVariantsForUsers(ctx context.Context, userIds []string) (map[string]map[string]string, error) {
-	resp, err := c.client.GetExperimentsAndVariantsForUsers(ctx, &assignment_service.GetExperimentsAndVariantsForUsersRequest{
+	stream, err := c.client.GetExperimentsAndVariantsForUsers(ctx, &assignment_service.GetExperimentsAndVariantsForUsersRequest{
 		UserIds: userIds,
 	})
 	if err != nil {
@@ -46,8 +44,15 @@ func (c *GrpcAssignmentClient) GetExperimentsAndVariantsForUsers(ctx context.Con
 
 	assignments := make(map[string]map[string]string)
 
-	for userId, userAssignments := range resp.UserAssignments {
-		assignments[userId] = userAssignments.Assignments
+	for {
+		resp, err := stream.Recv()
+		if err == io.EOF {
+			return assignments, nil // End of stream
+		}
+		if err != nil {
+			return nil, err
+		}
+		assignments[resp.UserId] = resp.Assignments
 	}
 
 	return assignments, nil
