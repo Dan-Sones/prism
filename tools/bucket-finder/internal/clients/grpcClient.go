@@ -21,6 +21,10 @@ type GrpcAssignmentClient struct {
 func NewGrpcAssignmentClient(experimentationServiceAddr string) (*GrpcAssignmentClient, error) {
 	conn, err := grpc.NewClient(experimentationServiceAddr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithDefaultCallOptions(
+			grpc.MaxCallRecvMsgSize(256*1024*1024),
+			grpc.MaxCallSendMsgSize(256*1024*1024),
+		),
 	)
 	if err != nil {
 		return nil, err
