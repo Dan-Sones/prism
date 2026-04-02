@@ -1,6 +1,6 @@
 export type MetricType = "simple" | "ratio";
 
-export type AnalysisUnit = "user";
+export type AnalysisUnit = "user_id";
 
 export type ComponentRole = "base_event" | "numerator" | "denominator";
 

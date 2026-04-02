@@ -38,7 +38,7 @@ const Layout = (props: React.PropsWithChildren) => {
             },
           }}
         />
-        <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-6 md:px-10 md:pt-8 lg:px-20 lg:pt-10">
+        <div className="max-w-8xl mx-auto flex w-full flex-col gap-4 px-4 py-6 md:px-10 md:pt-8 lg:px-20 lg:pt-10">
           {children}
         </div>
       </section>

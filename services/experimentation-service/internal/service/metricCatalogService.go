@@ -39,15 +39,18 @@ func (m *MetricsCatalogService) CreateMetric(ctx context.Context, req metricrequ
 			switch pgErr.ConstraintName {
 			case "unique_metric_name":
 				violation = problems.Violation{Field: "name", Message: "A metric with this name already exists"}
+				m.logger.Error("Unique constraint violation on metric name", "error", err)
 			case "unique_metric_key":
 				violation = problems.Violation{Field: "metric_key", Message: "A metric with this key already exists"}
+				m.logger.Error("Unique constraint violation on metric key", "error", err)
 			default:
 				violation = problems.Violation{Field: "unknown", Message: "A unique constraint violation occurred"}
+				m.logger.Error("Unique constraint violation on unknown field", "error", err)
 			}
-			m.logger.Error("Failed to create metric", "error", err)
 			return nil, []problems.Violation{violation}
 		}
 
+		m.logger.Error("Failed to create metric", "error", err)
 		return err, nil
 	}
 
