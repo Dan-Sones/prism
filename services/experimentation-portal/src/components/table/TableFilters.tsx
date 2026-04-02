@@ -1,28 +1,26 @@
 import React from "react";
-import type { FilterItem } from "../../../components/filter/Filter";
-import FilterPill from "../../../components/filter/FilterPill";
+import type { FilterItem } from "../filter/Filter";
+import FilterPill from "../filter/FilterPill";
 
-const EventsCatalogTableFilters = () => {
+const TableFilters = () => {
   const filterItems: Array<FilterItem> = [
     { label: "Alice", value: "alice" },
     { label: "Bob", value: "bob" },
     { label: "Charlie", value: "charlie" },
   ];
 
-  const [selectedOwner, setSelectedOwner] = React.useState<FilterItem | null>(
-    null,
-  );
+  const [selected, setSelected] = React.useState<FilterItem | null>(null);
 
   const handleOwnerSelect = (item: FilterItem) => {
-    setSelectedOwner(item);
+    setSelected(item);
   };
 
-  const handleOwnerClear = () => {
-    setSelectedOwner(null);
+  const handleClear = () => {
+    setSelected(null);
   };
 
   const handleResetFilters = () => {
-    setSelectedOwner(null);
+    setSelected(null);
   };
 
   return (
@@ -31,9 +29,9 @@ const EventsCatalogTableFilters = () => {
         <FilterPill
           label="Owner"
           filterItems={filterItems}
-          selected={selectedOwner}
+          selected={selected}
           onSelect={handleOwnerSelect}
-          onClear={handleOwnerClear}
+          onClear={handleClear}
         />
       </div>
       <div>
@@ -48,4 +46,4 @@ const EventsCatalogTableFilters = () => {
   );
 };
 
-export default EventsCatalogTableFilters;
+export default TableFilters;

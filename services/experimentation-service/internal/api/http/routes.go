@@ -8,9 +8,10 @@ import (
 )
 
 type Controllers struct {
-	ExperimentController    *controller.ExperimentController
-	EventsCatalogController *controller.EventsCatalogController
-	EventController         *controller.EventController
+	ExperimentController     *controller.ExperimentController
+	EventsCatalogController  *controller.EventsCatalogController
+	EventController          *controller.EventController
+	MetricsCatalogController *controller.MetricsCatalogController
 }
 
 func RegisterRoutes(router *chi.Mux, c Controllers) {
@@ -38,6 +39,10 @@ func RegisterRoutes(router *chi.Mux, c Controllers) {
 				r.Delete("/", c.EventsCatalogController.DeleteEventType)
 				r.Get("/field-key-available", c.EventsCatalogController.IsFieldKeyAvailable)
 			})
+		})
+
+		r.Route("/metrics-catalog", func(r chi.Router) {
+			r.Post("/", c.MetricsCatalogController.CreateMetric)
 		})
 	})
 }

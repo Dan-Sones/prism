@@ -1,13 +1,18 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import EventsCatalogHeader from "./EventsCatalogHeader";
 import EventsCatalogTable from "./EventsCatalogTable";
-import EventsCatalogTableActions from "./EventsCatalogTableActions";
 import { deleteEventType, getEventTypes } from "../../../api/eventsCatalog";
 import { useState } from "react";
 import DeleteEventModal from "./delete-modal/DeleteEventModalBody";
 import { toast } from "sonner";
+import TableActions from "../../../components/table/TableActions";
+import CatalogSearch from "../../../components/search/CatalogSearch";
+import TableFilters from "../../../components/table/TableFilters";
+import CatalogHeader from "../../../components/catalog/CatalogHeader";
+import { useNavigate } from "react-router";
 
 const EventsCatalog = () => {
+  const navigate = useNavigate();
+
   const [searchQuery, setSearchQuery] = useState<string | undefined>(undefined);
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
@@ -51,9 +56,18 @@ const EventsCatalog = () => {
         onConfirm={confirmDeleteEventType}
         onCancel={() => setDeleteId(null)}
       />
-      <EventsCatalogHeader />
+      <CatalogHeader
+        title="Events Catalog"
+        createButtonText="Create Event"
+        onCreate={() => {
+          navigate("/events-catalog/create");
+        }}
+      />
       <section className="flex flex-col gap-2">
-        <EventsCatalogTableActions onSearch={setSearchQuery} />
+        <TableActions>
+          <CatalogSearch onSearch={setSearchQuery} />
+          <TableFilters />
+        </TableActions>
         <EventsCatalogTable
           data={data}
           isLoading={isLoading}

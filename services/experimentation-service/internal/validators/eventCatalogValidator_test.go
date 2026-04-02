@@ -4,30 +4,30 @@ import (
 	"experimentation-service/internal/problems"
 	"testing"
 
-	"github.com/Dan-Sones/prismdbmodels/model"
+	"github.com/Dan-Sones/prismdbmodels/model/event"
 )
 
 func TestValidateEventField(t *testing.T) {
 	tests := []struct {
 		name  string
-		field model.EventField
+		field event.EventField
 		want  []problems.Violation
 	}{
 		{
 			name: "Valid field",
-			field: model.EventField{
+			field: event.EventField{
 				Name:     "Order Total",
 				FieldKey: "order_total",
-				DataType: model.DataTypeFloat,
+				DataType: event.DataTypeFloat,
 			},
 			want: nil,
 		},
 		{
 			name: "Empty name",
-			field: model.EventField{
+			field: event.EventField{
 				Name:     "",
 				FieldKey: "order_total",
-				DataType: model.DataTypeFloat,
+				DataType: event.DataTypeFloat,
 			},
 			want: []problems.Violation{
 				{
@@ -38,10 +38,10 @@ func TestValidateEventField(t *testing.T) {
 		},
 		{
 			name: "Name exceeds max length",
-			field: model.EventField{
+			field: event.EventField{
 				Name:     string(make([]rune, 101)),
 				FieldKey: "order_total",
-				DataType: model.DataTypeFloat,
+				DataType: event.DataTypeFloat,
 			},
 			want: []problems.Violation{
 				{
@@ -52,111 +52,111 @@ func TestValidateEventField(t *testing.T) {
 		},
 		{
 			name: "Empty field key",
-			field: model.EventField{
+			field: event.EventField{
 				Name:     "Order Total",
 				FieldKey: "",
-				DataType: model.DataTypeFloat,
+				DataType: event.DataTypeFloat,
 			},
 			want: []problems.Violation{
 				{
-					Field:   "fieldKey",
-					Message: "FieldKey is required",
+					Field:   "field_key",
+					Message: "field_key is required",
 				},
 			},
 		},
 		{
 			name: "Field key with special characters",
-			field: model.EventField{
+			field: event.EventField{
 				Name:     "Order Total",
 				FieldKey: "order!total",
-				DataType: model.DataTypeFloat,
+				DataType: event.DataTypeFloat,
 			},
 			want: []problems.Violation{
 				{
-					Field:   "fieldKey",
-					Message: "FieldKey must start with a letter and contain only alphanumeric characters, underscores, or dashes",
+					Field:   "field_key",
+					Message: "field_key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
 				},
 			},
 		},
 		{
 			name: "Field key with dash separators",
-			field: model.EventField{
+			field: event.EventField{
 				Name:     "Order Total",
 				FieldKey: "order-total",
-				DataType: model.DataTypeFloat,
+				DataType: event.DataTypeFloat,
 			},
 			want: nil,
 		},
 		{
 			name: "Field key with underscore separators",
-			field: model.EventField{
+			field: event.EventField{
 				Name:     "Order Total",
 				FieldKey: "order_total",
-				DataType: model.DataTypeFloat,
+				DataType: event.DataTypeFloat,
 			},
 			want: nil,
 		},
 		{
 			name: "Invalid data type",
-			field: model.EventField{
+			field: event.EventField{
 				Name:     "Order Total",
 				FieldKey: "order_total",
-				DataType: model.DataType("invalid"),
+				DataType: event.DataType("invalid"),
 			},
 			want: []problems.Violation{
 				{
-					Field:   "dataType",
-					Message: "DataType must be one of: string, int, float, boolean, timestamp",
+					Field:   "data_type",
+					Message: "data_type must be one of: string, int, float, boolean, timestamp",
 				},
 			},
 		},
 		{
 			name: "Field key exceeds max length",
-			field: model.EventField{
+			field: event.EventField{
 				Name:     "Order Total",
 				FieldKey: string(make([]rune, 51)),
-				DataType: model.DataTypeFloat,
+				DataType: event.DataTypeFloat,
 			},
 			want: []problems.Violation{
 				{
-					Field:   "fieldKey",
-					Message: "FieldKey must start with a letter and contain only alphanumeric characters, underscores, or dashes",
+					Field:   "field_key",
+					Message: "field_key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
 				},
 				{
-					Field:   "fieldKey",
-					Message: "FieldKey must be less than 50 characters",
+					Field:   "field_key",
+					Message: "field_key must be less than 50 characters",
 				},
 			},
 		},
 		{
 			name: "Field key starting with number",
-			field: model.EventField{
+			field: event.EventField{
 				Name:     "Order Total",
 				FieldKey: "1order_total",
-				DataType: model.DataTypeFloat,
+				DataType: event.DataTypeFloat,
 			},
 			want: []problems.Violation{
 				{
-					Field:   "fieldKey",
-					Message: "FieldKey must start with a letter and contain only alphanumeric characters, underscores, or dashes",
+					Field:   "field_key",
+					Message: "field_key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
 				},
 			},
 		},
 		{
 			name:  "All fields empty",
-			field: model.EventField{},
+			field: event.EventField{},
 			want: []problems.Violation{
 				{
 					Field:   "name",
 					Message: "Name is required",
 				},
 				{
-					Field:   "fieldKey",
-					Message: "FieldKey is required",
+					Field:   "field_key",
+					Message: "field_key is required",
 				},
 				{
-					Field:   "dataType",
-					Message: "DataType must be one of: string, int, float, boolean, timestamp",
+					Field:   "data_type",
+					Message: "data_type must be one of: string, int, float, boolean, timestamp",
 				},
 			},
 		},
@@ -167,7 +167,7 @@ func TestValidateEventField(t *testing.T) {
 			got := ValidateEventField(tt.field)
 
 			if len(got) != len(tt.want) {
-				t.Errorf("Expected %d violations, got %d: %v", len(tt.want), len(got), got)
+				t.Fatalf("Expected %d violations, got %d: %v", len(tt.want), len(got), got)
 			}
 
 			for i, v := range got {
@@ -182,24 +182,24 @@ func TestValidateEventField(t *testing.T) {
 func TestValidateEventType(t *testing.T) {
 	tests := []struct {
 		name  string
-		event model.EventType
+		event event.EventType
 		want  []problems.Violation
 	}{
 		{
 			name: "Valid event type",
-			event: model.EventType{
+			event: event.EventType{
 				Name:     "Purchase Completed",
 				EventKey: "purchase_completed",
-				Fields: []model.EventField{
+				Fields: []event.EventField{
 					{
 						Name:     "Order Total",
 						FieldKey: "order_total",
-						DataType: model.DataTypeFloat,
+						DataType: event.DataTypeFloat,
 					},
 					{
 						Name:     "Currency",
 						FieldKey: "currency",
-						DataType: model.DataTypeString,
+						DataType: event.DataTypeString,
 					},
 				},
 			},
@@ -207,14 +207,14 @@ func TestValidateEventType(t *testing.T) {
 		},
 		{
 			name: "Name too long",
-			event: model.EventType{
+			event: event.EventType{
 				Name:     string(make([]rune, 101)),
 				EventKey: "purchase_completed",
-				Fields: []model.EventField{
+				Fields: []event.EventField{
 					{
 						Name:     "Order Total",
 						FieldKey: "order_total",
-						DataType: model.DataTypeFloat,
+						DataType: event.DataTypeFloat,
 					},
 				},
 			},
@@ -227,14 +227,14 @@ func TestValidateEventType(t *testing.T) {
 		},
 		{
 			name: "Empty name",
-			event: model.EventType{
+			event: event.EventType{
 				Name:     "",
 				EventKey: "purchase_completed",
-				Fields: []model.EventField{
+				Fields: []event.EventField{
 					{
 						Name:     "Order Total",
 						FieldKey: "order_total",
-						DataType: model.DataTypeFloat,
+						DataType: event.DataTypeFloat,
 					},
 				},
 			},
@@ -247,94 +247,94 @@ func TestValidateEventType(t *testing.T) {
 		},
 		{
 			name: "Empty event key",
-			event: model.EventType{
+			event: event.EventType{
 				Name:     "Purchase Completed",
 				EventKey: "",
-				Fields: []model.EventField{
+				Fields: []event.EventField{
 					{
 						Name:     "Order Total",
 						FieldKey: "order_total",
-						DataType: model.DataTypeFloat,
+						DataType: event.DataTypeFloat,
 					},
 				},
 			},
 			want: []problems.Violation{
 				{
-					Field:   "eventKey",
-					Message: "Event key is required",
+					Field:   "event_key",
+					Message: "event_key is required",
 				},
 			},
 		},
 		{
 			name: "Event key too long",
-			event: model.EventType{
+			event: event.EventType{
 				Name:     "Purchase Completed",
 				EventKey: string(make([]rune, 51)),
-				Fields: []model.EventField{
+				Fields: []event.EventField{
 					{
 						Name:     "Order Total",
 						FieldKey: "order_total",
-						DataType: model.DataTypeFloat,
+						DataType: event.DataTypeFloat,
 					},
 				},
 			},
 			want: []problems.Violation{
 				{
-					Field:   "eventKey",
-					Message: "Event key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
+					Field:   "event_key",
+					Message: "event_key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
 				},
 				{
-					Field:   "eventKey",
-					Message: "Event key must be less than 50 characters",
+					Field:   "event_key",
+					Message: "event_key must be less than 50 characters",
 				},
 			},
 		},
 		{
 			name: "Event key with invalid characters",
-			event: model.EventType{
+			event: event.EventType{
 				Name:     "Purchase Completed",
 				EventKey: "purchase!completed",
-				Fields: []model.EventField{
+				Fields: []event.EventField{
 					{
 						Name:     "Order Total",
 						FieldKey: "order_total",
-						DataType: model.DataTypeFloat,
+						DataType: event.DataTypeFloat,
 					},
 				},
 			},
 			want: []problems.Violation{
 				{
-					Field:   "eventKey",
-					Message: "Event key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
+					Field:   "event_key",
+					Message: "event_key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
 				},
 			},
 		},
 		{
 			name: "Event key starting with number",
-			event: model.EventType{
+			event: event.EventType{
 				Name:     "Purchase Completed",
 				EventKey: "1purchase_completed",
-				Fields: []model.EventField{
+				Fields: []event.EventField{
 					{
 						Name:     "Order Total",
 						FieldKey: "order_total",
-						DataType: model.DataTypeFloat,
+						DataType: event.DataTypeFloat,
 					},
 				},
 			},
 			want: []problems.Violation{
 				{
-					Field:   "eventKey",
-					Message: "Event key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
+					Field:   "event_key",
+					Message: "event_key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
 				},
 			},
 		},
 		{
 			name: "No fields",
-			event: model.EventType{
+			event: event.EventType{
 				Name:     "Purchase Completed",
 				EventKey: "purchase_completed",
-				Fields:   []model.EventField{},
+				Fields:   []event.EventField{},
 			},
 			want: []problems.Violation{
 				{
@@ -345,7 +345,7 @@ func TestValidateEventType(t *testing.T) {
 		},
 		{
 			name: "Nil fields",
-			event: model.EventType{
+			event: event.EventType{
 				Name:     "Purchase Completed",
 				EventKey: "purchase_completed",
 			},
@@ -363,7 +363,7 @@ func TestValidateEventType(t *testing.T) {
 			got := ValidateEventType(tt.event)
 
 			if len(got) != len(tt.want) {
-				t.Errorf("Expected %d violations, got %d: %v", len(tt.want), len(got), got)
+				t.Fatalf("Expected %d violations, got %d: %v", len(tt.want), len(got), got)
 			}
 			for i, v := range got {
 				if v != tt.want[i] {

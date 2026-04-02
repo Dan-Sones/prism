@@ -7,8 +7,9 @@ import (
 	"experimentation-service/internal/repository"
 	"experimentation-service/internal/validators"
 	"log/slog"
+	"slices"
 
-	"github.com/Dan-Sones/prismdbmodels/model"
+	"github.com/Dan-Sones/prismdbmodels/model/event"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -17,12 +18,12 @@ import (
 )
 
 type EventsCatalogServiceInterface interface {
-	CreateEventType(ctx context.Context, eventType model.EventType) (error, []problems.Violation)
+	CreateEventType(ctx context.Context, eventType event.EventType) (error, []problems.Violation)
 	DeleteEventType(ctx context.Context, eventTypeId string) error
-	GetEventTypeById(ctx context.Context, eventTypeId string) (*model.EventType, error)
-	GetEventTypeByKey(ctx context.Context, eventTypeId string) (*model.EventType, error)
-	GetEventTypes(ctx context.Context) ([]*model.EventType, error)
-	SearchEventTypes(ctx context.Context, searchQuery string) ([]*model.EventType, error)
+	GetEventTypeById(ctx context.Context, eventTypeId string) (*event.EventType, error)
+	GetEventTypeByKey(ctx context.Context, eventTypeId string) (*event.EventType, error)
+	GetEventTypes(ctx context.Context) ([]*event.EventType, error)
+	SearchEventTypes(ctx context.Context, searchQuery string, requestContext string) ([]*event.EventType, error)
 	IsFieldKeyAvailableForEventType(ctx context.Context, eventTypeId string, fieldKey string) (bool, error)
 	IsEventKeyAvailable(ctx context.Context, eventKey string) (bool, error)
 }
@@ -39,7 +40,7 @@ func NewEventsCatalogService(eventsCatalogRepository repository.EventsCatalogRep
 	}
 }
 
-func (e *EventsCatalogService) CreateEventType(ctx context.Context, eventType model.EventType) (error, []problems.Violation) {
+func (e *EventsCatalogService) CreateEventType(ctx context.Context, eventType event.EventType) (error, []problems.Violation) {
 	violations := validators.ValidateEventType(eventType)
 	if len(violations) > 0 {
 		return nil, violations
@@ -81,7 +82,7 @@ func (e *EventsCatalogService) DeleteEventType(ctx context.Context, eventTypeId 
 	return nil
 }
 
-func (e *EventsCatalogService) GetEventTypeById(ctx context.Context, eventTypeId string) (*model.EventType, error) {
+func (e *EventsCatalogService) GetEventTypeById(ctx context.Context, eventTypeId string) (*event.EventType, error) {
 	eventType, err := e.eventsCatalogRepository.GetEventTypeById(ctx, eventTypeId)
 	if err != nil {
 		e.logger.Error("Error fetching event type", "error", err, "eventTypeId", eventTypeId)
@@ -90,7 +91,7 @@ func (e *EventsCatalogService) GetEventTypeById(ctx context.Context, eventTypeId
 	return eventType, nil
 }
 
-func (e *EventsCatalogService) GetEventTypes(ctx context.Context) ([]*model.EventType, error) {
+func (e *EventsCatalogService) GetEventTypes(ctx context.Context) ([]*event.EventType, error) {
 	eventTypes, err := e.eventsCatalogRepository.GetEventTypes(ctx)
 	if err != nil {
 		e.logger.Error("Error fetching event types", "error", err)
@@ -99,12 +100,23 @@ func (e *EventsCatalogService) GetEventTypes(ctx context.Context) ([]*model.Even
 	return eventTypes, nil
 }
 
-func (e *EventsCatalogService) SearchEventTypes(ctx context.Context, searchQuery string) ([]*model.EventType, error) {
+func (e *EventsCatalogService) SearchEventTypes(ctx context.Context, searchQuery string, requestContext string) ([]*event.EventType, error) {
 	eventTypes, err := e.eventsCatalogRepository.SearchEventTypes(ctx, searchQuery)
 	if err != nil {
 		e.logger.Error("Error searching event types", "error", err, "searchQuery", searchQuery)
 		return nil, err
 	}
+
+	if requestContext == "metrics_catalog" {
+		eventTypes = slices.Collect(func(yield func(eventType *event.EventType) bool) {
+			for _, et := range eventTypes {
+				if et.EventKey != "experiment_exposure" {
+					yield(et)
+				}
+			}
+		})
+	}
+
 	return eventTypes, nil
 }
 
@@ -130,7 +142,7 @@ func (e *EventsCatalogService) IsEventKeyAvailable(ctx context.Context, eventKey
 	return available, nil
 }
 
-func (e *EventsCatalogService) GetEventTypeByKey(ctx context.Context, eventTypeId string) (*model.EventType, error) {
+func (e *EventsCatalogService) GetEventTypeByKey(ctx context.Context, eventTypeId string) (*event.EventType, error) {
 	eventType, err := e.eventsCatalogRepository.GetEventTypeByKey(ctx, eventTypeId)
 	if err != nil {
 		e.logger.Error("Error fetching event type by key", "error", err, "eventTypeKey", eventTypeId)
