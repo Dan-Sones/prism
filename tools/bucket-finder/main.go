@@ -10,7 +10,9 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 
+	"github.com/briandowns/spinner"
 	"github.com/goccy/go-yaml"
 	"github.com/joho/godotenv"
 	"golang.design/x/clipboard"
@@ -54,17 +56,23 @@ func main() {
 	for _, bucketStr := range buckets {
 		bucketId, err := strconv.Atoi(bucketStr)
 		if err != nil || bucketId < 0 || bucketId >= int(bucketCount) {
-			fmt.Printf("Invalid bucket id '%s'. Please enter numbers between 0 and 99.\n", bucketStr)
+			fmt.Printf("Invalid bucket id '%s'. Please enter numbers between 0 and %s.\n", bucketStr, bucketStr)
 			return
 		}
 	}
 
+	fmt.Println("")
+	fmt.Println("Creating User IDs...")
 	userIds := make([]string, userCount)
 	for i := 0; i < userCount; i++ {
 		userIds[i] = fmt.Sprintf("user-%d", i)
 	}
 
 	variantUserIds := make(map[string][]string)
+
+	fmt.Println("Fetching experiments and variants for users...")
+	s := spinner.New(spinner.CharSets[11], 100*time.Millisecond)
+	s.Start()
 
 	ctx := context.Background()
 	experimentsAndContext, err := getExperimentsAndVariantsForUsers(ctx, userIds, client)
@@ -77,6 +85,8 @@ func main() {
 			variantUserIds[variant] = append(variantUserIds[variant], userId)
 		}
 	}
+
+	s.Stop()
 
 	for variantKey, userIds := range variantUserIds {
 		writeVariantUserIdsFile(variantKey, userIds)

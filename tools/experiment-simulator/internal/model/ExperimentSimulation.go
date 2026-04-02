@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand/v2"
+	"sync"
 	"time"
 )
 
@@ -45,6 +46,39 @@ func (es *ExperimentSimulation) BeginExperiment() {
 	timeout := time.After(time.Duration(durationSeconds) * time.Second)
 	currentActionIndex := 0
 
+	fmt.Println("This Experiment Will Produce a total of ", totalActions, "actions across all variants and the experiment will run for", durationSeconds, "seconds")
+	fmt.Println("")
+
+	fmt.Println("Variation Split")
+
+	for _, variantKey := range es.ExperimentConfig.VariantKeys {
+		numExposureEvents := es.GetTotalEventsForVariantAndEventType(variantKey, "experiment_exposure")
+		for eventTypeKey := range es.ExperimentConfig.Events {
+			if eventTypeKey == "experiment_exposure" {
+				continue
+			}
+			numEvents := es.GetTotalEventsForVariantAndEventType(variantKey, eventTypeKey)
+			fmt.Println("Variant", variantKey, ":", numExposureEvents, "exposures and", numEvents, eventTypeKey, "events")
+		}
+	}
+
+	fmt.Println("")
+	fmt.Println("Are you ready to begin the experiment simulation? (y/n)")
+	var input string
+	fmt.Scanln(&input)
+	if input != "y" {
+		fmt.Println("Experiment simulation aborted.")
+		return
+	}
+
+	fmt.Println("")
+	fmt.Println("----Experiment Simulation In Progress----")
+	fmt.Println("")
+
+	totalActionsPerformed := 0
+
+	var mu sync.Mutex
+
 	for {
 		select {
 		case <-timeout:
@@ -55,9 +89,16 @@ func (es *ExperimentSimulation) BeginExperiment() {
 			}
 			participant := allParticipants[currentActionIndex]
 			go participant.PerformActionsWithDelay()
+			mu.Lock()
+			totalActionsPerformed++
+			fmt.Printf("Total Actions Performed: %d/%d\r", totalActionsPerformed, totalActions)
+			mu.Unlock()
+
 			currentActionIndex++
 		}
 	}
+
+	fmt.Println("----Experiment simulation completed.----")
 
 }
 
@@ -86,7 +127,6 @@ func (es *ExperimentSimulation) GetParticipantsForVariant(variantKey string) []E
 
 		// Get the count to publish for that variant
 		countToPublishForVariant := config.CountToPublishForVariant[variantKey]
-		fmt.Printf("Need to publish %d events of type %s for variant %s\n", countToPublishForVariant, eventTypeKey, variantKey)
 
 		// Create the properties for the event based on the config and add the event as an action for the first x users in the variant where x is the count to publish for that variant
 		for i := range countToPublishForVariant {
@@ -112,6 +152,20 @@ func (es *ExperimentSimulation) GetParticipantsForVariant(variantKey string) []E
 	}
 
 	return usersForVariant
+}
+
+func (es *ExperimentSimulation) GetTotalEventsForVariantAndEventType(variantKey string, eventTypeKey string) int {
+	eventConfig, ok := es.ExperimentConfig.Events[eventTypeKey]
+	if !ok {
+		log.Fatal(fmt.Sprintf("Event type %s config is required but not found in experiment config!!!", eventTypeKey))
+	}
+
+	countToPublish, ok := eventConfig.CountToPublishForVariant[variantKey]
+	if !ok {
+		log.Fatal(fmt.Sprintf("Count to publish for variant %s is required but not found in event type %s config!!!", variantKey, eventTypeKey))
+	}
+
+	return countToPublish
 }
 
 func getTotalActions(participants []ExperimentParticipant) int {
