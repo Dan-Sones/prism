@@ -55,6 +55,7 @@ func (e *EventsCatalogController) GetEventTypes(w http.ResponseWriter, r *http.R
 	ctx := r.Context()
 
 	searchQuery := r.URL.Query().Get("search")
+	requestContext := r.URL.Query().Get("context")
 
 	if searchQuery == "" {
 		eventTypes, err := e.eventsCatalogService.GetEventTypes(ctx)
@@ -66,7 +67,7 @@ func (e *EventsCatalogController) GetEventTypes(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	eventTypes, err := e.eventsCatalogService.SearchEventTypes(ctx, searchQuery)
+	eventTypes, err := e.eventsCatalogService.SearchEventTypes(ctx, searchQuery, requestContext)
 	if err != nil {
 		problems.NewInternalServerError().Write(w)
 		return

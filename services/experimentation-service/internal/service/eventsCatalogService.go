@@ -7,6 +7,7 @@ import (
 	"experimentation-service/internal/repository"
 	"experimentation-service/internal/validators"
 	"log/slog"
+	"slices"
 
 	"github.com/Dan-Sones/prismdbmodels/model/event"
 	"github.com/jackc/pgerrcode"
@@ -22,7 +23,7 @@ type EventsCatalogServiceInterface interface {
 	GetEventTypeById(ctx context.Context, eventTypeId string) (*event.EventType, error)
 	GetEventTypeByKey(ctx context.Context, eventTypeId string) (*event.EventType, error)
 	GetEventTypes(ctx context.Context) ([]*event.EventType, error)
-	SearchEventTypes(ctx context.Context, searchQuery string) ([]*event.EventType, error)
+	SearchEventTypes(ctx context.Context, searchQuery string, requestContext string) ([]*event.EventType, error)
 	IsFieldKeyAvailableForEventType(ctx context.Context, eventTypeId string, fieldKey string) (bool, error)
 	IsEventKeyAvailable(ctx context.Context, eventKey string) (bool, error)
 }
@@ -99,12 +100,23 @@ func (e *EventsCatalogService) GetEventTypes(ctx context.Context) ([]*event.Even
 	return eventTypes, nil
 }
 
-func (e *EventsCatalogService) SearchEventTypes(ctx context.Context, searchQuery string) ([]*event.EventType, error) {
+func (e *EventsCatalogService) SearchEventTypes(ctx context.Context, searchQuery string, requestContext string) ([]*event.EventType, error) {
 	eventTypes, err := e.eventsCatalogRepository.SearchEventTypes(ctx, searchQuery)
 	if err != nil {
 		e.logger.Error("Error searching event types", "error", err, "searchQuery", searchQuery)
 		return nil, err
 	}
+
+	if requestContext == "metrics_catalog" {
+		eventTypes = slices.Collect(func(yield func(eventType *event.EventType) bool) {
+			for _, et := range eventTypes {
+				if et.EventKey != "experiment_exposure" {
+					yield(et)
+				}
+			}
+		})
+	}
+
 	return eventTypes, nil
 }
 

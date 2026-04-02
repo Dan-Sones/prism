@@ -14,7 +14,7 @@ const SelectEventTypeCombobox = () => {
     queryKey: ["events", searchQuery],
     queryFn: async () => {
       if (!searchQuery) return [];
-      return await getEventTypes(searchQuery);
+      return await getEventTypes(searchQuery, "metrics_catalog");
     },
   });
 
