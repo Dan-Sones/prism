@@ -1,7 +1,10 @@
 package main
 
 import (
+	"experiment-simulator/internal/assertors"
+	"experiment-simulator/internal/clients"
 	"experiment-simulator/internal/model"
+	"experiment-simulator/internal/repository"
 	"experiment-simulator/internal/services"
 	"fmt"
 	"os"
@@ -32,6 +35,18 @@ func main() {
 		return
 	}
 
+	clickhouse, err := clients.NewClickhouseConnection()
+	if err != nil {
+		fmt.Printf("Error creating clickhouse connection: %v\n", err)
+		return
+	}
+
+	// Repositories
+	cookedDataRepository := repository.NewCookedDataRepositoryClickhouse(clickhouse)
+
+	// Services
+	assertionService := assertors.NewAssertionService(cookedDataRepository)
+
 	performer := services.NewActionPerformerHttp(os.Getenv("EVENTS_SERVICE_SERVER_HOST"), portInt)
 
 	simDetails := services.GetSimulation()
@@ -45,6 +60,10 @@ func main() {
 
 		simulation := model.NewExperimentSimulation(experimentConfig, vuids, performer)
 		simulation.BeginExperiment()
+
+		assertionService.WaitForFlush()
+
+		assertionService.PerformAssertionsFor(&simulation)
 		return
 	}
 

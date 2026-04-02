@@ -52,12 +52,12 @@ func (es *ExperimentSimulation) BeginExperiment() {
 	fmt.Println("Variation Split")
 
 	for _, variantKey := range es.ExperimentConfig.VariantKeys {
-		numExposureEvents := getTotalEventsForVariantAndEventType(es.ExperimentConfig, variantKey, "experiment_exposure")
+		numExposureEvents := es.GetTotalEventsForVariantAndEventType(variantKey, "experiment_exposure")
 		for eventTypeKey := range es.ExperimentConfig.Events {
 			if eventTypeKey == "experiment_exposure" {
 				continue
 			}
-			numEvents := getTotalEventsForVariantAndEventType(es.ExperimentConfig, variantKey, eventTypeKey)
+			numEvents := es.GetTotalEventsForVariantAndEventType(variantKey, eventTypeKey)
 			fmt.Println("Variant", variantKey, ":", numExposureEvents, "exposures and", numEvents, eventTypeKey, "events")
 		}
 	}
@@ -154,6 +154,20 @@ func (es *ExperimentSimulation) GetParticipantsForVariant(variantKey string) []E
 	return usersForVariant
 }
 
+func (es *ExperimentSimulation) GetTotalEventsForVariantAndEventType(variantKey string, eventTypeKey string) int {
+	eventConfig, ok := es.ExperimentConfig.Events[eventTypeKey]
+	if !ok {
+		log.Fatal(fmt.Sprintf("Event type %s config is required but not found in experiment config!!!", eventTypeKey))
+	}
+
+	countToPublish, ok := eventConfig.CountToPublishForVariant[variantKey]
+	if !ok {
+		log.Fatal(fmt.Sprintf("Count to publish for variant %s is required but not found in event type %s config!!!", variantKey, eventTypeKey))
+	}
+
+	return countToPublish
+}
+
 func getTotalActions(participants []ExperimentParticipant) int {
 	totalActions := 0
 	for _, participant := range participants {
@@ -206,18 +220,4 @@ func generateDataForField(config FieldConfig) any {
 	//initial version support int and float values only?
 	log.Fatal("This script only supports int and float event fields!!!")
 	return nil
-}
-
-func getTotalEventsForVariantAndEventType(experimentConfig ExperimentConfig, variantKey string, eventTypeKey string) int {
-	eventConfig, ok := experimentConfig.Events[eventTypeKey]
-	if !ok {
-		log.Fatal(fmt.Sprintf("Event type %s config is required but not found in experiment config!!!", eventTypeKey))
-	}
-
-	countToPublish, ok := eventConfig.CountToPublishForVariant[variantKey]
-	if !ok {
-		log.Fatal(fmt.Sprintf("Count to publish for variant %s is required but not found in event type %s config!!!", variantKey, eventTypeKey))
-	}
-
-	return countToPublish
 }
