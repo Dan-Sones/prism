@@ -7,7 +7,7 @@ import (
 	"experimentation-service/internal/service"
 	"net/http"
 
-	"github.com/Dan-Sones/prismdbmodels/model"
+	"github.com/Dan-Sones/prismdbmodels/model/event"
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
@@ -31,7 +31,7 @@ func (e *EventsCatalogController) CreateEventType(w http.ResponseWriter, r *http
 		return
 	}
 
-	var body model.EventType
+	var body event.EventType
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
 		problems.NewBadRequestError("Invalid request body").Write(w)
@@ -55,6 +55,7 @@ func (e *EventsCatalogController) GetEventTypes(w http.ResponseWriter, r *http.R
 	ctx := r.Context()
 
 	searchQuery := r.URL.Query().Get("search")
+	requestContext := r.URL.Query().Get("context")
 
 	if searchQuery == "" {
 		eventTypes, err := e.eventsCatalogService.GetEventTypes(ctx)
@@ -66,7 +67,7 @@ func (e *EventsCatalogController) GetEventTypes(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	eventTypes, err := e.eventsCatalogService.SearchEventTypes(ctx, searchQuery)
+	eventTypes, err := e.eventsCatalogService.SearchEventTypes(ctx, searchQuery, requestContext)
 	if err != nil {
 		problems.NewInternalServerError().Write(w)
 		return

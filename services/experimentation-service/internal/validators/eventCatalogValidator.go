@@ -4,11 +4,11 @@ import (
 	"experimentation-service/internal/problems"
 	"regexp"
 
-	"github.com/Dan-Sones/prismdbmodels/model"
+	"github.com/Dan-Sones/prismdbmodels/model/event"
 )
 
 // TODO: Update length validation rules based on frontend ui work later on, they're just set to match db schema atm.
-func ValidateEventType(eventType model.EventType) []problems.Violation {
+func ValidateEventType(eventType event.EventType) []problems.Violation {
 	var violations []problems.Violation
 
 	if eventType.Name == "" {
@@ -26,8 +26,8 @@ func ValidateEventType(eventType model.EventType) []problems.Violation {
 
 	if eventType.EventKey == "" {
 		violations = append(violations, problems.Violation{
-			Field:   "eventKey",
-			Message: "Event key is required",
+			Field:   "event_key",
+			Message: "event_key is required",
 		})
 	}
 
@@ -35,16 +35,16 @@ func ValidateEventType(eventType model.EventType) []problems.Violation {
 		eventKeyRegex := regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9_-]*$`)
 		if !eventKeyRegex.MatchString(eventType.EventKey) {
 			violations = append(violations, problems.Violation{
-				Field:   "eventKey",
-				Message: "Event key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
+				Field:   "event_key",
+				Message: "event_key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
 			})
 		}
 	}
 
 	if len(eventType.EventKey) > 50 {
 		violations = append(violations, problems.Violation{
-			Field:   "eventKey",
-			Message: "Event key must be less than 50 characters",
+			Field:   "event_key",
+			Message: "event_key must be less than 50 characters",
 		})
 	}
 
@@ -63,7 +63,7 @@ func ValidateEventType(eventType model.EventType) []problems.Violation {
 	return violations
 }
 
-func ValidateEventField(field model.EventField) []problems.Violation {
+func ValidateEventField(field event.EventField) []problems.Violation {
 	var violations []problems.Violation
 
 	if field.Name == "" {
@@ -82,8 +82,8 @@ func ValidateEventField(field model.EventField) []problems.Violation {
 
 	if field.FieldKey == "" {
 		violations = append(violations, problems.Violation{
-			Field:   "fieldKey",
-			Message: "FieldKey is required",
+			Field:   "field_key",
+			Message: "field_key is required",
 		})
 	}
 
@@ -91,23 +91,23 @@ func ValidateEventField(field model.EventField) []problems.Violation {
 		fieldKeyRegex := regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9_-]*$`)
 		if !fieldKeyRegex.MatchString(field.FieldKey) {
 			violations = append(violations, problems.Violation{
-				Field:   "fieldKey",
-				Message: "FieldKey must start with a letter and contain only alphanumeric characters, underscores, or dashes",
+				Field:   "field_key",
+				Message: "field_key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
 			})
 		}
 	}
 
 	if len(field.FieldKey) > 50 {
 		violations = append(violations, problems.Violation{
-			Field:   "fieldKey",
-			Message: "FieldKey must be less than 50 characters",
+			Field:   "field_key",
+			Message: "field_key must be less than 50 characters",
 		})
 	}
 
 	if !field.DataType.IsValid() {
 		violations = append(violations, problems.Violation{
-			Field:   "dataType",
-			Message: "DataType must be one of: string, int, float, boolean, timestamp",
+			Field:   "data_type",
+			Message: "data_type must be one of: string, int, float, boolean, timestamp",
 		})
 	}
 

@@ -22,7 +22,7 @@ const CreateEvent = () => {
   const form = useForm<CreateEventTypeRequest>({
     mode: "onChange",
     defaultValues: {
-      fields: [{ name: "", fieldKey: "", dataType: "string" }],
+      fields: [{ name: "", field_key: "", data_type: "string" }],
     },
   });
 
@@ -41,7 +41,7 @@ const CreateEvent = () => {
   >({
     mutationFn: createEventType,
     onSuccess: () => {
-      navigate(`/events-catalog/${form.getValues().eventKey}`);
+      navigate(`/events-catalog/${form.getValues().event_key}`);
       toast.success("Event type created successfully");
     },
     onError: (error) => {

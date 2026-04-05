@@ -1,6 +1,7 @@
 import PrismLogo from "../../assets/prism-logo-minimal-dark.svg";
 import EventCatalogIcon from "./icons/EventCatalogIcon";
 import HomeIcon from "./icons/HomeIcon";
+import MetricsCatalogIcon from "./icons/MetricsCatalogIcon";
 import SliderIcon from "./icons/SliderIcon";
 import NavItem, { type NavItemProps } from "./NavItem";
 
@@ -18,14 +19,19 @@ const Sidebar = (props: SidebarProps) => {
       icon: HomeIcon,
     },
     {
-      name: "Settings",
-      href: "/test",
-      icon: SliderIcon,
+      name: "Metrics Catalog",
+      href: "/metrics-catalog",
+      icon: MetricsCatalogIcon,
     },
     {
       name: "Event Catalog",
       href: "/events-catalog",
       icon: EventCatalogIcon,
+    },
+    {
+      name: "Settings",
+      href: "/test",
+      icon: SliderIcon,
     },
   ];
 

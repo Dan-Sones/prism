@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { useFormContext } from "react-hook-form";
+import FieldError from "../../../components/form/FieldError";
 import TextInput from "../../../components/form/TextInput";
 import {
   checkEventKeyAvailable,
@@ -7,6 +8,7 @@ import {
 } from "../../../api/eventsCatalog";
 import debounce from "lodash/debounce";
 import Card from "../../../components/card/Card";
+import Label from "../../../components/form/Label";
 
 const CreateEventDetails = () => {
   const { register, formState } = useFormContext<CreateEventTypeRequest>();
@@ -31,9 +33,9 @@ const CreateEventDetails = () => {
       </h2>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
-          <label className="text-sm text-gray-600" htmlFor="name">
-            Name <span className="text-red-400">*</span>
-          </label>
+          <Label htmlFor="name" required>
+            Name
+          </Label>
           <TextInput
             id="name"
             placeholder="e.g. Purchase Completed"
@@ -45,21 +47,19 @@ const CreateEventDetails = () => {
               },
             })}
           />
-          {errors.name && (
-            <p className="text-xs text-red-500">{errors.name.message}</p>
-          )}
+          <FieldError error={errors.name} />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-sm text-gray-600" htmlFor="eventKey">
-            Event Key <span className="text-red-400">*</span>
-          </label>
+          <Label htmlFor="eventKey" required>
+            Event Key
+          </Label>
           <p className="text-xs text-gray-400">
             The event key must match the key found in the event payload EXACTLY.
           </p>
           <TextInput
             id="eventKey"
             placeholder="e.g. purchase_completed"
-            {...register("eventKey", {
+            {...register("event_key", {
               required: "Event key is required",
               maxLength: {
                 value: 50,
@@ -74,14 +74,10 @@ const CreateEventDetails = () => {
                 new Promise((resolve) => validateEventKey(value, resolve)),
             })}
           />
-          {errors.eventKey && (
-            <p className="text-xs text-red-500">{errors.eventKey.message}</p>
-          )}
+          <FieldError error={errors.event_key} />
         </div>
         <div className="flex flex-col gap-1">
-          <label className="text-sm text-gray-600" htmlFor="description">
-            Description
-          </label>
+          <Label htmlFor="description">Description</Label>
           <textarea
             {...register("description")}
             id="description"

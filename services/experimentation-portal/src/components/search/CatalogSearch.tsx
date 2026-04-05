@@ -1,12 +1,12 @@
 import React from "react";
 import { debounce } from "lodash";
-import SearchIcon from "../../../components/icons/SearchIcon";
+import SearchIcon from "../icons/SearchIcon";
 
 interface EventsCatalogSearchProps {
   onSearch?: (query: string) => void;
 }
 
-const EventsCatalogSearch = ({ onSearch }: EventsCatalogSearchProps) => {
+const CatalogSearch = ({ onSearch }: EventsCatalogSearchProps) => {
   const debouncedSearch = React.useMemo(
     () => debounce((value: string) => onSearch?.(value), 400),
     [onSearch],
@@ -25,4 +25,4 @@ const EventsCatalogSearch = ({ onSearch }: EventsCatalogSearchProps) => {
   );
 };
 
-export default EventsCatalogSearch;
+export default CatalogSearch;

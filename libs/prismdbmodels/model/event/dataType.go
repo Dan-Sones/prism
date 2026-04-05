@@ -1,29 +1,6 @@
-package model
+package event
 
-import (
-	"fmt"
-	"time"
-
-	"github.com/google/uuid"
-)
-
-type EventType struct {
-	ID          uuid.UUID    `json:"id,omitempty"`
-	Name        string       `json:"name"`
-	EventKey    string       `json:"eventKey"`
-	Version     int          `json:"version,omitempty"`
-	Description *string      `json:"description,omitempty"`
-	CreatedAt   time.Time    `json:"createdAt,omitempty"`
-	Fields      []EventField `json:"fields" db:"-"`
-}
-
-type EventField struct {
-	ID          uuid.UUID `json:"id"`
-	EventTypeID uuid.UUID `json:"-"`
-	Name        string    `json:"name"`
-	FieldKey    string    `json:"fieldKey"`
-	DataType    DataType  `json:"dataType"`
-}
+import "fmt"
 
 type DataType string
 

@@ -17,7 +17,7 @@ const CreateEventFields = () => {
   });
 
   const onAddField = () => {
-    append({ name: "", fieldKey: "", dataType: "string" });
+    append({ name: "", field_key: "", data_type: "string" });
   };
 
   const onRemoveField = (index: number) => {

@@ -134,16 +134,17 @@ collection:
                 {
                   "name": "purchase_completed",
                   "description": "Fired when a user completes a purchase",
+                  "event_key": "purchase_completed",
                   "fields": [
                     {
                       "name": "Order Total",
-                      "fieldKey": "order_total",
-                      "dataType": "float"
+                      "field_key": "order_total",
+                      "data_type": "float"
                     },
                     {
                       "name": "Currency",
-                      "fieldKey": "currency",
-                      "dataType": "string"
+                      "field_key": "currency",
+                      "data_type": "string"
                     }
                   ]
                 }
@@ -236,6 +237,152 @@ collection:
             pathParameters:
               - name: eventTypeId
                 value: ""
+          - url: localhost:8081/api/events-catalog/event-key-available
+            name: Is Event Key Available
+            meta:
+              id: req_eventkeyavailable
+              created: 1773600100000
+              modified: 1773600100000
+              isPrivate: false
+              description: ""
+              sortKey: -1773600100000
+            method: GET
+            parameters:
+              - name: eventKey
+                value: order_complete
+                description: ""
+            headers:
+              - name: User-Agent
+                value: insomnia/12.3.1
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+          - url: localhost:8081/api/events-catalog/key/:eventKey
+            name: Get Event Type By Key
+            meta:
+              id: req_geteventtypebykey
+              created: 1773600200000
+              modified: 1773600200000
+              isPrivate: false
+              description: ""
+              sortKey: -1773600200000
+            method: GET
+            headers:
+              - name: User-Agent
+                value: insomnia/12.3.1
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+            pathParameters:
+              - name: eventKey
+                value: order_complete
+          - url: localhost:8081/api/events-catalog/key/:eventKey/usage
+            name: Get Event Usage Over Period
+            meta:
+              id: req_geteventusage
+              created: 1773600300000
+              modified: 1773600300000
+              isPrivate: false
+              description: ""
+              sortKey: -1773600300000
+            method: GET
+            headers:
+              - name: User-Agent
+                value: insomnia/12.3.1
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+            pathParameters:
+              - name: eventKey
+                value: order_complete
+          - url: localhost:8081/api/events-catalog/key/:eventKey/stats
+            name: Get Live Event Stats
+            meta:
+              id: req_getliveventstats
+              created: 1773600400000
+              modified: 1773600400000
+              isPrivate: false
+              description: ""
+              sortKey: -1773600400000
+            method: GET
+            headers:
+              - name: User-Agent
+                value: insomnia/12.3.1
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
+            pathParameters:
+              - name: eventKey
+                value: order_complete
+      - name: Metrics Catalog
+        meta:
+          id: fld_metrics_catalog
+          created: 1773600000000
+          modified: 1773600000000
+          sortKey: -1773600000000
+          description: ""
+        children:
+          - url: localhost:8081/api/metrics-catalog
+            name: Create Metric
+            meta:
+              id: req_create_metric
+              created: 1773600000000
+              modified: 1773600000000
+              isPrivate: false
+              description: ""
+              sortKey: -1773600000000
+            method: POST
+            body:
+              mimeType: application/json
+              text: |-
+                {
+                  "name": "Average Order Value",
+                  "metric_key": "avg_order_value",
+                  "description": "Average value of completed orders",
+                  "metric_type": "simple",
+                  "analysis_unit": "user_id",
+                  "components": [
+                    {
+                      "role": "base_event",
+                      "event_type_id": "<event_type_uuid>",
+                      "event_field_id": "<event_field_uuid>",
+                      "aggregation_operation": "AVG"
+                    }
+                  ]
+                }
+            headers:
+              - name: Content-Type
+                value: application/json
+              - name: User-Agent
+                value: insomnia/12.3.1
+            settings:
+              renderRequestBody: true
+              encodeUrl: true
+              followRedirects: global
+              cookies:
+                send: true
+                store: true
+              rebuildPath: true
       - url: localhost:50052
         name: Get Assignments (gRPC)
         meta:

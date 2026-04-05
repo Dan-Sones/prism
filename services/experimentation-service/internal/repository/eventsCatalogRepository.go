@@ -4,19 +4,19 @@ import (
 	"context"
 	"errors"
 
-	"github.com/Dan-Sones/prismdbmodels/model"
+	"github.com/Dan-Sones/prismdbmodels/model/event"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type EventsCatalogRepositoryInterface interface {
-	CreateEventType(ctx context.Context, eventType model.EventType) error
+	CreateEventType(ctx context.Context, eventType event.EventType) error
 	DeleteEventType(ctx context.Context, eventTypeId string) error
-	GetEventTypeById(ctx context.Context, eventTypeId string) (*model.EventType, error)
-	GetEventTypeByKey(ctx context.Context, eventTypeKey string) (*model.EventType, error)
-	GetEventTypes(ctx context.Context) ([]*model.EventType, error)
-	SearchEventTypes(ctx context.Context, searchQuery string) ([]*model.EventType, error)
+	GetEventTypeById(ctx context.Context, eventTypeId string) (*event.EventType, error)
+	GetEventTypeByKey(ctx context.Context, eventTypeKey string) (*event.EventType, error)
+	GetEventTypes(ctx context.Context) ([]*event.EventType, error)
+	SearchEventTypes(ctx context.Context, searchQuery string) ([]*event.EventType, error)
 	IsFieldKeyAvailableForEventType(ctx context.Context, eventTypeId string, fieldKey string) (bool, error)
 	IsEventKeyAvailable(ctx context.Context, eventKey string) (bool, error)
 }
@@ -31,7 +31,7 @@ func NewEventsCatalogRepository(pgx *pgxpool.Pool) *EventsCatalogRepository {
 	}
 }
 
-func (e *EventsCatalogRepository) CreateEventType(ctx context.Context, eventType model.EventType) error {
+func (e *EventsCatalogRepository) CreateEventType(ctx context.Context, eventType event.EventType) error {
 	tx, err := e.pgx.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return err
@@ -77,8 +77,8 @@ func (e *EventsCatalogRepository) DeleteEventType(ctx context.Context, eventType
 	return nil
 }
 
-func (e *EventsCatalogRepository) GetEventTypeById(ctx context.Context, eventTypeId string) (*model.EventType, error) {
-	var eventType model.EventType
+func (e *EventsCatalogRepository) GetEventTypeById(ctx context.Context, eventTypeId string) (*event.EventType, error) {
+	var eventType event.EventType
 	err := e.pgx.QueryRow(ctx, "SELECT id, name, event_key, version, description, created_at FROM prism.event_types WHERE id = $1", eventTypeId).Scan(
 		&eventType.ID, &eventType.Name, &eventType.EventKey, &eventType.Version, &eventType.Description, &eventType.CreatedAt,
 	)
@@ -90,7 +90,7 @@ func (e *EventsCatalogRepository) GetEventTypeById(ctx context.Context, eventTyp
 	if err != nil {
 		return nil, err
 	}
-	fields, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.EventField])
+	fields, err := pgx.CollectRows(rows, pgx.RowToStructByName[event.EventField])
 	if err != nil {
 		return nil, err
 	}
@@ -99,12 +99,12 @@ func (e *EventsCatalogRepository) GetEventTypeById(ctx context.Context, eventTyp
 	return &eventType, nil
 }
 
-func (e *EventsCatalogRepository) GetEventTypes(ctx context.Context) ([]*model.EventType, error) {
+func (e *EventsCatalogRepository) GetEventTypes(ctx context.Context) ([]*event.EventType, error) {
 	rows, err := e.pgx.Query(ctx, "SELECT id, name, event_key, version, description, created_at FROM prism.event_types")
 	if err != nil {
 		return nil, err
 	}
-	eventTypes, err := pgx.CollectRows(rows, pgx.RowToAddrOfStructByName[model.EventType])
+	eventTypes, err := pgx.CollectRows(rows, pgx.RowToAddrOfStructByName[event.EventType])
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func (e *EventsCatalogRepository) GetEventTypes(ctx context.Context) ([]*model.E
 	if err != nil {
 		return nil, err
 	}
-	fields, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.EventField])
+	fields, err := pgx.CollectRows(rows, pgx.RowToStructByName[event.EventField])
 	if err != nil {
 		return nil, err
 	}
@@ -121,12 +121,12 @@ func (e *EventsCatalogRepository) GetEventTypes(ctx context.Context) ([]*model.E
 	return combineEventTypesAndFields(eventTypes, fields), nil
 }
 
-func (e *EventsCatalogRepository) SearchEventTypes(ctx context.Context, searchQuery string) ([]*model.EventType, error) {
+func (e *EventsCatalogRepository) SearchEventTypes(ctx context.Context, searchQuery string) ([]*event.EventType, error) {
 	rows, err := e.pgx.Query(ctx, "SELECT id, name, event_key, version, description, created_at FROM prism.event_types WHERE name ILIKE '%' || $1 || '%'", searchQuery)
 	if err != nil {
 		return nil, err
 	}
-	eventTypes, err := pgx.CollectRows(rows, pgx.RowToAddrOfStructByName[model.EventType])
+	eventTypes, err := pgx.CollectRows(rows, pgx.RowToAddrOfStructByName[event.EventType])
 	if err != nil {
 		return nil, err
 	}
@@ -140,7 +140,7 @@ func (e *EventsCatalogRepository) SearchEventTypes(ctx context.Context, searchQu
 	if err != nil {
 		return nil, err
 	}
-	fields, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.EventField])
+	fields, err := pgx.CollectRows(rows, pgx.RowToStructByName[event.EventField])
 	if err != nil {
 		return nil, err
 	}
@@ -184,8 +184,8 @@ func (e *EventsCatalogRepository) IsEventKeyAvailable(ctx context.Context, event
 	return true, nil
 }
 
-func (e *EventsCatalogRepository) GetEventTypeByKey(ctx context.Context, eventTypeKey string) (*model.EventType, error) {
-	var eventType model.EventType
+func (e *EventsCatalogRepository) GetEventTypeByKey(ctx context.Context, eventTypeKey string) (*event.EventType, error) {
+	var eventType event.EventType
 	err := e.pgx.QueryRow(ctx, "SELECT id, name, event_key, version, description, created_at FROM prism.event_types WHERE event_key = $1", eventTypeKey).Scan(
 		&eventType.ID, &eventType.Name, &eventType.EventKey, &eventType.Version, &eventType.Description, &eventType.CreatedAt,
 	)
@@ -197,7 +197,7 @@ func (e *EventsCatalogRepository) GetEventTypeByKey(ctx context.Context, eventTy
 	if err != nil {
 		return nil, err
 	}
-	fields, err := pgx.CollectRows(rows, pgx.RowToStructByName[model.EventField])
+	fields, err := pgx.CollectRows(rows, pgx.RowToStructByName[event.EventField])
 	if err != nil {
 		return nil, err
 	}
@@ -206,8 +206,8 @@ func (e *EventsCatalogRepository) GetEventTypeByKey(ctx context.Context, eventTy
 	return &eventType, nil
 }
 
-func combineEventTypesAndFields(eventTypes []*model.EventType, fields []model.EventField) []*model.EventType {
-	fieldMap := make(map[uuid.UUID][]model.EventField)
+func combineEventTypesAndFields(eventTypes []*event.EventType, fields []event.EventField) []*event.EventType {
+	fieldMap := make(map[uuid.UUID][]event.EventField)
 	for _, f := range fields {
 		fieldMap[f.EventTypeID] = append(fieldMap[f.EventTypeID], f)
 	}

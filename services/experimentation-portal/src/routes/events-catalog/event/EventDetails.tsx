@@ -34,7 +34,7 @@ const EventDetails = (props: EventDetailsProps) => {
         <div>
           <p className="text-xs text-gray-400">Event Key</p>
           <p className="font-mono text-sm font-medium">
-            {EventDetails?.eventKey}
+            {EventDetails?.event_key}
           </p>
         </div>
         <div>
@@ -44,8 +44,8 @@ const EventDetails = (props: EventDetailsProps) => {
         <div>
           <p className="text-xs text-gray-400">Created</p>
           <p className="font-mono text-sm">
-            {EventDetails?.createdAt
-              ? new Date(EventDetails.createdAt).toLocaleString()
+            {EventDetails?.created_at
+              ? new Date(EventDetails.created_at).toLocaleString()
               : "—"}
           </p>
         </div>
