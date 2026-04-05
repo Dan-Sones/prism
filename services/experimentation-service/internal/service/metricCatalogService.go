@@ -67,3 +67,14 @@ func (m *MetricsCatalogService) GetMetrics(ctx context.Context) ([]*metric.Metri
 
 	return metrics, nil
 }
+
+func (m *MetricsCatalogService) IsMetricKeyAvailable(ctx context.Context, metricKey string) (bool, error) {
+	available, err := m.metricsRepo.IsMetricKeyAvailable(ctx, metricKey)
+	if err != nil {
+		m.logger.Error("Error checking metric key availability", "error", err, "metricKey", metricKey)
+		// default to it not being available if there's an error to be safe.
+		return false, err
+	}
+
+	return available, nil
+}

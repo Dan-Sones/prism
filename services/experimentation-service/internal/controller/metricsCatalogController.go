@@ -58,3 +58,22 @@ func (m *MetricsCatalogController) GetMetrics(w http.ResponseWriter, r *http.Req
 
 	WriteResponse(w, http.StatusOK, metrics)
 }
+
+func (m *MetricsCatalogController) IsMetricKeyAvailable(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	metricKey := r.URL.Query().Get("metricKey")
+
+	if metricKey == "" {
+		problems.NewBadRequestError("metricKey is required").Write(w)
+		return
+	}
+
+	available, err := m.metricsCatalogService.IsMetricKeyAvailable(ctx, metricKey)
+	if err != nil {
+		problems.NewInternalServerError().Write(w)
+		return
+	}
+
+	WriteResponse(w, http.StatusOK, map[string]bool{"available": available})
+}

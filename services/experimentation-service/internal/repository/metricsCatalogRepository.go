@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"experimentation-service/internal/model/metricrequest"
 
 	"github.com/Dan-Sones/prismdbmodels/model/metric"
@@ -67,4 +68,22 @@ FROM prism.metrics`
 	}
 
 	return metrics, nil
+}
+
+func (m *MetricsCatalogRepository) IsMetricKeyAvailable(ctx context.Context, metricKey string) (bool, error) {
+	var existing *string
+	err := m.pgx.QueryRow(ctx, "SELECT id FROM prism.metrics WHERE metric_key = $1", metricKey).Scan(&existing)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			// event key is available
+			return true, nil
+		}
+		return false, err
+	}
+
+	if existing != nil {
+		return false, nil
+	}
+
+	return true, nil
 }

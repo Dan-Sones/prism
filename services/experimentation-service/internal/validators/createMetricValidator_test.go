@@ -80,7 +80,7 @@ func TestValidateCreateMetricRequest(t *testing.T) {
 			name: "Metric key exceeds max length",
 			request: metricrequest.CreateMetricRequest{
 				Name:         "Revenue",
-				MetricKey:    string(make([]rune, 51)),
+				MetricKey:    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 				AnalysisUnit: metric.AnalysisUnitUser,
 				Components: []metricrequest.CreateMetricRequestComponent{
 					{
@@ -138,6 +138,50 @@ func TestValidateCreateMetricRequest(t *testing.T) {
 				{
 					Field:   "analysis_unit",
 					Message: "Analysis unit is required",
+				},
+			},
+		},
+		{
+			name: "Metric key starts with number",
+			request: metricrequest.CreateMetricRequest{
+				Name:         "Revenue",
+				MetricKey:    "123_revenue",
+				AnalysisUnit: metric.AnalysisUnitUser,
+				Components: []metricrequest.CreateMetricRequestComponent{
+					{
+						Role:                 metric.ComponentRoleBaseEvent,
+						EventTypeID:          uuid.New(),
+						FieldKeyID:           uuid.New(),
+						AggregationOperation: metric.AggregationOperationCount,
+					},
+				},
+			},
+			want: []problems.Violation{
+				{
+					Field:   "metric_key",
+					Message: "Metric key must start with a letter and only contain letters, numbers, underscores, or hyphens",
+				},
+			},
+		},
+		{
+			name: "Metric key contains invalid characters",
+			request: metricrequest.CreateMetricRequest{
+				Name:         "Revenue",
+				MetricKey:    "revenue@value",
+				AnalysisUnit: metric.AnalysisUnitUser,
+				Components: []metricrequest.CreateMetricRequestComponent{
+					{
+						Role:                 metric.ComponentRoleBaseEvent,
+						EventTypeID:          uuid.New(),
+						FieldKeyID:           uuid.New(),
+						AggregationOperation: metric.AggregationOperationCount,
+					},
+				},
+			},
+			want: []problems.Violation{
+				{
+					Field:   "metric_key",
+					Message: "Metric key must start with a letter and only contain letters, numbers, underscores, or hyphens",
 				},
 			},
 		},

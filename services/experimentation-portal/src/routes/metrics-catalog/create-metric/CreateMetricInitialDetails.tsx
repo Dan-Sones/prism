@@ -4,6 +4,10 @@ import Dropdown from "../../../components/form/Dropdown";
 import TextInput from "../../../components/form/TextInput";
 import type { CreateMetricRequest } from "../../../api/metricsCatalog";
 import Label from "../../../components/form/Label";
+import { debounce } from "lodash";
+import { checkMetricKeyAvailable } from "../../../api/metricsCatalog/check-metric-key";
+import { useMemo } from "react";
+import FieldError from "../../../components/form/FieldError";
 
 const metricTypeItems = [
   { label: "Simple", value: "simple" },
@@ -14,6 +18,18 @@ const CreateMetricInitialDetails = () => {
   const { register, formState, control } =
     useFormContext<CreateMetricRequest>();
   const { errors } = formState;
+
+  const validateMetricKey = useMemo(
+    () =>
+      debounce((value: string, resolve: (result: string | boolean) => void) => {
+        checkMetricKeyAvailable(value)
+          .then((res) =>
+            resolve(res.available || "This event key is already in use"),
+          )
+          .catch(() => resolve("Error checking event key availability"));
+      }, 500),
+    [],
+  );
 
   return (
     <Card>
@@ -32,6 +48,7 @@ const CreateMetricInitialDetails = () => {
             },
           })}
         />
+        <FieldError error={errors.name} />
       </div>
 
       <div>
@@ -44,11 +61,19 @@ const CreateMetricInitialDetails = () => {
           {...register("metric_key", {
             required: "Metric Id is required",
             maxLength: {
-              value: 100,
-              message: "Metric Id must be less than 100 characters.",
+              value: 50,
+              message: "Metric key must be less than 50 characters.",
             },
+            pattern: {
+              value: /^[a-zA-Z][a-zA-Z0-9_-]*$/,
+              message:
+                "Must start with a letter and only contain letters, numbers, underscores, or hyphens.",
+            },
+            validate: (value) =>
+              new Promise((resolve) => validateMetricKey(value, resolve)),
           })}
         />
+        <FieldError error={errors.metric_key} />
       </div>
 
       <div className="max-w-64">

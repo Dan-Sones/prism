@@ -50,3 +50,7 @@ export type CreateMetricRequest = {
   analysis_unit: AnalysisUnit;
   components: CreateMetricRequestComponent[];
 };
+
+export type MetricKeyAvailableResponse = {
+  available: boolean;
+};

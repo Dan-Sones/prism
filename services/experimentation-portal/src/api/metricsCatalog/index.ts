@@ -10,4 +10,5 @@ export type {
   Metric,
   CreateMetricRequestComponent,
   CreateMetricRequest,
+  MetricKeyAvailableResponse,
 } from "./model/metricsCatalog";

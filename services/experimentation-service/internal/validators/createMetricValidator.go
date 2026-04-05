@@ -3,10 +3,13 @@ package validators
 import (
 	"experimentation-service/internal/model/metricrequest"
 	"experimentation-service/internal/problems"
+	"regexp"
 	"strconv"
 
 	"github.com/google/uuid"
 )
+
+var metricKeyPattern = regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9_-]*$`)
 
 func ValidateCreateMetricRequest(request metricrequest.CreateMetricRequest) []problems.Violation {
 	var violations []problems.Violation
@@ -36,6 +39,13 @@ func ValidateCreateMetricRequest(request metricrequest.CreateMetricRequest) []pr
 		violations = append(violations, problems.Violation{
 			Field:   "metric_key",
 			Message: "Metric key must be less than 50 characters",
+		})
+	}
+
+	if request.MetricKey != "" && !metricKeyPattern.MatchString(request.MetricKey) {
+		violations = append(violations, problems.Violation{
+			Field:   "metric_key",
+			Message: "Metric key must start with a letter and only contain letters, numbers, underscores, or hyphens",
 		})
 	}
 
