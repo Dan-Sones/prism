@@ -45,6 +45,10 @@ func RegisterRoutes(router *chi.Mux, c Controllers) {
 			r.Post("/", c.MetricsCatalogController.CreateMetric)
 			r.Get("/", c.MetricsCatalogController.GetMetrics)
 			r.Get("/metric-key-available", c.MetricsCatalogController.IsMetricKeyAvailable)
+
+			r.Route("/{metricKey}", func(r chi.Router) {
+				r.Get("/", c.MetricsCatalogController.GetMetricByKey)
+			})
 		})
 	})
 }

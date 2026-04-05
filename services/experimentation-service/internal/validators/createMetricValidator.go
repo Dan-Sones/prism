@@ -1,7 +1,7 @@
 package validators
 
 import (
-	"experimentation-service/internal/model/metricrequest"
+	"experimentation-service/internal/model/metric"
 	"experimentation-service/internal/problems"
 	"regexp"
 	"strconv"
@@ -11,7 +11,7 @@ import (
 
 var metricKeyPattern = regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9_-]*$`)
 
-func ValidateCreateMetricRequest(request metricrequest.CreateMetricRequest) []problems.Violation {
+func ValidateCreateMetricRequest(request metric.CreateMetricRequest) []problems.Violation {
 	var violations []problems.Violation
 
 	if request.Name == "" {
@@ -71,7 +71,7 @@ func ValidateCreateMetricRequest(request metricrequest.CreateMetricRequest) []pr
 	return violations
 }
 
-func ValidateCreateMetricRequestComponent(component metricrequest.CreateMetricRequestComponent, index int) []problems.Violation {
+func ValidateCreateMetricRequestComponent(component metric.CreateMetricRequestComponent, index int) []problems.Violation {
 	var violations []problems.Violation
 
 	if component.Role == "" {

@@ -74,7 +74,7 @@ func main() {
 	assignmentService := service.NewAssignmentService(experimentRepository, bucketCount, logger)
 	eventsCatalogService := service.NewEventsCatalogService(eventsCatalogRepository, logger)
 	eventService := service.NewEventsService(eventsRepository, eventsCatalogRepository, logger)
-	metricsCatalogService := service.NewMetricsCatalogService(metricsCatalogRepository, logger)
+	metricsCatalogService := service.NewMetricsCatalogService(metricsCatalogRepository, eventsCatalogRepository, logger)
 
 	// Controllers
 	experimentController := controller.NewExperimentController(experimentService)

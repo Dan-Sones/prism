@@ -3,30 +3,37 @@ package service
 import (
 	"context"
 	"errors"
-	"experimentation-service/internal/model/metricrequest"
+	metricreq "experimentation-service/internal/model/metric"
 	"experimentation-service/internal/problems"
 	"experimentation-service/internal/repository"
 	"experimentation-service/internal/validators"
 	"log/slog"
+	"slices"
 
+	"github.com/Dan-Sones/prismdbmodels/model/event"
 	"github.com/Dan-Sones/prismdbmodels/model/metric"
 	"github.com/jackc/pgerrcode"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 type MetricsCatalogService struct {
-	metricsRepo *repository.MetricsCatalogRepository
-	logger      *slog.Logger
+	metricsRepo       *repository.MetricsCatalogRepository
+	eventsCatalogRepo repository.EventsCatalogRepositoryInterface
+	logger            *slog.Logger
 }
 
-func NewMetricsCatalogService(metricsRepo *repository.MetricsCatalogRepository, logger *slog.Logger) *MetricsCatalogService {
+func NewMetricsCatalogService(metricsRepo *repository.MetricsCatalogRepository, eventsCatalogRepo repository.EventsCatalogRepositoryInterface, logger *slog.Logger) *MetricsCatalogService {
 	return &MetricsCatalogService{
-		metricsRepo: metricsRepo,
-		logger:      logger,
+		metricsRepo:       metricsRepo,
+		eventsCatalogRepo: eventsCatalogRepo,
+		logger:            logger,
 	}
 }
 
-func (m *MetricsCatalogService) CreateMetric(ctx context.Context, req metricrequest.CreateMetricRequest) (error, []problems.Violation) {
+func (m *MetricsCatalogService) CreateMetric(ctx context.Context, req metricreq.CreateMetricRequest) (error, []problems.Violation) {
 	violations := validators.ValidateCreateMetricRequest(req)
 	if len(violations) > 0 {
 		return nil, violations
@@ -77,4 +84,41 @@ func (m *MetricsCatalogService) IsMetricKeyAvailable(ctx context.Context, metric
 	}
 
 	return available, nil
+}
+
+func (m *MetricsCatalogService) GetMetricByKey(ctx context.Context, metricKey string) (*metric.Metric, error) {
+	metricRes, componentRows, err := m.metricsRepo.GetMetricByKey(ctx, metricKey)
+	if err != nil {
+		m.logger.Error("Error fetching metric type by key", "error", err, "metricKey", metricKey)
+
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, status.Error(codes.NotFound, "Metric not found")
+		}
+
+		return nil, err
+	}
+
+	for _, component := range componentRows {
+		eventType, err := m.eventsCatalogRepo.GetEventTypeById(ctx, component.EventTypeID.String())
+		if err != nil {
+			return nil, err
+		}
+
+		idx := slices.IndexFunc(eventType.Fields, func(ef event.EventField) bool { return ef.ID == component.AggregationFieldID })
+		if idx == -1 {
+			return nil, errors.New("this shouldn't be possible, we can't find an item despite there being a foreign key")
+		}
+
+		component := metric.MetricComponent{
+			ID:                   component.ID,
+			Role:                 component.Role,
+			EventType:            *eventType,
+			AggregationOperation: component.AggregationOperation,
+			ComponentRole:        component.Role,
+			AggregationField:     eventType.Fields[idx],
+		}
+		metricRes.MetricComponents = append(metricRes.MetricComponents, component)
+	}
+
+	return metricRes, nil
 }

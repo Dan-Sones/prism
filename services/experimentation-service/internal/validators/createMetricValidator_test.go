@@ -1,7 +1,7 @@
 package validators
 
 import (
-	"experimentation-service/internal/model/metricrequest"
+	metricreq "experimentation-service/internal/model/metric"
 	"experimentation-service/internal/problems"
 	"testing"
 
@@ -12,16 +12,16 @@ import (
 func TestValidateCreateMetricRequest(t *testing.T) {
 	tests := []struct {
 		name    string
-		request metricrequest.CreateMetricRequest
+		request metricreq.CreateMetricRequest
 		want    []problems.Violation
 	}{
 		{
 			name: "Valid request",
-			request: metricrequest.CreateMetricRequest{
+			request: metricreq.CreateMetricRequest{
 				Name:         "Revenue",
 				MetricKey:    "revenue",
 				AnalysisUnit: metric.AnalysisUnitUser,
-				Components: []metricrequest.CreateMetricRequestComponent{
+				Components: []metricreq.CreateMetricRequestComponent{
 					{
 						Role:                 metric.ComponentRoleBaseEvent,
 						EventTypeID:          uuid.New(),
@@ -34,11 +34,11 @@ func TestValidateCreateMetricRequest(t *testing.T) {
 		},
 		{
 			name: "Missing name",
-			request: metricrequest.CreateMetricRequest{
+			request: metricreq.CreateMetricRequest{
 				Name:         "",
 				MetricKey:    "revenue",
 				AnalysisUnit: metric.AnalysisUnitUser,
-				Components: []metricrequest.CreateMetricRequestComponent{
+				Components: []metricreq.CreateMetricRequestComponent{
 					{
 						Role:                 metric.ComponentRoleBaseEvent,
 						EventTypeID:          uuid.New(),
@@ -56,11 +56,11 @@ func TestValidateCreateMetricRequest(t *testing.T) {
 		},
 		{
 			name: "Name exceeds max length",
-			request: metricrequest.CreateMetricRequest{
+			request: metricreq.CreateMetricRequest{
 				Name:         string(make([]rune, 101)),
 				MetricKey:    "revenue",
 				AnalysisUnit: metric.AnalysisUnitUser,
-				Components: []metricrequest.CreateMetricRequestComponent{
+				Components: []metricreq.CreateMetricRequestComponent{
 					{
 						Role:                 metric.ComponentRoleBaseEvent,
 						EventTypeID:          uuid.New(),
@@ -78,11 +78,11 @@ func TestValidateCreateMetricRequest(t *testing.T) {
 		},
 		{
 			name: "Metric key exceeds max length",
-			request: metricrequest.CreateMetricRequest{
+			request: metricreq.CreateMetricRequest{
 				Name:         "Revenue",
 				MetricKey:    "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
 				AnalysisUnit: metric.AnalysisUnitUser,
-				Components: []metricrequest.CreateMetricRequestComponent{
+				Components: []metricreq.CreateMetricRequestComponent{
 					{
 						Role:                 metric.ComponentRoleBaseEvent,
 						EventTypeID:          uuid.New(),
@@ -100,11 +100,11 @@ func TestValidateCreateMetricRequest(t *testing.T) {
 		},
 		{
 			name: "Missing metric key",
-			request: metricrequest.CreateMetricRequest{
+			request: metricreq.CreateMetricRequest{
 				Name:         "Revenue",
 				AnalysisUnit: metric.AnalysisUnitUser,
 				MetricKey:    "",
-				Components: []metricrequest.CreateMetricRequestComponent{
+				Components: []metricreq.CreateMetricRequestComponent{
 					{
 						Role:                 metric.ComponentRoleBaseEvent,
 						EventTypeID:          uuid.New(),
@@ -122,10 +122,10 @@ func TestValidateCreateMetricRequest(t *testing.T) {
 		},
 		{
 			name: "Missing analysis unit",
-			request: metricrequest.CreateMetricRequest{
+			request: metricreq.CreateMetricRequest{
 				Name:      "Revenue",
 				MetricKey: "revenue",
-				Components: []metricrequest.CreateMetricRequestComponent{
+				Components: []metricreq.CreateMetricRequestComponent{
 					{
 						Role:                 metric.ComponentRoleBaseEvent,
 						EventTypeID:          uuid.New(),
@@ -143,11 +143,11 @@ func TestValidateCreateMetricRequest(t *testing.T) {
 		},
 		{
 			name: "Metric key starts with number",
-			request: metricrequest.CreateMetricRequest{
+			request: metricreq.CreateMetricRequest{
 				Name:         "Revenue",
 				MetricKey:    "123_revenue",
 				AnalysisUnit: metric.AnalysisUnitUser,
-				Components: []metricrequest.CreateMetricRequestComponent{
+				Components: []metricreq.CreateMetricRequestComponent{
 					{
 						Role:                 metric.ComponentRoleBaseEvent,
 						EventTypeID:          uuid.New(),
@@ -165,11 +165,11 @@ func TestValidateCreateMetricRequest(t *testing.T) {
 		},
 		{
 			name: "Metric key contains invalid characters",
-			request: metricrequest.CreateMetricRequest{
+			request: metricreq.CreateMetricRequest{
 				Name:         "Revenue",
 				MetricKey:    "revenue@value",
 				AnalysisUnit: metric.AnalysisUnitUser,
-				Components: []metricrequest.CreateMetricRequestComponent{
+				Components: []metricreq.CreateMetricRequestComponent{
 					{
 						Role:                 metric.ComponentRoleBaseEvent,
 						EventTypeID:          uuid.New(),
@@ -187,11 +187,11 @@ func TestValidateCreateMetricRequest(t *testing.T) {
 		},
 		{
 			name: "No components",
-			request: metricrequest.CreateMetricRequest{
+			request: metricreq.CreateMetricRequest{
 				Name:         "Revenue",
 				MetricKey:    "revenue",
 				AnalysisUnit: metric.AnalysisUnitUser,
-				Components:   []metricrequest.CreateMetricRequestComponent{},
+				Components:   []metricreq.CreateMetricRequestComponent{},
 			},
 			want: []problems.Violation{
 				{
@@ -222,13 +222,13 @@ func TestValidateCreateMetricRequest(t *testing.T) {
 func TestValidateCreateMetricRequestComponent(t *testing.T) {
 	tests := []struct {
 		name      string
-		component metricrequest.CreateMetricRequestComponent
+		component metricreq.CreateMetricRequestComponent
 		index     int
 		want      []problems.Violation
 	}{
 		{
 			name: "Valid component",
-			component: metricrequest.CreateMetricRequestComponent{
+			component: metricreq.CreateMetricRequestComponent{
 				Role:                 metric.ComponentRoleBaseEvent,
 				EventTypeID:          uuid.New(),
 				FieldKeyID:           uuid.New(),
@@ -239,7 +239,7 @@ func TestValidateCreateMetricRequestComponent(t *testing.T) {
 		},
 		{
 			name: "Missing role",
-			component: metricrequest.CreateMetricRequestComponent{
+			component: metricreq.CreateMetricRequestComponent{
 				Role:                 "",
 				EventTypeID:          uuid.New(),
 				FieldKeyID:           uuid.New(),
@@ -255,7 +255,7 @@ func TestValidateCreateMetricRequestComponent(t *testing.T) {
 		},
 		{
 			name: "Missing event type ID",
-			component: metricrequest.CreateMetricRequestComponent{
+			component: metricreq.CreateMetricRequestComponent{
 				Role:                 metric.ComponentRoleBaseEvent,
 				EventTypeID:          uuid.Nil,
 				FieldKeyID:           uuid.New(),
@@ -271,7 +271,7 @@ func TestValidateCreateMetricRequestComponent(t *testing.T) {
 		},
 		{
 			name: "Missing field key",
-			component: metricrequest.CreateMetricRequestComponent{
+			component: metricreq.CreateMetricRequestComponent{
 				Role:                 metric.ComponentRoleBaseEvent,
 				EventTypeID:          uuid.New(),
 				FieldKeyID:           uuid.Nil,
@@ -287,7 +287,7 @@ func TestValidateCreateMetricRequestComponent(t *testing.T) {
 		},
 		{
 			name: "Missing aggregation operation",
-			component: metricrequest.CreateMetricRequestComponent{
+			component: metricreq.CreateMetricRequestComponent{
 				Role:                 metric.ComponentRoleBaseEvent,
 				EventTypeID:          uuid.New(),
 				FieldKeyID:           uuid.New(),

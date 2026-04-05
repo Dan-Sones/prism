@@ -1,4 +1,4 @@
-package metricrequest
+package metric
 
 import (
 	"github.com/Dan-Sones/prismdbmodels/model/metric"

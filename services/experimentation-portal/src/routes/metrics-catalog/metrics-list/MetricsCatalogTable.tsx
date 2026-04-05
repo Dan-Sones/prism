@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router";
 import type { Metric } from "../../../api/metricsCatalog";
 import Table from "../../../components/table/Table";
 
@@ -16,6 +17,8 @@ type MetricTypeRow = {
 
 const MetricsCatalogTable = (props: MetricsCatalogTableProps) => {
   const { data, isLoading, error } = props;
+
+  const navigate = useNavigate();
 
   const columns: Array<{ header: string; accessor: keyof Metric }> = [
     { header: "Name", accessor: "name" },
@@ -39,6 +42,7 @@ const MetricsCatalogTable = (props: MetricsCatalogTableProps) => {
       columns={columns}
       loading={isLoading}
       error={error}
+      onRowClick={(row) => navigate(`/metrics-catalog/${row.metric_key}`)}
     />
   );
 };

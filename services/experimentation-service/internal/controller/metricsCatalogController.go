@@ -2,10 +2,14 @@ package controller
 
 import (
 	"encoding/json"
-	"experimentation-service/internal/model/metricrequest"
+	"errors"
+	"experimentation-service/internal/model/metric"
 	"experimentation-service/internal/problems"
 	"experimentation-service/internal/service"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/jackc/pgx/v5"
 )
 
 type MetricsCatalogController struct {
@@ -26,7 +30,7 @@ func (m *MetricsCatalogController) CreateMetric(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	var body metricrequest.CreateMetricRequest
+	var body metric.CreateMetricRequest
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
 		problems.NewBadRequestError("Invalid request body").Write(w)
@@ -76,4 +80,27 @@ func (m *MetricsCatalogController) IsMetricKeyAvailable(w http.ResponseWriter, r
 	}
 
 	WriteResponse(w, http.StatusOK, map[string]bool{"available": available})
+}
+
+func (m *MetricsCatalogController) GetMetricByKey(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	metricKey := chi.URLParam(r, "metricKey")
+
+	if metricKey == "" {
+		problems.NewBadRequestError("metricKey is required").Write(w)
+		return
+	}
+
+	metricRes, err := m.metricsCatalogService.GetMetricByKey(ctx, metricKey)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			problems.NewNotFound("Metric not found").Write(w)
+			return
+		}
+		problems.NewInternalServerError().Write(w)
+		return
+	}
+
+	WriteResponse(w, http.StatusOK, metricRes)
 }

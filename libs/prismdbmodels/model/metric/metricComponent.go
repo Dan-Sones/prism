@@ -8,8 +8,8 @@ import (
 type MetricComponent struct {
 	ID                   uuid.UUID            `json:"id"`
 	Role                 ComponentRole        `json:"role"`
-	EventType            event.EventType      `json:"event_type"`
+	EventType            event.EventType      `json:"event_type" db:"-"`
 	AggregationOperation AggregationOperation `json:"aggregation_operation"`
 	ComponentRole        ComponentRole        `json:"component_role"`
-	AggregationField     event.EventField     `json:"aggregation_field"`
+	AggregationField     event.EventField     `json:"aggregation_field" db:"-"`
 }
