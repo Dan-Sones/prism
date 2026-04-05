@@ -10,7 +10,7 @@ interface MetricsCatalogTableProps {
 
 type MetricTypeRow = {
   name: string;
-  metricKey: string;
+  metric_key: string;
   metric_type: string;
 };
 
@@ -27,8 +27,9 @@ const MetricsCatalogTable = (props: MetricsCatalogTableProps) => {
   const transformData = (data: Array<Metric>): Array<MetricTypeRow> => {
     return data.map((metric) => ({
       name: metric.name,
-      metricKey: metric.metric_key,
+      metric_key: metric.metric_key,
       metric_type: metric.metric_type,
+      created_at: metric.created_at,
     }));
   };
 
