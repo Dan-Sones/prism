@@ -240,10 +240,26 @@ paths:
           $ref: "../problems.yaml#/responses/InternalServerError"
 
   /metrics-catalog/:
+    get:
+      tags:
+        - Metric Catalog
+      summary: List all metrics
+      operationId: getMetrics
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Metric"
+        "500":
+          $ref: "../problems.yaml#/responses/InternalServerError"
+
     post:
       tags:
         - Metric Catalog
-      summary: Create Metric
+      summary: Create a metric
       operationId: createMetric
       requestBody:
         required: true
@@ -253,11 +269,65 @@ paths:
               $ref: "#/components/schemas/CreateMetricRequest"
       responses:
         "201":
-          description: Event type created successfully
+          description: Metric created successfully
         "400":
           $ref: "../problems.yaml#/responses/BadRequest"
         "422":
           $ref: "../problems.yaml#/responses/ValidationError"
+        "500":
+          $ref: "../problems.yaml#/responses/InternalServerError"
+
+  /metrics-catalog/metric-key-available:
+    get:
+      tags:
+        - Metric Catalog
+      summary: Check if a metric key is available
+      operationId: isMetricKeyAvailable
+      parameters:
+        - name: metricKey
+          in: query
+          required: true
+          schema:
+            type: string
+          example: "avg_order_value"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  available:
+                    type: boolean
+              example:
+                available: true
+        "400":
+          $ref: "../problems.yaml#/responses/BadRequest"
+        "500":
+          $ref: "../problems.yaml#/responses/InternalServerError"
+
+  /metrics-catalog/{metricKey}:
+    get:
+      tags:
+        - Metric Catalog
+      summary: Get a metric by key
+      operationId: getMetricByKey
+      parameters:
+        - $ref: "#/components/parameters/metricKey"
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Metric"
+        "400":
+          $ref: "../problems.yaml#/responses/BadRequest"
+        "404":
+          description: Metric not found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "../problems.yaml#/schemas/ProblemDetail"
         "500":
           $ref: "../problems.yaml#/responses/InternalServerError"
 
@@ -280,6 +350,15 @@ components:
         type: string
         pattern: "^[a-zA-Z][a-zA-Z0-9_-]*$"
       example: "purchase_completed"
+
+    metricKey:
+      name: metricKey
+      in: path
+      required: true
+      schema:
+        type: string
+        pattern: "^[a-zA-Z][a-zA-Z0-9_-]*$"
+      example: "avg_order_value"
 
     graphScale:
       name: graphScale
@@ -419,6 +498,52 @@ components:
           type: string
           format: date-time
 
+    Metric:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "a3f1b2c4-5678-9abc-def0-1234567890ab"
+        name:
+          type: string
+          example: "Average Order Value"
+        metric_key:
+          type: string
+          example: "avg_order_value"
+        description:
+          type: string
+          example: "Average value of completed orders"
+        created_at:
+          type: string
+          format: date-time
+        metric_type:
+          $ref: "#/components/schemas/MetricType"
+        analysis_unit:
+          $ref: "#/components/schemas/AnalysisUnit"
+        metric_components:
+          type: array
+          items:
+            $ref: "#/components/schemas/MetricComponent"
+
+    MetricComponent:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "b4c2d3e5-6789-0abc-def1-2345678901bc"
+        role:
+          $ref: "#/components/schemas/ComponentRole"
+        event_type:
+          $ref: "#/components/schemas/EventType"
+        aggregation_operation:
+          $ref: "#/components/schemas/AggregationOperation"
+        component_role:
+          $ref: "#/components/schemas/ComponentRole"
+        aggregation_field:
+          $ref: "#/components/schemas/EventField"
+
     CreateMetricRequest:
       type: object
       required:
@@ -497,3 +622,5 @@ components:
         - MIN
         - MAX
         - COUNT_DISTINCT
+        - PERCENTILE_95
+        - PERCENTILE_99
