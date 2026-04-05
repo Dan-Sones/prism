@@ -25,7 +25,7 @@ const CreateMetric = () => {
       name: "",
       metric_key: "",
       metric_type: "simple",
-      analysis_unit: "user_id",
+      analysis_unit: "user",
       components: [
         {
           event_type_id: undefined,

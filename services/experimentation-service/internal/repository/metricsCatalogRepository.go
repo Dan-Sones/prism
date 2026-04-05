@@ -4,6 +4,7 @@ import (
 	"context"
 	"experimentation-service/internal/model/metricrequest"
 
+	"github.com/Dan-Sones/prismdbmodels/model/metric"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -48,4 +49,22 @@ func (m *MetricsCatalogRepository) CreateMetric(ctx context.Context, metric metr
 	}
 
 	return nil
+}
+
+func (m *MetricsCatalogRepository) GetMetrics(ctx context.Context) ([]*metric.Metric, error) {
+	sql := `SELECT id, name, description, metric_key, metric_type, analysis_unit, created_at
+FROM prism.metrics`
+
+	rows, err := m.pgx.Query(ctx, sql)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	metrics, err := pgx.CollectRows(rows, pgx.RowToAddrOfStructByName[metric.Metric])
+	if err != nil {
+		return nil, err
+	}
+
+	return metrics, nil
 }

@@ -9,6 +9,7 @@ import (
 	"experimentation-service/internal/validators"
 	"log/slog"
 
+	"github.com/Dan-Sones/prismdbmodels/model/metric"
 	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5/pgconn"
 )
@@ -55,4 +56,14 @@ func (m *MetricsCatalogService) CreateMetric(ctx context.Context, req metricrequ
 	}
 
 	return nil, nil
+}
+
+func (m *MetricsCatalogService) GetMetrics(ctx context.Context) ([]*metric.Metric, error) {
+	metrics, err := m.metricsRepo.GetMetrics(ctx)
+	if err != nil {
+		m.logger.Error("Failed to retrieve metrics", "error", err)
+		return nil, err
+	}
+
+	return metrics, nil
 }

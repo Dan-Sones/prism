@@ -1,6 +1,8 @@
+import type { EventType, EventField } from "../../eventsCatalog";
+
 export type MetricType = "simple" | "ratio";
 
-export type AnalysisUnit = "user_id";
+export type AnalysisUnit = "user";
 
 export type ComponentRole = "base_event" | "numerator" | "denominator";
 
@@ -13,6 +15,25 @@ export type AggregationOperation =
   | "COUNT_DISTINCT"
   | "PERCENTILE_95"
   | "PERCENTILE_99";
+
+export type MetricComponent = {
+  id: string;
+  role: ComponentRole;
+  event_type: EventType;
+  aggregation_operation: AggregationOperation;
+  aggregation_field: EventField;
+};
+
+export type Metric = {
+  id: string;
+  name: string;
+  metric_key: string;
+  description: string;
+  created_at: string;
+  metric_type: MetricType;
+  analysis_unit: AnalysisUnit;
+  metric_components: MetricComponent[];
+};
 
 export type CreateMetricRequestComponent = {
   role: ComponentRole;

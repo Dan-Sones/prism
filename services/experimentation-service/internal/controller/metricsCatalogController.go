@@ -46,3 +46,15 @@ func (m *MetricsCatalogController) CreateMetric(w http.ResponseWriter, r *http.R
 
 	w.WriteHeader(http.StatusCreated)
 }
+
+func (m *MetricsCatalogController) GetMetrics(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	metrics, err := m.metricsCatalogService.GetMetrics(ctx)
+	if err != nil {
+		problems.NewInternalServerError().Write(w)
+		return
+	}
+
+	WriteResponse(w, http.StatusOK, metrics)
+}

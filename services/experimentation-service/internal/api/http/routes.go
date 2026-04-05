@@ -43,6 +43,7 @@ func RegisterRoutes(router *chi.Mux, c Controllers) {
 
 		r.Route("/metrics-catalog", func(r chi.Router) {
 			r.Post("/", c.MetricsCatalogController.CreateMetric)
+			r.Get("/", c.MetricsCatalogController.GetMetrics)
 		})
 	})
 }
