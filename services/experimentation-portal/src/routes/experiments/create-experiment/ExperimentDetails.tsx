@@ -5,10 +5,29 @@ import FieldError from "../../../components/form/FieldError";
 import TextInput from "../../../components/form/TextInput";
 import Label from "../../../components/form/Label";
 import LargeTextInput from "../../../components/form/LargeTextInput";
+import DateRangePicker from "../../../components/datePicker/DateRangePicker";
+import type { DateRange } from "react-day-picker";
 
 const ExperimentDetails = () => {
-  const { register, formState } = useFormContext<CreateExperimentRequestBody>();
+  const { register, formState, setValue, watch } =
+    useFormContext<CreateExperimentRequestBody>();
   const { errors } = formState;
+
+  const setFromDate = (date: Date) => {
+    setValue("start_time", date);
+  };
+
+  const setToDate = (date: Date) => {
+    setValue("end_time", date);
+  };
+
+  const start_time = watch("start_time");
+  const end_time = watch("end_time");
+
+  const range: DateRange = {
+    from: start_time,
+    to: end_time,
+  };
 
   return (
     <Card>
@@ -52,6 +71,19 @@ const ExperimentDetails = () => {
           />
           <FieldError error={errors.feature_flag_id} />
         </div>
+        <div className="flex flex-col gap-2">
+          <Label htmlFor="description">Experiment Runtime</Label>
+          <p className="text-xs text-gray-500">
+            Your Experiment will start and end at 00:00 UTC on the selected
+            dates.
+          </p>
+          <DateRangePicker
+            setStartDate={setFromDate}
+            setEndDate={setToDate}
+            range={range}
+          />
+        </div>
+
         <div className="flex flex-col gap-1">
           <Label htmlFor="hypothesis" required>
             Hypothesis

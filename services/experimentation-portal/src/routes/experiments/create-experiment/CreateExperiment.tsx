@@ -4,8 +4,8 @@ import JourneyBar from "../../../components/journeyBar/JourneyBar";
 import ExperimentDetails from "./ExperimentDetails";
 import type { CreateExperimentRequestBody } from "../../../api/experiments";
 import { FormProvider, useForm } from "react-hook-form";
-import { Form } from "react-router";
 import React from "react";
+import PrimaryButton from "../../../components/button/PrimaryButton";
 
 const CreateExperiment = () => {
   const journeyBarItems: Array<JourneyBarItemT> = [
@@ -41,6 +41,9 @@ const CreateExperiment = () => {
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
           <ExperimentDetails />
+          <PrimaryButton type="submit" className="text-sm">
+            Create Event Type
+          </PrimaryButton>
         </form>
       </FormProvider>
     </React.Fragment>

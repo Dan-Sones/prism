@@ -7,8 +7,8 @@ export type Experiment = {
 export type CreateExperimentRequestBody = {
   name: string;
   feature_flag_id: string;
-  start_time: number;
-  end_time: number;
+  start_time: Date;
+  end_time: Date;
   hypothesis: string;
   description: string;
 };
