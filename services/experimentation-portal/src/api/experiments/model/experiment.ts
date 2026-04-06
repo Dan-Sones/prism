@@ -11,4 +11,14 @@ export type CreateExperimentRequestBody = {
   end_time: Date;
   hypothesis: string;
   description: string;
+  variants: Array<CreateExperimentVariant>;
 };
+
+export type CreateExperimentVariant = {
+  variant_id: string;
+  upper_bound: number;
+  lower_bound: number;
+  variantType: VariantType;
+};
+
+export type VariantType = "control" | "treatment";

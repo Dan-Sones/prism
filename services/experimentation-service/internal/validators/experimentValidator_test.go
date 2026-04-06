@@ -1,6 +1,7 @@
 package validators
 
 import (
+	"experimentation-service/internal/model/experiment"
 	"experimentation-service/internal/problems"
 	"strings"
 	"testing"
@@ -12,18 +13,22 @@ import (
 func TestValidateExperiment(t *testing.T) {
 	tests := []struct {
 		name       string
-		experiment model.Experiment
+		experiment experiment.CreateExperimentRequest
 		want       []problems.Violation
 	}{
 		{
 			name: "Empty name",
-			experiment: model.Experiment{
+			experiment: experiment.CreateExperimentRequest{
 				Name:          "",
 				StartTime:     time.Now().Add(time.Hour),
 				EndTime:       time.Now().Add(2 * time.Hour),
 				Hypothesis:    "Test hypothesis",
 				Description:   "Test description",
 				FeatureFlagID: "test-feature-flag",
+				Variants: []experiment.CreateExperimentVariant{
+					{VariantKey: "control", UpperBound: 50, LowerBound: 0, VariantType: model.VariantTypeControl},
+					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: model.VariantTypeTreatment},
+				},
 			},
 			want: []problems.Violation{
 				{
@@ -34,13 +39,17 @@ func TestValidateExperiment(t *testing.T) {
 		},
 		{
 			name: "Name too long",
-			experiment: model.Experiment{
+			experiment: experiment.CreateExperimentRequest{
 				Name:          strings.Repeat("a", 101),
 				StartTime:     time.Now().Add(time.Hour),
 				EndTime:       time.Now().Add(2 * time.Hour),
 				Hypothesis:    "Test hypothesis",
 				Description:   "Test description",
 				FeatureFlagID: "test-feature-flag",
+				Variants: []experiment.CreateExperimentVariant{
+					{VariantKey: "control", UpperBound: 50, LowerBound: 0, VariantType: model.VariantTypeControl},
+					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: model.VariantTypeTreatment},
+				},
 			},
 			want: []problems.Violation{
 				{
@@ -51,13 +60,17 @@ func TestValidateExperiment(t *testing.T) {
 		},
 		{
 			name: "Start time in the past",
-			experiment: model.Experiment{
+			experiment: experiment.CreateExperimentRequest{
 				Name:          "Test Experiment",
 				StartTime:     time.Now().Add(-time.Hour),
 				EndTime:       time.Now().Add(2 * time.Hour),
 				Hypothesis:    "Test hypothesis",
 				Description:   "Test description",
 				FeatureFlagID: "test-feature-flag",
+				Variants: []experiment.CreateExperimentVariant{
+					{VariantKey: "control", UpperBound: 50, LowerBound: 0, VariantType: model.VariantTypeControl},
+					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: model.VariantTypeTreatment},
+				},
 			},
 			want: []problems.Violation{
 				{
@@ -68,13 +81,17 @@ func TestValidateExperiment(t *testing.T) {
 		},
 		{
 			name: "End time in the past",
-			experiment: model.Experiment{
+			experiment: experiment.CreateExperimentRequest{
 				Name:          "Test Experiment",
 				StartTime:     time.Now().Add(time.Hour),
 				EndTime:       time.Now().Add(-time.Hour),
 				Hypothesis:    "Test hypothesis",
 				Description:   "Test description",
 				FeatureFlagID: "test-feature-flag",
+				Variants: []experiment.CreateExperimentVariant{
+					{VariantKey: "control", UpperBound: 50, LowerBound: 0, VariantType: model.VariantTypeControl},
+					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: model.VariantTypeTreatment},
+				},
 			},
 			want: []problems.Violation{
 				{
@@ -89,13 +106,17 @@ func TestValidateExperiment(t *testing.T) {
 		},
 		{
 			name: "End time before start time",
-			experiment: model.Experiment{
+			experiment: experiment.CreateExperimentRequest{
 				Name:          "Test Experiment",
 				StartTime:     time.Now().Add(time.Hour),
 				EndTime:       time.Now().Add(time.Minute),
 				Hypothesis:    "Test hypothesis",
 				Description:   "Test description",
 				FeatureFlagID: "test-feature-flag",
+				Variants: []experiment.CreateExperimentVariant{
+					{VariantKey: "control", UpperBound: 50, LowerBound: 0, VariantType: model.VariantTypeControl},
+					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: model.VariantTypeTreatment},
+				},
 			},
 			want: []problems.Violation{
 				{
@@ -106,13 +127,17 @@ func TestValidateExperiment(t *testing.T) {
 		},
 		{
 			name: "Missing feature flag ID",
-			experiment: model.Experiment{
+			experiment: experiment.CreateExperimentRequest{
 				Name:          "Test Experiment",
 				StartTime:     time.Now().Add(time.Hour),
 				EndTime:       time.Now().Add(2 * time.Hour),
 				Hypothesis:    "Test hypothesis",
 				Description:   "Test description",
 				FeatureFlagID: "",
+				Variants: []experiment.CreateExperimentVariant{
+					{VariantKey: "control", UpperBound: 50, LowerBound: 0, VariantType: model.VariantTypeControl},
+					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: model.VariantTypeTreatment},
+				},
 			},
 			want: []problems.Violation{
 				{
@@ -123,13 +148,17 @@ func TestValidateExperiment(t *testing.T) {
 		},
 		{
 			name: "Feature flag ID too long",
-			experiment: model.Experiment{
+			experiment: experiment.CreateExperimentRequest{
 				Name:          "Test Experiment",
 				StartTime:     time.Now().Add(time.Hour),
 				EndTime:       time.Now().Add(2 * time.Hour),
 				Hypothesis:    "Test hypothesis",
 				Description:   "Test description",
 				FeatureFlagID: strings.Repeat("a", 101),
+				Variants: []experiment.CreateExperimentVariant{
+					{VariantKey: "control", UpperBound: 50, LowerBound: 0, VariantType: model.VariantTypeControl},
+					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: model.VariantTypeTreatment},
+				},
 			},
 			want: []problems.Violation{
 				{
@@ -140,13 +169,17 @@ func TestValidateExperiment(t *testing.T) {
 		},
 		{
 			name: "Feature flag ID with invalid characters",
-			experiment: model.Experiment{
+			experiment: experiment.CreateExperimentRequest{
 				Name:          "Test Experiment",
 				StartTime:     time.Now().Add(time.Hour),
 				EndTime:       time.Now().Add(2 * time.Hour),
 				Hypothesis:    "Test hypothesis",
 				Description:   "Test description",
 				FeatureFlagID: "invalid feature flag id!",
+				Variants: []experiment.CreateExperimentVariant{
+					{VariantKey: "control", UpperBound: 50, LowerBound: 0, VariantType: model.VariantTypeControl},
+					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: model.VariantTypeTreatment},
+				},
 			},
 			want: []problems.Violation{
 				{
@@ -157,13 +190,17 @@ func TestValidateExperiment(t *testing.T) {
 		},
 		{
 			name: "Missing description",
-			experiment: model.Experiment{
+			experiment: experiment.CreateExperimentRequest{
 				Name:          "Test Experiment",
 				StartTime:     time.Now().Add(time.Hour),
 				EndTime:       time.Now().Add(2 * time.Hour),
 				Hypothesis:    "Test hypothesis",
 				Description:   "",
 				FeatureFlagID: "test-feature-flag",
+				Variants: []experiment.CreateExperimentVariant{
+					{VariantKey: "control", UpperBound: 50, LowerBound: 0, VariantType: model.VariantTypeControl},
+					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: model.VariantTypeTreatment},
+				},
 			},
 			want: []problems.Violation{
 				{
@@ -173,14 +210,93 @@ func TestValidateExperiment(t *testing.T) {
 			},
 		},
 		{
+			name: "Missing Control",
+			experiment: experiment.CreateExperimentRequest{
+				Name:          "Test Experiment",
+				StartTime:     time.Now().Add(time.Hour),
+				EndTime:       time.Now().Add(2 * time.Hour),
+				Hypothesis:    "Test hypothesis",
+				Description:   "Test description",
+				FeatureFlagID: "test-feature-flag",
+				Variants: []experiment.CreateExperimentVariant{
+					{
+						VariantKey:  "treatment",
+						UpperBound:  100,
+						LowerBound:  0,
+						VariantType: model.VariantTypeTreatment,
+					},
+				},
+			},
+			want: []problems.Violation{
+				{
+					Field:   "variants",
+					Message: "At least one control variant is required",
+				},
+			},
+		},
+		{
+			name: "Missing Treatment",
+			experiment: experiment.CreateExperimentRequest{
+				Name:          "Test Experiment",
+				StartTime:     time.Now().Add(time.Hour),
+				EndTime:       time.Now().Add(2 * time.Hour),
+				Hypothesis:    "Test hypothesis",
+				Description:   "Test description",
+				FeatureFlagID: "test-feature-flag",
+				Variants: []experiment.CreateExperimentVariant{
+					{
+						VariantKey:  "control",
+						UpperBound:  100,
+						LowerBound:  0,
+						VariantType: model.VariantTypeControl,
+					},
+				},
+			},
+			want: []problems.Violation{
+				{
+					Field:   "variants",
+					Message: "At least one treatment variant is required",
+				},
+			},
+		},
+		{
+			name: "Invalid variant bounds",
+			experiment: experiment.CreateExperimentRequest{
+				Name:          "Test Experiment",
+				StartTime:     time.Now().Add(time.Hour),
+				EndTime:       time.Now().Add(2 * time.Hour),
+				Hypothesis:    "Test hypothesis",
+				Description:   "Test description",
+				FeatureFlagID: "test-feature-flag",
+				Variants: []experiment.CreateExperimentVariant{
+					{VariantKey: "control", UpperBound: 150, LowerBound: -10, VariantType: model.VariantTypeControl},
+					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: model.VariantTypeTreatment},
+				},
+			},
+			want: []problems.Violation{
+				{
+					Field:   "upper_bound",
+					Message: "Upper bound must be less than or equal to 100",
+				},
+				{
+					Field:   "lower_bound",
+					Message: "Lower bound must be greater than or equal to 0",
+				},
+			},
+		},
+		{
 			name: "Valid experiment",
-			experiment: model.Experiment{
+			experiment: experiment.CreateExperimentRequest{
 				Name:          "Valid Experiment",
 				StartTime:     time.Now().Add(time.Hour),
 				EndTime:       time.Now().Add(2 * time.Hour),
 				Hypothesis:    "Test hypothesis",
 				Description:   "Test description",
 				FeatureFlagID: "test-feature-flag",
+				Variants: []experiment.CreateExperimentVariant{
+					{VariantKey: "control", UpperBound: 50, LowerBound: 0, VariantType: model.VariantTypeControl},
+					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: model.VariantTypeTreatment},
+				},
 			},
 			want: []problems.Violation{},
 		},

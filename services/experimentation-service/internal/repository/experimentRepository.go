@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"experimentation-service/internal/model/experiment"
 
 	"github.com/Dan-Sones/prismdbmodels/model"
 	"github.com/google/uuid"
@@ -22,13 +23,13 @@ func NewExperimentRepository(pgxPool *pgxpool.Pool) *ExperimentRepository {
 	}
 }
 
-func (r *ExperimentRepository) CreateNewExperiment(ctx context.Context, experiment model.Experiment) error {
-	sql := `INSERT INTO prism.experiments (name) VALUES ($1) RETURNING id`
-
-	err := r.pgxPool.QueryRow(ctx, sql, experiment.Name).Scan(&experiment.ID)
-	if err != nil {
-		return err
-	}
+func (r *ExperimentRepository) CreateNewExperiment(ctx context.Context, experiment experiment.CreateExperimentRequest) error {
+	//sql := `INSERT INTO prism.experiments (name) VALUES ($1) RETURNING id`
+	//
+	//err := r.pgxPool.QueryRow(ctx, sql, experiment.Name).Scan(&experiment.ID)
+	//if err != nil {
+	//	return err
+	//}
 
 	return nil
 }

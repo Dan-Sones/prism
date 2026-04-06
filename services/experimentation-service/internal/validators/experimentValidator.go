@@ -1,6 +1,7 @@
 package validators
 
 import (
+	"experimentation-service/internal/model/experiment"
 	"experimentation-service/internal/problems"
 	"regexp"
 	"time"
@@ -8,7 +9,7 @@ import (
 	"github.com/Dan-Sones/prismdbmodels/model"
 )
 
-func ValidateExperiment(experiment model.Experiment) []problems.Violation {
+func ValidateExperiment(experiment experiment.CreateExperimentRequest) []problems.Violation {
 	var violations []problems.Violation
 
 	if experiment.Name == "" {
@@ -97,5 +98,51 @@ func ValidateExperiment(experiment model.Experiment) []problems.Violation {
 		})
 	}
 
+	seenControl := false
+	seenTreatment := false
+	for _, variant := range experiment.Variants {
+		if variant.VariantType == model.VariantTypeControl {
+			seenControl = true
+		} else if variant.VariantType == model.VariantTypeTreatment {
+			seenTreatment = true
+		}
+		variantViolations := ValidateExperimentVariant(variant)
+		violations = append(violations, variantViolations...)
+	}
+
+	if !seenControl {
+		violations = append(violations, problems.Violation{
+			Field:   "variants",
+			Message: "At least one control variant is required",
+		})
+	}
+
+	if !seenTreatment {
+		violations = append(violations, problems.Violation{
+			Field:   "variants",
+			Message: "At least one treatment variant is required",
+		})
+	}
+
+	return violations
+}
+
+func ValidateExperimentVariant(variant experiment.CreateExperimentVariant) []problems.Violation {
+	var violations []problems.Violation
+
+	if variant.UpperBound > 100 {
+		violations = append(violations, problems.Violation{
+			Field:   "upper_bound",
+			Message: "Upper bound must be less than or equal to 100",
+		})
+	}
+
+	if variant.LowerBound < 0 {
+		violations = append(violations, problems.Violation{
+			Field:   "lower_bound",
+			Message: "Lower bound must be greater than or equal to 0",
+		})
+	}
+	
 	return violations
 }

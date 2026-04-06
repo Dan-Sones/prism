@@ -2,11 +2,10 @@ package controller
 
 import (
 	"encoding/json"
+	"experimentation-service/internal/model/experiment"
 	"experimentation-service/internal/problems"
 	"experimentation-service/internal/service"
 	"net/http"
-
-	"github.com/Dan-Sones/prismdbmodels/model"
 )
 
 type ExperimentController struct {
@@ -27,7 +26,7 @@ func (c *ExperimentController) CreateExperiment(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	var body model.Experiment
+	var body experiment.CreateExperimentRequest
 	err := json.NewDecoder(r.Body).Decode(&body)
 	if err != nil {
 		problems.NewBadRequestError("Invalid request body").Write(w)

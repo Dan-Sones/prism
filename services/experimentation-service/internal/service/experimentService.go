@@ -2,12 +2,11 @@ package service
 
 import (
 	"context"
+	"experimentation-service/internal/model/experiment"
 	"experimentation-service/internal/problems"
 	"experimentation-service/internal/repository"
 	"experimentation-service/internal/validators"
 	"log/slog"
-
-	"github.com/Dan-Sones/prismdbmodels/model"
 )
 
 type ExperimentService struct {
@@ -22,7 +21,7 @@ func NewExperimentService(experimentRepository *repository.ExperimentRepository,
 	}
 }
 
-func (s *ExperimentService) CreateExperiment(ctx context.Context, experiment model.Experiment) ([]problems.Violation, error) {
+func (s *ExperimentService) CreateExperiment(ctx context.Context, experiment experiment.CreateExperimentRequest) ([]problems.Violation, error) {
 	violations := validators.ValidateExperiment(experiment)
 	if len(violations) > 0 {
 		return violations, nil
