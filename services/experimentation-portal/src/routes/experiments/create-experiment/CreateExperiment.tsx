@@ -1,30 +1,32 @@
-import type { JourneyBarItemT } from "../../../components/journeyBar/JourneyBar";
 import PageTitle from "../../../components/title/PageTitle";
 import JourneyBar from "../../../components/journeyBar/JourneyBar";
 import ExperimentDetails from "./ExperimentDetails";
 import type { CreateExperimentRequestBody } from "../../../api/experiments";
 import { FormProvider, useForm } from "react-hook-form";
 import React from "react";
-import PrimaryButton from "../../../components/button/PrimaryButton";
+import JourneyBarNavigator from "../../../components/journeyBar/JourneyBarNavigator";
+import { UseJourneyBar, type JourneyItem } from "../../../hooks/useJourneyBar";
 
 const CreateExperiment = () => {
-  const journeyBarItems: Array<JourneyBarItemT> = [
+  const journeyItems: JourneyItem[] = [
     {
       label: "Experiment details",
-      onClick: () => {},
-      complete: true,
+      component: <ExperimentDetails />,
     },
     {
-      label: "Define variations",
-      onClick: () => {},
-      complete: false,
-    },
-    {
-      label: "Targeting",
-      onClick: () => {},
-      complete: false,
+      label: "Test Item",
+      component: <p>Test Item Content</p>,
     },
   ];
+
+  const {
+    activeComponent,
+    journeyBarItems,
+    toggleComplete,
+    activePageIndex,
+    onNext,
+    onBack,
+  } = UseJourneyBar({ items: journeyItems });
 
   const form = useForm<CreateExperimentRequestBody>({
     mode: "onChange",
@@ -34,18 +36,59 @@ const CreateExperiment = () => {
     console.log(data);
   };
 
+  const {
+    name,
+    feature_flag_id,
+    hypothesis,
+    description,
+    start_time,
+    end_time,
+  } = form.watch();
+
+  const onNextPressed = () => {
+    toggleComplete(activePageIndex);
+    onNext();
+  };
+
+  const onBackPressed = () => {
+    onBack();
+  };
+
+  const experimentDetailsComplete =
+    form.formState.errors.name !== undefined ||
+    form.formState.errors.feature_flag_id !== undefined ||
+    form.formState.errors.hypothesis !== undefined ||
+    form.formState.errors.description !== undefined ||
+    start_time === undefined ||
+    end_time === undefined ||
+    start_time >= end_time ||
+    name === "" ||
+    feature_flag_id === "" ||
+    hypothesis === "" ||
+    description === "";
+
+  const pageCompleteConditions: Array<boolean> = [
+    experimentDetailsComplete,
+    true,
+  ];
+
+  const complete = pageCompleteConditions[activePageIndex];
+
   return (
     <React.Fragment>
       <PageTitle>Create Experiment</PageTitle>
-      <JourneyBar items={journeyBarItems} activeItemIndex={0} />
+      <JourneyBar items={journeyBarItems} activeItemIndex={activePageIndex} />
       <FormProvider {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)}>
-          <ExperimentDetails />
-          <PrimaryButton type="submit" className="text-sm">
-            Create Event Type
-          </PrimaryButton>
-        </form>
+        <form onSubmit={form.handleSubmit(onSubmit)}>{activeComponent}</form>
       </FormProvider>
+      <div className="flex justify-center">
+        <JourneyBarNavigator
+          onNext={onNextPressed}
+          nextDisabled={complete}
+          onBack={onBackPressed}
+          backDisabled={activePageIndex === 0}
+        />
+      </div>
     </React.Fragment>
   );
 };
