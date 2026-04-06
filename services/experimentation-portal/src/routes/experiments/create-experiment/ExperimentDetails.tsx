@@ -83,19 +83,31 @@ const ExperimentDetails = () => {
             range={range}
           />
         </div>
-
         <div className="flex flex-col gap-1">
           <Label htmlFor="hypothesis" required>
             Hypothesis
           </Label>
           <LargeTextInput
             id="hypothesis"
-            placeholder="e.g. Changing the buy button color will increase conversions"
+            placeholder="e.g. Changing the buy button color to red will increase total revenue."
             {...register("hypothesis", {
               required: "Hypothesis is required",
             })}
           />
           <FieldError error={errors.hypothesis} />
+        </div>
+        <div className="flex flex-col gap-1">
+          <Label htmlFor="description" required>
+            Description
+          </Label>
+          <LargeTextInput
+            id="description"
+            placeholder="e.g. This experiment aims to optimize the product page by determining the button color with the highest conversion rate."
+            {...register("description", {
+              required: "Description is required",
+            })}
+          />
+          <FieldError error={errors.description} />
         </div>
       </div>
     </Card>
