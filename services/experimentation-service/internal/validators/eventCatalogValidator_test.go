@@ -2,6 +2,7 @@ package validators
 
 import (
 	"experimentation-service/internal/problems"
+	"strings"
 	"testing"
 
 	"github.com/Dan-Sones/prismdbmodels/model/event"
@@ -39,7 +40,7 @@ func TestValidateEventField(t *testing.T) {
 		{
 			name: "Name exceeds max length",
 			field: event.EventField{
-				Name:     string(make([]rune, 101)),
+				Name:     strings.Repeat("a", 101),
 				FieldKey: "order_total",
 				DataType: event.DataTypeFloat,
 			},
@@ -114,14 +115,10 @@ func TestValidateEventField(t *testing.T) {
 			name: "Field key exceeds max length",
 			field: event.EventField{
 				Name:     "Order Total",
-				FieldKey: string(make([]rune, 51)),
+				FieldKey: strings.Repeat("a", 51),
 				DataType: event.DataTypeFloat,
 			},
 			want: []problems.Violation{
-				{
-					Field:   "field_key",
-					Message: "field_key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
-				},
 				{
 					Field:   "field_key",
 					Message: "field_key must be less than 50 characters",
@@ -208,7 +205,7 @@ func TestValidateEventType(t *testing.T) {
 		{
 			name: "Name too long",
 			event: event.EventType{
-				Name:     string(make([]rune, 101)),
+				Name:     strings.Repeat("a", 101),
 				EventKey: "purchase_completed",
 				Fields: []event.EventField{
 					{
@@ -269,7 +266,7 @@ func TestValidateEventType(t *testing.T) {
 			name: "Event key too long",
 			event: event.EventType{
 				Name:     "Purchase Completed",
-				EventKey: string(make([]rune, 51)),
+				EventKey: strings.Repeat("a", 51),
 				Fields: []event.EventField{
 					{
 						Name:     "Order Total",
@@ -279,10 +276,6 @@ func TestValidateEventType(t *testing.T) {
 				},
 			},
 			want: []problems.Violation{
-				{
-					Field:   "event_key",
-					Message: "event_key must start with a letter and contain only alphanumeric characters, underscores, or dashes",
-				},
 				{
 					Field:   "event_key",
 					Message: "event_key must be less than 50 characters",

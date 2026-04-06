@@ -1,7 +1,11 @@
-import Card from "../../../components/card/Card";
 import type { JourneyBarItemT } from "../../../components/journeyBar/JourneyBar";
 import PageTitle from "../../../components/title/PageTitle";
 import JourneyBar from "../../../components/journeyBar/JourneyBar";
+import ExperimentDetails from "./ExperimentDetails";
+import type { CreateExperimentRequestBody } from "../../../api/experiments";
+import { FormProvider, useForm } from "react-hook-form";
+import { Form } from "react-router";
+import React from "react";
 
 const CreateExperiment = () => {
   const journeyBarItems: Array<JourneyBarItemT> = [
@@ -22,12 +26,24 @@ const CreateExperiment = () => {
     },
   ];
 
+  const form = useForm<CreateExperimentRequestBody>({
+    mode: "onChange",
+  });
+
+  const onSubmit = (data: CreateExperimentRequestBody) => {
+    console.log(data);
+  };
+
   return (
-    <>
+    <React.Fragment>
       <PageTitle>Create Experiment</PageTitle>
       <JourneyBar items={journeyBarItems} activeItemIndex={0} />
-      <Card>yo yo yo</Card>
-    </>
+      <FormProvider {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)}>
+          <ExperimentDetails />
+        </form>
+      </FormProvider>
+    </React.Fragment>
   );
 };
 
