@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/Dan-Sones/prismdbmodels/model"
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -61,10 +62,10 @@ func (r *ExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Co
 		return nil, err
 	}
 
-	experimentMap := make(map[int32]*model.ExperimentWithVariants)
+	experimentMap := make(map[uuid.UUID]*model.ExperimentWithVariants)
 
 	for rows.Next() {
-		var experimentId int32
+		var experimentId uuid.UUID
 		var exp model.Experiment
 		var ev model.ExperimentVariant
 		err := rows.Scan(&experimentId, &exp.Name, &exp.FeatureFlagID, &exp.UniqueSalt, &ev.VariantKey, &ev.UpperBound, &ev.LowerBound)
