@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+option go_package="experimentation-service/internal/grpc/generated/v1;stats_engine";
+
+package stats_engine.v1;
+
+service StatsEngine {
+  rpc CalculateSampleSizeAbsoluteMetric (CalculateSampleSizeAbsoluteMetricRequest) returns (CalculateSampleSizeAbsoluteMetricResponse);
+}
+
+message CalculateSampleSizeAbsoluteMetricRequest {
+  float absolute_percentage_mde = 1;
+  float baseline_proportion = 2;
+  float alpha = 3;
+  float power = 4;
+  int32 variant_count = 5;
+}
+
+message CalculateSampleSizeAbsoluteMetricResponse {
+  int32 total = 1;
+  repeated int32 per_variant = 2;
+  repeated float split = 3;
+}
