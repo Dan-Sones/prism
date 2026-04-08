@@ -41,6 +41,7 @@ const SelectEventKeyCombobox = () => {
           <div className="min-w-64">
             <Controller
               control={control}
+              // TODO: THIS IS HARDCODED AND WON'T WORK FOR RATIO components
               name={`components.0.event_field_id`}
               render={({ field }) => (
                 <Dropdown

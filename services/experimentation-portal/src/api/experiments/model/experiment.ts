@@ -12,6 +12,7 @@ export type CreateExperimentRequestBody = {
   hypothesis: string;
   description: string;
   variants: Array<CreateExperimentVariant>;
+  metrics: Array<CreateExperimentMetric>;
 };
 
 export type CreateExperimentVariant = {
@@ -21,4 +22,15 @@ export type CreateExperimentVariant = {
   variantType: VariantType;
 };
 
+export type CreateExperimentMetric = {
+  metric_id: string;
+  type: CreateExperimentMetricRole;
+  direction: CreateExperimentMetricDirection;
+  mde?: number;
+  nim?: number;
+};
+
+export type CreateExperimentMetricRole = 'success' | 'guardrail' | 'deterioration' | 'quality';
 export type VariantType = "control" | "treatment";
+export type CreateExperimentMetricDirection = "increase" | "decrease" | "neutral";
+

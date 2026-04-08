@@ -3,7 +3,8 @@ package experiment
 import (
 	"time"
 
-	"github.com/Dan-Sones/prismdbmodels/model"
+	"github.com/Dan-Sones/prismdbmodels/model/experiment"
+	"github.com/google/uuid"
 )
 
 type CreateExperimentRequest struct {
@@ -14,11 +15,21 @@ type CreateExperimentRequest struct {
 	Hypothesis    string                    `json:"hypothesis"`
 	Description   string                    `json:"description"`
 	Variants      []CreateExperimentVariant `json:"variants"`
+	Metrics       []CreateExperimentMetric  `json:"metrics"`
 }
 
 type CreateExperimentVariant struct {
-	VariantKey  string            `json:"variant_id"`
-	UpperBound  int               `json:"upper_bound"`
-	LowerBound  int               `json:"lower_bound"`
-	VariantType model.VariantType `json:"variant_type"`
+	VariantKey  string                 `json:"variant_id"`
+	UpperBound  int                    `json:"upper_bound"`
+	LowerBound  int                    `json:"lower_bound"`
+	VariantType experiment.VariantType `json:"variant_type"`
+}
+
+type CreateExperimentMetric struct {
+	MetricID   uuid.UUID                            `json:"metric_id"`
+	Type       experiment.ExperimentMetricRole      `json:"type"`
+	MetricRole experiment.ExperimentMetricRole      `json:"type"`
+	Direction  experiment.ExperimentMetricDirection `json:"direction"`
+	MDE        float64                              `json:"mde,omitempty"`
+	NIM        float64                              `json:"nim,omitempty"`
 }

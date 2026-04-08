@@ -1,11 +1,13 @@
 import PageTitle from "../../../components/title/PageTitle";
 import JourneyBar from "../../../components/journeyBar/JourneyBar";
-import ExperimentDetails from "./ExperimentDetails";
 import type { CreateExperimentRequestBody } from "../../../api/experiments";
 import { FormProvider, useForm } from "react-hook-form";
 import React from "react";
 import JourneyBarNavigator from "../../../components/journeyBar/JourneyBarNavigator";
 import { UseJourneyBar, type JourneyItem } from "../../../hooks/useJourneyBar";
+import VariantDetails from "./VariantDetails";
+import ExperimentMetrics from "./metrics/Metrics";
+import ExperimentDetails from "./ExperimentDetails";
 
 const CreateExperiment = () => {
   const journeyItems: JourneyItem[] = [
@@ -14,8 +16,12 @@ const CreateExperiment = () => {
       component: <ExperimentDetails />,
     },
     {
-      label: "Test Item",
-      component: <p>Test Item Content</p>,
+      label: "Metrics",
+      component: <ExperimentMetrics />,
+    },
+    {
+      label: "Variants and Sample Size",
+      component: <VariantDetails />,
     },
   ];
 
@@ -30,6 +36,9 @@ const CreateExperiment = () => {
 
   const form = useForm<CreateExperimentRequestBody>({
     mode: "onChange",
+    defaultValues: {
+      metrics: [{}],
+    },
   });
 
   const onSubmit = (data: CreateExperimentRequestBody) => {
@@ -67,9 +76,22 @@ const CreateExperiment = () => {
     hypothesis === "" ||
     description === "";
 
+  const metricsComplete =
+    form.formState.errors.metrics !== undefined ||
+    form.getValues("metrics").length === 0 ||
+    form
+      .getValues("metrics")
+      .some(
+        (metric) =>
+          metric.metric_id === undefined ||
+          metric.metric_id === "" ||
+          metric.type === undefined ||
+          metric.direction === undefined,
+      );
+
   const pageCompleteConditions: Array<boolean> = [
     experimentDetailsComplete,
-    true,
+    metricsComplete,
   ];
 
   const complete = pageCompleteConditions[activePageIndex];

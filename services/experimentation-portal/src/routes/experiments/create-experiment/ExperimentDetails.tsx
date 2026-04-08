@@ -73,15 +73,17 @@ const ExperimentDetails = () => {
         </div>
         <div className="flex flex-col gap-2">
           <Label htmlFor="description">Experiment Runtime</Label>
-          <p className="text-xs text-gray-500">
-            Your Experiment will start and end at 00:00 UTC on the selected
-            dates.
-          </p>
-          <DateRangePicker
-            setStartDate={setFromDate}
-            setEndDate={setToDate}
-            range={range}
-          />
+          <div>
+            <DateRangePicker
+              setStartDate={setFromDate}
+              setEndDate={setToDate}
+              range={range}
+            />
+            <p className="pt-1 text-xs text-gray-500">
+              Your Experiment will start and end at 00:00 UTC on the selected
+              dates.
+            </p>
+          </div>
         </div>
         <div className="flex flex-col gap-1">
           <Label htmlFor="hypothesis" required>

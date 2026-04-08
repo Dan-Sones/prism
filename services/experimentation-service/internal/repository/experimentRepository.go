@@ -4,13 +4,14 @@ import (
 	"context"
 	"experimentation-service/internal/model/experiment"
 
-	"github.com/Dan-Sones/prismdbmodels/model"
+	experiment2 "github.com/Dan-Sones/prismdbmodels/model/experiment"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type ExperimentRepositoryInterface interface {
-	GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*model.ExperimentWithVariants, error)
+	GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*experiment2.ExperimentWithVariants, error)
 }
 
 type ExperimentRepository struct {
@@ -24,17 +25,39 @@ func NewExperimentRepository(pgxPool *pgxpool.Pool) *ExperimentRepository {
 }
 
 func (r *ExperimentRepository) CreateNewExperiment(ctx context.Context, experiment experiment.CreateExperimentRequest) error {
-	//sql := `INSERT INTO prism.experiments (name) VALUES ($1) RETURNING id`
-	//
-	//err := r.pgxPool.QueryRow(ctx, sql, experiment.Name).Scan(&experiment.ID)
-	//if err != nil {
-	//	return err
-	//}
+	tx, err := r.pgxPool.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return err
+	}
+
+	defer tx.Rollback(ctx)
+
+	sql := `INSERT INTO prism.experiments (name, feature_flag_id, start_time, end_time) VALUES ($1, $2, $3, $4) RETURNING id`
+
+	var experimentId uuid.UUID
+	err = tx.QueryRow(ctx, sql, experiment.Name, experiment.FeatureFlagID, experiment.StartTime, experiment.EndTime).Scan(&experimentId)
+	if err != nil {
+		return err
+	}
+
+	for _, m := range experiment.Metrics {
+		sql = `INSERT INTO prism.experiment_metric (experiment_id, metric_id, direction, mde, nim) VALUES ($1, $2, $3, $4, $5)`
+		_, err = tx.Exec(ctx, sql, experimentId, m.MetricID, m.Type, m.Direction, m.MDE, m.NIM)
+		if err != nil {
+			return err
+		}
+	}
+
+	// TODO: INSERT VARIANTS
+
+	if err = tx.Commit(ctx); err != nil {
+		return err
+	}
 
 	return nil
 }
 
-func (r *ExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*model.ExperimentWithVariants, error) {
+func (r *ExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*experiment2.ExperimentWithVariants, error) {
 	sql := `SELECT
     e.id,
     e.name,
@@ -63,28 +86,28 @@ func (r *ExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Co
 		return nil, err
 	}
 
-	experimentMap := make(map[uuid.UUID]*model.ExperimentWithVariants)
+	experimentMap := make(map[uuid.UUID]*experiment2.ExperimentWithVariants)
 
 	for rows.Next() {
 		var experimentId uuid.UUID
-		var exp model.Experiment
-		var ev model.ExperimentVariant
+		var exp experiment2.Experiment
+		var ev experiment2.ExperimentVariant
 		err := rows.Scan(&experimentId, &exp.Name, &exp.FeatureFlagID, &exp.UniqueSalt, &ev.VariantKey, &ev.UpperBound, &ev.LowerBound)
 		if err != nil {
 			return nil, err
 		}
 
 		if _, exists := experimentMap[experimentId]; !exists {
-			experimentMap[experimentId] = &model.ExperimentWithVariants{
+			experimentMap[experimentId] = &experiment2.ExperimentWithVariants{
 				Experiment: exp,
-				Variants:   []model.ExperimentVariant{},
+				Variants:   []experiment2.ExperimentVariant{},
 			}
 		}
 
 		experimentMap[experimentId].Variants = append(experimentMap[experimentId].Variants, ev)
 	}
 
-	var results []*model.ExperimentWithVariants
+	var results []*experiment2.ExperimentWithVariants
 
 	for _, expWithVariants := range experimentMap {
 		results = append(results, expWithVariants)

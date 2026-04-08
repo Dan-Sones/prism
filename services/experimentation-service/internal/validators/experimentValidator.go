@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/Dan-Sones/prismdbmodels/model"
+	experiment2 "github.com/Dan-Sones/prismdbmodels/model/experiment"
 )
 
 func ValidateExperiment(experiment experiment.CreateExperimentRequest) []problems.Violation {
@@ -101,9 +101,9 @@ func ValidateExperiment(experiment experiment.CreateExperimentRequest) []problem
 	seenControl := false
 	seenTreatment := false
 	for _, variant := range experiment.Variants {
-		if variant.VariantType == model.VariantTypeControl {
+		if variant.VariantType == experiment2.VariantTypeControl {
 			seenControl = true
-		} else if variant.VariantType == model.VariantTypeTreatment {
+		} else if variant.VariantType == experiment2.VariantTypeTreatment {
 			seenTreatment = true
 		}
 		variantViolations := ValidateExperimentVariant(variant)
@@ -143,6 +143,6 @@ func ValidateExperimentVariant(variant experiment.CreateExperimentVariant) []pro
 			Message: "Lower bound must be greater than or equal to 0",
 		})
 	}
-	
+
 	return violations
 }

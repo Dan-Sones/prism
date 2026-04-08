@@ -109,3 +109,17 @@ func (m *MetricsCatalogRepository) GetMetricByKey(ctx context.Context, metricKey
 
 	return &metricRes, componentRows, nil
 }
+
+func (m *MetricsCatalogRepository) SearchMetrics(ctx context.Context, searchTerm string) ([]*metric.Metric, error) {
+	res, err := m.pgx.Query(ctx, "SELECT id, name, description, metric_key, metric_type, analysis_unit, created_at FROM prism.metrics WHERE metric_key ILIKE '%' || $1 || '%'", searchTerm)
+	if err != nil {
+		return nil, err
+	}
+
+	metrics, err := pgx.CollectRows(res, pgx.RowToAddrOfStructByName[metric.Metric])
+	if err != nil {
+		return nil, err
+	}
+
+	return metrics, nil
+}

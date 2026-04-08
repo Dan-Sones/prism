@@ -1,4 +1,4 @@
-package model
+package experiment
 
 type ExperimentWithVariants struct {
 	Experiment
