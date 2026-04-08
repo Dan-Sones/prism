@@ -9,7 +9,7 @@ const Layout = (props: React.PropsWithChildren) => {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
   return (
-    <div className="flex h-full w-full flex-row">
+    <div className="flex min-h-screen w-screen flex-row">
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-20 bg-black/30 lg:hidden"
@@ -19,7 +19,7 @@ const Layout = (props: React.PropsWithChildren) => {
 
       <Sidebar isOpen={sidebarOpen} />
 
-      <section className="relative flex h-full w-full grow flex-col bg-[rgb(244,243,245)]">
+      <section className="relative flex min-h-screen w-full grow flex-col bg-[rgb(244,243,245)]">
         <div className="flex items-center p-3 lg:hidden">
           <button
             onClick={() => setSidebarOpen(true)}
@@ -38,7 +38,7 @@ const Layout = (props: React.PropsWithChildren) => {
             },
           }}
         />
-        <div className="mx-auto flex w-full max-w-7xl flex-col gap-4 px-4 py-6 md:px-10 md:pt-8 lg:px-20 lg:pt-10">
+        <div className="mx-auto flex w-full max-w-7xl grow flex-col gap-4 px-4 py-6 md:px-10 md:pt-8 lg:px-20 lg:pt-10">
           {children}
         </div>
       </section>
