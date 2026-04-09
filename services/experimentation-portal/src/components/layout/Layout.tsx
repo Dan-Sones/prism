@@ -9,7 +9,7 @@ const Layout = (props: React.PropsWithChildren) => {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
 
   return (
-    <div className="flex min-h-screen w-screen flex-row">
+    <div className="flex min-h-screen w-full flex-row">
       {sidebarOpen && (
         <div
           className="fixed inset-0 z-20 bg-black/30 lg:hidden"
@@ -19,7 +19,7 @@ const Layout = (props: React.PropsWithChildren) => {
 
       <Sidebar isOpen={sidebarOpen} />
 
-      <section className="relative flex min-h-screen w-full grow flex-col bg-[rgb(244,243,245)]">
+      <section className="relative flex min-h-screen min-w-0 flex-1 flex-col bg-[rgb(244,243,245)]">
         <div className="flex items-center p-3 lg:hidden">
           <button
             onClick={() => setSidebarOpen(true)}
