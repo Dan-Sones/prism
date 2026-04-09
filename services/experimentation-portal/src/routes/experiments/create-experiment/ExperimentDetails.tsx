@@ -76,12 +76,18 @@ const ExperimentDetails = () => {
           <div>
             <DateRangePicker
               setStartDate={setFromDate}
+              start_date={start_time}
               setEndDate={setToDate}
+              end_date={end_time}
               range={range}
             />
             <p className="pt-1 text-xs text-gray-500">
               Your Experiment will start and end at 00:00 UTC on the selected
               dates.
+            </p>
+            <p className="pt-1 text-xs text-gray-500 italic">
+              Note the AA test will take place for 7 full days before the
+              experiment start date to establish metric variance.
             </p>
           </div>
         </div>
