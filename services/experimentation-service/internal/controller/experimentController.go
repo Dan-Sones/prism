@@ -45,3 +45,20 @@ func (c *ExperimentController) CreateExperiment(w http.ResponseWriter, r *http.R
 
 	w.WriteHeader(http.StatusCreated)
 }
+
+//func (c *ExperimentController) GetAbsoluteSampleSize(w http.ResponseWriter, r *http.Request) {
+//	ctx := r.Context()
+//
+//	if r.Body == nil {
+//		problems.NewBadRequestError("Request body is required").Write(w)
+//		return
+//	}
+//
+//	var body experiment.GetAbsoluteSampleSizeRequest
+//	err := json.NewDecoder(r.Body).Decode(&body)
+//	if err != nil {
+//		problems.NewBadRequestError("Invalid request body").Write(w)
+//		return
+//	}
+//
+//}

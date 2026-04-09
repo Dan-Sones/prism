@@ -6,18 +6,19 @@ package stats_engine.v1;
 
 service StatsEngine {
   rpc CalculateSampleSizeAbsoluteMetric (CalculateSampleSizeAbsoluteMetricRequest) returns (CalculateSampleSizeAbsoluteMetricResponse);
+  rpc Calculate
 }
 
 message CalculateSampleSizeAbsoluteMetricRequest {
-  float absolute_percentage_mde = 1;
-  float baseline_proportion = 2;
-  float alpha = 3;
-  float power = 4;
+  double absolute_percentage_mde = 1;
+  double baseline_proportion = 2;
+  double alpha = 3;
+  double power = 4;
   int32 variant_count = 5;
 }
 
 message CalculateSampleSizeAbsoluteMetricResponse {
   int32 total = 1;
   repeated int32 per_variant = 2;
-  repeated float split = 3;
+  repeated double split = 3;
 }

@@ -11,8 +11,8 @@ type ExperimentMetric struct {
 	ExperimentID uuid.UUID                 `json:"experiment_id"`
 	MetricRole   ExperimentMetricRole      `json:"type"`
 	Direction    ExperimentMetricDirection `json:"direction"`
-	MDE          float64                  `json:"mde,omitempty"`
-	NIM          float64                  `json:"nim,omitempty"`
+	MDE          float64                   `json:"mde,omitempty"`
+	NIM          float64                   `json:"nim,omitempty"`
 }
 
 type ExperimentMetricRole string
@@ -60,4 +60,4 @@ func (a *ExperimentMetricDirection) Scan(src any) error {
 	default:
 		return fmt.Errorf("invalid ExperimentMetricDirection: %s", s)
 	}
-}ks
+}

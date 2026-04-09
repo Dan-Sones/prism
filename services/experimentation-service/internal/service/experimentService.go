@@ -34,3 +34,16 @@ func (s *ExperimentService) CreateExperiment(ctx context.Context, experiment exp
 
 	return nil, nil
 }
+
+//func (s *ExperimentService) GetAbsoluteSampleSize(ctx context.Context, details experiment.GetAbsoluteSampleSizeRequest) (*experiment.GetAbsoluteSampleSizeResponse, error) {
+//	total, per_variant, split, err := s.statsEngineClient.GetAbsoluteSampleSize(ctx, details.AbsolutePercentageMDE, details.BaselineProportion, details.Alpha, details.Power, details.Treatments)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	return &experiment.GetAbsoluteSampleSizeResponse{
+//		TotalSampleSize:      total,
+//		PerVariantSampleSize: per_variant,
+//		Allocations:          split,
+//	}, nil
+//}

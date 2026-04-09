@@ -23,10 +23,10 @@ const (
 
 type CalculateSampleSizeAbsoluteMetricRequest struct {
 	state                 protoimpl.MessageState `protogen:"open.v1"`
-	AbsolutePercentageMde float32                `protobuf:"fixed32,1,opt,name=absolute_percentage_mde,json=absolutePercentageMde,proto3" json:"absolute_percentage_mde,omitempty"`
-	BaselineProportion    float32                `protobuf:"fixed32,2,opt,name=baseline_proportion,json=baselineProportion,proto3" json:"baseline_proportion,omitempty"`
-	Alpha                 float32                `protobuf:"fixed32,3,opt,name=alpha,proto3" json:"alpha,omitempty"`
-	Power                 float32                `protobuf:"fixed32,4,opt,name=power,proto3" json:"power,omitempty"`
+	AbsolutePercentageMde float64                `protobuf:"fixed64,1,opt,name=absolute_percentage_mde,json=absolutePercentageMde,proto3" json:"absolute_percentage_mde,omitempty"`
+	BaselineProportion    float64                `protobuf:"fixed64,2,opt,name=baseline_proportion,json=baselineProportion,proto3" json:"baseline_proportion,omitempty"`
+	Alpha                 float64                `protobuf:"fixed64,3,opt,name=alpha,proto3" json:"alpha,omitempty"`
+	Power                 float64                `protobuf:"fixed64,4,opt,name=power,proto3" json:"power,omitempty"`
 	VariantCount          int32                  `protobuf:"varint,5,opt,name=variant_count,json=variantCount,proto3" json:"variant_count,omitempty"`
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
@@ -62,28 +62,28 @@ func (*CalculateSampleSizeAbsoluteMetricRequest) Descriptor() ([]byte, []int) {
 	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *CalculateSampleSizeAbsoluteMetricRequest) GetAbsolutePercentageMde() float32 {
+func (x *CalculateSampleSizeAbsoluteMetricRequest) GetAbsolutePercentageMde() float64 {
 	if x != nil {
 		return x.AbsolutePercentageMde
 	}
 	return 0
 }
 
-func (x *CalculateSampleSizeAbsoluteMetricRequest) GetBaselineProportion() float32 {
+func (x *CalculateSampleSizeAbsoluteMetricRequest) GetBaselineProportion() float64 {
 	if x != nil {
 		return x.BaselineProportion
 	}
 	return 0
 }
 
-func (x *CalculateSampleSizeAbsoluteMetricRequest) GetAlpha() float32 {
+func (x *CalculateSampleSizeAbsoluteMetricRequest) GetAlpha() float64 {
 	if x != nil {
 		return x.Alpha
 	}
 	return 0
 }
 
-func (x *CalculateSampleSizeAbsoluteMetricRequest) GetPower() float32 {
+func (x *CalculateSampleSizeAbsoluteMetricRequest) GetPower() float64 {
 	if x != nil {
 		return x.Power
 	}
@@ -101,7 +101,7 @@ type CalculateSampleSizeAbsoluteMetricResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Total         int32                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
 	PerVariant    []int32                `protobuf:"varint,2,rep,packed,name=per_variant,json=perVariant,proto3" json:"per_variant,omitempty"`
-	Split         []float32              `protobuf:"fixed32,3,rep,packed,name=split,proto3" json:"split,omitempty"`
+	Split         []float64              `protobuf:"fixed64,3,rep,packed,name=split,proto3" json:"split,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -150,7 +150,7 @@ func (x *CalculateSampleSizeAbsoluteMetricResponse) GetPerVariant() []int32 {
 	return nil
 }
 
-func (x *CalculateSampleSizeAbsoluteMetricResponse) GetSplit() []float32 {
+func (x *CalculateSampleSizeAbsoluteMetricResponse) GetSplit() []float64 {
 	if x != nil {
 		return x.Split
 	}
@@ -163,16 +163,16 @@ const file_stats_engine_v1_stats_engine_proto_rawDesc = "" +
 	"\n" +
 	"\"stats_engine/v1/stats_engine.proto\x12\x0fstats_engine.v1\"\xe4\x01\n" +
 	"(CalculateSampleSizeAbsoluteMetricRequest\x126\n" +
-	"\x17absolute_percentage_mde\x18\x01 \x01(\x02R\x15absolutePercentageMde\x12/\n" +
-	"\x13baseline_proportion\x18\x02 \x01(\x02R\x12baselineProportion\x12\x14\n" +
-	"\x05alpha\x18\x03 \x01(\x02R\x05alpha\x12\x14\n" +
-	"\x05power\x18\x04 \x01(\x02R\x05power\x12#\n" +
+	"\x17absolute_percentage_mde\x18\x01 \x01(\x01R\x15absolutePercentageMde\x12/\n" +
+	"\x13baseline_proportion\x18\x02 \x01(\x01R\x12baselineProportion\x12\x14\n" +
+	"\x05alpha\x18\x03 \x01(\x01R\x05alpha\x12\x14\n" +
+	"\x05power\x18\x04 \x01(\x01R\x05power\x12#\n" +
 	"\rvariant_count\x18\x05 \x01(\x05R\fvariantCount\"x\n" +
 	")CalculateSampleSizeAbsoluteMetricResponse\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x05R\x05total\x12\x1f\n" +
 	"\vper_variant\x18\x02 \x03(\x05R\n" +
 	"perVariant\x12\x14\n" +
-	"\x05split\x18\x03 \x03(\x02R\x05split2\xaa\x01\n" +
+	"\x05split\x18\x03 \x03(\x01R\x05split2\xaa\x01\n" +
 	"\vStatsEngine\x12\x9a\x01\n" +
 	"!CalculateSampleSizeAbsoluteMetric\x129.stats_engine.v1.CalculateSampleSizeAbsoluteMetricRequest\x1a:.stats_engine.v1.CalculateSampleSizeAbsoluteMetricResponseBAZ?experimentation-service/internal/grpc/generated/v1;stats_engineb\x06proto3"
 
