@@ -1,22 +1,16 @@
 import { useFieldArray, useFormContext } from "react-hook-form";
-import type { CreateExperimentRequestBody } from "../../../api/experiments";
-import Card from "../../../components/card/Card";
+import type { CreateExperimentRequestBody } from "../../../../api/experiments";
+import Card from "../../../../components/card/Card";
 import Variant from "./Variant";
 
 const VariantDetails = () => {
-  const { formState, control } = useFormContext<CreateExperimentRequestBody>();
-  const { errors } = formState;
+  const { control } = useFormContext<CreateExperimentRequestBody>();
 
   const { fields, append, remove } = useFieldArray({
     name: "variants",
     rules: { required: true, minLength: 2 },
     control,
   });
-
-  const onRemoveVariant = (index: number) => {
-    if (fields.length === 2) return;
-    remove(index);
-  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -39,12 +33,9 @@ const VariantDetails = () => {
           </p>
         </div>
       </Card>
-      <Card>
-        <div className="flex flex-col gap-4"></div>
-      </Card>
-      //TODO: Uh oh how do we do fancy double range sliders for traffic
-      allocation? // Maybe we just do inputs instead for now to save time
-      <Variant />
+      {fields.map((field, index) => (
+        <Variant key={field.id} index={index} />
+      ))}
     </div>
   );
 };

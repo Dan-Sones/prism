@@ -5,9 +5,9 @@ import { FormProvider, useForm } from "react-hook-form";
 import React from "react";
 import JourneyBarNavigator from "../../../components/journeyBar/JourneyBarNavigator";
 import { UseJourneyBar, type JourneyItem } from "../../../hooks/useJourneyBar";
-import VariantDetails from "./VariantDetails";
 import ExperimentMetrics from "./metrics/Metrics";
 import ExperimentDetails from "./ExperimentDetails";
+import VariantDetails from "./variants/VariantDetails";
 
 const CreateExperiment = () => {
   const journeyItems: JourneyItem[] = [
@@ -20,7 +20,7 @@ const CreateExperiment = () => {
       component: <ExperimentMetrics />,
     },
     {
-      label: "Variants and Sample Size",
+      label: "Variants",
       component: <VariantDetails />,
     },
   ];
@@ -38,6 +38,7 @@ const CreateExperiment = () => {
     mode: "onChange",
     defaultValues: {
       metrics: [{}],
+      variants: [{ variantType: "control" }, { variantType: "treatment" }],
     },
   });
 
@@ -89,9 +90,14 @@ const CreateExperiment = () => {
           metric.direction === undefined,
       );
 
+  const variantsComplete =
+    form.formState.errors.variants !== undefined ||
+    form.getValues("variants").length < 2;
+
   const pageCompleteConditions: Array<boolean> = [
     experimentDetailsComplete,
     metricsComplete,
+    variantsComplete,
   ];
 
   const complete = pageCompleteConditions[activePageIndex];

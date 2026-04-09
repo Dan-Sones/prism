@@ -44,7 +44,7 @@ const Sidebar = (props: SidebarProps) => {
   return (
     <aside
       id="sidebar"
-      className={`fixed z-30 h-full w-80 bg-white transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"} `}
+      className={`fixed z-30 h-full w-80 bg-white transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
       <div className="flex flex-col gap-3 pt-1 pl-1">
         <a
