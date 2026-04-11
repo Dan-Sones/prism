@@ -9,10 +9,10 @@ import (
 type ExperimentMetric struct {
 	MetricID     uuid.UUID                 `json:"metric_id"`
 	ExperimentID uuid.UUID                 `json:"experiment_id"`
-	MetricRole   ExperimentMetricRole      `json:"type"`
+	Role         ExperimentMetricRole      `json:"type"`
 	Direction    ExperimentMetricDirection `json:"direction"`
-	MDE          float64                   `json:"mde,omitempty"`
-	NIM          float64                   `json:"nim,omitempty"`
+	MDE          *float64                  `json:"mde,omitempty"`
+	NIM          *float64                  `json:"nim,omitempty"`
 }
 
 type ExperimentMetricRole string
@@ -22,6 +22,7 @@ const (
 	ExperimentMetricRoleGuardrail     ExperimentMetricRole = "guardrail"
 	ExperimentMetricRoleDeterioration ExperimentMetricRole = "deterioration"
 	ExperimentMetricRoleQuality       ExperimentMetricRole = "quality"
+	ExperimentMetricRoleBaseline      ExperimentMetricRole = "baseline"
 )
 
 func (a *ExperimentMetricRole) Scan(src any) error {
@@ -31,7 +32,7 @@ func (a *ExperimentMetricRole) Scan(src any) error {
 	}
 	dt := ExperimentMetricRole(s)
 	switch dt {
-	case ExperimentMetricRoleSuccess, ExperimentMetricRoleGuardrail, ExperimentMetricRoleDeterioration, ExperimentMetricRoleQuality:
+	case ExperimentMetricRoleSuccess, ExperimentMetricRoleGuardrail, ExperimentMetricRoleDeterioration, ExperimentMetricRoleQuality, ExperimentMetricRoleBaseline:
 		*a = dt
 		return nil
 	default:

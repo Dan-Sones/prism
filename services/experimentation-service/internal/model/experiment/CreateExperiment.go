@@ -15,6 +15,7 @@ type CreateExperimentRequest struct {
 }
 
 type CreateExperimentVariant struct {
+	Name        string                 `json:"name"`
 	VariantKey  string                 `json:"variant_key"`
 	UpperBound  int                    `json:"upper_bound"`
 	LowerBound  int                    `json:"lower_bound"`
@@ -25,6 +26,6 @@ type CreateExperimentMetric struct {
 	MetricID  uuid.UUID                            `json:"metric_id"`
 	Role      experiment.ExperimentMetricRole      `json:"type"`
 	Direction experiment.ExperimentMetricDirection `json:"direction"`
-	MDE       float64                              `json:"mde,omitempty"`
-	NIM       float64                              `json:"nim,omitempty"`
+	MDE       *float64                             `json:"mde,omitempty"`
+	NIM       *float64                             `json:"nim,omitempty"`
 }

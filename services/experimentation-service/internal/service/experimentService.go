@@ -24,22 +24,29 @@ func NewExperimentService(experimentRepository *repository.ExperimentRepository,
 	}
 }
 
-func (s *ExperimentService) CreateExperiment(ctx context.Context, expReq experiment.CreateExperimentRequest) ([]problems.Violation, error) {
+func (s *ExperimentService) CreateExperiment(ctx context.Context, expReq experiment.CreateExperimentRequest) (*experiment.ExperimentResponse, []problems.Violation, error) {
 	violations := validators.ValidateExperiment(expReq)
 	if len(violations) > 0 {
-		return violations, nil
+		return nil, violations, nil
 	}
 
 	exp := s.convertExperimentRequestToExperiment(expReq)
 	s.enrichWithAATestDates(&exp, time.Now())
 
-	// TODO: Convert repo to use actual model rather than request one 
-	err := s.experimentRepository.CreateNewExperiment(ctx, expReq)
+	experimentId, err := s.experimentRepository.CreateNewExperiment(ctx, exp)
 	if err != nil {
-		return nil, err
+		s.logger.Error("Failed to create experiment in repository", "error", err)
+		return nil, nil, err
 	}
 
-	return nil, nil
+	expById, err := s.experimentRepository.GetExperimentByUUID(ctx, *experimentId)
+	if err != nil {
+		s.logger.Error("Failed to retrieve experiment by id from repository", "error", err)
+		return nil, nil, err
+	}
+
+	resp := experiment.NewExperimentResponse(expById)
+	return &resp, nil, nil
 }
 
 func (s *ExperimentService) enrichWithAATestDates(exp *experiment2.Experiment, fromTime time.Time) {
@@ -60,11 +67,11 @@ func (s *ExperimentService) convertExperimentRequestToExperiment(expReq experime
 	}
 
 	for _, expVarReq := range expReq.Variants {
-		exp.ExperimentVariants = append(exp.ExperimentVariants, s.convertExperimentVariantRequestToExperimentVariant(expVarReq))
+		exp.Variants = append(exp.Variants, s.convertExperimentVariantRequestToExperimentVariant(expVarReq))
 	}
 
 	for _, expMetReq := range expReq.Metrics {
-		exp.ExperimentMetrics = append(exp.ExperimentMetrics, s.convertExperimentMetricRequestToExperimentMetric(expMetReq))
+		exp.Metrics = append(exp.Metrics, s.convertExperimentMetricRequestToExperimentMetric(expMetReq))
 	}
 
 	return exp
@@ -72,6 +79,7 @@ func (s *ExperimentService) convertExperimentRequestToExperiment(expReq experime
 
 func (s *ExperimentService) convertExperimentVariantRequestToExperimentVariant(expVarReq experiment.CreateExperimentVariant) experiment2.ExperimentVariant {
 	return experiment2.ExperimentVariant{
+		Name:        expVarReq.Name,
 		VariantKey:  expVarReq.VariantKey,
 		UpperBound:  expVarReq.UpperBound,
 		LowerBound:  expVarReq.LowerBound,

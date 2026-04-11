@@ -33,7 +33,7 @@ func (c *ExperimentController) CreateExperiment(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	violations, err := c.experimentService.CreateExperiment(ctx, body)
+	experiment, violations, err := c.experimentService.CreateExperiment(ctx, body)
 	if err != nil {
 		problems.NewInternalServerError().Write(w)
 		return
@@ -43,7 +43,7 @@ func (c *ExperimentController) CreateExperiment(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
+	WriteResponse(w, http.StatusCreated, experiment)
 }
 
 //func (c *ExperimentController) GetAbsoluteSampleSize(w http.ResponseWriter, r *http.Request) {

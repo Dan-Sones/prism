@@ -3,6 +3,7 @@ package experiment
 import "fmt"
 
 type ExperimentVariant struct {
+	Name          string      `json:"name"`
 	FeatureFlagID string      `json:"feature_flag_id"`
 	VariantKey    string      `json:"variant_id"`
 	UpperBound    int         `json:"upper_bound"`

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"experimentation-service/internal/model/experiment"
 
 	experiment2 "github.com/Dan-Sones/prismdbmodels/model/experiment"
 	"github.com/google/uuid"
@@ -24,37 +23,94 @@ func NewExperimentRepository(pgxPool *pgxpool.Pool) *ExperimentRepository {
 	}
 }
 
-func (r *ExperimentRepository) CreateNewExperiment(ctx context.Context, experiment experiment.CreateExperimentRequest) error {
+func (r *ExperimentRepository) CreateNewExperiment(ctx context.Context, experiment experiment2.Experiment) (*uuid.UUID, error) {
 	tx, err := r.pgxPool.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
-		return err
+		return nil, err
 	}
-
 	defer tx.Rollback(ctx)
 
-	sql := `INSERT INTO prism.experiments (name, feature_flag_id, start_time, end_time) VALUES ($1, $2, $3, $4) RETURNING id`
+	const insertExperiment = `
+        INSERT INTO prism.experiments (name, feature_flag_id, aa_start_time, aa_end_time, hypothesis, description)
+        VALUES ($1, $2, $3, $4, $5, $6)
+        RETURNING id`
 
 	var experimentId uuid.UUID
-	err = tx.QueryRow(ctx, sql, experiment.Name, experiment.FeatureFlagID, experiment.StartTime, experiment.EndTime).Scan(&experimentId)
+	err = tx.QueryRow(ctx, insertExperiment, experiment.Name, experiment.FeatureFlagID, experiment.AAStartTime,
+		experiment.AAEndTime, experiment.Hypothesis, experiment.Description,
+	).Scan(&experimentId)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
+	batch := &pgx.Batch{}
+
 	for _, m := range experiment.Metrics {
-		sql = `INSERT INTO prism.experiment_metric (experiment_id, metric_id, direction, mde, nim) VALUES ($1, $2, $3, $4, $5)`
-		_, err = tx.Exec(ctx, sql, experimentId, m.MetricID, m.Type, m.Direction, m.MDE, m.NIM)
-		if err != nil {
-			return err
+		batch.Queue(
+			`INSERT INTO prism.experiment_metric (experiment_id, metric_id, role, direction, mde, nim)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
+			experimentId, m.MetricID, m.Role, m.Direction, m.MDE, m.NIM,
+		)
+	}
+
+	for _, v := range experiment.Variants {
+		batch.Queue(
+			`INSERT INTO prism.variants (experiment_id, name, variant_key, upper_bound, lower_bound, variant_type)
+             VALUES ($1, $2, $3, $4, $5, $6)`,
+			experimentId, v.Name, v.VariantKey, v.UpperBound, v.LowerBound, v.VariantType,
+		)
+	}
+
+	br := tx.SendBatch(ctx, batch)
+
+	for range len(experiment.Metrics) + len(experiment.Variants) {
+		if _, err := br.Exec(); err != nil {
+			br.Close()
+			return nil, err
 		}
 	}
 
-	// TODO: INSERT VARIANTS
-
-	if err = tx.Commit(ctx); err != nil {
-		return err
+	if err := br.Close(); err != nil {
+		return nil, err
 	}
 
-	return nil
+	return &experimentId, tx.Commit(ctx)
+}
+
+func (r *ExperimentRepository) GetExperimentByUUID(ctx context.Context, id uuid.UUID) (experiment2.Experiment, error) {
+	var exp experiment2.Experiment
+
+	err := r.pgxPool.QueryRow(ctx, `
+        SELECT id, name, feature_flag_id, aa_start_time, aa_end_time, hypothesis, description, created_at
+        FROM prism.experiments WHERE id = $1`, id,
+	).Scan(
+		&exp.ID, &exp.Name, &exp.FeatureFlagID, &exp.AAStartTime, &exp.AAEndTime, &exp.Hypothesis, &exp.Description, &exp.CreatedAt,
+	)
+	if err != nil {
+		return experiment2.Experiment{}, err
+	}
+
+	rows, err := r.pgxPool.Query(ctx, `
+        SELECT metric_id, role, direction, mde, nim FROM prism.experiment_metric WHERE experiment_id = $1`, id)
+	if err != nil {
+		return experiment2.Experiment{}, err
+	}
+	exp.Metrics, err = pgx.CollectRows(rows, pgx.RowToStructByNameLax[experiment2.ExperimentMetric])
+	if err != nil {
+		return experiment2.Experiment{}, err
+	}
+
+	rows, err = r.pgxPool.Query(ctx, `
+        SELECT variant_key, upper_bound, lower_bound, variant_type FROM prism.variants WHERE experiment_id = $1`, id)
+	if err != nil {
+		return experiment2.Experiment{}, err
+	}
+	exp.Variants, err = pgx.CollectRows(rows, pgx.RowToStructByNameLax[experiment2.ExperimentVariant])
+	if err != nil {
+		return experiment2.Experiment{}, err
+	}
+
+	return exp, nil
 }
 
 func (r *ExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*experiment2.ExperimentWithVariants, error) {

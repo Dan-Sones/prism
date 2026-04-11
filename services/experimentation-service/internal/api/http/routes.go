@@ -22,7 +22,7 @@ func RegisterRoutes(router *chi.Mux, c Controllers) {
 		})
 
 		r.Route("/experiments", func(r chi.Router) {
-
+			r.Post("/", c.ExperimentController.CreateExperiment)
 		})
 
 		r.Route("/events-catalog", func(r chi.Router) {
