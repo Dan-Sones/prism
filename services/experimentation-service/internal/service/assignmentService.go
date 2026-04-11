@@ -7,7 +7,7 @@ import (
 	"experimentation-service/internal/validators"
 	"log/slog"
 
-	"github.com/Dan-Sones/prismdbmodels/model"
+	"github.com/Dan-Sones/prismdbmodels/model/experiment"
 )
 
 type AssignmentService struct {
@@ -24,7 +24,7 @@ func NewAssignmentService(experimentRepo *repository.ExperimentRepository, bCoun
 	}
 }
 
-func (a *AssignmentService) GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*model.ExperimentWithVariants, []problems.Violation, error) {
+func (a *AssignmentService) GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*experiment.ExperimentWithVariants, []problems.Violation, error) {
 	violations := validators.ValidateBucketId(bucketId, a.bucketCount)
 	if len(violations) > 0 {
 		return nil, violations, nil

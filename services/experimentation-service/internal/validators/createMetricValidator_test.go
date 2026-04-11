@@ -3,6 +3,7 @@ package validators
 import (
 	metricreq "experimentation-service/internal/model/metric"
 	"experimentation-service/internal/problems"
+	"strings"
 	"testing"
 
 	"github.com/Dan-Sones/prismdbmodels/model/metric"
@@ -57,7 +58,7 @@ func TestValidateCreateMetricRequest(t *testing.T) {
 		{
 			name: "Name exceeds max length",
 			request: metricreq.CreateMetricRequest{
-				Name:         string(make([]rune, 101)),
+				Name:         strings.Repeat("a", 101),
 				MetricKey:    "revenue",
 				AnalysisUnit: metric.AnalysisUnitUser,
 				Components: []metricreq.CreateMetricRequestComponent{

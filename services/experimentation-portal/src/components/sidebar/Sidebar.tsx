@@ -1,4 +1,5 @@
 import PrismLogo from "../../assets/prism-logo-minimal-dark.svg";
+import BeakerIcon from "../icons/BeakerIcon";
 import EventCatalogIcon from "./icons/EventCatalogIcon";
 import HomeIcon from "./icons/HomeIcon";
 import MetricsCatalogIcon from "./icons/MetricsCatalogIcon";
@@ -17,6 +18,11 @@ const Sidebar = (props: SidebarProps) => {
       name: "Home",
       href: "/home",
       icon: HomeIcon,
+    },
+    {
+      name: "Experiments",
+      href: "/experiments",
+      icon: BeakerIcon,
     },
     {
       name: "Metrics Catalog",
@@ -38,7 +44,7 @@ const Sidebar = (props: SidebarProps) => {
   return (
     <aside
       id="sidebar"
-      className={`fixed z-30 h-full w-80 bg-white transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"} `}
+      className={`fixed z-30 h-full w-80 bg-white transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
     >
       <div className="flex flex-col gap-3 pt-1 pl-1">
         <a

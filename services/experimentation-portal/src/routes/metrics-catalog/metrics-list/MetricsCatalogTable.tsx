@@ -32,7 +32,7 @@ const MetricsCatalogTable = (props: MetricsCatalogTableProps) => {
       name: metric.name,
       metric_key: metric.metric_key,
       metric_type: metric.metric_type,
-      created_at: metric.created_at,
+      created_at: new Date(metric.created_at).toLocaleDateString(),
     }));
   };
 

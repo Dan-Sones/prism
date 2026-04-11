@@ -5,20 +5,20 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/Dan-Sones/prismdbmodels/model"
+	"github.com/Dan-Sones/prismdbmodels/model/experiment"
 )
 
 type mockExperimentRepository struct {
-	getFunc func(ctx context.Context, bucketId int32) ([]*model.ExperimentWithVariants, error)
+	getFunc func(ctx context.Context, bucketId int32) ([]*experiment.ExperimentWithVariants, error)
 }
 
-func (m *mockExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*model.ExperimentWithVariants, error) {
+func (m *mockExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*experiment.ExperimentWithVariants, error) {
 	return m.getFunc(ctx, bucketId)
 }
 
 func TestGetExperimentsAndVariantsForBucket_RepoErrorsShouldPropagate(t *testing.T) {
 	mockRepo := &mockExperimentRepository{
-		getFunc: func(ctx context.Context, bucketId int32) ([]*model.ExperimentWithVariants, error) {
+		getFunc: func(ctx context.Context, bucketId int32) ([]*experiment.ExperimentWithVariants, error) {
 			return nil, errors.New("repo error")
 		},
 	}

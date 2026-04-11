@@ -122,3 +122,13 @@ func (m *MetricsCatalogService) GetMetricByKey(ctx context.Context, metricKey st
 
 	return metricRes, nil
 }
+
+func (m *MetricsCatalogService) SearchMetrics(ctx context.Context, searchQuery string) ([]*metric.Metric, error) {
+	metrics, err := m.metricsRepo.SearchMetrics(ctx, searchQuery)
+	if err != nil {
+		m.logger.Error("Failed to search metrics", "error", err, "searchQuery", searchQuery)
+		return nil, err
+	}
+
+	return metrics, nil
+}
