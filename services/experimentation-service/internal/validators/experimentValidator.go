@@ -3,6 +3,7 @@ package validators
 import (
 	"experimentation-service/internal/model/experiment"
 	"experimentation-service/internal/problems"
+	"fmt"
 	"regexp"
 
 	experiment2 "github.com/Dan-Sones/prismdbmodels/model/experiment"
@@ -99,13 +100,13 @@ func ValidateExperiment(experiment experiment.CreateExperimentRequest) []problem
 
 	seenControl := false
 	seenTreatment := false
-	for _, variant := range experiment.Variants {
+	for i, variant := range experiment.Variants {
 		if variant.VariantType == experiment2.VariantTypeControl {
 			seenControl = true
 		} else if variant.VariantType == experiment2.VariantTypeTreatment {
 			seenTreatment = true
 		}
-		variantViolations := ValidateExperimentVariant(variant)
+		variantViolations := ValidateExperimentVariant(variant, i)
 		violations = append(violations, variantViolations...)
 	}
 
@@ -126,20 +127,38 @@ func ValidateExperiment(experiment experiment.CreateExperimentRequest) []problem
 	return violations
 }
 
-func ValidateExperimentVariant(variant experiment.CreateExperimentVariant) []problems.Violation {
+func ValidateExperimentVariant(variant experiment.CreateExperimentVariant, index int) []problems.Violation {
 	var violations []problems.Violation
+
+	field := func(name string) string {
+		return fmt.Sprintf("variants[%d].%s", index, name)
+	}
 
 	if variant.UpperBound > 100 {
 		violations = append(violations, problems.Violation{
-			Field:   "upper_bound",
+			Field:   field("upper_bound"),
 			Message: "Upper bound must be less than or equal to 100",
 		})
 	}
 
 	if variant.LowerBound < 0 {
 		violations = append(violations, problems.Violation{
-			Field:   "lower_bound",
+			Field:   field("lower_bound"),
 			Message: "Lower bound must be greater than or equal to 0",
+		})
+	}
+
+	if variant.VariantKey == "" {
+		violations = append(violations, problems.Violation{
+			Field:   field("key"),
+			Message: "Variant key is required",
+		})
+	}
+
+	if variant.Name == "" {
+		violations = append(violations, problems.Violation{
+			Field:   field("name"),
+			Message: "Variant name is required",
 		})
 	}
 

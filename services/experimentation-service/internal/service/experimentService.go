@@ -49,6 +49,22 @@ func (s *ExperimentService) CreateExperiment(ctx context.Context, expReq experim
 	return &resp, nil, nil
 }
 
+func (s *ExperimentService) GetExperiments(ctx context.Context, search string) ([]experiment.ExperimentResponse, error) {
+	exps, err := s.experimentRepository.GetExperiments(ctx)
+	if err != nil {
+		s.logger.Error("Failed to fetch experiments", "error")
+		return nil, err
+	}
+
+	var expsInResFormat []experiment.ExperimentResponse
+
+	for _, e := range exps {
+		expsInResFormat = append(expsInResFormat, experiment.NewExperimentResponse(*e))
+	}
+
+	return expsInResFormat, nil
+}
+
 func (s *ExperimentService) enrichWithAATestDates(exp *experiment2.Experiment, fromTime time.Time) {
 	// A/A tests last a week
 	rounded := time.Date(fromTime.Year(), fromTime.Month(), fromTime.Day(), 0, 0, 0, 0, fromTime.Location())

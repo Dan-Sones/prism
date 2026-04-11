@@ -90,27 +90,63 @@ func (r *ExperimentRepository) GetExperimentByUUID(ctx context.Context, id uuid.
 		return experiment2.Experiment{}, err
 	}
 
-	rows, err := r.pgxPool.Query(ctx, `
-        SELECT metric_id, role, direction, mde, nim FROM prism.experiment_metric WHERE experiment_id = $1`, id)
-	if err != nil {
-		return experiment2.Experiment{}, err
-	}
-	exp.Metrics, err = pgx.CollectRows(rows, pgx.RowToStructByNameLax[experiment2.ExperimentMetric])
+	exp.Metrics, err = r.GetMetricsForExperiment(ctx, exp.ID)
 	if err != nil {
 		return experiment2.Experiment{}, err
 	}
 
-	rows, err = r.pgxPool.Query(ctx, `
-        SELECT variant_key, upper_bound, lower_bound, variant_type FROM prism.variants WHERE experiment_id = $1`, id)
-	if err != nil {
-		return experiment2.Experiment{}, err
-	}
-	exp.Variants, err = pgx.CollectRows(rows, pgx.RowToStructByNameLax[experiment2.ExperimentVariant])
+	exp.Variants, err = r.GetVariantsForExperiment(ctx, exp.ID)
 	if err != nil {
 		return experiment2.Experiment{}, err
 	}
 
 	return exp, nil
+}
+
+func (r *ExperimentRepository) GetExperiments(ctx context.Context) ([]*experiment2.Experiment, error) {
+	rows, err := r.pgxPool.Query(ctx, `SELECT id, name, feature_flag_id, aa_start_time, aa_end_time, start_time, end_time,  hypothesis, description, created_at, unique_salt
+        FROM prism.experiments`)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	experiments, err := pgx.CollectRows(rows, pgx.RowToAddrOfStructByNameLax[experiment2.Experiment])
+	if err != nil {
+		return nil, err
+	}
+
+	for _, e := range experiments {
+		e.Metrics, err = r.GetMetricsForExperiment(ctx, e.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		e.Variants, err = r.GetVariantsForExperiment(ctx, e.ID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return experiments, nil
+}
+
+func (r *ExperimentRepository) GetMetricsForExperiment(ctx context.Context, expId uuid.UUID) ([]experiment2.ExperimentMetric, error) {
+	rows, err := r.pgxPool.Query(ctx, `
+        SELECT metric_id, role, direction, mde, nim FROM prism.experiment_metric WHERE experiment_id = $1`, expId)
+	if err != nil {
+		return nil, err
+	}
+	return pgx.CollectRows(rows, pgx.RowToStructByNameLax[experiment2.ExperimentMetric])
+}
+
+func (r *ExperimentRepository) GetVariantsForExperiment(ctx context.Context, expId uuid.UUID) ([]experiment2.ExperimentVariant, error) {
+	rows, err := r.pgxPool.Query(ctx, `
+        SELECT variant_key, upper_bound, lower_bound, variant_type FROM prism.variants WHERE experiment_id = $1`, expId)
+	if err != nil {
+		return nil, err
+	}
+	return pgx.CollectRows(rows, pgx.RowToStructByNameLax[experiment2.ExperimentVariant])
 }
 
 func (r *ExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*experiment2.ExperimentWithVariants, error) {

@@ -4,15 +4,16 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Experiment struct {
 	ID            uuid.UUID           `json:"id"`
 	Name          string              `json:"name"`
-	CreatedAt     time.Time           `json:"created_at"`
+	CreatedAt     pgtype.Timestamp    `json:"created_at"`
 	FeatureFlagID string              `json:"feature_flag_id"`
-	StartTime     time.Time           `json:"start_time"`
-	EndTime       time.Time           `json:"end_time"`
+	StartTime     pgtype.Timestamp    `json:"start_time"`
+	EndTime       pgtype.Timestamp    `json:"end_time"`
 	AAStartTime   time.Time           `json:"aa_start_time"`
 	AAEndTime     time.Time           `json:"aa_end_time"`
 	UniqueSalt    string              `json:"unique_salt"`

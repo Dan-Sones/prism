@@ -46,6 +46,19 @@ func (c *ExperimentController) CreateExperiment(w http.ResponseWriter, r *http.R
 	WriteResponse(w, http.StatusCreated, experiment)
 }
 
+func (c *ExperimentController) GetExperiments(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// TODO: no searching atm do that later
+	exps, err := c.experimentService.GetExperiments(ctx, "")
+	if err != nil {
+		problems.NewInternalServerError().Write(w)
+		return
+	}
+
+	WriteResponse(w, http.StatusOK, exps)
+}
+
 //func (c *ExperimentController) GetAbsoluteSampleSize(w http.ResponseWriter, r *http.Request) {
 //	ctx := r.Context()
 //

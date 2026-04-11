@@ -23,8 +23,8 @@ func TestValidateExperiment(t *testing.T) {
 				Description:   "Test description",
 				FeatureFlagID: "test-feature-flag",
 				Variants: []experiment.CreateExperimentVariant{
-					{VariantKey: "control", UpperBound: 50, LowerBound: 0, VariantType: experiment2.VariantTypeControl},
-					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: experiment2.VariantTypeTreatment},
+					{VariantKey: "control", Name: "Control", UpperBound: 50, LowerBound: 0, VariantType: experiment2.VariantTypeControl},
+					{VariantKey: "treatment", Name: "Treatment", UpperBound: 100, LowerBound: 50, VariantType: experiment2.VariantTypeTreatment},
 				},
 			},
 			want: []problems.Violation{
@@ -42,8 +42,8 @@ func TestValidateExperiment(t *testing.T) {
 				Description:   "Test description",
 				FeatureFlagID: "test-feature-flag",
 				Variants: []experiment.CreateExperimentVariant{
-					{VariantKey: "control", UpperBound: 50, LowerBound: 0, VariantType: experiment2.VariantTypeControl},
-					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: experiment2.VariantTypeTreatment},
+					{VariantKey: "control", Name: "Control", UpperBound: 50, LowerBound: 0, VariantType: experiment2.VariantTypeControl},
+					{VariantKey: "treatment", Name: "Treatment", UpperBound: 100, LowerBound: 50, VariantType: experiment2.VariantTypeTreatment},
 				},
 			},
 			want: []problems.Violation{
@@ -61,8 +61,8 @@ func TestValidateExperiment(t *testing.T) {
 				Description:   "Test description",
 				FeatureFlagID: "",
 				Variants: []experiment.CreateExperimentVariant{
-					{VariantKey: "control", UpperBound: 50, LowerBound: 0, VariantType: experiment2.VariantTypeControl},
-					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: experiment2.VariantTypeTreatment},
+					{VariantKey: "control", Name: "Control", UpperBound: 50, LowerBound: 0, VariantType: experiment2.VariantTypeControl},
+					{VariantKey: "treatment", Name: "Treatment", UpperBound: 100, LowerBound: 50, VariantType: experiment2.VariantTypeTreatment},
 				},
 			},
 			want: []problems.Violation{
@@ -80,8 +80,8 @@ func TestValidateExperiment(t *testing.T) {
 				Description:   "Test description",
 				FeatureFlagID: strings.Repeat("a", 101),
 				Variants: []experiment.CreateExperimentVariant{
-					{VariantKey: "control", UpperBound: 50, LowerBound: 0, VariantType: experiment2.VariantTypeControl},
-					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: experiment2.VariantTypeTreatment},
+					{VariantKey: "control", Name: "Control", UpperBound: 50, LowerBound: 0, VariantType: experiment2.VariantTypeControl},
+					{VariantKey: "treatment", Name: "Treatment", UpperBound: 100, LowerBound: 50, VariantType: experiment2.VariantTypeTreatment},
 				},
 			},
 			want: []problems.Violation{
@@ -99,8 +99,8 @@ func TestValidateExperiment(t *testing.T) {
 				Description:   "Test description",
 				FeatureFlagID: "invalid feature flag id!",
 				Variants: []experiment.CreateExperimentVariant{
-					{VariantKey: "control", UpperBound: 50, LowerBound: 0, VariantType: experiment2.VariantTypeControl},
-					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: experiment2.VariantTypeTreatment},
+					{VariantKey: "control", Name: "Control", UpperBound: 50, LowerBound: 0, VariantType: experiment2.VariantTypeControl},
+					{VariantKey: "treatment", Name: "Treatment", UpperBound: 100, LowerBound: 50, VariantType: experiment2.VariantTypeTreatment},
 				},
 			},
 			want: []problems.Violation{
@@ -118,8 +118,8 @@ func TestValidateExperiment(t *testing.T) {
 				Description:   "",
 				FeatureFlagID: "test-feature-flag",
 				Variants: []experiment.CreateExperimentVariant{
-					{VariantKey: "control", UpperBound: 50, LowerBound: 0, VariantType: experiment2.VariantTypeControl},
-					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: experiment2.VariantTypeTreatment},
+					{VariantKey: "control", Name: "Control", UpperBound: 50, LowerBound: 0, VariantType: experiment2.VariantTypeControl},
+					{VariantKey: "treatment", Name: "Treatment", UpperBound: 100, LowerBound: 50, VariantType: experiment2.VariantTypeTreatment},
 				},
 			},
 			want: []problems.Violation{
@@ -139,6 +139,7 @@ func TestValidateExperiment(t *testing.T) {
 				Variants: []experiment.CreateExperimentVariant{
 					{
 						VariantKey:  "treatment",
+						Name:        "Treatment",
 						UpperBound:  100,
 						LowerBound:  0,
 						VariantType: experiment2.VariantTypeTreatment,
@@ -162,6 +163,7 @@ func TestValidateExperiment(t *testing.T) {
 				Variants: []experiment.CreateExperimentVariant{
 					{
 						VariantKey:  "control",
+						Name:        "Control",
 						UpperBound:  100,
 						LowerBound:  0,
 						VariantType: experiment2.VariantTypeControl,
@@ -183,17 +185,17 @@ func TestValidateExperiment(t *testing.T) {
 				Description:   "Test description",
 				FeatureFlagID: "test-feature-flag",
 				Variants: []experiment.CreateExperimentVariant{
-					{VariantKey: "control", UpperBound: 150, LowerBound: -10, VariantType: experiment2.VariantTypeControl},
-					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: experiment2.VariantTypeTreatment},
+					{VariantKey: "control", Name: "Control", UpperBound: 150, LowerBound: -10, VariantType: experiment2.VariantTypeControl},
+					{VariantKey: "treatment", Name: "Treatment", UpperBound: 100, LowerBound: 50, VariantType: experiment2.VariantTypeTreatment},
 				},
 			},
 			want: []problems.Violation{
 				{
-					Field:   "upper_bound",
+					Field:   "variants[0].upper_bound",
 					Message: "Upper bound must be less than or equal to 100",
 				},
 				{
-					Field:   "lower_bound",
+					Field:   "variants[0].lower_bound",
 					Message: "Lower bound must be greater than or equal to 0",
 				},
 			},
@@ -206,11 +208,53 @@ func TestValidateExperiment(t *testing.T) {
 				Description:   "Test description",
 				FeatureFlagID: "test-feature-flag",
 				Variants: []experiment.CreateExperimentVariant{
-					{VariantKey: "control", UpperBound: 50, LowerBound: 0, VariantType: experiment2.VariantTypeControl},
-					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: experiment2.VariantTypeTreatment},
+					{VariantKey: "control", Name: "Control", UpperBound: 50, LowerBound: 0, VariantType: experiment2.VariantTypeControl},
+					{VariantKey: "treatment", Name: "Treatment", UpperBound: 100, LowerBound: 50, VariantType: experiment2.VariantTypeTreatment},
 				},
 			},
 			want: []problems.Violation{},
+		},
+		{
+			name: "Missing variant key",
+			experiment: experiment.CreateExperimentRequest{
+				Name:          "Test Experiment",
+				Hypothesis:    "Test hypothesis",
+				Description:   "Test description",
+				FeatureFlagID: "test-feature-flag",
+				Variants: []experiment.CreateExperimentVariant{
+					{VariantKey: "", Name: "Control", UpperBound: 50, LowerBound: 0, VariantType: experiment2.VariantTypeControl},
+					{VariantKey: "treatment", Name: "Treatment", UpperBound: 100, LowerBound: 50, VariantType: experiment2.VariantTypeTreatment},
+				},
+			},
+			want: []problems.Violation{
+				{
+					Field:   "variants[0].key",
+					Message: "Variant key is required",
+				},
+			},
+		},
+		{
+			name: "Missing variant name",
+			experiment: experiment.CreateExperimentRequest{
+				Name:          "Test Experiment",
+				Hypothesis:    "Test hypothesis",
+				Description:   "Test description",
+				FeatureFlagID: "test-feature-flag",
+				Variants: []experiment.CreateExperimentVariant{
+					{VariantKey: "control", Name: "", UpperBound: 50, LowerBound: 0, VariantType: experiment2.VariantTypeControl},
+					{VariantKey: "treatment", Name: "", UpperBound: 100, LowerBound: 50, VariantType: experiment2.VariantTypeTreatment},
+				},
+			},
+			want: []problems.Violation{
+				{
+					Field:   "variants[0].name",
+					Message: "Variant name is required",
+				},
+				{
+					Field:   "variants[1].name",
+					Message: "Variant name is required",
+				},
+			},
 		},
 	}
 

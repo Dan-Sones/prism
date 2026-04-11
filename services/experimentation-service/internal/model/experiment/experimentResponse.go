@@ -41,7 +41,7 @@ func NewExperimentResponse(exp experiment.Experiment) ExperimentResponse {
 	resp := ExperimentResponse{
 		ID:            exp.ID,
 		Name:          exp.Name,
-		CreatedAt:     exp.CreatedAt,
+		CreatedAt:     exp.CreatedAt.Time,
 		FeatureFlagID: exp.FeatureFlagID,
 		AAStartTime:   exp.AAStartTime,
 		AAEndTime:     exp.AAEndTime,
@@ -51,12 +51,12 @@ func NewExperimentResponse(exp experiment.Experiment) ExperimentResponse {
 		Variants:      make([]ExperimentVariantResponse, 0, len(exp.Variants)),
 	}
 
-	if !exp.StartTime.IsZero() {
-		resp.StartTime = &exp.StartTime
+	if exp.StartTime.Valid {
+		resp.StartTime = &exp.StartTime.Time
 	}
 
-	if !exp.EndTime.IsZero() {
-		resp.EndTime = &exp.EndTime
+	if exp.EndTime.Valid {
+		resp.EndTime = &exp.EndTime.Time
 	}
 
 	for _, m := range exp.Metrics {
