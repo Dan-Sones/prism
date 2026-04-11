@@ -6,6 +6,9 @@ import (
 	"experimentation-service/internal/problems"
 	"experimentation-service/internal/service"
 	"net/http"
+
+	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 )
 
 type ExperimentController struct {
@@ -51,6 +54,31 @@ func (c *ExperimentController) GetExperiments(w http.ResponseWriter, r *http.Req
 
 	// TODO: no searching atm do that later
 	exps, err := c.experimentService.GetExperiments(ctx, "")
+	if err != nil {
+		problems.NewInternalServerError().Write(w)
+		return
+	}
+
+	WriteResponse(w, http.StatusOK, exps)
+}
+
+func (c *ExperimentController) GetExperimentByUUID(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	expId := chi.URLParam(r, "experimentId")
+
+	if expId == "" {
+		problems.NewBadRequestError("experimentId is required")
+		return
+	}
+
+	expUuid, err := uuid.Parse(expId)
+	if err != nil {
+		problems.NewBadRequestError("experimentId must be a valid uuid")
+		return
+	}
+
+	exps, err := c.experimentService.GetExperimentByUUID(ctx, expUuid)
 	if err != nil {
 		problems.NewInternalServerError().Write(w)
 		return

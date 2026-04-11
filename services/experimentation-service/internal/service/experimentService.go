@@ -10,6 +10,7 @@ import (
 	"time"
 
 	experiment2 "github.com/Dan-Sones/prismdbmodels/model/experiment"
+	"github.com/google/uuid"
 )
 
 type ExperimentService struct {
@@ -63,6 +64,17 @@ func (s *ExperimentService) GetExperiments(ctx context.Context, search string) (
 	}
 
 	return expsInResFormat, nil
+}
+
+func (s *ExperimentService) GetExperimentByUUID(ctx context.Context, expId uuid.UUID) (experiment.ExperimentResponse, error) {
+
+	expById, err := s.experimentRepository.GetExperimentByUUID(ctx, expId)
+	if err != nil {
+		s.logger.Error("Failed to retrieve experiment by id from repository", "error", err)
+		return experiment.ExperimentResponse{}, err
+	}
+
+	return experiment.NewExperimentResponse(expById), nil
 }
 
 func (s *ExperimentService) enrichWithAATestDates(exp *experiment2.Experiment, fromTime time.Time) {
