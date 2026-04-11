@@ -6,7 +6,7 @@ import Variant from "./Variant";
 const VariantDetails = () => {
   const { control } = useFormContext<CreateExperimentRequestBody>();
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields } = useFieldArray({
     name: "variants",
     rules: { required: true, minLength: 2 },
     control,

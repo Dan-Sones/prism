@@ -5,7 +5,6 @@ import (
 	"experimentation-service/internal/problems"
 	"strings"
 	"testing"
-	"time"
 
 	experiment2 "github.com/Dan-Sones/prismdbmodels/model/experiment"
 )
@@ -20,8 +19,6 @@ func TestValidateExperiment(t *testing.T) {
 			name: "Empty name",
 			experiment: experiment.CreateExperimentRequest{
 				Name:          "",
-				StartTime:     time.Now().Add(time.Hour),
-				EndTime:       time.Now().Add(2 * time.Hour),
 				Hypothesis:    "Test hypothesis",
 				Description:   "Test description",
 				FeatureFlagID: "test-feature-flag",
@@ -41,8 +38,6 @@ func TestValidateExperiment(t *testing.T) {
 			name: "Name too long",
 			experiment: experiment.CreateExperimentRequest{
 				Name:          strings.Repeat("a", 101),
-				StartTime:     time.Now().Add(time.Hour),
-				EndTime:       time.Now().Add(2 * time.Hour),
 				Hypothesis:    "Test hypothesis",
 				Description:   "Test description",
 				FeatureFlagID: "test-feature-flag",
@@ -59,78 +54,9 @@ func TestValidateExperiment(t *testing.T) {
 			},
 		},
 		{
-			name: "Start time in the past",
-			experiment: experiment.CreateExperimentRequest{
-				Name:          "Test Experiment",
-				StartTime:     time.Now().Add(-time.Hour),
-				EndTime:       time.Now().Add(2 * time.Hour),
-				Hypothesis:    "Test hypothesis",
-				Description:   "Test description",
-				FeatureFlagID: "test-feature-flag",
-				Variants: []experiment.CreateExperimentVariant{
-					{VariantKey: "control", UpperBound: 50, LowerBound: 0, VariantType: experiment2.VariantTypeControl},
-					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: experiment2.VariantTypeTreatment},
-				},
-			},
-			want: []problems.Violation{
-				{
-					Field:   "start_time",
-					Message: "Start time must be in the future",
-				},
-			},
-		},
-		{
-			name: "End time in the past",
-			experiment: experiment.CreateExperimentRequest{
-				Name:          "Test Experiment",
-				StartTime:     time.Now().Add(time.Hour),
-				EndTime:       time.Now().Add(-time.Hour),
-				Hypothesis:    "Test hypothesis",
-				Description:   "Test description",
-				FeatureFlagID: "test-feature-flag",
-				Variants: []experiment.CreateExperimentVariant{
-					{VariantKey: "control", UpperBound: 50, LowerBound: 0, VariantType: experiment2.VariantTypeControl},
-					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: experiment2.VariantTypeTreatment},
-				},
-			},
-			want: []problems.Violation{
-				{
-					Field:   "end_time",
-					Message: "End time must be in the future",
-				},
-				{
-					Field:   "end_time",
-					Message: "End time must be after start time",
-				},
-			},
-		},
-		{
-			name: "End time before start time",
-			experiment: experiment.CreateExperimentRequest{
-				Name:          "Test Experiment",
-				StartTime:     time.Now().Add(time.Hour),
-				EndTime:       time.Now().Add(time.Minute),
-				Hypothesis:    "Test hypothesis",
-				Description:   "Test description",
-				FeatureFlagID: "test-feature-flag",
-				Variants: []experiment.CreateExperimentVariant{
-					{VariantKey: "control", UpperBound: 50, LowerBound: 0, VariantType: experiment2.VariantTypeControl},
-					{VariantKey: "treatment", UpperBound: 100, LowerBound: 50, VariantType: experiment2.VariantTypeTreatment},
-				},
-			},
-			want: []problems.Violation{
-				{
-					Field:   "end_time",
-					Message: "End time must be after start time",
-				},
-			},
-		},
-		{
 			name: "Missing feature flag ID",
 			experiment: experiment.CreateExperimentRequest{
 				Name:          "Test Experiment",
-				StartTime:     time.Now().Add(time.Hour),
-				EndTime:       time.Now().Add(2 * time.Hour),
 				Hypothesis:    "Test hypothesis",
 				Description:   "Test description",
 				FeatureFlagID: "",
@@ -150,8 +76,6 @@ func TestValidateExperiment(t *testing.T) {
 			name: "Feature flag ID too long",
 			experiment: experiment.CreateExperimentRequest{
 				Name:          "Test Experiment",
-				StartTime:     time.Now().Add(time.Hour),
-				EndTime:       time.Now().Add(2 * time.Hour),
 				Hypothesis:    "Test hypothesis",
 				Description:   "Test description",
 				FeatureFlagID: strings.Repeat("a", 101),
@@ -171,8 +95,6 @@ func TestValidateExperiment(t *testing.T) {
 			name: "Feature flag ID with invalid characters",
 			experiment: experiment.CreateExperimentRequest{
 				Name:          "Test Experiment",
-				StartTime:     time.Now().Add(time.Hour),
-				EndTime:       time.Now().Add(2 * time.Hour),
 				Hypothesis:    "Test hypothesis",
 				Description:   "Test description",
 				FeatureFlagID: "invalid feature flag id!",
@@ -192,8 +114,6 @@ func TestValidateExperiment(t *testing.T) {
 			name: "Missing description",
 			experiment: experiment.CreateExperimentRequest{
 				Name:          "Test Experiment",
-				StartTime:     time.Now().Add(time.Hour),
-				EndTime:       time.Now().Add(2 * time.Hour),
 				Hypothesis:    "Test hypothesis",
 				Description:   "",
 				FeatureFlagID: "test-feature-flag",
@@ -213,8 +133,6 @@ func TestValidateExperiment(t *testing.T) {
 			name: "Missing Control",
 			experiment: experiment.CreateExperimentRequest{
 				Name:          "Test Experiment",
-				StartTime:     time.Now().Add(time.Hour),
-				EndTime:       time.Now().Add(2 * time.Hour),
 				Hypothesis:    "Test hypothesis",
 				Description:   "Test description",
 				FeatureFlagID: "test-feature-flag",
@@ -238,8 +156,6 @@ func TestValidateExperiment(t *testing.T) {
 			name: "Missing Treatment",
 			experiment: experiment.CreateExperimentRequest{
 				Name:          "Test Experiment",
-				StartTime:     time.Now().Add(time.Hour),
-				EndTime:       time.Now().Add(2 * time.Hour),
 				Hypothesis:    "Test hypothesis",
 				Description:   "Test description",
 				FeatureFlagID: "test-feature-flag",
@@ -263,8 +179,6 @@ func TestValidateExperiment(t *testing.T) {
 			name: "Invalid variant bounds",
 			experiment: experiment.CreateExperimentRequest{
 				Name:          "Test Experiment",
-				StartTime:     time.Now().Add(time.Hour),
-				EndTime:       time.Now().Add(2 * time.Hour),
 				Hypothesis:    "Test hypothesis",
 				Description:   "Test description",
 				FeatureFlagID: "test-feature-flag",
@@ -288,8 +202,6 @@ func TestValidateExperiment(t *testing.T) {
 			name: "Valid experiment",
 			experiment: experiment.CreateExperimentRequest{
 				Name:          "Valid Experiment",
-				StartTime:     time.Now().Add(time.Hour),
-				EndTime:       time.Now().Add(2 * time.Hour),
 				Hypothesis:    "Test hypothesis",
 				Description:   "Test description",
 				FeatureFlagID: "test-feature-flag",

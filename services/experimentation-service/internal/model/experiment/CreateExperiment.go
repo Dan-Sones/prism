@@ -16,10 +16,10 @@ type CreateExperimentRequest struct {
 
 type CreateExperimentVariant struct {
 	Name        string                 `json:"name"`
-	VariantKey  string                 `json:"variant_key"`
+	VariantKey  string                 `json:"key"`
 	UpperBound  int                    `json:"upper_bound"`
 	LowerBound  int                    `json:"lower_bound"`
-	VariantType experiment.VariantType `json:"variant_type"`
+	VariantType experiment.VariantType `json:"type"`
 }
 
 type CreateExperimentMetric struct {

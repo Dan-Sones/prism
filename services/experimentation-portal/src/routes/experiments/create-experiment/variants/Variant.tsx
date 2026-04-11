@@ -17,7 +17,7 @@ const Variant = ({ index }: VariantProps) => {
     formState: { errors },
   } = useFormContext<CreateExperimentRequestBody>();
 
-  const type = watch(`variants.${index}.variantType`);
+  const type = watch(`variants.${index}.type`);
 
   return (
     <Card>
@@ -34,7 +34,7 @@ const Variant = ({ index }: VariantProps) => {
           <TextInput
             id="variant_key"
             placeholder="e.g. button_color_blue"
-            {...register(`variants.${index}.variant_key`, {
+            {...register(`variants.${index}.key`, {
               required: "Variant Key is required",
               maxLength: {
                 value: 100,
@@ -42,7 +42,7 @@ const Variant = ({ index }: VariantProps) => {
               },
             })}
           />
-          <FieldError error={errors.variants?.[index]?.variant_key} />
+          <FieldError error={errors.variants?.[index]?.key} />
         </div>
       </div>
     </Card>

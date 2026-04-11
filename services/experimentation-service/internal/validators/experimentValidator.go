@@ -4,7 +4,6 @@ import (
 	"experimentation-service/internal/model/experiment"
 	"experimentation-service/internal/problems"
 	"regexp"
-	"time"
 
 	experiment2 "github.com/Dan-Sones/prismdbmodels/model/experiment"
 )
@@ -26,40 +25,40 @@ func ValidateExperiment(experiment experiment.CreateExperimentRequest) []problem
 		})
 	}
 
-	if experiment.StartTime == (time.Time{}) {
-		violations = append(violations, problems.Violation{
-			Field:   "start_time",
-			Message: "Start time is required",
-		})
-	}
-
-	if experiment.EndTime == (time.Time{}) {
-		violations = append(violations, problems.Violation{
-			Field:   "end_time",
-			Message: "End time is required",
-		})
-	}
-
-	if experiment.StartTime.Before(time.Now()) {
-		violations = append(violations, problems.Violation{
-			Field:   "start_time",
-			Message: "Start time must be in the future",
-		})
-	}
-
-	if experiment.EndTime.Before(time.Now()) {
-		violations = append(violations, problems.Violation{
-			Field:   "end_time",
-			Message: "End time must be in the future",
-		})
-	}
-
-	if experiment.EndTime.Before(experiment.StartTime) {
-		violations = append(violations, problems.Violation{
-			Field:   "end_time",
-			Message: "End time must be after start time",
-		})
-	}
+	//if experiment == (time.Time{}) {
+	//	violations = append(violations, problems.Violation{
+	//		Field:   "start_time",
+	//		Message: "Start time is required",
+	//	})
+	//}
+	//
+	//if experiment.EndTime == (time.Time{}) {
+	//	violations = append(violations, problems.Violation{
+	//		Field:   "end_time",
+	//		Message: "End time is required",
+	//	})
+	//}
+	//
+	//if experiment.StartTime.Before(time.Now()) {
+	//	violations = append(violations, problems.Violation{
+	//		Field:   "start_time",
+	//		Message: "Start time must be in the future",
+	//	})
+	//}
+	//
+	//if experiment.EndTime.Before(time.Now()) {
+	//	violations = append(violations, problems.Violation{
+	//		Field:   "end_time",
+	//		Message: "End time must be in the future",
+	//	})
+	//}
+	//
+	//if experiment.EndTime.Before(experiment.StartTime) {
+	//	violations = append(violations, problems.Violation{
+	//		Field:   "end_time",
+	//		Message: "End time must be after start time",
+	//	})
+	//}
 
 	if experiment.FeatureFlagID == "" {
 		violations = append(violations, problems.Violation{

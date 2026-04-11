@@ -12,8 +12,8 @@ type ExperimentResponse struct {
 	Name          string                      `json:"name"`
 	CreatedAt     time.Time                   `json:"created_at"`
 	FeatureFlagID string                      `json:"feature_flag_id"`
-	StartTime     time.Time                   `json:"start_time"`
-	EndTime       time.Time                   `json:"end_time"`
+	StartTime     *time.Time                  `json:"start_time,omitempty"`
+	EndTime       *time.Time                  `json:"end_time,omitempty"`
 	AAStartTime   time.Time                   `json:"aa_start_time"`
 	AAEndTime     time.Time                   `json:"aa_end_time"`
 	Hypothesis    string                      `json:"hypothesis"`
@@ -23,10 +23,10 @@ type ExperimentResponse struct {
 }
 
 type ExperimentVariantResponse struct {
-	VariantKey  string                 `json:"variant_key"`
+	VariantKey  string                 `json:"key"`
 	UpperBound  int                    `json:"upper_bound"`
 	LowerBound  int                    `json:"lower_bound"`
-	VariantType experiment.VariantType `json:"variant_type"`
+	VariantType experiment.VariantType `json:"type"`
 }
 
 type ExperimentMetricResponse struct {
@@ -43,14 +43,20 @@ func NewExperimentResponse(exp experiment.Experiment) ExperimentResponse {
 		Name:          exp.Name,
 		CreatedAt:     exp.CreatedAt,
 		FeatureFlagID: exp.FeatureFlagID,
-		StartTime:     exp.StartTime,
-		EndTime:       exp.EndTime,
 		AAStartTime:   exp.AAStartTime,
 		AAEndTime:     exp.AAEndTime,
 		Hypothesis:    exp.Hypothesis,
 		Description:   exp.Description,
 		Metrics:       make([]ExperimentMetricResponse, 0, len(exp.Metrics)),
 		Variants:      make([]ExperimentVariantResponse, 0, len(exp.Variants)),
+	}
+
+	if !exp.StartTime.IsZero() {
+		resp.StartTime = &exp.StartTime
+	}
+
+	if !exp.EndTime.IsZero() {
+		resp.EndTime = &exp.EndTime
 	}
 
 	for _, m := range exp.Metrics {

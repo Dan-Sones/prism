@@ -1,6 +1,10 @@
 import PageTitle from "../../../components/title/PageTitle";
 import JourneyBar from "../../../components/journeyBar/JourneyBar";
-import type { CreateExperimentRequestBody } from "../../../api/experiments";
+import {
+  createExperiment,
+  type CreateExperimentRequestBody,
+  type ExperimentResponse,
+} from "../../../api/experiments";
 import { FormProvider, useForm } from "react-hook-form";
 import React from "react";
 import JourneyBarNavigator from "../../../components/journeyBar/JourneyBarNavigator";
@@ -8,6 +12,12 @@ import { UseJourneyBar, type JourneyItem } from "../../../hooks/useJourneyBar";
 import ExperimentMetrics from "./metrics/Metrics";
 import ExperimentDetails from "./ExperimentDetails";
 import VariantDetails from "./variants/VariantDetails";
+import AATest from "../aa-test/AATest";
+import type { ProblemDetail } from "../../../api/base/problem";
+import type { AxiosError } from "axios";
+import { useMutation } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { useErrorBanner } from "../../../context/ErrorBannerContext";
 
 const CreateExperiment = () => {
   const journeyItems: JourneyItem[] = [
@@ -23,6 +33,10 @@ const CreateExperiment = () => {
       label: "Variants",
       component: <VariantDetails />,
     },
+    {
+      label: "A/A Test",
+      component: <AATest />,
+    },
   ];
 
   const {
@@ -34,16 +48,37 @@ const CreateExperiment = () => {
     onBack,
   } = UseJourneyBar({ items: journeyItems });
 
+  const { setErrorMessage } = useErrorBanner();
+
   const form = useForm<CreateExperimentRequestBody>({
     mode: "onChange",
     defaultValues: {
       metrics: [{}],
-      variants: [{ variantType: "control" }, { variantType: "treatment" }],
+      variants: [{ type: "control" }, { type: "treatment" }],
+    },
+  });
+
+  const mutation = useMutation<
+    ExperimentResponse,
+    AxiosError<ProblemDetail>,
+    CreateExperimentRequestBody
+  >({
+    mutationFn: createExperiment,
+    onError: (error) => {
+      if (error.response?.data.detail) {
+        setErrorMessage(error.response.data.detail);
+      } else {
+        setErrorMessage("Something went wrong creating the experiment.");
+      }
+    },
+    onSuccess: () => {
+      toast.success("Experiment created successfully");
     },
   });
 
   const onSubmit = (data: CreateExperimentRequestBody) => {
     console.log(data);
+    mutation.mutate(data);
   };
 
   const {
