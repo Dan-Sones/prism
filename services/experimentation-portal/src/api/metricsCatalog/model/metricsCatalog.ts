@@ -29,7 +29,7 @@ export type Metric = {
   name: string;
   metric_key: string;
   description: string;
-  created_at: string;
+  created_at: Date;
   metric_type: MetricType;
   analysis_unit: AnalysisUnit;
   metric_components: MetricComponent[];
