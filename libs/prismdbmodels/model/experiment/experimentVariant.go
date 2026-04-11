@@ -3,12 +3,11 @@ package experiment
 import "fmt"
 
 type ExperimentVariant struct {
-	FeatureFlagID  string      `json:"feature_flag_id"`
-	VariantKey     string      `json:"variant_id"`
-	UpperBound     int         `json:"upper_bound"`
-	LowerBound     int         `json:"lower_bound"`
-	ExperimentSalt string      `json:"experiment_salt"`
-	VariantType    VariantType `json:"variant_type"`
+	FeatureFlagID string      `json:"feature_flag_id"`
+	VariantKey    string      `json:"variant_id"`
+	UpperBound    int         `json:"upper_bound"`
+	LowerBound    int         `json:"lower_bound"`
+	VariantType   VariantType `json:"variant_type"`
 }
 
 type VariantType string
