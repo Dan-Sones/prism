@@ -61,6 +61,8 @@ func (s *ExperimentService) CreateExperiment(ctx context.Context, expReq experim
 		return nil, nil, err
 	}
 
+	s.enrichWithExperimentStatus(&expById)
+
 	resp := experiment.NewExperimentResponse(expById)
 	return &resp, nil, nil
 }
@@ -68,13 +70,14 @@ func (s *ExperimentService) CreateExperiment(ctx context.Context, expReq experim
 func (s *ExperimentService) GetExperiments(ctx context.Context, search string) ([]experiment.ExperimentResponse, error) {
 	exps, err := s.experimentRepository.GetExperiments(ctx)
 	if err != nil {
-		s.logger.Error("Failed to fetch experiments", "error")
+		s.logger.Error("Failed to fetch experiments", "error", err)
 		return nil, err
 	}
 
 	var expsInResFormat []experiment.ExperimentResponse
 
 	for _, e := range exps {
+		s.enrichWithExperimentStatus(e)
 		expsInResFormat = append(expsInResFormat, experiment.NewExperimentResponse(*e))
 	}
 
@@ -89,6 +92,7 @@ func (s *ExperimentService) GetExperimentByUUID(ctx context.Context, expId uuid.
 		return experiment.ExperimentResponse{}, err
 	}
 
+	s.enrichWithExperimentStatus(&expById)
 	return experiment.NewExperimentResponse(expById), nil
 }
 
@@ -160,6 +164,42 @@ func (s *ExperimentService) convertExperimentRequestToExperiment(expReq experime
 	}
 
 	return exp
+}
+
+func (s *ExperimentService) enrichWithExperimentStatus(exp *experiment2.Experiment) {
+	now := time.Now()
+
+	if now.Before(exp.AAStartTime) {
+		exp.Status = experiment2.ExperimentStatusAAPlanned
+		return
+	}
+
+	if now.After(exp.AAStartTime) && now.Before(exp.AAEndTime) {
+		exp.Status = experiment2.ExperimentStatusAA
+		return
+	}
+
+	if !exp.StartTime.Valid && !exp.EndTime.Valid && now.After(exp.AAEndTime) {
+		exp.Status = experiment2.ExperimentStatusAAComplete
+		return
+	}
+
+	if exp.StartTime.Valid && exp.EndTime.Valid {
+		if now.After(exp.AAEndTime) && now.Before(exp.StartTime.Time) {
+			exp.Status = experiment2.ExperimentStatusABPlanned
+			return
+		}
+	}
+
+	if now.After(exp.StartTime.Time) && now.Before(exp.EndTime.Time) {
+		exp.Status = experiment2.ExperimentStatusAB
+		return
+	}
+
+	if now.After(exp.EndTime.Time) {
+		exp.Status = experiment2.ExperimentStatusComplete
+		return
+	}
 }
 
 func (s *ExperimentService) convertExperimentVariantRequestToExperimentVariant(expVarReq experiment.CreateExperimentVariant) experiment2.ExperimentVariant {

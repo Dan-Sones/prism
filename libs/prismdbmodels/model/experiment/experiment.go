@@ -10,6 +10,7 @@ import (
 type Experiment struct {
 	ID            uuid.UUID           `json:"id"`
 	Name          string              `json:"name"`
+	Status        ExperimentStatus    `json:"status"`
 	CreatedAt     pgtype.Timestamp    `json:"created_at"`
 	FeatureFlagID string              `json:"feature_flag_id"`
 	StartTime     pgtype.Timestamp    `json:"start_time"`

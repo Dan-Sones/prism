@@ -18,6 +18,7 @@ type ExperimentResponse struct {
 	AAEndTime     time.Time                   `json:"aa_end_time"`
 	Hypothesis    string                      `json:"hypothesis"`
 	Description   string                      `json:"description"`
+	Status        experiment.ExperimentStatus `json:"status"`
 	Metrics       []ExperimentMetricResponse  `json:"metrics"`
 	Variants      []ExperimentVariantResponse `json:"variants"`
 }
@@ -41,6 +42,7 @@ func NewExperimentResponse(exp experiment.Experiment) ExperimentResponse {
 	resp := ExperimentResponse{
 		ID:            exp.ID,
 		Name:          exp.Name,
+		Status:        exp.Status,
 		CreatedAt:     exp.CreatedAt.Time,
 		FeatureFlagID: exp.FeatureFlagID,
 		AAStartTime:   exp.AAStartTime,
