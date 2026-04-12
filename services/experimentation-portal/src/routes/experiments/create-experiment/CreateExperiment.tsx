@@ -85,14 +85,7 @@ const CreateExperiment = () => {
     mutation.mutate(data);
   };
 
-  const {
-    name,
-    feature_flag_id,
-    hypothesis,
-    description,
-    start_time,
-    end_time,
-  } = form.watch();
+  const { name, feature_flag_id, hypothesis, description } = form.watch();
 
   const onNextPressed = () => {
     toggleComplete(activePageIndex);
@@ -108,9 +101,6 @@ const CreateExperiment = () => {
     form.formState.errors.feature_flag_id !== undefined ||
     form.formState.errors.hypothesis !== undefined ||
     form.formState.errors.description !== undefined ||
-    start_time === undefined ||
-    end_time === undefined ||
-    start_time >= end_time ||
     name === "" ||
     feature_flag_id === "" ||
     hypothesis === "" ||

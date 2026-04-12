@@ -5,7 +5,6 @@ import Home from "../routes/home/Home";
 import { eventsCatalogRoutes } from "../routes/events-catalog/EventsCatalogRoutes";
 import { metricsCatalogRoutes } from "../routes/metrics-catalog/MetricsCatalogRoutes";
 import { experimentRoutes } from "../routes/experiments/ExperimentsRoutes";
-import { oldExperimentRoutes } from "../routes/create-experiment/ExperimentRoutes";
 
 const Router = () => {
   const element = useRoutes([
@@ -16,7 +15,6 @@ const Router = () => {
     ...experimentRoutes,
     ...eventsCatalogRoutes,
     ...metricsCatalogRoutes,
-    ...oldExperimentRoutes,
   ]);
 
   return <Layout>{element}</Layout>;
