@@ -13,12 +13,7 @@ const ExperimentsList = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState<string | undefined>(undefined);
 
-  const {
-    data,
-    isLoading,
-    error,
-    refetch: refreshExperiments,
-  } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["experiments", searchQuery],
     queryFn: async () => {
       return getExperiments(searchQuery);

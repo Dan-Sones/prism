@@ -13,6 +13,7 @@ type ExperimentTypeRow = {
   name: string;
   feature_flag_id: string;
   created_at: string;
+  id: string;
 };
 
 const ExperimentsTable = (props: ExperimentsTableProps) => {
@@ -32,6 +33,7 @@ const ExperimentsTable = (props: ExperimentsTableProps) => {
   ): Array<ExperimentTypeRow> => {
     return data.map((experiment) => ({
       name: experiment.name,
+      id: experiment.id,
       feature_flag_id: experiment.feature_flag_id,
       created_at: new Date(experiment.created_at).toLocaleDateString(),
     }));
@@ -43,7 +45,7 @@ const ExperimentsTable = (props: ExperimentsTableProps) => {
       columns={columns}
       loading={isLoading}
       error={error}
-      onRowClick={(row) => navigate(`/experiments/${row.feature_flag_id}`)}
+      onRowClick={(row) => navigate(`/experiments/${row.id}`)}
     />
   );
 };

@@ -207,3 +207,13 @@ func (r *ExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Co
 
 	return results, nil
 }
+
+func (r *ExperimentRepository) UpdateBoundsForExperimentVariant(ctx context.Context, experimentId uuid.UUID, variantKey string, upperBound int, lowerBound int) error {
+	_, err := r.pgxPool.Exec(ctx, `UPDATE prism.variants	
+		SET upper_bound = $1, lower_bound = $2
+		WHERE experiment_id = $3 AND variant_key = $4`,
+		upperBound, lowerBound, experimentId, variantKey,
+	)
+
+	return err
+}

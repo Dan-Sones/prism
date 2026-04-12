@@ -7,6 +7,8 @@ import (
 	"experimentation-service/internal/repository"
 	"experimentation-service/internal/validators"
 	"log/slog"
+	"os"
+	"strconv"
 	"time"
 
 	experiment2 "github.com/Dan-Sones/prismdbmodels/model/experiment"
@@ -14,14 +16,16 @@ import (
 )
 
 type ExperimentService struct {
-	experimentRepository *repository.ExperimentRepository
-	logger               *slog.Logger
+	experimentRepository       *repository.ExperimentRepository
+	bucketAllocationRepository *repository.BucketAllocationRepository
+	logger                     *slog.Logger
 }
 
-func NewExperimentService(experimentRepository *repository.ExperimentRepository, logger *slog.Logger) *ExperimentService {
+func NewExperimentService(experimentRepository *repository.ExperimentRepository, bucketAllocationRepository *repository.BucketAllocationRepository, logger *slog.Logger) *ExperimentService {
 	return &ExperimentService{
-		experimentRepository: experimentRepository,
-		logger:               logger,
+		experimentRepository:       experimentRepository,
+		bucketAllocationRepository: bucketAllocationRepository,
+		logger:                     logger,
 	}
 }
 
@@ -41,6 +45,17 @@ func (s *ExperimentService) CreateExperiment(ctx context.Context, expReq experim
 	}
 
 	expById, err := s.experimentRepository.GetExperimentByUUID(ctx, *experimentId)
+	if err != nil {
+		s.logger.Error("Failed to retrieve experiment by id from repository", "error", err)
+		return nil, nil, err
+	}
+
+	err = s.ConfigureExperimentForAA(ctx, expById)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	expById, err = s.experimentRepository.GetExperimentByUUID(ctx, *experimentId)
 	if err != nil {
 		s.logger.Error("Failed to retrieve experiment by id from repository", "error", err)
 		return nil, nil, err
@@ -75,6 +90,48 @@ func (s *ExperimentService) GetExperimentByUUID(ctx context.Context, expId uuid.
 	}
 
 	return experiment.NewExperimentResponse(expById), nil
+}
+
+func (s *ExperimentService) ConfigureExperimentForAA(ctx context.Context, experiment3 experiment2.Experiment) error {
+	// Assign ALL buckets to the control variant for the duration of the A/A test
+	bucketCount := os.Getenv("BUCKET_COUNT")
+	bCount, err := strconv.Atoi(bucketCount)
+	if err != nil {
+		s.logger.Error("Failed to convert bucket count to int", "error", err)
+		return err
+	}
+
+	// create an array of each of the bucket ids to assign to the control variant
+	var bucketIds []int
+	for i := 0; i < bCount; i++ {
+		bucketIds = append(bucketIds, i)
+	}
+
+	// use the bucket repo to set
+	err = s.bucketAllocationRepository.AssignListOfBucketsToExperiment(ctx, experiment3.ID, bucketIds)
+	if err != nil {
+		s.logger.Error("Failed to assign buckets to experiment for A/A test", "error", err)
+		return err
+	}
+
+	// set bounds to 100 for the control variant and 0 for the others to ensure all traffic goes to the control variant
+	for _, variant := range experiment3.Variants {
+		if variant.VariantType == experiment2.VariantTypeControl {
+			err = s.experimentRepository.UpdateBoundsForExperimentVariant(ctx, experiment3.ID, variant.VariantKey, 100, 0)
+			if err != nil {
+				s.logger.Error("Failed to update bounds for control variant for A/A test", "error", err)
+				return err
+			}
+		} else if variant.VariantType == experiment2.VariantTypeTreatment {
+			err = s.experimentRepository.UpdateBoundsForExperimentVariant(ctx, experiment3.ID, variant.VariantKey, 0, 0)
+			if err != nil {
+				s.logger.Error("Failed to update bounds for treatment variant for A/A test", "error", err)
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 func (s *ExperimentService) enrichWithAATestDates(exp *experiment2.Experiment, fromTime time.Time) {
