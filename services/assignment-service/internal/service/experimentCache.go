@@ -16,8 +16,6 @@ import (
 // bucketId -> list of experiment keys
 // experimentKey -> experiment config (including variants)
 
-const experimentCacheTTL = 24 * time.Hour
-
 type ExperimentConfigCache interface {
 	GetBucketExperimentKeys(ctx context.Context, bucketId int32) ([]string, error)
 	AddBucketExperimentKey(ctx context.Context, bucketId int32, experimentKey string) error
@@ -101,7 +99,13 @@ func (e *ExperimentConfigCacheRedis) GetBucketExperimentKeys(ctx context.Context
 
 func (e *ExperimentConfigCacheRedis) AddBucketExperimentKey(ctx context.Context, bucketId int32, experimentKey string) error {
 	key := buildKeyForBucket(bucketId)
-	return e.RedisClient.SAdd(ctx, key, experimentKey).Err()
+
+	pipe := e.RedisClient.Pipeline()
+	pipe.SAdd(ctx, key, experimentKey)
+	pipe.ExpireNX(ctx, key, e.CalculateTimeToMidnightTTL())
+	_, err := pipe.Exec(ctx)
+	return err
+
 }
 
 func (e *ExperimentConfigCacheRedis) RemoveBucketExperimentKey(ctx context.Context, bucketId int32, experimentKey string) error {
@@ -148,13 +152,19 @@ func (e *ExperimentConfigCacheRedis) SetExperiment(ctx context.Context, experime
 		return err
 	}
 
-	err = e.RedisClient.Set(ctx, key, experimentData, experimentCacheTTL).Err()
+	err = e.RedisClient.Set(ctx, key, experimentData, e.CalculateTimeToMidnightTTL()).Err()
 	if err != nil {
 		e.Logger.Error("Failed to cache experiment config", "experimentKey", experimentKey, "error", err)
 		return err
 	}
 
 	return nil
+}
+
+func (e *ExperimentConfigCacheRedis) CalculateTimeToMidnightTTL() time.Duration {
+	now := time.Now()
+	midnight := time.Date(now.Year(), now.Month(), now.Day()+1, 0, 0, 0, 0, now.Location())
+	return time.Until(midnight)
 }
 
 func (e *ExperimentConfigCacheRedis) UpdateExperiment(ctx context.Context, experimentKey string, experiment *model.ExperimentWithVariants) error {
@@ -172,7 +182,7 @@ func (e *ExperimentConfigCacheRedis) UpdateExperiment(ctx context.Context, exper
 	}
 
 	if ttl == -1 {
-		ttl = experimentCacheTTL
+		ttl = e.CalculateTimeToMidnightTTL()
 	}
 
 	data, err := json.Marshal(experiment)
