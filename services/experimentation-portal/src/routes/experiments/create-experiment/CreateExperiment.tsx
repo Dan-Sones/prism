@@ -18,6 +18,7 @@ import type { AxiosError } from "axios";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useErrorBanner } from "../../../context/ErrorBannerContext";
+import { useNavigate } from "react-router";
 
 const CreateExperiment = () => {
   const journeyItems: JourneyItem[] = [
@@ -50,6 +51,8 @@ const CreateExperiment = () => {
 
   const { setErrorMessage } = useErrorBanner();
 
+  const navigate = useNavigate();
+
   const form = useForm<CreateExperimentRequestBody>({
     mode: "onChange",
     defaultValues: {
@@ -71,8 +74,9 @@ const CreateExperiment = () => {
         setErrorMessage("Something went wrong creating the experiment.");
       }
     },
-    onSuccess: () => {
+    onSuccess: (res) => {
       toast.success("Experiment created successfully");
+      navigate(`/experiments/${res.id}`);
     },
   });
 

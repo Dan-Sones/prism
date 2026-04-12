@@ -10,6 +10,7 @@ export type CreateExperimentRequestBody = {
 };
 
 export type CreateExperimentVariant = {
+  name: string;
   key: string;
   upper_bound: number;
   lower_bound: number;
