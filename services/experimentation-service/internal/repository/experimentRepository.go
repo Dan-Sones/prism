@@ -164,9 +164,16 @@ func (r *ExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Co
 		prism.variants v ON v.experiment_id = e.id
 	JOIN 
 		prism.bucket_allocations ba ON ba.experiment_id = e.id
-	WHERE
-		$1 = ba.bucket_number
+	 WHERE ba.bucket_number = $1
+    AND (
+      (e.aa_start_time IS NOT NULL AND e.aa_end_time IS NOT NULL
+       AND e.aa_start_time <= now() AND e.aa_end_time >= now())
+      OR
+      (e.start_time IS NOT NULL AND e.end_time IS NOT NULL
+       AND e.start_time <= now() AND e.end_time >= now())
+    )
 	`
+	// ONLY return experiments that are currently within their AA window or their standard experiement window.
 
 	rows, err := r.pgxPool.Query(ctx, sql, bucketId)
 	if err != nil {
