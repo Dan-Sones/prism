@@ -28,6 +28,23 @@ const Variant = ({ index }: VariantProps) => {
       </div>
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-1">
+          <Label htmlFor="Variant Name" required>
+            Variant Name
+          </Label>
+          <TextInput
+            id="Variant Name"
+            placeholder="e.g. Blue Button"
+            {...register(`variants.${index}.name`, {
+              required: "Variant Name is required",
+              maxLength: {
+                value: 100,
+                message: "Variant Name must be less than 100 characters",
+              },
+            })}
+          />
+          <FieldError error={errors.variants?.[index]?.name} />
+        </div>
+        <div className="flex flex-col gap-1">
           <Label htmlFor="variant_key" required>
             Variant Key
           </Label>
@@ -39,6 +56,11 @@ const Variant = ({ index }: VariantProps) => {
               maxLength: {
                 value: 100,
                 message: "Variant Key must be less than 100 characters",
+              },
+              pattern: {
+                value: /^[a-zA-Z][a-zA-Z0-9_-]*$/,
+                message:
+                  "Must start with a letter and only contain letters, numbers, underscores, or hyphens.",
               },
             })}
           />
