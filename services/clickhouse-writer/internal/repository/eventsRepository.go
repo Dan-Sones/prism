@@ -32,7 +32,7 @@ func (r *EventsRepositoryClickhouse) InsertBatch(ctx context.Context, events []m
 	}
 
 	for _, event := range events {
-		err := batch.Append(event.EventKey, event.UserDetails.ID, event.SentAt, event.ReceivedAt, event.GetStringProperties(), event.GetIntProperties(), event.GetFloatProperties())
+		err := batch.Append(event.ExperimentDetails.ExperimentKey, event.ExperimentDetails.VariantKey, event.EventKey, event.UserDetails.ID, event.SentAt, event.ReceivedAt, event.GetStringProperties(), event.GetIntProperties(), event.GetFloatProperties())
 		if err != nil {
 			return err
 		}

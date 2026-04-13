@@ -1,5 +1,6 @@
 package org.prism.eventsservice.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -11,10 +12,22 @@ import org.prism.eventsservice.grpc.events_catalog.v1.EventType;
 public class DownstreamEvent {
 
     private String id;
+
+    @JsonProperty("event_key")
     private String eventKey;
+
+    @JsonProperty("user_details")
     private UserDetails userDetails;
+
+    @JsonProperty("experiment_details")
+    private ExperimentDetails experimentDetails;
+
+    @JsonProperty("sent_at")
     private Instant sentAt;
+
+    @JsonProperty("received_at")
     private Instant receivedAt;
+
     private Map<String, OutboundEventField> properties;
 
     public DownstreamEvent(EventType eventDefinition, EventRequest eventRequest) {
