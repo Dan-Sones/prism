@@ -38,8 +38,7 @@ public class DownstreamEvent {
         this.receivedAt = Instant.now();
         this.experimentDetails = new ExperimentDetails(
                 eventRequest.getExperimentDetails().getExperiment_key(),
-                eventRequest.getExperimentDetails().getVariant_key()
-        );
+                eventRequest.getExperimentDetails().getVariant_key());
 
         // By streaming like this events without definitions will be ignored and NOT written to kafka
         this.properties = eventDefinition.getFieldsList().stream()

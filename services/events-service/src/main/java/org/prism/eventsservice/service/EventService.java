@@ -36,7 +36,8 @@ public class EventService {
 
         var eventValidationResult = validateEvent(eventToIngest);
         if (!eventValidationResult.isValid()) {
-            throw new EventIngestionException("Missing required fields: " + String.join(", ", eventValidationResult.missingFields()));
+            throw new EventIngestionException(
+                    "Missing required fields: " + String.join(", ", eventValidationResult.missingFields()));
         }
 
         EventType eventType;
@@ -75,7 +76,8 @@ public class EventService {
             missingFields.add("eventKey");
         }
 
-        if (eventRequest.getUserDetails().getId() == null || eventRequest.getUserDetails().getId().isEmpty()) {
+        if (eventRequest.getUserDetails().getId() == null
+                || eventRequest.getUserDetails().getId().isEmpty()) {
             missingFields.add("userDetails.id");
         }
 
@@ -83,11 +85,13 @@ public class EventService {
             missingFields.add("sentAt");
         }
 
-        if (eventRequest.getExperimentDetails().getExperiment_key() == null || eventRequest.getExperimentDetails().getExperiment_key().isEmpty()) {
+        if (eventRequest.getExperimentDetails().getExperiment_key() == null
+                || eventRequest.getExperimentDetails().getExperiment_key().isEmpty()) {
             missingFields.add("experimentDetails.experimentKey");
         }
 
-        if (eventRequest.getExperimentDetails().getVariant_key() == null || eventRequest.getExperimentDetails().getVariant_key().isEmpty()) {
+        if (eventRequest.getExperimentDetails().getVariant_key() == null
+                || eventRequest.getExperimentDetails().getVariant_key().isEmpty()) {
             missingFields.add("experimentDetails.variantKey");
         }
 
