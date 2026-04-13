@@ -8,6 +8,7 @@ import (
 	"hash/fnv"
 	"log"
 	"math/rand"
+	"strconv"
 	"sync"
 	"time"
 )
@@ -139,7 +140,7 @@ func (es *ExperimentSimulation) GetAATestParticipantsWithActions() *[]model.Expe
 			fieldValues := make(map[model.EventField]interface{})
 
 			for fieldName, fieldConfig := range eventFields {
-				fieldSeed := DeriveSeed(es.ExperimentConfig.RandomSeed, string(controlVariantKey), string(eventKey), string(fieldName))
+				fieldSeed := DeriveSeed(es.ExperimentConfig.RandomSeed, string(controlVariantKey), string(eventKey), string(fieldName), strconv.Itoa(i))
 				randSouce := rand.New(rand.NewSource(fieldSeed))
 				value := GenerateDataForField(fieldConfig.Type, fieldConfig.AA[controlVariantKey], randSouce)
 				fieldValues[fieldName] = value
