@@ -1,23 +1,25 @@
 module data-cooking-service
 
-go 1.25
+go 1.25.0
 
 require github.com/twmb/franz-go v1.20.7
 
-require github.com/joho/godotenv v1.5.1
+require (
+	github.com/joho/godotenv v1.5.1
+	google.golang.org/grpc v1.79.2
+	google.golang.org/protobuf v1.36.11
+)
 
 require (
 	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/text v0.33.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217 // indirect
-	google.golang.org/grpc v1.79.2 // indirect
-	google.golang.org/protobuf v1.36.11 // indirect
 )
 
 require (
 	github.com/ClickHouse/ch-go v0.71.0 // indirect
 	github.com/ClickHouse/clickhouse-go/v2 v2.43.0
-	github.com/Dan-Sones/prismdbmodels v0.0.0 // indirect
+	github.com/Dan-Sones/prismdbmodels v0.0.0
 	github.com/Dan-Sones/prismlogger v0.0.0
 	github.com/Dan-Sones/prismmicrobatcher v0.0.0
 	github.com/andybalholm/brotli v1.2.0 // indirect
