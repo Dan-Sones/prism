@@ -42,10 +42,10 @@ func main() {
 	}
 
 	// Repositories
-	cookedDataRepository := repository.NewCookedDataRepositoryClickhouse(clickhouse)
+	eventsRepository := repository.NewEventsRepositoryClickhouse(clickhouse)
 
 	// Services
-	assertionService := assertors.NewAssertionService(cookedDataRepository)
+	assertionService := assertors.NewAssertionService(eventsRepository)
 
 	performer := services.NewActionPerformerHttp(os.Getenv("EVENTS_SERVICE_SERVER_HOST"), portInt)
 

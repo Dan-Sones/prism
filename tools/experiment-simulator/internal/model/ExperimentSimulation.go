@@ -76,7 +76,6 @@ func (es *ExperimentSimulation) BeginExperiment() {
 	fmt.Println("")
 
 	totalActionsPerformed := 0
-
 	var mu sync.Mutex
 
 	for {
@@ -90,7 +89,7 @@ func (es *ExperimentSimulation) BeginExperiment() {
 			participant := allParticipants[currentActionIndex]
 			go participant.PerformActionsWithDelay()
 			mu.Lock()
-			totalActionsPerformed++
+			totalActionsPerformed += len(participant.Actions)
 			fmt.Printf("Total Actions Performed: %d/%d\r", totalActionsPerformed, totalActions)
 			mu.Unlock()
 
@@ -113,9 +112,7 @@ func (es *ExperimentSimulation) GetParticipantsForVariant(variantKey string) []E
 
 	for i := range numExposureEventsToPublishForVariant {
 		// We need to add the exposure event as the first action for each user in the variant
-		usersForVariant[i].AddAction(NewParticipantEventParameters("experiment_exposure", map[string]any{
-			"feature_flag_key": es.ExperimentConfig.FeatureFlagKey,
-		}))
+		usersForVariant[i].AddAction(NewParticipantEventParameters("experiment_exposure", map[string]any{}))
 	}
 
 	// for each eventType (that is not experiment_exposure) get the count to publish for that variant
@@ -132,17 +129,6 @@ func (es *ExperimentSimulation) GetParticipantsForVariant(variantKey string) []E
 		for i := range countToPublishForVariant {
 			properties := make(map[string]any)
 			for fieldKey, config := range config.Fields {
-
-				if fieldKey == "feature_flag_key" {
-					properties[fieldKey] = es.ExperimentConfig.FeatureFlagKey
-					continue
-				}
-
-				if fieldKey == "variant_key" {
-					properties[fieldKey] = variantKey
-					continue
-				}
-
 				properties[fieldKey] = generateDataForField(config)
 			}
 			// Allows us to cycle through the users that are assigned

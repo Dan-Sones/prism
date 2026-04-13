@@ -7,24 +7,23 @@ import (
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 )
 
-type CookedDataRepository interface {
+type EventsRepository interface {
 	GetCountOfEventForVariantAndExperiment(ctx context.Context, eventKey string, variantKey string, experimentKey string) (int, error)
 }
 
-type CookedDataRepositoryClickhouse struct {
+type EventsRepositoryClickhouse struct {
 	connection driver.Conn
 }
 
-func NewCookedDataRepositoryClickhouse(connection driver.Conn) *CookedDataRepositoryClickhouse {
-	return &CookedDataRepositoryClickhouse{
+func NewEventsRepositoryClickhouse(connection driver.Conn) *EventsRepositoryClickhouse {
+	return &EventsRepositoryClickhouse{
 		connection: connection,
 	}
 }
 
-func (c *CookedDataRepositoryClickhouse) GetCountOfEventForVariantAndExperiment(ctx context.Context, eventKey string, variantKey string, experimentKey string) (int, error) {
-	//TODO implement me
+func (c *EventsRepositoryClickhouse) GetCountOfEventForVariantAndExperiment(ctx context.Context, eventKey string, variantKey string, experimentKey string) (int, error) {
 	query := `
-SELECT count() FROM cooked_events WHERE variant_key == @variant_key AND experiment_key == @experiment_key AND event_key == @event_key;
+SELECT count() FROM events WHERE variant_key == @variant_key AND experiment_key == @experiment_key AND event_key == @event_key;
 `
 	var count uint64
 	if err := c.connection.QueryRow(ctx, query,

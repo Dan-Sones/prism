@@ -6,11 +6,6 @@ experiment_1:
     - button_green
   events:
     experiment_exposure:
-      fields:
-        feature_flag_key:
-          type: string
-        variant_key:
-          type: string
       count_to_publish_for_variant:
         button_blue: 5000
         button_green: 5000

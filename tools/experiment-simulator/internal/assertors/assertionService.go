@@ -12,12 +12,12 @@ import (
 )
 
 type AssertionService struct {
-	CookedDataRepository repository.CookedDataRepository
+	eventsRepository repository.EventsRepository
 }
 
-func NewAssertionService(cookedDataRepository repository.CookedDataRepository) *AssertionService {
+func NewAssertionService(eventsRepository repository.EventsRepository) *AssertionService {
 	return &AssertionService{
-		CookedDataRepository: cookedDataRepository,
+		eventsRepository: eventsRepository,
 	}
 }
 
@@ -40,7 +40,7 @@ func (a *AssertionService) PerformAssertionsFor(experimentSimulation *model.Expe
 		for eventTypeKey := range experimentSimulation.ExperimentConfig.Events {
 			expected := experimentSimulation.GetTotalEventsForVariantAndEventType(variantKey, eventTypeKey)
 
-			got, err := a.CookedDataRepository.GetCountOfEventForVariantAndExperiment(ctx, eventTypeKey, variantKey, experimentSimulation.ExperimentConfig.FeatureFlagKey)
+			got, err := a.eventsRepository.GetCountOfEventForVariantAndExperiment(ctx, eventTypeKey, variantKey, experimentSimulation.ExperimentConfig.FeatureFlagKey)
 			if err != nil {
 				log.Fatal("Error getting count of event for variant and experiment: ", err)
 			}

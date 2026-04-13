@@ -44,11 +44,13 @@ func (ep *ExperimentParticipant) PerformActionsWithDelay() {
 
 		eventReq := EventRequest{
 			EventKey: action.EventField,
-			UserDetails: UserDetails{
-				Id: ep.UserId,
+			ExperimentDetails: ExperimentDetails{
+				ExperimentKey: ep.FeatureFlagKey,
+				VariantKey:    ep.VariantKey,
 			},
-			SentAt:     time.Now(),
-			Properties: action.properties,
+			UserDetails: UserDetails{Id: ep.UserId},
+			SentAt:      time.Now(),
+			Properties:  action.properties,
 		}
 
 		ep.ActionPerformer.PerformAction(eventReq)
