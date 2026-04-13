@@ -1,24 +1,18 @@
 package model
 
 import (
+	"errors"
 	"fmt"
-	"log"
-	"math/rand/v2"
 )
 
 type UserIds []string
-type VariantUserIds map[string]UserIds
+type VariantUserIds map[VariantKey]UserIds
 
-func (vuId *VariantUserIds) SelectRandomUserIdForVariant(variantKey string) string {
-	userIdsForVariant := (*vuId)[variantKey]
-	randomIndex := rand.IntN(len(userIdsForVariant))
-	return userIdsForVariant[randomIndex]
-}
-
-func (vuId *VariantUserIds) GetFirstXUserIdsForVariant(variantKey string, x int) []string {
+// TODO: string at the moment, but when we add in Bucket finder logic to this, this can be more flexible
+func (vuId *VariantUserIds) getUserIdsForVariant(variantKey VariantKey, x int) ([]string, error) {
 	userIdsForVariant := (*vuId)[variantKey]
 	if x > len(userIdsForVariant) {
-		log.Fatal(fmt.Sprintf("Not enough user ids for variant %s to get the first %d user ids!!!", variantKey, x))
+		return nil, errors.New(fmt.Sprintf("Not enough user ids for variant %s to get the first %d user ids!!!", variantKey, x))
 	}
-	return userIdsForVariant[:x]
+	return userIdsForVariant[:x], nil
 }

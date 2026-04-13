@@ -14,6 +14,13 @@ WITH experiment_1 AS (
          INSERT INTO prism.bucket_allocations (experiment_id, bucket_number)
              SELECT (SELECT id FROM experiment_1), g
              FROM generate_series(0, 9999) AS g),
+     experiment_exposure AS (
+         INSERT INTO prism.event_types (name, version, description, event_key)
+             VALUES ('experiment_exposure', 1, 'Fired when a user is exposed to an experiment', 'experiment_exposure')
+             RETURNING id),
+     exposure_fields AS (
+         INSERT INTO prism.event_fields (event_type_id, name, field_key, data_type)
+             VALUES ((SELECT id FROM experiment_exposure), 'Feature Flag Key', 'feature_flag_key', 'string')),
      purchase AS (
          INSERT INTO prism.event_types (name, version, description, event_key)
              VALUES ('purchase', 1, 'Fires when a user completes a purchase', 'purchase')

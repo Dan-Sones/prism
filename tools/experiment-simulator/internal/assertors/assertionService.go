@@ -36,15 +36,15 @@ func (a *AssertionService) WaitForFlush() {
 func (a *AssertionService) PerformAssertionsFor(experimentSimulation *model.ExperimentSimulation) {
 	ctx := context.Background()
 
-	for _, variantKey := range experimentSimulation.ExperimentConfig.VariantKeys {
-		for eventTypeKey := range experimentSimulation.ExperimentConfig.Events {
+	for _, variantKey := range experimentSimulation.ExperimentConfig.ExperimentConfigAB.VariantKeys {
+		for eventTypeKey := range experimentSimulation.ExperimentConfig.ExperimentConfigAB.Events {
 			expected := experimentSimulation.GetTotalEventsForVariantAndEventType(variantKey, eventTypeKey)
 
-			got, err := a.eventsRepository.GetCountOfEventForVariantAndExperiment(ctx, eventTypeKey, variantKey, experimentSimulation.ExperimentConfig.FeatureFlagKey)
+			got, err := a.eventsRepository.GetCountOfEventForVariantAndExperiment(ctx, eventTypeKey, variantKey, experimentSimulation.ExperimentConfig.ExperimentConfigAB.FeatureFlagKey)
 			if err != nil {
 				log.Fatal("Error getting count of event for variant and experiment: ", err)
 			}
-			fmt.Printf("Assertion for experiment %s, variant %s, event %s: expected %d, got %d, assertion passed: %t\n", experimentSimulation.ExperimentConfig.FeatureFlagKey, variantKey, eventTypeKey, expected, got, expected == got)
+			fmt.Printf("Assertion for experiment %s, variant %s, event %s: expected %d, got %d, assertion passed: %t\n", experimentSimulation.ExperimentConfig.ExperimentConfigAB.FeatureFlagKey, variantKey, eventTypeKey, expected, got, expected == got)
 		}
 	}
 }

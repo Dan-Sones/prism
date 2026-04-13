@@ -1,20 +1,32 @@
 experiment_1:
-  duration_seconds: 600
-  feature_flag_key: button_color_v1
-  variant_keys:
-    - button_blue
-    - button_green
-  events:
-    experiment_exposure:
-      count_to_publish_for_variant:
+  random_seed: 21
+  experiment_key: button_color_v1
+  variants:
+    button_blue: control
+    button_green: treatment
+  aa:
+    duration_seconds: 600
+    publish_amounts:
+      experiment_exposure:
+        button_blue: 5000
+      purchase:
+        button_blue: 3000
+  ab:
+    duration_seconds: 600
+    publish_amounts:
+      experiment_exposure:
         button_blue: 5000
         button_green: 5000
+      purchase:
+        button_blue: 5000
+        button_green: 5000
+  events:
     purchase:
       fields:
         order_total:
           type: float
-          min: 10.0
-          max: 500.0
-      count_to_publish_for_variant:
-        button_blue: 5000
-        button_green: 5000
+          aa:
+            button_blue: { min: 10.0, max: 500.0 }
+          ab:
+            button_blue: { min: 10.0, max: 500.0 }
+            button_green: { min: 10.0, max: 600.0 }

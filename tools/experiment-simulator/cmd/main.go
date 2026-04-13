@@ -1,10 +1,7 @@
 package main
 
 import (
-	"experiment-simulator/internal/assertors"
-	"experiment-simulator/internal/clients"
 	"experiment-simulator/internal/model"
-	"experiment-simulator/internal/repository"
 	"experiment-simulator/internal/services"
 	"fmt"
 	"os"
@@ -35,17 +32,17 @@ func main() {
 		return
 	}
 
-	clickhouse, err := clients.NewClickhouseConnection()
-	if err != nil {
-		fmt.Printf("Error creating clickhouse connection: %v\n", err)
-		return
-	}
+	//clickhouse, err := clients.NewClickhouseConnection()
+	//if err != nil {
+	//	fmt.Printf("Error creating clickhouse connection: %v\n", err)
+	//	return
+	//}
 
-	// Repositories
-	eventsRepository := repository.NewEventsRepositoryClickhouse(clickhouse)
-
-	// Services
-	assertionService := assertors.NewAssertionService(eventsRepository)
+	//// Repositories
+	//eventsRepository := repository.NewEventsRepositoryClickhouse(clickhouse)
+	//
+	//// Services
+	//assertionService := assertors.NewAssertionService(eventsRepository)
 
 	performer := services.NewActionPerformerHttp(os.Getenv("EVENTS_SERVICE_SERVER_HOST"), portInt)
 
@@ -54,16 +51,16 @@ func main() {
 	for _, experimentConfig := range simDetails {
 		vuids := make(model.VariantUserIds)
 
-		for _, variantKey := range experimentConfig.VariantKeys {
-			vuids[variantKey] = services.GetUserIdsForVariant(variantKey)
+		for variantKey, _ := range experimentConfig.Variants {
+			vuids[variantKey] = services.GetUserIdsForVariant(string(variantKey))
 		}
 
 		simulation := model.NewExperimentSimulation(experimentConfig, vuids, performer)
-		simulation.BeginExperiment()
+		simulation.AATest()
 
-		assertionService.WaitForFlush()
-
-		assertionService.PerformAssertionsFor(&simulation)
+		//assertionService.WaitForFlush()
+		//
+		//assertionService.PerformAssertionsFor(&simulation)
 		return
 	}
 
