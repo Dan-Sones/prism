@@ -55,8 +55,7 @@ func main() {
 			vuids[variantKey] = services.GetUserIdsForVariant(string(variantKey))
 		}
 
-		simulation := model.NewExperimentSimulation(experimentConfig, vuids, performer)
-		simulation.AATest()
+		_ = model.NewExperimentSimulation(experimentConfig, vuids, performer)
 
 		//assertionService.WaitForFlush()
 		//

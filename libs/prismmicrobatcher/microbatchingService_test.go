@@ -57,7 +57,7 @@ func TestMicrobatchProcessor_ProcessMicrobatch(t *testing.T) {
 				Level: slog.LevelDebug,
 			}))
 			batchProcessor := NewStubMicrobatchProcessor()
-			microBatchingService := NewMicroBatchingService(batchSize, eventReader, batchProcessor, logger)
+			microBatchingService := NewMicroBatchingService(batchSize, 10*time.Second, eventReader, batchProcessor, logger)
 
 			programPolls(t, eventReader, tt.pollSizes)
 
