@@ -1,6 +1,7 @@
-package model
+package services
 
 import (
+	"experiment-simulator/internal/model"
 	"fmt"
 	"math/rand"
 	"testing"
@@ -10,33 +11,33 @@ func TestExperimentSimulation_GetVariantToEventToAmountExcludingExposure(t *test
 
 	tests := []struct {
 		name string
-		want map[VariantKey]map[EventKey]int
+		want map[model.VariantKey]map[model.EventKey]int
 		es   ExperimentSimulation
 	}{
 		{
 			name: "aa with one variant and one event",
-			want: map[VariantKey]map[EventKey]int{
-				"button_blue": map[EventKey]int{
+			want: map[model.VariantKey]map[model.EventKey]int{
+				"button_blue": map[model.EventKey]int{
 					"purchase": 5000,
 				},
 			},
 			es: ExperimentSimulation{
-				ExperimentConfig: ExperimentConfig{
+				ExperimentConfig: model.ExperimentConfig{
 					ExperimentKey: "best_experiment_ever",
 					RandomSeed:    21,
-					Variants: map[VariantKey]VariantRole{
-						"button_blue":  Control,
-						"button_green": Treatment,
+					Variants: map[model.VariantKey]model.VariantRole{
+						"button_blue":  model.Control,
+						"button_green": model.Treatment,
 					},
-					AA: ExperimentPhase{
+					AA: model.ExperimentPhase{
 						DurationSeconds: 10,
-						PublishAmounts: map[EventKey]map[VariantKey]int{
+						PublishAmounts: map[model.EventKey]map[model.VariantKey]int{
 							"purchase": {
 								"button_blue": 5000,
 							},
 						},
 					},
-					Events: map[EventKey]EventConfig{
+					Events: map[model.EventKey]model.EventConfig{
 						"purchase": {},
 					},
 				},
@@ -47,7 +48,7 @@ func TestExperimentSimulation_GetVariantToEventToAmountExcludingExposure(t *test
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 
-			got := tt.es.GetVariantToEventToAmountExcludingExposure(ExperimentPhaseAA)
+			got := tt.es.GetVariantToEventToAmountExcludingExposure(model.ExperimentPhaseAA)
 			gotLen := len(got)
 			wantLen := len(tt.want)
 
@@ -56,7 +57,7 @@ func TestExperimentSimulation_GetVariantToEventToAmountExcludingExposure(t *test
 			}
 
 			for vKey, _ := range tt.es.ExperimentConfig.Variants {
-				if tt.es.ExperimentConfig.Variants[vKey] == Treatment {
+				if tt.es.ExperimentConfig.Variants[vKey] == model.Treatment {
 					continue
 				}
 
@@ -115,8 +116,8 @@ func TestGenerateDataForField_SameFloatSequenceGivenRNG(t *testing.T) {
 	mnFloat64 := float64(0)
 	mxFloat64 := float64(500)
 
-	fieldType := FieldTypeFloat
-	config := FieldConfigMinMax{Min: &mnFloat64, Max: &mxFloat64}
+	fieldType := model.FieldTypeFloat
+	config := model.FieldConfigMinMax{Min: &mnFloat64, Max: &mxFloat64}
 
 	for i := range 10000 {
 		v1 := GenerateDataForField(fieldType, config, rand.NewSource(seed))
@@ -128,41 +129,43 @@ func TestGenerateDataForField_SameFloatSequenceGivenRNG(t *testing.T) {
 	}
 }
 
-func getXUserIds(t *testing.T, userCount int, source rand.Source) []string {
-	t.Helper()
+type MockUserIdService struct {
+	RandSource rand.Source
+}
 
-	r := rand.New(source)
+func (m MockUserIdService) GetXUserIdsWithinExperimentAndVariant(count int, experimentKey string, wantVariantKey model.VariantKey) ([]string, error) {
+	r := rand.New(m.RandSource)
 
-	userIds := make([]string, userCount)
+	userIds := make([]string, count)
 
-	for i := range userCount {
+	for i := range count {
 		userIds[i] = fmt.Sprintf("%d", r.Int())
 	}
 
-	return userIds
+	return userIds, nil
 }
 
 func TestExperimentSimulation_GetAATestParticipantsWithActions_ConversionEventsMapOverExposureEvents(t *testing.T) {
 
 	x := rand.NewSource(21)
 
+	muid := MockUserIdService{RandSource: x}
+
 	mnOrderTotal := float64(1)
 	mxOrderTotal := float64(500)
 
 	es := &ExperimentSimulation{
-		VariantUserIds: VariantUserIds{
-			"button_blue": getXUserIds(t, 5000, x),
-		},
-		ExperimentConfig: ExperimentConfig{
+		UserIdService: muid,
+		ExperimentConfig: model.ExperimentConfig{
 			ExperimentKey: "best_experiment_ever",
 			RandomSeed:    21,
-			Variants: map[VariantKey]VariantRole{
-				"button_blue":  Control,
-				"button_green": Treatment,
+			Variants: map[model.VariantKey]model.VariantRole{
+				"button_blue":  model.Control,
+				"button_green": model.Treatment,
 			},
-			AA: ExperimentPhase{
+			AA: model.ExperimentPhase{
 				DurationSeconds: 10,
-				PublishAmounts: map[EventKey]map[VariantKey]int{
+				PublishAmounts: map[model.EventKey]map[model.VariantKey]int{
 					"experiment_exposure": {
 						"button_blue": 5000,
 					},
@@ -171,13 +174,13 @@ func TestExperimentSimulation_GetAATestParticipantsWithActions_ConversionEventsM
 					},
 				},
 			},
-			Events: map[EventKey]EventConfig{
+			Events: map[model.EventKey]model.EventConfig{
 				"purchase": {
-					Fields: map[EventField]FieldConfig{
+					Fields: map[model.EventField]model.FieldConfig{
 						"order_total": {
-							Type: FieldTypeFloat,
-							AA: map[VariantKey]FieldConfigMinMax{
-								"button_blue": FieldConfigMinMax{
+							Type: model.FieldTypeFloat,
+							AA: map[model.VariantKey]model.FieldConfigMinMax{
+								"button_blue": model.FieldConfigMinMax{
 									Min: &mnOrderTotal,
 									Max: &mxOrderTotal,
 								},

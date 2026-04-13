@@ -1,9 +1,10 @@
 package main
 
 import (
-	"experiment-simulator/internal/model"
+	"experiment-simulator/internal/clients"
 	"experiment-simulator/internal/services"
 	"fmt"
+	"log"
 	"os"
 	"strconv"
 
@@ -32,6 +33,14 @@ func main() {
 		return
 	}
 
+	address := fmt.Sprintf("%s:%s", os.Getenv("ASSIGNMENT_SERVICE_GRPC_SERVER_ADDRESS"), os.Getenv("ASSIGNMENT_SERVICE_GRPC_SERVER_PORT"))
+	assignmentClient, err := clients.NewGrpcAssignmentClient(address)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	userIdService := services.NewUserIdService(assignmentClient)
+
 	//clickhouse, err := clients.NewClickhouseConnection()
 	//if err != nil {
 	//	fmt.Printf("Error creating clickhouse connection: %v\n", err)
@@ -49,14 +58,9 @@ func main() {
 	simDetails := services.GetSimulation()
 	// TODO: maybe add support for conucrrent, but for now just get the first one.
 	for _, experimentConfig := range simDetails {
-		vuids := make(model.VariantUserIds)
 
-		for variantKey, _ := range experimentConfig.Variants {
-			vuids[variantKey] = services.GetUserIdsForVariant(string(variantKey))
-		}
-
-		_ = model.NewExperimentSimulation(experimentConfig, vuids, performer)
-
+		es := services.NewExperimentSimulation(experimentConfig, performer, userIdService)
+		es.SimulateExperiment()
 		//assertionService.WaitForFlush()
 		//
 		//assertionService.PerformAssertionsFor(&simulation)

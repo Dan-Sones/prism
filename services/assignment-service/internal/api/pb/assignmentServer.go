@@ -3,6 +3,7 @@ package pb
 import (
 	"assignment-service/internal/grpc/generated/assignment_service/v1"
 	"assignment-service/internal/service"
+	"context"
 	"log/slog"
 	"sync"
 
@@ -47,4 +48,16 @@ func (s *AssignmentServer) GetExperimentsAndVariantsForUsers(req *assignment_ser
 		})
 	}
 	return g.Wait()
+}
+
+func (s *AssignmentServer) GetExperimentsAndVariantsForUser(ctx context.Context, req *assignment_service.GetExperimentsAndVariantsForUserRequest) (*assignment_service.GetExperimentsAndVariantsForUserResponse, error) {
+	result, err := s.assignmentService.GetAssignmentsForUserId(ctx, req.GetUserId())
+	if err != nil {
+		s.logger.Error("Error getting assignments for user", "userId", req.GetUserId(), "error", err)
+		return nil, err
+	}
+
+	return &assignment_service.GetExperimentsAndVariantsForUserResponse{
+		Assignments: result,
+	}, nil
 }

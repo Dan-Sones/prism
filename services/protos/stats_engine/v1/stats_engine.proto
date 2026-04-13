@@ -6,7 +6,6 @@ package stats_engine.v1;
 
 service StatsEngine {
   rpc CalculateSampleSizeAbsoluteMetric (CalculateSampleSizeAbsoluteMetricRequest) returns (CalculateSampleSizeAbsoluteMetricResponse);
-  rpc Calculate
 }
 
 message CalculateSampleSizeAbsoluteMetricRequest {
