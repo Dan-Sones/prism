@@ -46,6 +46,45 @@ jobs:
       - name: Run clickhouse-writer tests
         run: cd services/clickhouse-writer && go test ./...
 
+  experiment-simulator-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.25"
+
+      - name: Run clickhouse-writer tests
+        run: cd tools/experiment-simulator && go test ./...
+  
+  models-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.25"
+
+      - name: Run clickhouse-writer tests
+        run: cd libs/prismdbmodels && go test ./...
+  
+  micro-batcher-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: "1.25"
+
+      - name: Run clickhouse-writer tests
+        run: cd libs/prismmicrobatcher && go test ./...
+
   events-service-tests:
     runs-on: ubuntu-latest
 
