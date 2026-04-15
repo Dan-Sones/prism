@@ -1,7 +1,9 @@
 package main
 
 import (
+	"experiment-simulator/internal/assertors"
 	"experiment-simulator/internal/clients"
+	"experiment-simulator/internal/repository"
 	"experiment-simulator/internal/services"
 	"fmt"
 	"log"
@@ -41,25 +43,26 @@ func main() {
 
 	userIdService := services.NewUserIdService(assignmentClient)
 
-	//clickhouse, err := clients.NewClickhouseConnection()
-	//if err != nil {
-	//	fmt.Printf("Error creating clickhouse connection: %v\n", err)
-	//	return
-	//}
+	clickhouse, err := clients.NewClickhouseConnection()
+	if err != nil {
+		fmt.Printf("Error creating clickhouse connection: %v\n", err)
+		return
+	}
 
 	//// Repositories
-	//eventsRepository := repository.NewEventsRepositoryClickhouse(clickhouse)
+	eventsRepository := repository.NewEventsRepositoryClickhouse(clickhouse)
 	//
 	//// Services
 	//assertionService := assertors.NewAssertionService(eventsRepository)
 
 	performer := services.NewActionPerformerHttp(os.Getenv("EVENTS_SERVICE_SERVER_HOST"), portInt)
+	assertionServiceClickhouse := assertors.NewAssertionServiceClickhouse(eventsRepository)
 
 	simDetails := services.GetSimulation()
 	// TODO: maybe add support for conucrrent, but for now just get the first one.
 	for _, experimentConfig := range simDetails {
 
-		es := services.NewExperimentSimulation(experimentConfig, performer, userIdService)
+		es := services.NewExperimentSimulation(experimentConfig, performer, userIdService, assertionServiceClickhouse)
 		es.SimulateExperiment()
 		//assertionService.WaitForFlush()
 		//

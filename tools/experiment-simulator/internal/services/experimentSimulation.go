@@ -3,6 +3,7 @@ package services
 import (
 	"encoding/binary"
 	"errors"
+	"experiment-simulator/internal/assertors"
 	"experiment-simulator/internal/model"
 	"fmt"
 	"hash/fnv"
@@ -15,22 +16,29 @@ import (
 
 type ExperimentSimulation struct {
 	ExperimentConfig model.ExperimentConfig
+	AssertionService assertors.AssertionService
 	Performer        model.ActionPerformer
 	UserIdService    UserIdService
 }
 
-func NewExperimentSimulation(experimentConfig model.ExperimentConfig, performer model.ActionPerformer, userIdService UserIdService) ExperimentSimulation {
+func NewExperimentSimulation(experimentConfig model.ExperimentConfig, performer model.ActionPerformer, userIdService UserIdService, assertionService assertors.AssertionService) ExperimentSimulation {
 	return ExperimentSimulation{
 		UserIdService:    userIdService,
 		ExperimentConfig: experimentConfig,
 		Performer:        performer,
+		AssertionService: assertionService,
 	}
 }
 
 func (es *ExperimentSimulation) SimulateExperiment() {
 	aaParticipantsWithActions := es.GetAATestParticipantsWithActions()
-
 	es.PerformAATest(*aaParticipantsWithActions)
+
+	// Wait for the flush to take place so we are asserting against complete results
+	time.Sleep(time.Duration(65 * time.Second))
+
+	es.AssertionService.PerformAssertionsFor(es.ExperimentConfig.AA.PublishAmounts, es.ExperimentConfig.ExperimentKey)
+
 }
 
 func (es *ExperimentSimulation) PerformAATest(aaParticipantsWithActions []model.ExperimentParticipant) {
@@ -68,7 +76,7 @@ func (es *ExperimentSimulation) PerformActions(particpantsWithActions []model.Ex
 	interval := time.Duration(float64(time.Second) * float64(durationSeconds) / float64(len(particpantsWithActions)))
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
-	timeout := time.After(time.Duration(durationSeconds) * time.Second)
+	timeout := time.After((time.Duration(durationSeconds) * time.Second) + (10 * time.Second))
 	totalActionsPerformed := 0
 	currentParticipant := 0
 	var mu sync.Mutex
@@ -86,7 +94,7 @@ func (es *ExperimentSimulation) PerformActions(particpantsWithActions []model.Ex
 			go participant.PerformActionsWithDelay(es.Performer)
 			mu.Lock()
 			totalActionsPerformed += len(participant.Actions)
-			fmt.Printf("Total Actions Performed: %d/%d\r", totalActionsPerformed, totalActions)
+			fmt.Printf("Total Actions Performed: %d/%d\r", totalActionsPerformed+1, totalActions)
 			mu.Unlock()
 			currentParticipant++
 		}

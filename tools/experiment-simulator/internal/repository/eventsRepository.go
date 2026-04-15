@@ -2,13 +2,14 @@ package repository
 
 import (
 	"context"
+	"experiment-simulator/internal/model"
 
 	"github.com/ClickHouse/clickhouse-go/v2"
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
 )
 
 type EventsRepository interface {
-	GetCountOfEventForVariantAndExperiment(ctx context.Context, eventKey string, variantKey string, experimentKey string) (int, error)
+	GetCountOfEventForVariantAndExperiment(ctx context.Context, eventKey model.EventKey, variantKey model.VariantKey, experimentKey string) (int, error)
 }
 
 type EventsRepositoryClickhouse struct {
@@ -21,7 +22,7 @@ func NewEventsRepositoryClickhouse(connection driver.Conn) *EventsRepositoryClic
 	}
 }
 
-func (c *EventsRepositoryClickhouse) GetCountOfEventForVariantAndExperiment(ctx context.Context, eventKey string, variantKey string, experimentKey string) (int, error) {
+func (c *EventsRepositoryClickhouse) GetCountOfEventForVariantAndExperiment(ctx context.Context, eventKey model.EventKey, variantKey model.VariantKey, experimentKey string) (int, error) {
 	query := `
 SELECT count() FROM events WHERE variant_key == @variant_key AND experiment_key == @experiment_key AND event_key == @event_key;
 `
