@@ -101,11 +101,13 @@ func (m *MetricsCatalogService) GetMetricByKey(ctx context.Context, metricKey st
 	for _, component := range componentRows {
 		eventType, err := m.eventsCatalogRepo.GetEventTypeById(ctx, component.EventTypeID.String())
 		if err != nil {
+			m.logger.Error("Error fetching event type for metric component", "error", err, "eventTypeId", component.EventTypeID)
 			return nil, err
 		}
 
 		idx := slices.IndexFunc(eventType.Fields, func(ef event.EventField) bool { return ef.ID == component.AggregationFieldID })
 		if idx == -1 {
+			m.logger.Error("Aggregation field not found in event type fields", "aggFieldId", component.AggregationFieldID, "eventTypeId", component.EventTypeID)
 			return nil, errors.New("this shouldn't be possible, we can't find an item despite there being a foreign key")
 		}
 

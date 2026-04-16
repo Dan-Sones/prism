@@ -3,7 +3,15 @@ import type { CreateMetricRequest } from "../../../../api/metricsCatalog";
 import Dropdown from "../../../../components/form/Dropdown";
 import Label from "../../../../components/form/Label";
 
-const SelectAggregationType = () => {
+interface SelectAggregationTypeProps {
+  label: string;
+  index: number;
+}
+
+const SelectAggregationType = ({
+  label,
+  index,
+}: SelectAggregationTypeProps) => {
   const { control } = useFormContext<CreateMetricRequest>();
   const aggregationOptions = [
     "COUNT",
@@ -19,11 +27,11 @@ const SelectAggregationType = () => {
   return (
     <div>
       <Label htmlFor="aggregation_operation)" required>
-        User Level Aggregation
+        {label}
       </Label>
       <Controller
         control={control}
-        name={`components.0.aggregation_operation`}
+        name={`components.${index}.aggregation_operation`}
         render={({ field }) => (
           <Dropdown
             items={aggregationOptions.map((option) => ({

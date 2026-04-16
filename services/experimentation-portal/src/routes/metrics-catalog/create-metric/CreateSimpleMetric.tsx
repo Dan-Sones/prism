@@ -18,7 +18,7 @@ const CreateSimpleMetric = () => {
             <SelectEventTypeCombobox />
           </div>
           <div className="flex-1">
-            <SelectEventKeyCombobox />
+            <SelectEventKeyCombobox index={0} />
           </div>
         </div>
         <hr className="border-slate-200" />
@@ -29,7 +29,7 @@ const CreateSimpleMetric = () => {
           </p>
         </div>
         <div className="max-w-64">
-          <SelectAggregationType />
+          <SelectAggregationType label="User Level Aggregation" />
         </div>
       </Card>
     </>

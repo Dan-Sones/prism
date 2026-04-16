@@ -7,13 +7,17 @@ import Label from "../../../../components/form/Label";
 import { useEffect, useMemo } from "react";
 import FieldKeyDataTypePill from "../../../../components/fieldKey/FieldKeyDataTypePill";
 
-const SelectEventKeyCombobox = () => {
+interface SelectEventKeyComboboxProps {
+  index: number; // index of the component in the metric components array
+}
+
+const SelectEventKeyCombobox = ({ index }: SelectEventKeyComboboxProps) => {
   const { control, watch, setValue } = useFormContext<CreateMetricRequest>();
-  const eventTypeId = watch("components.0.event_type_id");
+  const eventTypeId = watch(`components.${index}.event_type_id`);
 
   useEffect(() => {
-    setValue("components.0.event_field_id", "");
-  }, [eventTypeId, setValue]);
+    setValue(`components.${index}.event_field_id`, "");
+  }, [eventTypeId, setValue, index]);
 
   const { data } = useQuery({
     queryKey: [eventTypeId],
@@ -24,7 +28,7 @@ const SelectEventKeyCombobox = () => {
     },
   });
 
-  const eventFieldId = watch("components.0.event_field_id");
+  const eventFieldId = watch(`components.${index}.event_field_id`);
 
   const dataType = useMemo(() => {
     const selectedField = data?.find((field) => field.id === eventFieldId);
@@ -41,8 +45,7 @@ const SelectEventKeyCombobox = () => {
           <div className="min-w-64">
             <Controller
               control={control}
-              // TODO: THIS IS HARDCODED AND WON'T WORK FOR RATIO components
-              name={`components.0.event_field_id`}
+              name={`components.${index}.event_field_id`}
               render={({ field }) => (
                 <Dropdown
                   items={
