@@ -280,7 +280,7 @@ func TestValidateCreateMetricRequestComponent(t *testing.T) {
 				Role:                 metric.ComponentRoleBaseEvent,
 				EventTypeID:          uuid.New(),
 				FieldKeyID:           nil,
-				AggregationOperation: metric.AggregationOperationCount,
+				AggregationOperation: metric.AggregationOperationAvg,
 			},
 			index: 0,
 			want: []problems.Violation{
@@ -289,6 +289,18 @@ func TestValidateCreateMetricRequestComponent(t *testing.T) {
 					Message: "Field key or system key are required",
 				},
 			},
+		},
+		{
+			name: "No Field Key, or system column name with count should pass",
+			component: metricreq.CreateMetricRequestComponent{
+				Role:                 metric.ComponentRoleBaseEvent,
+				EventTypeID:          uuid.New(),
+				FieldKeyID:           nil,
+				SystemColumnName:     nil,
+				AggregationOperation: metric.AggregationOperationCount,
+			},
+			index: 0,
+			want:  nil,
 		},
 		{
 			name: "Both field key and system column name set",

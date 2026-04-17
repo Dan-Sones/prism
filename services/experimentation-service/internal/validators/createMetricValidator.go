@@ -6,6 +6,7 @@ import (
 	"regexp"
 	"strconv"
 
+	metric2 "github.com/Dan-Sones/prismdbmodels/model/metric"
 	"github.com/google/uuid"
 )
 
@@ -88,7 +89,7 @@ func ValidateCreateMetricRequestComponent(component metric.CreateMetricRequestCo
 		})
 	}
 
-	if component.FieldKeyID == nil && component.SystemColumnName == nil {
+	if component.FieldKeyID == nil && component.SystemColumnName == nil && component.AggregationOperation != metric2.AggregationOperationCount {
 		violations = append(violations, problems.Violation{
 			Field:   "components[" + strconv.Itoa(index) + "].field_key_id",
 			Message: "Field key or system key are required",

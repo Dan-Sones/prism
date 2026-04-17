@@ -22,6 +22,9 @@ const SYSTEM_FIELDS = [
 const SelectEventKeyCombobox = ({ index }: SelectEventKeyComboboxProps) => {
   const { control, watch, setValue } = useFormContext<CreateMetricRequest>();
   const eventTypeId = watch(`components.${index}.event_type_id`);
+  const aggregationOperation = watch(
+    `components.${index}.aggregation_operation`,
+  );
 
   useEffect(() => {
     setValue(`components.${index}.event_field_id`, undefined);
@@ -86,7 +89,7 @@ const SelectEventKeyCombobox = ({ index }: SelectEventKeyComboboxProps) => {
                       field.onChange(selectedValue);
                     }
                   }}
-                  disabled={!eventTypeId}
+                  disabled={!eventTypeId || aggregationOperation === "COUNT"}
                 />
               )}
             />
