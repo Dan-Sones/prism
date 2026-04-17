@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"io/fs"
 	"os"
 	"slices"
 	"sort"
@@ -13,6 +14,7 @@ import (
 	"log"
 
 	experiment2 "github.com/Dan-Sones/prismdbmodels/model/experiment"
+	"github.com/hashicorp/go-version"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/testcontainers/testcontainers-go"
@@ -24,6 +26,11 @@ type ExperimentRepositoryIntegrationTest struct {
 	experimentsToCreate []experiment2.Experiment
 	bucketId            int32
 	expectedNames       []string
+}
+
+type versionedFile struct {
+	entry   fs.DirEntry
+	version *version.Version
 }
 
 func TestExperimentRepository_GetExperimentsAndVariantsForBucket_ShouldOnlyReturnActiveExperiments(t *testing.T) {
@@ -229,27 +236,32 @@ func PerformMigrations(t *testing.T, pgxPool *pgxpool.Pool) {
 		}
 	})
 
-	// sort by the version number so migrations execute in order
-	sort.Slice(files, func(i, j int) bool {
-		getVersion := func(fileName string) string {
-			parts := strings.Split(fileName, "__")
-			return parts[0]
+	versioned := make([]versionedFile, 0, len(files))
+	for _, f := range files {
+		raw := strings.Split(f.Name(), "__")[0]
+		withoutV := strings.TrimPrefix(raw, "V")
+		v, err := version.NewVersion(withoutV)
+		if err != nil {
+			t.Errorf("migration %q has invalid version %q", f.Name(), raw)
 		}
+		versioned = append(versioned, versionedFile{entry: f, version: v})
+	}
 
-		return getVersion(files[i].Name()) < getVersion(files[j].Name())
+	sort.Slice(versioned, func(i, j int) bool {
+		return versioned[i].version.LessThan(versioned[j].version)
 	})
 
-	for _, file := range files {
-		content, err := os.ReadFile(fmt.Sprintf("%s/%s", relativeMigrationsPath, file.Name()))
+	for _, vf := range versioned {
+		content, err := os.ReadFile(fmt.Sprintf("%s/%s", relativeMigrationsPath, vf.entry.Name()))
 		if err != nil {
-			t.Fatalf("failed to read migration file %s: %s", file.Name(), err)
+			t.Fatalf("failed to read migration file %s: %s", vf.entry.Name(), err)
 		}
 
-		log.Printf("Currently executing migration %s", file.Name())
+		log.Printf("Currently executing migration %s", vf.entry.Name())
 
 		_, err = pgxPool.Exec(context.Background(), string(content))
 		if err != nil {
-			t.Fatalf("failed to execute migration %s: %s", file.Name(), err)
+			t.Fatalf("failed to execute migration %s: %s", vf.entry.Name(), err)
 		}
 	}
 }
