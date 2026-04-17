@@ -5,14 +5,14 @@ experiment_1:
     button_blue: control
     button_green: treatment
   aa:
-    duration_seconds: 600
+    duration_seconds: 60
     publish_amounts:
       experiment_exposure:
         button_blue: 5000
       purchase:
         button_blue: 3000
   ab:
-    duration_seconds: 600
+    duration_seconds: 120
     publish_amounts:
       experiment_exposure:
         button_blue: 5000
