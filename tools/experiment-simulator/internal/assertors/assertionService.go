@@ -5,46 +5,56 @@ import (
 	"experiment-simulator/internal/model"
 	"experiment-simulator/internal/repository"
 	"fmt"
-	"log"
-	"os"
-	"strconv"
-	"time"
 )
 
-type AssertionService struct {
-	CookedDataRepository repository.CookedDataRepository
+type AssertionService interface {
+	PerformAssertionsFor(publishAmounts map[model.EventKey]map[model.VariantKey]int, experimentKey string) (hasFailures bool)
 }
 
-func NewAssertionService(cookedDataRepository repository.CookedDataRepository) *AssertionService {
-	return &AssertionService{
-		CookedDataRepository: cookedDataRepository,
+type AssertionServiceClickhouse struct {
+	eventsRepository repository.EventsRepository
+}
+
+func NewAssertionServiceClickhouse(eventsRepository repository.EventsRepository) *AssertionServiceClickhouse {
+	return &AssertionServiceClickhouse{
+		eventsRepository: eventsRepository,
 	}
 }
 
-func (a *AssertionService) WaitForFlush() {
-	flushTimeStr := os.Getenv("DATA_COOKING_SERVICE_MICROBATCH_FLUSH_TIMEOUT_SECONDS")
-
-	flushTime, err := strconv.Atoi(flushTimeStr)
-	if err != nil {
-		log.Fatalf("Error converting flush time to int: %v", err)
-	}
-
-	timeToWait := (time.Duration(flushTime) * time.Second) + (5 * time.Second) // Add an extra 5 seconds to be safe
-	time.Sleep(timeToWait)
-}
-
-func (a *AssertionService) PerformAssertionsFor(experimentSimulation *model.ExperimentSimulation) {
+func (a *AssertionServiceClickhouse) PerformAssertionsFor(publishAmounts map[model.EventKey]map[model.VariantKey]int, experimentKey string) (hasFailures bool) {
 	ctx := context.Background()
 
-	for _, variantKey := range experimentSimulation.ExperimentConfig.VariantKeys {
-		for eventTypeKey := range experimentSimulation.ExperimentConfig.Events {
-			expected := experimentSimulation.GetTotalEventsForVariantAndEventType(variantKey, eventTypeKey)
+	results := make(map[model.EventKey]map[model.VariantKey]bool)
 
-			got, err := a.CookedDataRepository.GetCountOfEventForVariantAndExperiment(ctx, eventTypeKey, variantKey, experimentSimulation.ExperimentConfig.FeatureFlagKey)
+	fmt.Printf("---- Performing assertions for experiment key %s ----\n", experimentKey)
+
+	for eventKey, variantKeys := range publishAmounts {
+		if results[eventKey] == nil {
+			results[eventKey] = make(map[model.VariantKey]bool)
+		}
+
+		for variantKey, amount := range variantKeys {
+			count, err := a.eventsRepository.GetCountOfEventForVariantAndExperiment(ctx, eventKey, variantKey, experimentKey)
 			if err != nil {
-				log.Fatal("Error getting count of event for variant and experiment: ", err)
+				fmt.Errorf("Failed to perform assertions for event key %s ", eventKey)
+				continue
 			}
-			fmt.Printf("Assertion for experiment %s, variant %s, event %s: expected %d, got %d, assertion passed: %t\n", experimentSimulation.ExperimentConfig.FeatureFlagKey, variantKey, eventTypeKey, expected, got, expected == got)
+			if amount != count {
+				results[eventKey][variantKey] = false
+				fmt.Printf("For event key %s and variant key %s expected amount was %d and actual amount was %d, assertion failed\n", eventKey, variantKey, amount, count)
+			} else {
+				results[eventKey][variantKey] = true
+				fmt.Printf("For event key %s and variant key %s expected amount was %d and actual amount was %d, assertion passed\n", eventKey, variantKey, amount, count)
+			}
 		}
 	}
+
+	for _, variants := range results {
+		for _, v := range variants {
+			if !v {
+				return true
+			}
+		}
+	}
+	return false
 }

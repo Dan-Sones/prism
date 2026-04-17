@@ -12,7 +12,6 @@ import (
 	"os/signal"
 	"strconv"
 	"syscall"
-	"time"
 
 	prismLog "github.com/Dan-Sones/prismlogger"
 	microbatcher "github.com/Dan-Sones/prismmicrobatcher"
@@ -36,6 +35,7 @@ func main() {
 		"CLICKHOUSE_DB",
 		"CLICKHOUSE_NATIVE_PORT",
 		"CLICKHOUSE_WRITER_MICROBATCH_SIZE",
+		"CLICK_HOUSE_WRITER_MICROBATCH_FLUSH_TIMEOUT_SECONDS",
 	)
 
 	clickhouseConn, err := clients.NewClickhouseConnection()
@@ -63,7 +63,7 @@ func main() {
 	// services
 	microBatchProcessor := services.NewMicroBatchProcessorImp(eventsRepository)
 	eventReader := microbatcher.NewEventReaderImp(kafkaClient, logger)
-	microBatchService := microbatcher.NewMicroBatchingService(microBatchSizeInt, 10*time.Minute, eventReader, microBatchProcessor, logger)
+	microBatchService := microbatcher.NewMicroBatchingService(microBatchSizeInt, utils.GetFlushTimeoutDuration(), eventReader, microBatchProcessor, logger)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()

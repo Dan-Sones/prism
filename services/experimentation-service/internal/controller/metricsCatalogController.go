@@ -54,12 +54,23 @@ func (m *MetricsCatalogController) CreateMetric(w http.ResponseWriter, r *http.R
 func (m *MetricsCatalogController) GetMetrics(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	metrics, err := m.metricsCatalogService.GetMetrics(ctx)
+	searchQuery := r.URL.Query().Get("search")
+
+	if searchQuery == "" {
+		metrics, err := m.metricsCatalogService.GetMetrics(ctx)
+		if err != nil {
+			problems.NewInternalServerError().Write(w)
+			return
+		}
+		WriteResponse(w, http.StatusOK, metrics)
+		return
+	}
+
+	metrics, err := m.metricsCatalogService.SearchMetrics(ctx, searchQuery)
 	if err != nil {
 		problems.NewInternalServerError().Write(w)
 		return
 	}
-
 	WriteResponse(w, http.StatusOK, metrics)
 }
 

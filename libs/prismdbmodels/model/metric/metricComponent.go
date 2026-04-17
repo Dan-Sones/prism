@@ -11,5 +11,6 @@ type MetricComponent struct {
 	EventType            event.EventType      `json:"event_type" db:"-"`
 	AggregationOperation AggregationOperation `json:"aggregation_operation"`
 	ComponentRole        ComponentRole        `json:"component_role"`
-	AggregationField     event.EventField     `json:"aggregation_field" db:"-"`
+	AggregationField     *event.EventField    `json:"aggregation_field,omitempty" db:"-"`
+	SystemColumnName     *string              `json:"system_column_name,omitempty" db:"-"`
 }

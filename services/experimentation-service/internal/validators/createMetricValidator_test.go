@@ -3,6 +3,7 @@ package validators
 import (
 	metricreq "experimentation-service/internal/model/metric"
 	"experimentation-service/internal/problems"
+	"strings"
 	"testing"
 
 	"github.com/Dan-Sones/prismdbmodels/model/metric"
@@ -10,6 +11,7 @@ import (
 )
 
 func TestValidateCreateMetricRequest(t *testing.T) {
+	id := uuid.New()
 	tests := []struct {
 		name    string
 		request metricreq.CreateMetricRequest
@@ -25,7 +27,7 @@ func TestValidateCreateMetricRequest(t *testing.T) {
 					{
 						Role:                 metric.ComponentRoleBaseEvent,
 						EventTypeID:          uuid.New(),
-						FieldKeyID:           uuid.New(),
+						FieldKeyID:           &id,
 						AggregationOperation: metric.AggregationOperationCount,
 					},
 				},
@@ -42,7 +44,7 @@ func TestValidateCreateMetricRequest(t *testing.T) {
 					{
 						Role:                 metric.ComponentRoleBaseEvent,
 						EventTypeID:          uuid.New(),
-						FieldKeyID:           uuid.New(),
+						FieldKeyID:           &id,
 						AggregationOperation: metric.AggregationOperationCount,
 					},
 				},
@@ -57,14 +59,14 @@ func TestValidateCreateMetricRequest(t *testing.T) {
 		{
 			name: "Name exceeds max length",
 			request: metricreq.CreateMetricRequest{
-				Name:         string(make([]rune, 101)),
+				Name:         strings.Repeat("a", 101),
 				MetricKey:    "revenue",
 				AnalysisUnit: metric.AnalysisUnitUser,
 				Components: []metricreq.CreateMetricRequestComponent{
 					{
 						Role:                 metric.ComponentRoleBaseEvent,
 						EventTypeID:          uuid.New(),
-						FieldKeyID:           uuid.New(),
+						FieldKeyID:           &id,
 						AggregationOperation: metric.AggregationOperationCount,
 					},
 				},
@@ -86,7 +88,7 @@ func TestValidateCreateMetricRequest(t *testing.T) {
 					{
 						Role:                 metric.ComponentRoleBaseEvent,
 						EventTypeID:          uuid.New(),
-						FieldKeyID:           uuid.New(),
+						FieldKeyID:           &id,
 						AggregationOperation: metric.AggregationOperationCount,
 					},
 				},
@@ -108,7 +110,7 @@ func TestValidateCreateMetricRequest(t *testing.T) {
 					{
 						Role:                 metric.ComponentRoleBaseEvent,
 						EventTypeID:          uuid.New(),
-						FieldKeyID:           uuid.New(),
+						FieldKeyID:           &id,
 						AggregationOperation: metric.AggregationOperationCount,
 					},
 				},
@@ -129,7 +131,7 @@ func TestValidateCreateMetricRequest(t *testing.T) {
 					{
 						Role:                 metric.ComponentRoleBaseEvent,
 						EventTypeID:          uuid.New(),
-						FieldKeyID:           uuid.New(),
+						FieldKeyID:           &id,
 						AggregationOperation: metric.AggregationOperationCount,
 					},
 				},
@@ -151,7 +153,7 @@ func TestValidateCreateMetricRequest(t *testing.T) {
 					{
 						Role:                 metric.ComponentRoleBaseEvent,
 						EventTypeID:          uuid.New(),
-						FieldKeyID:           uuid.New(),
+						FieldKeyID:           &id,
 						AggregationOperation: metric.AggregationOperationCount,
 					},
 				},
@@ -173,7 +175,7 @@ func TestValidateCreateMetricRequest(t *testing.T) {
 					{
 						Role:                 metric.ComponentRoleBaseEvent,
 						EventTypeID:          uuid.New(),
-						FieldKeyID:           uuid.New(),
+						FieldKeyID:           &id,
 						AggregationOperation: metric.AggregationOperationCount,
 					},
 				},
@@ -220,6 +222,9 @@ func TestValidateCreateMetricRequest(t *testing.T) {
 }
 
 func TestValidateCreateMetricRequestComponent(t *testing.T) {
+
+	id := uuid.New()
+
 	tests := []struct {
 		name      string
 		component metricreq.CreateMetricRequestComponent
@@ -231,7 +236,7 @@ func TestValidateCreateMetricRequestComponent(t *testing.T) {
 			component: metricreq.CreateMetricRequestComponent{
 				Role:                 metric.ComponentRoleBaseEvent,
 				EventTypeID:          uuid.New(),
-				FieldKeyID:           uuid.New(),
+				FieldKeyID:           &id,
 				AggregationOperation: metric.AggregationOperationCount,
 			},
 			index: 0,
@@ -242,7 +247,7 @@ func TestValidateCreateMetricRequestComponent(t *testing.T) {
 			component: metricreq.CreateMetricRequestComponent{
 				Role:                 "",
 				EventTypeID:          uuid.New(),
-				FieldKeyID:           uuid.New(),
+				FieldKeyID:           &id,
 				AggregationOperation: metric.AggregationOperationCount,
 			},
 			index: 0,
@@ -258,7 +263,7 @@ func TestValidateCreateMetricRequestComponent(t *testing.T) {
 			component: metricreq.CreateMetricRequestComponent{
 				Role:                 metric.ComponentRoleBaseEvent,
 				EventTypeID:          uuid.Nil,
-				FieldKeyID:           uuid.New(),
+				FieldKeyID:           &id,
 				AggregationOperation: metric.AggregationOperationCount,
 			},
 			index: 0,
@@ -270,18 +275,47 @@ func TestValidateCreateMetricRequestComponent(t *testing.T) {
 			},
 		},
 		{
-			name: "Missing field key",
+			name: "Missing field key and system column name",
 			component: metricreq.CreateMetricRequestComponent{
 				Role:                 metric.ComponentRoleBaseEvent,
 				EventTypeID:          uuid.New(),
-				FieldKeyID:           uuid.Nil,
+				FieldKeyID:           nil,
+				AggregationOperation: metric.AggregationOperationAvg,
+			},
+			index: 0,
+			want: []problems.Violation{
+				{
+					Field:   "components[0].field_key_id",
+					Message: "Field key or system key are required",
+				},
+			},
+		},
+		{
+			name: "No Field Key, or system column name with count should pass",
+			component: metricreq.CreateMetricRequestComponent{
+				Role:                 metric.ComponentRoleBaseEvent,
+				EventTypeID:          uuid.New(),
+				FieldKeyID:           nil,
+				SystemColumnName:     nil,
+				AggregationOperation: metric.AggregationOperationCount,
+			},
+			index: 0,
+			want:  nil,
+		},
+		{
+			name: "Both field key and system column name set",
+			component: metricreq.CreateMetricRequestComponent{
+				Role:                 metric.ComponentRoleBaseEvent,
+				EventTypeID:          uuid.New(),
+				FieldKeyID:           &id,
+				SystemColumnName:     &[]string{"user_id"}[0],
 				AggregationOperation: metric.AggregationOperationCount,
 			},
 			index: 0,
 			want: []problems.Violation{
 				{
 					Field:   "components[0].field_key_id",
-					Message: "Field key is required",
+					Message: "Field key and system key cannot both be set",
 				},
 			},
 		},
@@ -290,7 +324,7 @@ func TestValidateCreateMetricRequestComponent(t *testing.T) {
 			component: metricreq.CreateMetricRequestComponent{
 				Role:                 metric.ComponentRoleBaseEvent,
 				EventTypeID:          uuid.New(),
-				FieldKeyID:           uuid.New(),
+				FieldKeyID:           &id,
 				AggregationOperation: "",
 			},
 			index: 0,

@@ -19,13 +19,24 @@ const MetricComponentCard = ({ component }: MetricComponentProps) => {
         <span className="rounded bg-gray-100 px-2 py-1 font-mono text-xs font-medium text-gray-600">
           {component.aggregation_operation}
         </span>
-        <span className="text-gray-400">of</span>
-        <span className="font-mono font-medium">
-          {component.aggregation_field.field_key}
-        </span>
-        <FieldKeyDataTypePill
-          dataType={component.aggregation_field.data_type}
-        />
+        {component.aggregation_field ? (
+          <>
+            <span className="text-gray-400">of</span>
+            <span className="font-mono font-medium">
+              {component.aggregation_field.field_key}
+            </span>
+            <FieldKeyDataTypePill
+              dataType={component.aggregation_field.data_type}
+            />
+          </>
+        ) : component.system_column_name ? (
+          <>
+            <span className="text-gray-400">associated with</span>
+            <span className="font-mono font-medium">
+              {component.system_column_name}
+            </span>
+          </>
+        ) : null}
         <span className="text-gray-400">on</span>
         <span className="font-mono font-medium">
           {component.event_type.name}

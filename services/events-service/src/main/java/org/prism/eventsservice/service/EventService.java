@@ -4,6 +4,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.prism.eventsservice.exception.EventIngestionException;
@@ -13,6 +14,7 @@ import org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyRequest;
 import org.prism.eventsservice.model.DownstreamEvent;
 import org.prism.eventsservice.model.EventPropertiesValidationResult;
 import org.prism.eventsservice.model.EventRequest;
+import org.prism.eventsservice.model.EventValidationResult;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +33,13 @@ public class EventService {
     }
 
     public void ingestEvent(EventRequest eventToIngest) {
+
+        var eventValidationResult = validateEvent(eventToIngest);
+        if (!eventValidationResult.isValid()) {
+            throw new EventIngestionException(
+                    "Missing required fields: " + String.join(", ", eventValidationResult.missingFields()));
+        }
+
         EventType eventType;
         try {
             eventType = lookupEventType(eventToIngest.getEventKey());
@@ -44,8 +53,8 @@ public class EventService {
             return;
         }
 
-        var validationResult = validateEventProperties(eventToIngest.getProperties(), eventType);
-        if (!validationResult.isValid()) {
+        var propertiesValidationResult = validateEventProperties(eventToIngest.getProperties(), eventType);
+        if (!propertiesValidationResult.isValid()) {
             return;
         }
 
@@ -57,6 +66,36 @@ public class EventService {
             log.error("Failed to publish event: {}", e.getMessage());
             throw e;
         }
+    }
+
+    private EventValidationResult validateEvent(EventRequest eventRequest) {
+
+        List<String> missingFields = new ArrayList<>();
+
+        if (eventRequest.getEventKey() == null || eventRequest.getEventKey().isEmpty()) {
+            missingFields.add("eventKey");
+        }
+
+        if (eventRequest.getUserDetails().getId() == null
+                || eventRequest.getUserDetails().getId().isEmpty()) {
+            missingFields.add("userDetails.id");
+        }
+
+        if (eventRequest.getSentAt() == null) {
+            missingFields.add("sentAt");
+        }
+
+        if (eventRequest.getExperimentDetails().getExperiment_key() == null
+                || eventRequest.getExperimentDetails().getExperiment_key().isEmpty()) {
+            missingFields.add("experimentDetails.experimentKey");
+        }
+
+        if (eventRequest.getExperimentDetails().getVariant_key() == null
+                || eventRequest.getExperimentDetails().getVariant_key().isEmpty()) {
+            missingFields.add("experimentDetails.variantKey");
+        }
+
+        return new EventValidationResult(missingFields.isEmpty(), missingFields);
     }
 
     private EventPropertiesValidationResult validateEventProperties(

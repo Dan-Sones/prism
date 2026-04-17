@@ -13,7 +13,7 @@ func ParseExperimentConfig(raw []byte) model.SimulationConfig {
 
 	err := yaml.Unmarshal(raw, &config)
 	if err != nil {
-		fmt.Errorf("Something went wrong whilst parsing config", err)
+		fmt.Printf("error: %v", err)
 		return nil
 	}
 

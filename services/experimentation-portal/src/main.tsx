@@ -1,6 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
+import "react-day-picker/style.css";
 import MasterRouter from "./router/MasterRouter.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Modal from "react-modal";

@@ -1,5 +1,13 @@
 export { createExperiment } from "./create-experiment";
+export { getExperiments } from "./get-experiments";
 export type {
-  Experiment,
   CreateExperimentRequestBody,
+  CreateExperimentVariant,
+  CreateExperimentMetric,
+  CreateExperimentMetricRole,
+  CreateExperimentMetricDirection,
+  VariantType,
+  ExperimentResponse,
+  ExperimentMetricResponse,
+  ExperimentVariantResponse,
 } from "./model/experiment";

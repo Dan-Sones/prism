@@ -6,7 +6,11 @@ import { useQuery } from "@tanstack/react-query";
 import Combobox from "../../../../components/form/Combobox";
 import Label from "../../../../components/form/Label";
 
-const SelectEventTypeCombobox = () => {
+interface SelectEventTypeComboboxProps {
+  index: number;
+}
+
+const SelectEventTypeCombobox = ({ index }: SelectEventTypeComboboxProps) => {
   const { control } = useFormContext<CreateMetricRequest>();
   const [searchQuery, setSearchQuery] = useState<string | undefined>(undefined);
 
@@ -29,7 +33,7 @@ const SelectEventTypeCombobox = () => {
       </Label>
       <Controller
         control={control}
-        name="components.0.event_type_id"
+        name={`components.${index}.event_type_id`}
         render={({ field }) => (
           <Combobox
             items={

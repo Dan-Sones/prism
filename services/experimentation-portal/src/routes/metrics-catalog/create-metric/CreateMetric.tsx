@@ -1,5 +1,11 @@
 import PageTitle from "../../../components/title/PageTitle";
-import { FormProvider, useForm } from "react-hook-form";
+import {
+  FormProvider,
+  useFieldArray,
+  useForm,
+  useWatch,
+} from "react-hook-form";
+import { useEffect } from "react";
 import {
   createMetric,
   type CreateMetricRequest,
@@ -14,6 +20,7 @@ import type { ProblemDetail } from "../../../api/base/problem";
 import type { AxiosError } from "axios";
 import { useErrorBanner } from "../../../context/ErrorBannerContext";
 import { useNavigate } from "react-router";
+import CreateRatioMetric from "./CreateRatioMetric";
 
 const CreateMetric = () => {
   const navigate = useNavigate();
@@ -37,8 +44,54 @@ const CreateMetric = () => {
     },
   });
 
+  const { replace } = useFieldArray({
+    control: form.control,
+    name: "components",
+  });
+
+  const metricType = useWatch({
+    control: form.control,
+    name: "metric_type",
+  });
+
+  useEffect(() => {
+    const components = form.getValues("components") || [];
+
+    if (metricType === "ratio") {
+      replace([
+        {
+          ...components[0],
+          role: "numerator",
+        },
+        {
+          ...components[1],
+          role: "denominator",
+        },
+      ]);
+      return;
+    }
+
+    replace([
+      {
+        ...components[0],
+        role: "base_event",
+      },
+    ]);
+  }, [metricType, form, replace]);
+
   const onSubmit = (data: CreateMetricRequest) => {
-    mutation.mutate(data);
+    const cleanedData = {
+      ...data,
+      components: data.components.map((c) => {
+        if (c.system_column_name) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { event_field_id, ...rest } = c;
+          return rest;
+        }
+        return c;
+      }),
+    };
+    mutation.mutate(cleanedData);
   };
 
   const mutation = useMutation<
@@ -73,7 +126,8 @@ const CreateMetric = () => {
         <CreateMetricInitialDetails />
         <SimpleMetricHelp />
 
-        <CreateSimpleMetric />
+        {metricType === "simple" && <CreateSimpleMetric />}
+        {metricType === "ratio" && <CreateRatioMetric />}
         <PrimaryButton type="submit" disabled={!form.formState.isValid}>
           Create Metric
         </PrimaryButton>
