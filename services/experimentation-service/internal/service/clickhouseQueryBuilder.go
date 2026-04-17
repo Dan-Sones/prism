@@ -19,6 +19,43 @@ type Query struct {
 	GroupBy []string
 }
 
+func (q *Query) BuildQueryString() string {
+	commaSeperatedSelect := ""
+	for i, selectItem := range q.SELECT {
+		commaSeperatedSelect += selectItem
+		if i < len(q.SELECT)-1 {
+			commaSeperatedSelect += ", "
+		}
+	}
+
+	query := fmt.Sprintf("SELECT %s FROM %s", commaSeperatedSelect, q.FROM)
+
+	andSeperatedWhere := ""
+	for i, whereClause := range q.WHERE {
+		andSeperatedWhere += whereClause
+		if i < len(q.WHERE)-1 {
+			andSeperatedWhere += " AND "
+		}
+	}
+
+	query = fmt.Sprintf("%s WHERE %s", query, andSeperatedWhere)
+
+	if len(q.GroupBy) > 0 {
+		commaSeperatedGroupBy := ""
+		for i, groupByItem := range q.GroupBy {
+			commaSeperatedGroupBy += groupByItem
+			if i < len(q.GroupBy)-1 {
+				commaSeperatedGroupBy += ", "
+			}
+		}
+		query = fmt.Sprintf("%s GROUP BY %s", query, commaSeperatedGroupBy)
+	}
+
+	query = fmt.Sprintf("%s;", query)
+
+	return query
+}
+
 type ClickhouseQueryBuilder struct {
 }
 
@@ -38,6 +75,7 @@ func (c *ClickhouseQueryBuilder) buildForRatioMetric(experimentKey string, m met
 	query.WHERE = append(query.WHERE, "experiment_key = '"+experimentKey+"'")
 	query.WHERE = append(query.WHERE, c.BuildInEventKeyWhere(m))
 
+	query.SELECT = append(query.SELECT, "variant_key")
 	for _, component := range m.MetricComponents {
 		switch component.Role {
 		case metric.ComponentRoleNumerator:
@@ -47,11 +85,19 @@ func (c *ClickhouseQueryBuilder) buildForRatioMetric(experimentKey string, m met
 			}
 			query.SELECT = append(query.SELECT, numeratorSelect)
 		case metric.ComponentRoleDenominator:
-			query.SELECT = append(query.SELECT, c.BuildSelectForDenominatorComponent(component))
+			denominatorSelect, err := c.BuildSelectForDenominatorComponent(component)
+			if err != nil {
+				return "", errors.New("error building select for denominator component: " + err.Error())
+			}
+			query.SELECT = append(query.SELECT, denominatorSelect)
 		}
 	}
 
-	return "", nil
+	query.FROM = "events"
+
+	query.GroupBy = append(query.GroupBy, "variant_key")
+
+	return query.BuildQueryString(), nil
 }
 
 func (c *ClickhouseQueryBuilder) BuildSelectForNumeratorComponent(component metric.MetricComponent) (string, error) {
@@ -63,10 +109,13 @@ func (c *ClickhouseQueryBuilder) BuildSelectForNumeratorComponent(component metr
 	}
 }
 
-func (c *ClickhouseQueryBuilder) BuildSelectForDenominatorComponent(component metric.MetricComponent) string {
-
-	// TODO: IMPLEMENT
-	return ""
+func (c *ClickhouseQueryBuilder) BuildSelectForDenominatorComponent(component metric.MetricComponent) (string, error) {
+	switch component.AggregationOperation {
+	case metric.AggregationOperationCountDistinct:
+		return c.BuildSelectItemForCountDistinct(component)
+	default:
+		return "", fmt.Errorf("unsupported aggregation operation: %s", component.AggregationOperation)
+	}
 }
 
 func (c *ClickhouseQueryBuilder) BuildSelectItemForCountDistinct(component metric.MetricComponent) (string, error) {
@@ -77,11 +126,11 @@ func (c *ClickhouseQueryBuilder) BuildSelectItemForCountDistinct(component metri
 		// then identify the type of the field so we know which map to look within the event table
 		switch component.AggregationField.DataType {
 		case event.DataTypeString:
-			return fmt.Sprintf("uniqExactIf(string_properties[%s], event_key = '%s') AS %s", component.AggregationField.FieldKey, component.EventType.EventKey, component.Role), nil
+			return fmt.Sprintf("uniqExactIf(string_properties['%s'], event_key = '%s') AS %s", component.AggregationField.FieldKey, component.EventType.EventKey, component.Role), nil
 		case event.DataTypeFloat:
-			return fmt.Sprintf("uniqExactIf(float_properties[%s], event_key = '%s') AS %s", component.AggregationField.FieldKey, component.EventType.EventKey, component.Role), nil
+			return fmt.Sprintf("uniqExactIf(float_properties['%s'], event_key = '%s') AS %s", component.AggregationField.FieldKey, component.EventType.EventKey, component.Role), nil
 		case event.DataTypeInt:
-			return fmt.Sprintf("uniqExactIf(int_properties[%s], event_key = '%s') AS %s", component.AggregationField.FieldKey, component.EventType.EventKey, component.Role), nil
+			return fmt.Sprintf("uniqExactIf(int_properties['%s'], event_key = '%s') AS %s", component.AggregationField.FieldKey, component.EventType.EventKey, component.Role), nil
 		}
 	}
 
@@ -101,14 +150,5 @@ func (c *ClickhouseQueryBuilder) BuildInEventKeyWhere(m metric.Metric) string {
 			inClause += ", "
 		}
 	}
-	return fmt.Sprintf("event_key in (%s)", inClause)
+	return fmt.Sprintf("event_key IN (%s)", inClause)
 }
-
-//SELECT
-//variant_key,
-//uniqExactIf(user_id, event_key = 'experiment_exposure') AS exposed_users,
-//uniqExactIf(user_id, event_key = 'purchase_complete')   AS converted_users
-//FROM events
-//WHERE experiment_key = 'exp_key'
-//AND event_key IN ('experiment_exposure', 'purchase_complete')
-//GROUP BY variant_key;
