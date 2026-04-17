@@ -29,10 +29,10 @@ func (m *MetricsCatalogRepository) CreateMetric(ctx context.Context, req metricr
 
 	defer tx.Rollback(ctx)
 
-	sql := `INSERT INTO prism.metrics (name, metric_key, description, metric_type, analysis_unit) VALUES ($1, $2, $3, $4, $5) RETURNING id`
+	sql := `INSERT INTO prism.metrics (name, metric_key, description, metric_type, analysis_unit, is_binary) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id`
 
 	var metricId uuid.UUID
-	err = tx.QueryRow(ctx, sql, req.Name, req.MetricKey, req.Description, req.MetricType, req.AnalysisUnit).Scan(&metricId)
+	err = tx.QueryRow(ctx, sql, req.Name, req.MetricKey, req.Description, req.MetricType, req.AnalysisUnit, req.IsBinary).Scan(&metricId)
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func (m *MetricsCatalogRepository) CreateMetric(ctx context.Context, req metricr
 }
 
 func (m *MetricsCatalogRepository) GetMetrics(ctx context.Context) ([]*metric.Metric, error) {
-	sql := `SELECT id, name, description, metric_key, metric_type, analysis_unit, created_at
+	sql := `SELECT id, name, description, metric_key, metric_type, analysis_unit, created_at, is_binary
 FROM prism.metrics`
 
 	rows, err := m.pgx.Query(ctx, sql)
@@ -90,7 +90,7 @@ func (m *MetricsCatalogRepository) IsMetricKeyAvailable(ctx context.Context, met
 }
 
 func (m *MetricsCatalogRepository) GetMetricByKey(ctx context.Context, metricKey string) (*metric.Metric, []metricreq.MetricComponentRow, error) {
-	rows, err := m.pgx.Query(ctx, "SELECT id, name, description, metric_key, metric_type, analysis_unit, created_at FROM prism.metrics WHERE metric_key = $1", metricKey)
+	rows, err := m.pgx.Query(ctx, "SELECT id, name, description, metric_key, metric_type, analysis_unit, created_at, is_binary FROM prism.metrics WHERE metric_key = $1", metricKey)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -114,7 +114,7 @@ func (m *MetricsCatalogRepository) GetMetricByKey(ctx context.Context, metricKey
 }
 
 func (m *MetricsCatalogRepository) SearchMetrics(ctx context.Context, searchTerm string) ([]*metric.Metric, error) {
-	res, err := m.pgx.Query(ctx, "SELECT id, name, description, metric_key, metric_type, analysis_unit, created_at FROM prism.metrics WHERE metric_key ILIKE '%' || $1 || '%'", searchTerm)
+	res, err := m.pgx.Query(ctx, "SELECT id, name, description, metric_key, metric_type, analysis_unit, created_at, is_binary FROM prism.metrics WHERE metric_key ILIKE '%' || $1 || '%'", searchTerm)
 	if err != nil {
 		return nil, err
 	}

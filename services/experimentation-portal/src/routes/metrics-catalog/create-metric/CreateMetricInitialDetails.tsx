@@ -8,6 +8,7 @@ import { debounce } from "lodash";
 import { checkMetricKeyAvailable } from "../../../api/metricsCatalog/check-metric-key";
 import { useMemo } from "react";
 import FieldError from "../../../components/form/FieldError";
+import Checkbox from "../../../components/form/Checkbox";
 
 const metricTypeItems = [
   { label: "Simple", value: "simple" },
@@ -76,21 +77,35 @@ const CreateMetricInitialDetails = () => {
         <FieldError error={errors.metric_key} />
       </div>
 
-      <div className="max-w-64">
-        <Label htmlFor="metric_type" required>
-          Metric Type
-        </Label>
-        <Controller
-          control={control}
-          name={`metric_type`}
-          render={({ field }) => (
-            <Dropdown
-              items={metricTypeItems}
-              value={field.value}
-              onChange={field.onChange}
-            />
-          )}
-        />
+      <div className="flex grow flex-row justify-between gap-4">
+        <div className="w-1/2">
+          <Label htmlFor="metric_type" required>
+            Metric Type
+          </Label>
+          <Controller
+            control={control}
+            name={`metric_type`}
+            render={({ field }) => (
+              <Dropdown
+                items={metricTypeItems}
+                value={field.value}
+                onChange={field.onChange}
+              />
+            )}
+          />
+        </div>
+        <div className="flex w-1/2 flex-col items-start justify-center gap-2">
+          <Label htmlFor="metric_type" required>
+            Is Binary
+          </Label>
+          <Controller
+            control={control}
+            name={`is_binary`}
+            render={({ field }) => (
+              <Checkbox checked={field.value} onChange={field.onChange} />
+            )}
+          />
+        </div>
       </div>
     </Card>
   );

@@ -12,6 +12,7 @@ type CreateMetricRequest struct {
 	MetricType   metric.MetricType              `json:"metric_type"`
 	AnalysisUnit metric.AnalysisUnit            `json:"analysis_unit"`
 	Components   []CreateMetricRequestComponent `json:"components"`
+	IsBinary     bool                           `json:"is_binary"`
 }
 
 type CreateMetricRequestComponent struct {

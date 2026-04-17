@@ -34,6 +34,7 @@ export type Metric = {
   metric_type: MetricType;
   analysis_unit: AnalysisUnit;
   metric_components: MetricComponent[];
+  is_binary: boolean;
 };
 
 export type CreateMetricRequestComponent = {
@@ -51,6 +52,7 @@ export type CreateMetricRequest = {
   metric_type: MetricType;
   analysis_unit: AnalysisUnit;
   components: CreateMetricRequestComponent[];
+  is_binary?: boolean;
 };
 
 export type MetricKeyAvailableResponse = {

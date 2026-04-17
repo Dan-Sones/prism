@@ -15,4 +15,5 @@ type Metric struct {
 	MetricType       MetricType        `json:"metric_type"`
 	AnalysisUnit     AnalysisUnit      `json:"analysis_unit"`
 	MetricComponents []MetricComponent `json:"metric_components" db:"-"`
+	IsBinary         bool              `json:"is_binary"`
 }
