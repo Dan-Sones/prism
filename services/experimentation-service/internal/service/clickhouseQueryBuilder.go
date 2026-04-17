@@ -35,12 +35,17 @@ func (c *ClickhouseQueryBuilder) buildForRatioMetric(experimentKey string, metri
 	var query Query
 
 	query.WHERE = append(query.WHERE, "experiment_key = '"+experimentKey+"'")
-	query.WHERE = append(query.WHERE, "event_key IN ('experiment_exposure', 'purchase_complete')")
+	query.WHERE = append(query.WHERE, c.BuildInEventKeyWhere(metric))
 
 	return "", nil
 }
 
-func (c *ClickhouseQueryBuilder) BuildInEventKeyWhere(eventKeys []string) string {
+func (c *ClickhouseQueryBuilder) BuildInEventKeyWhere(m metric.Metric) string {
+	var eventKeys []string
+	for _, component := range m.MetricComponents {
+		eventKeys = append(eventKeys, component.EventType.EventKey)
+	}
+
 	var inClause string
 	for i, key := range eventKeys {
 		inClause += "'" + key + "'"
