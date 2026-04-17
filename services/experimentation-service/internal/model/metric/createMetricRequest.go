@@ -17,6 +17,7 @@ type CreateMetricRequest struct {
 type CreateMetricRequestComponent struct {
 	Role                 metric.ComponentRole        `json:"role"`
 	EventTypeID          uuid.UUID                   `json:"event_type_id"`
-	FieldKeyID           uuid.UUID                   `json:"event_field_id"`
+	FieldKeyID           *uuid.UUID                  `json:"event_field_id,omitempty"`
+	SystemColumnName     *string                     `json:"system_column_name,omitempty"`
 	AggregationOperation metric.AggregationOperation `json:"aggregation_operation"`
 }

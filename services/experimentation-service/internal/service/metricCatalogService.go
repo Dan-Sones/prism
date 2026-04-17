@@ -51,6 +51,9 @@ func (m *MetricsCatalogService) CreateMetric(ctx context.Context, req metricreq.
 			case "unique_metric_key":
 				violation = problems.Violation{Field: "metric_key", Message: "A metric with this key already exists"}
 				m.logger.Error("Unique constraint violation on metric key", "error", err)
+			case "enforce_single_aggregation_target":
+				violation = problems.Violation{Field: "components", Message: "Cannot target system field and event key in the same metric component"}
+				m.logger.Error("Unique constraint violation on metric components - likely targeting both system field and event key in the same component", "error", err)
 			default:
 				violation = problems.Violation{Field: "unknown", Message: "A unique constraint violation occurred"}
 				m.logger.Error("Unique constraint violation on unknown field", "error", err)
@@ -98,26 +101,34 @@ func (m *MetricsCatalogService) GetMetricByKey(ctx context.Context, metricKey st
 		return nil, err
 	}
 
-	for _, component := range componentRows {
-		eventType, err := m.eventsCatalogRepo.GetEventTypeById(ctx, component.EventTypeID.String())
+	for _, componentRow := range componentRows {
+		eventType, err := m.eventsCatalogRepo.GetEventTypeById(ctx, componentRow.EventTypeID.String())
 		if err != nil {
-			m.logger.Error("Error fetching event type for metric component", "error", err, "eventTypeId", component.EventTypeID)
+			m.logger.Error("Error fetching event type for metric component", "error", err, "eventTypeId", componentRow.EventTypeID)
 			return nil, err
 		}
 
-		idx := slices.IndexFunc(eventType.Fields, func(ef event.EventField) bool { return ef.ID == component.AggregationFieldID })
-		if idx == -1 {
-			m.logger.Error("Aggregation field not found in event type fields", "aggFieldId", component.AggregationFieldID, "eventTypeId", component.EventTypeID)
-			return nil, errors.New("this shouldn't be possible, we can't find an item despite there being a foreign key")
+		var aggField *event.EventField
+
+		// If there is an AggregationFieldID, look it up.
+		// If it's nil, we know we are using the SystemColumnName instead.
+		if componentRow.AggregationFieldID != nil {
+			idx := slices.IndexFunc(eventType.Fields, func(ef event.EventField) bool { return ef.ID == *componentRow.AggregationFieldID })
+			if idx == -1 {
+				m.logger.Error("Aggregation field not found in event type fields", "aggFieldId", componentRow.AggregationFieldID, "eventTypeId", componentRow.EventTypeID)
+				return nil, errors.New("this shouldn't be possible, we can't find an item despite there being a foreign key")
+			}
+			aggField = &eventType.Fields[idx]
 		}
 
 		component := metric.MetricComponent{
-			ID:                   component.ID,
-			Role:                 component.Role,
+			ID:                   componentRow.ID,
+			Role:                 componentRow.Role,
 			EventType:            *eventType,
-			AggregationOperation: component.AggregationOperation,
-			ComponentRole:        component.Role,
-			AggregationField:     eventType.Fields[idx],
+			AggregationOperation: componentRow.AggregationOperation,
+			ComponentRole:        componentRow.Role,
+			AggregationField:     aggField,
+			SystemColumnName:     componentRow.SystemColumnName,
 		}
 		metricRes.MetricComponents = append(metricRes.MetricComponents, component)
 	}

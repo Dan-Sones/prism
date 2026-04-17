@@ -7,7 +7,6 @@ import (
 	"experimentation-service/internal/repository"
 	"experimentation-service/internal/validators"
 	"log/slog"
-	"slices"
 
 	"github.com/Dan-Sones/prismdbmodels/model/event"
 	"github.com/jackc/pgerrcode"
@@ -105,16 +104,6 @@ func (e *EventsCatalogService) SearchEventTypes(ctx context.Context, searchQuery
 	if err != nil {
 		e.logger.Error("Error searching event types", "error", err, "searchQuery", searchQuery)
 		return nil, err
-	}
-
-	if requestContext == "metrics_catalog" {
-		eventTypes = slices.Collect(func(yield func(eventType *event.EventType) bool) {
-			for _, et := range eventTypes {
-				if et.EventKey != "experiment_exposure" {
-					yield(et)
-				}
-			}
-		})
 	}
 
 	return eventTypes, nil

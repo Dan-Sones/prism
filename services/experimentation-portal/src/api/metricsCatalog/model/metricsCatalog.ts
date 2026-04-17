@@ -21,7 +21,8 @@ export type MetricComponent = {
   role: ComponentRole;
   event_type: EventType;
   aggregation_operation: AggregationOperation;
-  aggregation_field: EventField;
+  aggregation_field?: EventField;
+  system_column_name?: string;
 };
 
 export type Metric = {
@@ -38,7 +39,8 @@ export type Metric = {
 export type CreateMetricRequestComponent = {
   role: ComponentRole;
   event_type_id: string;
-  event_field_id: string;
+  event_field_id?: string;
+  system_column_name?: string;
   aggregation_operation: AggregationOperation;
 };
 

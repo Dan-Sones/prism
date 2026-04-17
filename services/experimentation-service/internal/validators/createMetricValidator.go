@@ -88,10 +88,17 @@ func ValidateCreateMetricRequestComponent(component metric.CreateMetricRequestCo
 		})
 	}
 
-	if component.FieldKeyID == uuid.Nil {
+	if component.FieldKeyID == nil && component.SystemColumnName == nil {
 		violations = append(violations, problems.Violation{
 			Field:   "components[" + strconv.Itoa(index) + "].field_key_id",
-			Message: "Field key is required",
+			Message: "Field key or system key are required",
+		})
+	}
+
+	if component.FieldKeyID != nil && component.SystemColumnName != nil {
+		violations = append(violations, problems.Violation{
+			Field:   "components[" + strconv.Itoa(index) + "].field_key_id",
+			Message: "Field key and system key cannot both be set",
 		})
 	}
 

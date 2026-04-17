@@ -11,5 +11,6 @@ type MetricComponentRow struct {
 	Role                 modelMetric.ComponentRole        `json:"role" db:"role"`
 	EventTypeID          uuid.UUID                        `json:"event_type_id" db:"event_type_id"`
 	AggregationOperation modelMetric.AggregationOperation `json:"agg_operation" db:"agg_operation"`
-	AggregationFieldID   uuid.UUID                        `json:"agg_field_id" db:"agg_field_id"`
+	AggregationFieldID   *uuid.UUID                       `json:"agg_field_id" db:"agg_field_id"`
+	SystemColumnName     *string                          `json:"system_column_name" db:"system_column_name"`
 }

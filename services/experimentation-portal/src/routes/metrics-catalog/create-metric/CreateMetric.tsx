@@ -80,7 +80,18 @@ const CreateMetric = () => {
   }, [metricType, form, replace]);
 
   const onSubmit = (data: CreateMetricRequest) => {
-    mutation.mutate(data);
+    const cleanedData = {
+      ...data,
+      components: data.components.map((c) => {
+        if (c.system_column_name) {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { event_field_id, ...rest } = c;
+          return rest;
+        }
+        return c;
+      }),
+    };
+    mutation.mutate(cleanedData);
   };
 
   const mutation = useMutation<

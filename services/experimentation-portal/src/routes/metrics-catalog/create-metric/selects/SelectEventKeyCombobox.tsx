@@ -11,12 +11,21 @@ interface SelectEventKeyComboboxProps {
   index: number; // index of the component in the metric components array
 }
 
+const SYSTEM_FIELDS = [
+  {
+    id: "system:user_id",
+    field_key: "User ID",
+    data_type: "string",
+  },
+];
+
 const SelectEventKeyCombobox = ({ index }: SelectEventKeyComboboxProps) => {
   const { control, watch, setValue } = useFormContext<CreateMetricRequest>();
   const eventTypeId = watch(`components.${index}.event_type_id`);
 
   useEffect(() => {
-    setValue(`components.${index}.event_field_id`, "");
+    setValue(`components.${index}.event_field_id`, undefined);
+    setValue(`components.${index}.system_column_name`, undefined);
   }, [eventTypeId, setValue, index]);
 
   const { data } = useQuery({
@@ -24,16 +33,18 @@ const SelectEventKeyCombobox = ({ index }: SelectEventKeyComboboxProps) => {
     queryFn: async () => {
       if (!eventTypeId) return [];
       const eventType = await getEventTypeById(eventTypeId);
-      return eventType.fields;
+      return [...SYSTEM_FIELDS, ...eventType.fields];
     },
   });
 
-  const eventFieldId = watch(`components.${index}.event_field_id`);
+  const selectedFieldValue = watch(`components.${index}.event_field_id`);
 
   const dataType = useMemo(() => {
-    const selectedField = data?.find((field) => field.id === eventFieldId);
+    const selectedField = data?.find(
+      (field) => field.id === selectedFieldValue,
+    );
     return selectedField?.data_type;
-  }, [data, eventFieldId]);
+  }, [data, selectedFieldValue]);
 
   return (
     <>
@@ -55,7 +66,26 @@ const SelectEventKeyCombobox = ({ index }: SelectEventKeyComboboxProps) => {
                     })) || []
                   }
                   value={field.value}
-                  onChange={field.onChange}
+                  onChange={(selectedValue) => {
+                    if (selectedValue === "system:user_id") {
+                      setValue(
+                        `components.${index}.system_column_name`,
+                        "user_id",
+                      );
+                      setValue(`components.${index}.event_field_id`, undefined);
+                      field.onChange("system:user_id");
+                    } else {
+                      setValue(
+                        `components.${index}.system_column_name`,
+                        undefined,
+                      );
+                      setValue(
+                        `components.${index}.event_field_id`,
+                        selectedValue as string,
+                      );
+                      field.onChange(selectedValue);
+                    }
+                  }}
                   disabled={!eventTypeId}
                 />
               )}
