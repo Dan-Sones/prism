@@ -1,8 +1,10 @@
 package service
 
 import (
+	"errors"
 	"fmt"
 
+	"github.com/Dan-Sones/prismdbmodels/model/event"
 	"github.com/Dan-Sones/prismdbmodels/model/metric"
 )
 
@@ -30,14 +32,60 @@ func (c *ClickhouseQueryBuilder) BuildQueryForExperimentMetric(experimentKey str
 
 }
 
-func (c *ClickhouseQueryBuilder) buildForRatioMetric(experimentKey string, metric metric.Metric) (string, error) {
-
+func (c *ClickhouseQueryBuilder) buildForRatioMetric(experimentKey string, m metric.Metric) (string, error) {
 	var query Query
 
 	query.WHERE = append(query.WHERE, "experiment_key = '"+experimentKey+"'")
-	query.WHERE = append(query.WHERE, c.BuildInEventKeyWhere(metric))
+	query.WHERE = append(query.WHERE, c.BuildInEventKeyWhere(m))
+
+	for _, component := range m.MetricComponents {
+		switch component.Role {
+		case metric.ComponentRoleNumerator:
+			numeratorSelect, err := c.BuildSelectForNumeratorComponent(component)
+			if err != nil {
+				return "", errors.New("error building select for numerator component: " + err.Error())
+			}
+			query.SELECT = append(query.SELECT, numeratorSelect)
+		case metric.ComponentRoleDenominator:
+			query.SELECT = append(query.SELECT, c.BuildSelectForDenominatorComponent(component))
+		}
+	}
 
 	return "", nil
+}
+
+func (c *ClickhouseQueryBuilder) BuildSelectForNumeratorComponent(component metric.MetricComponent) (string, error) {
+	switch component.AggregationOperation {
+	case metric.AggregationOperationCountDistinct:
+		return c.BuildSelectItemForCountDistinct(component)
+	default:
+		return "", fmt.Errorf("unsupported aggregation operation: %s", component.AggregationOperation)
+	}
+}
+
+func (c *ClickhouseQueryBuilder) BuildSelectForDenominatorComponent(component metric.MetricComponent) string {
+
+	// TODO: IMPLEMENT
+	return ""
+}
+
+func (c *ClickhouseQueryBuilder) BuildSelectItemForCountDistinct(component metric.MetricComponent) (string, error) {
+	// See if the count distinct is on a system column or an event field
+	if component.SystemColumnName != nil {
+		return fmt.Sprintf("uniqExactIf(%s, event_key = '%s') AS %s", *component.SystemColumnName, component.EventType.EventKey, component.Role), nil
+	} else if component.AggregationField != nil {
+		// then identify the type of the field so we know which map to look within the event table
+		switch component.AggregationField.DataType {
+		case event.DataTypeString:
+			return fmt.Sprintf("uniqExactIf(string_properties[%s], event_key = '%s') AS %s", component.AggregationField.FieldKey, component.EventType.EventKey, component.Role), nil
+		case event.DataTypeFloat:
+			return fmt.Sprintf("uniqExactIf(float_properties[%s], event_key = '%s') AS %s", component.AggregationField.FieldKey, component.EventType.EventKey, component.Role), nil
+		case event.DataTypeInt:
+			return fmt.Sprintf("uniqExactIf(int_properties[%s], event_key = '%s') AS %s", component.AggregationField.FieldKey, component.EventType.EventKey, component.Role), nil
+		}
+	}
+
+	return "", fmt.Errorf("invalid component configuration, component does not have SystemColumnName OR AggregationField: %v", component)
 }
 
 func (c *ClickhouseQueryBuilder) BuildInEventKeyWhere(m metric.Metric) string {

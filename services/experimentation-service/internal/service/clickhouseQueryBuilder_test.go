@@ -62,3 +62,80 @@ func TestClickhouseQueryBuilder_BuildInEventKeyWhere(t *testing.T) {
 	}
 
 }
+
+func TestClickhouseQueryBuilder_BuildSelectItemForCountDistinct(t *testing.T) {
+	sysColName := "user_id"
+
+	tests := []struct {
+		name      string
+		component metric.MetricComponent
+		want      string
+	}{
+		{
+			name: "Count distinct on system column",
+			component: metric.MetricComponent{
+				EventType: event.EventType{
+					EventKey: "eventA",
+				},
+				SystemColumnName: &sysColName,
+				Role:             metric.ComponentRoleNumerator,
+			},
+			want: "uniqExactIf(user_id, event_key = 'eventA') AS numerator",
+		},
+		{
+			name: "Count distinct on string event field",
+			component: metric.MetricComponent{
+				EventType: event.EventType{
+					EventKey: "eventA",
+				},
+				AggregationField: &event.EventField{
+					FieldKey: "fieldA",
+					DataType: event.DataTypeString,
+				},
+				Role: metric.ComponentRoleNumerator,
+			},
+			want: "uniqExactIf(string_properties[fieldA], event_key = 'eventA') AS numerator",
+		},
+		{
+			name: "Count distinct on float event field",
+			component: metric.MetricComponent{
+				EventType: event.EventType{
+					EventKey: "eventA",
+				},
+				AggregationField: &event.EventField{
+					FieldKey: "fieldB",
+					DataType: event.DataTypeFloat,
+				},
+				Role: metric.ComponentRoleNumerator,
+			},
+			want: "uniqExactIf(float_properties[fieldB], event_key = 'eventA') AS numerator",
+		},
+		{
+			name: "Count distinct on int event field",
+			component: metric.MetricComponent{
+				EventType: event.EventType{
+					EventKey: "eventA",
+				},
+				AggregationField: &event.EventField{
+					FieldKey: "fieldC",
+					DataType: event.DataTypeInt,
+				},
+				Role: metric.ComponentRoleNumerator,
+			},
+			want: "uniqExactIf(int_properties[fieldC], event_key = 'eventA') AS numerator",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			builder := &ClickhouseQueryBuilder{}
+			got, err := builder.BuildSelectItemForCountDistinct(tt.component)
+			if err != nil {
+				t.Fatalf("Unexpected error: %v", err)
+			}
+			if got != tt.want {
+				t.Errorf("Expected %v, got %v", tt.want, got)
+			}
+		})
+	}
+}
