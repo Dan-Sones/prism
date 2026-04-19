@@ -1,17 +1,16 @@
-FROM golang:1.25
+FROM golang:1.25.9-alpine3.22 AS builder
+WORKDIR /src
 
-WORKDIR /app
+COPY services/assignment-service/go.mod services/assignment-service/go.sum ./services/assignment-service/
+COPY libs/prismdbmodels ./libs/prismdbmodels
+COPY libs/prismlogger ./libs/prismlogger
 
-COPY assignment-service/go.mod assignment-service/go.sum ./
-COPY libs/prismdbmodels /libs/prismdbmodels
-COPY libs/prismlogger /libs/prismlogger
-
+WORKDIR /src/services/assignment-service
 RUN go mod download
 
-COPY assignment-service/ .
+COPY services/assignment-service/ ./
+RUN CGO_ENABLED=0 go build -o /assignment-service ./cmd
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o assignment-service ./cmd/main.go
-
-EXPOSE 8080
-
-CMD ["./assignment-service"]
+FROM alpine:3.22
+COPY --from=builder /assignment-service /assignment-service
+ENTRYPOINT ["/assignment-service"]
