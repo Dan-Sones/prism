@@ -7,7 +7,7 @@ services:
     ports:
       - "${POSTGRES_PORT}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql
+      - postgres_data_test:/var/lib/postgresql
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
@@ -25,7 +25,8 @@ services:
       FLYWAY_USER: ${POSTGRES_USER}
       FLYWAY_PASSWORD: ${POSTGRES_PASSWORD}
       FLYWAY_BASELINE_ON_MIGRATE: "true"
-      FLYWAY_SCHEMAS: public
+      FLYWAY_CLEAN_DISABLED: "false"
+      FLYWAY_SCHEMAS: public,prism
     env_file:
       - .env
     depends_on:
@@ -37,9 +38,10 @@ services:
     restart: always
     ports:
       - "6379:6379"
+      # --save 20 1: Save the DB if at least 1 key changed in 20 seconds -- Maybe a bit overkill (?)
     command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
     volumes:
-      - assignment-cache:/data
+      - assignment-cache-test:/data
 
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
@@ -59,13 +61,12 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      # TODO: Plain text for now, need to look into SSL later (?)
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    env_file:
-      - .env
     volumes:
       - ./kafka/kafka-init.sh:/kafka-init.sh
     entrypoint:
@@ -75,8 +76,34 @@ services:
         "/etc/confluent/docker/run & sleep 10 && bash /kafka-init.sh && wait",
       ]
 
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.1
+    container_name: clickhouse-server
+    ports:
+      - "${CLICKHOUSE_HTTP_PORT}:8123"
+      - "${CLICKHOUSE_NATIVE_PORT}:9000"
+    volumes:
+      - clickhouse_data_test:/var/lib/clickhouse
+      - ./clickhouse-config/config.xml:/etc/clickhouse-server/config.d/docker.xml
+      - ./clickhouse-config/users.xml:/etc/clickhouse-server/users.d/docker.xml
+      - ./clickhouse-migrations/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+    environment:
+      CLICKHOUSE_DB: prism_events
+      CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD}
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 4G
+
   experimentation-service:
-    image: experimentation-service
+    image: ghcr.io/dan-sones/prism-experimentation-service:latest
     container_name: prism_experimentation_service
     ports:
       - "${EXPERIMENTATION_SERVICE_HTTP_PORT}:${EXPERIMENTATION_SERVICE_HTTP_PORT}"
@@ -93,10 +120,11 @@ services:
         condition: service_started
 
   assignment-service:
-    image: assignment-service
+    image: ghcr.io/dan-sones/prism-assignment-service:latest
     container_name: prism_assignment_service
     ports:
       - "${ASSIGNMENT_SERVICE_HTTP_PORT}:${ASSIGNMENT_SERVICE_HTTP_PORT}"
+      - "${ASSIGNMENT_SERVICE_GRPC_SERVER_PORT}:${ASSIGNMENT_SERVICE_GRPC_SERVER_PORT}"
     env_file:
       - .env
     environment:
@@ -104,6 +132,7 @@ services:
       KAFKA_BOOTSTRAP_SERVER_HOST: kafka
       KAFKA_BOOTSTRAP_SERVER_PORT: 29092
       EXPERIMENTATION_SERVICE_GRPC_SERVER_ADDRESS: experimentation-service
+      ASSIGNMENT_SERVICE_GRPC_SERVER_ADDRESS: 0.0.0.0
     depends_on:
       experimentation-service:
         condition: service_started
@@ -113,7 +142,7 @@ services:
         condition: service_started
 
   events-service:
-    image: events-service
+    image: ghcr.io/dan-sones/prism-events-service:latest
     container_name: prism_events_service
     ports:
       - "5678:5678"
@@ -122,7 +151,21 @@ services:
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       GRPC_SERVER_HOST: experimentation-service
-      GRPC_SERVER_PORT: ${EXPERIMENTATION_SERVICE_GRPC_SERVER_PORT}
+    depends_on:
+      experimentation-service:
+        condition: service_started
+      kafka:
+        condition: service_started
+
+  clickhouse-writer:
+    image: ghcr.io/dan-sones/prism-clickhouse-writer:latest
+    container_name: prism_clickhouse_writer
+    env_file:
+      - .env
+    environment:
+      KAFKA_BOOTSTRAP_SERVER_HOST: kafka
+      KAFKA_BOOTSTRAP_SERVER_PORT: 29092
+      CLICKHOUSE_HOST: clickhouse
     depends_on:
       experimentation-service:
         condition: service_started
@@ -130,6 +173,7 @@ services:
         condition: service_started
 
 volumes:
-  postgres_data:
-  assignment-cache:
+  postgres_data_test:
+  assignment-cache-test:
     driver: local
+  clickhouse_data_test:

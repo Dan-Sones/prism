@@ -14,7 +14,7 @@ import (
 )
 
 func loadEnv() {
-	_ = godotenv.Load("../../infrastructure/.env")
+	_ = godotenv.Load("../../infrastructure/.env.test")
 }
 
 func main() {
