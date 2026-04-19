@@ -1,17 +1,16 @@
-FROM golang:1.25
+FROM golang:1.25.9-alpine3.22 AS builder
+WORKDIR /src
 
-WORKDIR /app
+COPY services/experimentation-service/go.mod services/experimentation-service/go.sum ./services/experimentation-service/
+COPY libs/prismdbmodels ./libs/prismdbmodels
+COPY libs/prismlogger ./libs/prismlogger
 
-COPY experimentation-service/go.mod experimentation-service/go.sum ./
-COPY libs/prismdbmodels /libs/prismdbmodels
-COPY libs/prismlogger /libs/prismlogger
-
+WORKDIR /src/services/experimentation-service
 RUN go mod download
 
-COPY experimentation-service/ .
+COPY services/experimentation-service/ ./
+RUN CGO_ENABLED=0 go build -o /experimentation-service ./cmd
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o experimentation-service ./cmd/main.go
-
-EXPOSE 8080
-
-CMD ["./experimentation-service"]
+FROM alpine:3.22
+COPY --from=builder /experimentation-service /experimentation-service
+ENTRYPOINT ["/experimentation-service"]
