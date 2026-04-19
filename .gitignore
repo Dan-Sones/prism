@@ -2,6 +2,7 @@ services/experimentation-portal/.vite/
 services/experimentation-service/.env
 services/experimentation-service/.idea/
 infrastructure/.env
+infrastructure/.env.test
 .idea/
 services/experimentation-portal/coverage
 

@@ -1,19 +1,29 @@
-.PHONY: up-session down-session stop-session up-application down-application stop-application
+.PHONY: docker-build docker-build-experimentation docker-build-assignment docker-build-events docker-build-clickhouse-writer docker-push docker-push-experimentation docker-push-assignment docker-push-events docker-push-clickhouse-writer
 
-up-session:
-	docker-compose -f docker-compose-session.yml up -d
+docker-build: docker-build-experimentation docker-build-assignment docker-build-events docker-build-clickhouse-writer
 
-down-session:
-	docker-compose -f docker-compose-session.yml down --volumes --remove-orphans
+docker-build-experimentation:
+	docker build -f services/experimentation-service/Dockerfile -t ghcr.io/dan-sones/experimentation-service .
 
-stop-session:
-	docker-compose -f docker-compose-session.yml stop
+docker-build-assignment:
+	docker build -f services/assignment-service/Dockerfile -t ghcr.io/dan-sones/assignment-service .
 
-up-application:
-	docker-compose -f docker-compose-application.yml up -d
+docker-build-events:
+	cd services/events-service && ./mvnw package -DskipTests && docker build -t ghcr.io/dan-sones/events-service .
 
-down-application:
-	docker-compose -f docker-compose-application.yml down --volumes --remove-orphans
+docker-build-clickhouse-writer:
+	docker build -f services/clickhouse-writer/Dockerfile -t ghcr.io/dan-sones/clickhouse-writer .
 
-stop-application:	
-	docker-compose -f docker-compose-application.yml down --volumes --remove-orphans
+docker-push: docker-push-experimentation docker-push-assignment docker-push-events docker-push-clickhouse-writer
+
+docker-push-experimentation:
+	docker push ghcr.io/dan-sones/experimentation-service
+
+docker-push-assignment:
+	docker push ghcr.io/dan-sones/assignment-service	
+
+docker-push-events:
+	docker push ghcr.io/dan-sones/events-service
+
+docker-push-clickhouse-writer:
+	docker push ghcr.io/dan-sones/clickhouse-writer
