@@ -10,3 +10,7 @@ docker-build-assignment:
 
 docker-build-events:
 	cd services/events-service && ./mvnw package -DskipTests && docker build -t events-service .
+
+docker-build-clickhouse-writer:
+	docker build -f services/clickhouse-writer/Dockerfile -t clickhouse-writer .
+
