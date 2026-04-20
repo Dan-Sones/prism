@@ -24,8 +24,10 @@ resource "google_compute_instance" "app" {
 
 resource "google_compute_instance" "gatling" {
   name         = "prism-gatling"
-  machine_type = "e2-highcpu-4"
+  machine_type = "c2-standard-8"
   tags         = ["prism"]
+
+  allow_stopping_for_update = true
 
   boot_disk {
     initialize_params {

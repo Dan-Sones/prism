@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public class AssignmentStress extends Simulation {
 
-    HttpProtocolBuilder httpProtocol = http.baseUrl("http://35.246.99.1")
+    HttpProtocolBuilder httpProtocol = http.baseUrl("<TARGET>")
             .acceptHeader("application/json")
             .userAgentHeader(
                     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36");
@@ -24,10 +24,10 @@ public class AssignmentStress extends Simulation {
     ScenarioBuilder scen = scenario("Assignment Stress Test").exec(getAssignments);
 
     {
-        setUp(scen.injectOpen(incrementUsersPerSec(200)
-                        .times(5)
-                        .eachLevelLasting(Duration.ofMinutes(2))
-                        .startingFrom(200))
+        setUp(scen.injectOpen(
+                        rampUsersPerSec(0).to(3000).during(Duration.ofMinutes(1)),
+                        constantUsersPerSec(3000).during(Duration.ofMinutes(5))
+                )
                 .protocols(httpProtocol));
     }
 }
