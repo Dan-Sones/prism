@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"experimentation-service/internal/clients"
+	"experimentation-service/internal/model/event"
 	"experimentation-service/internal/model/experiment"
 	"experimentation-service/internal/problems"
 	"experimentation-service/internal/repository"
@@ -154,7 +155,7 @@ func (s *ExperimentService) CalculateRequiredSampleSizeForMetrics(ctx context.Co
 		return err
 	}
 
-	var queries []string
+	var queries []event.QueryString
 
 	for _, experimentMetric := range exp.Metrics {
 		enrichedMetric, err := s.metricsCatalogService.GetMetricById(ctx, experimentMetric.MetricID)

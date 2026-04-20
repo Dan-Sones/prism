@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	eventModel "experimentation-service/internal/model/event"
 	"fmt"
 
 	"github.com/Dan-Sones/prismdbmodels/model/event"
@@ -9,51 +10,7 @@ import (
 )
 
 type QueryBuilder interface {
-	BuildQueryFor(experimentKey string, m metric.EnrichedMetric) (string, error)
-}
-
-type Query struct {
-	SELECT  []string
-	FROM    string
-	WHERE   []string
-	GroupBy []string
-}
-
-func (q *Query) BuildQueryString() string {
-	commaSeperatedSelect := ""
-	for i, selectItem := range q.SELECT {
-		commaSeperatedSelect += selectItem
-		if i < len(q.SELECT)-1 {
-			commaSeperatedSelect += ", "
-		}
-	}
-
-	query := fmt.Sprintf("SELECT %s FROM %s", commaSeperatedSelect, q.FROM)
-
-	andSeperatedWhere := ""
-	for i, whereClause := range q.WHERE {
-		andSeperatedWhere += whereClause
-		if i < len(q.WHERE)-1 {
-			andSeperatedWhere += " AND "
-		}
-	}
-
-	query = fmt.Sprintf("%s WHERE %s", query, andSeperatedWhere)
-
-	if len(q.GroupBy) > 0 {
-		commaSeperatedGroupBy := ""
-		for i, groupByItem := range q.GroupBy {
-			commaSeperatedGroupBy += groupByItem
-			if i < len(q.GroupBy)-1 {
-				commaSeperatedGroupBy += ", "
-			}
-		}
-		query = fmt.Sprintf("%s GROUP BY %s", query, commaSeperatedGroupBy)
-	}
-
-	query = fmt.Sprintf("%s;", query)
-
-	return query
+	BuildQueryFor(experimentKey string, m metric.EnrichedMetric) (eventModel.QueryString, error)
 }
 
 type ClickhouseQueryBuilder struct {
@@ -64,7 +21,7 @@ func NewClickhouseQueryBuilder() *ClickhouseQueryBuilder {
 	return &ClickhouseQueryBuilder{}
 }
 
-func (c *ClickhouseQueryBuilder) BuildQueryFor(experimentKey string, m metric.EnrichedMetric) (string, error) {
+func (c *ClickhouseQueryBuilder) BuildQueryFor(experimentKey string, m metric.EnrichedMetric) (eventModel.QueryString, error) {
 	if len(m.MetricComponents) == 0 {
 		return "", errors.New("metric must have at least one component")
 	}
@@ -77,8 +34,8 @@ func (c *ClickhouseQueryBuilder) BuildQueryFor(experimentKey string, m metric.En
 
 }
 
-func (c *ClickhouseQueryBuilder) buildForRatioMetric(experimentKey string, m metric.EnrichedMetric) (string, error) {
-	var query Query
+func (c *ClickhouseQueryBuilder) buildForRatioMetric(experimentKey string, m metric.EnrichedMetric) (eventModel.QueryString, error) {
+	var query eventModel.ClickhouseQuery
 
 	query.WHERE = append(query.WHERE, "experiment_key = '"+experimentKey+"'")
 	query.WHERE = append(query.WHERE, c.BuildInEventKeyWhere(m))
