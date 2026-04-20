@@ -1,6 +1,7 @@
 package service
 
 import (
+	event2 "experimentation-service/internal/model/event"
 	"testing"
 
 	"github.com/Dan-Sones/prismdbmodels/model/event"
@@ -147,7 +148,7 @@ func TestClickhouseQueryBuilder_BuildQueryForExperimentMetric_Ratio(t *testing.T
 		name          string
 		experimentKey string
 		m             metric.EnrichedMetric
-		expectedQuery string
+		expectedQuery event2.QueryString
 	}{
 		{
 			name:          "BINARY Ratio Metric System Column Name: purchase conversion rate",
