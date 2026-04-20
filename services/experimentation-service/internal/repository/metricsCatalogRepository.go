@@ -89,6 +89,7 @@ func (m *MetricsCatalogRepository) IsMetricKeyAvailable(ctx context.Context, met
 	return true, nil
 }
 
+// TODO Convert this so it returns the correct struct type
 func (m *MetricsCatalogRepository) GetMetricByKey(ctx context.Context, metricKey string) (*metric.Metric, []metricreq.MetricComponentRow, error) {
 	rows, err := m.pgx.Query(ctx, "SELECT id, name, description, metric_key, metric_type, analysis_unit, created_at, is_binary FROM prism.metrics WHERE metric_key = $1", metricKey)
 	if err != nil {
@@ -111,6 +112,36 @@ func (m *MetricsCatalogRepository) GetMetricByKey(ctx context.Context, metricKey
 	}
 
 	return metricRes, componentRows, nil
+}
+
+func (m *MetricsCatalogRepository) GetMetricById(ctx context.Context, metricId uuid.UUID) (*metric.Metric, error) {
+	sql := `SELECT * FROM prism.metrics WHERE id = $1`
+
+	rows, err := m.pgx.Query(ctx, sql, metricId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	theMetric, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByName[metric.Metric])
+	if err != nil {
+		return nil, err
+	}
+
+	rows, err = m.pgx.Query(ctx, `SELECT * FROM prism.metric_components WHERE metric_id = $1`, theMetric.ID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	componentRows, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[metric.MetricComponent])
+	if err != nil {
+		return nil, err
+	}
+
+	theMetric.MetricComponents = componentRows
+
+	return theMetric, nil
 }
 
 func (m *MetricsCatalogRepository) SearchMetrics(ctx context.Context, searchTerm string) ([]*metric.Metric, error) {

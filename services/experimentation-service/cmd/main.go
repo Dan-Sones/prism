@@ -71,7 +71,8 @@ func main() {
 	bucketAllocationRepository := repository.NewBucketAllocationRepository(pgPool)
 
 	// Services
-	experimentService := service.NewExperimentService(experimentRepository, bucketAllocationRepository, logger)
+	clickhouseQueryBuilder := service.NewClickhouseQueryBuilder()
+	experimentService := service.NewExperimentService(experimentRepository, bucketAllocationRepository, clickhouseQueryBuilder, eventsRepository, metricsCatalogRepository, logger)
 	assignmentService := service.NewAssignmentService(experimentRepository, bucketCount, logger)
 	eventsCatalogService := service.NewEventsCatalogService(eventsCatalogRepository, logger)
 	eventService := service.NewEventsService(eventsRepository, eventsCatalogRepository, logger)

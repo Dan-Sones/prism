@@ -127,3 +127,23 @@ func (c *ExperimentController) UpdateExperimentForABPhase(w http.ResponseWriter,
 
 	WriteResponse(w, http.StatusOK, experiment)
 }
+
+func (c *ExperimentController) CalculateVarianceForExperimentMetrics(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	expId := chi.URLParam(r, "experimentId")
+
+	if expId == "" {
+		problems.NewBadRequestError("experimentId is required")
+		return
+	}
+
+	expUuid, err := uuid.Parse(expId)
+	if err != nil {
+		problems.NewBadRequestError("experimentId must be a valid uuid")
+		return
+	}
+
+	c.experimentService.CalculateVarianceForExperimentMetrics(ctx, expUuid)
+	WriteResponse(w, http.StatusOK, map[string]string{"message": "Hi!"})
+}

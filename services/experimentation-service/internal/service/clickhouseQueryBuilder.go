@@ -9,7 +9,7 @@ import (
 )
 
 type QueryBuilder interface {
-	BuildQueryFor(variantKey, experimentKey string, m metric.Metric) (string, error)
+	BuildQueryFor(experimentKey string, m metric.Metric) (string, error)
 }
 
 type Query struct {
@@ -59,7 +59,15 @@ func (q *Query) BuildQueryString() string {
 type ClickhouseQueryBuilder struct {
 }
 
-func (c *ClickhouseQueryBuilder) BuildQueryForExperimentMetric(experimentKey string, m metric.Metric) (string, error) {
+// Kind of unnessary struct?
+func NewClickhouseQueryBuilder() *ClickhouseQueryBuilder {
+	return &ClickhouseQueryBuilder{}
+}
+
+func (c *ClickhouseQueryBuilder) BuildQueryFor(experimentKey string, m metric.Metric) (string, error) {
+	if len(m.MetricComponents) == 0 {
+		return "", errors.New("metric must have at least one component")
+	}
 
 	if m.MetricType == metric.MetricTypeRatio {
 		return c.buildForRatioMetric(experimentKey, m)

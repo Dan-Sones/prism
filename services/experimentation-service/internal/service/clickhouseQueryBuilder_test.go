@@ -180,7 +180,7 @@ func TestClickhouseQueryBuilder_BuildQueryForExperimentMetric_Ratio(t *testing.T
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			builder := &ClickhouseQueryBuilder{}
-			query, err := builder.BuildQueryForExperimentMetric(tt.experimentKey, tt.m)
+			query, err := builder.BuildQueryFor(tt.experimentKey, tt.m)
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)
 			}
@@ -188,5 +188,18 @@ func TestClickhouseQueryBuilder_BuildQueryForExperimentMetric_Ratio(t *testing.T
 				t.Errorf("Expected query:\n%v\nGot:\n%v", tt.expectedQuery, query)
 			}
 		})
+	}
+}
+
+func TestClickhouseQueryBuilder_BuildQueryFor_NoMetricComponents(t *testing.T) {
+	experimentKey := "button_color_v1"
+	m := metric.Metric{
+		MetricType: metric.MetricTypeRatio,
+	}
+
+	builder := &ClickhouseQueryBuilder{}
+	_, err := builder.BuildQueryFor(experimentKey, m)
+	if err.Error() != "metric must have at least one component" {
+		t.Fatalf("Expected error about missing metric components, got: %v", err)
 	}
 }
