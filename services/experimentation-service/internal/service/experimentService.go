@@ -85,7 +85,6 @@ func (s *ExperimentService) GetExperiments(ctx context.Context, search string) (
 }
 
 func (s *ExperimentService) GetExperimentByUUID(ctx context.Context, expId uuid.UUID) (experiment.ExperimentResponse, error) {
-
 	expById, err := s.experimentRepository.GetExperimentByUUID(ctx, expId)
 	if err != nil {
 		s.logger.Error("Failed to retrieve experiment by id from repository", "error", err)
@@ -136,6 +135,50 @@ func (s *ExperimentService) ConfigureExperimentForAA(ctx context.Context, experi
 	}
 
 	return nil
+}
+
+func (s *ExperimentService) UpdateExperimentForABPhase(ctx context.Context, expId uuid.UUID, request experiment.UpdateExperimentPhaseRequest) (*experiment.ExperimentResponse, []problems.Violation, error) {
+	// When the user has reviewed the results of the A/A test we need to:
+	// Ask them for the start and end date of the test - validate these
+	// Set the experiment start and end date in the database
+	// Look at the requried sample size for the experiment based on the calculation
+	// do some maths given the sample size and the number of buckets to determine how many buckets need to be allocated to the experiment
+	// assign those buckets to the experiment using the bucket allocation repository
+	// set the bounds for the control and treatment variants to ensure traffic is split evenly between them
+	// this all needs to be done within a transaction to ensure we don't end up in a bad state where some of these steps succeed and others fail
+
+	violations := validators.ValidateUpdateExperimentPhaseRequest(request)
+	if len(violations) > 0 {
+		return nil, violations, nil
+	}
+
+	_, err := s.experimentRepository.GetExperimentByUUID(ctx, expId)
+	if err != nil {
+		s.logger.Error("Failed to retrieve experiment by id from repository", "error", err)
+		return nil, nil, err
+	}
+
+	// BEGIN TRANSACTION
+
+	err = s.experimentRepository.SetExperimentStartAndEndTime(ctx, expId, request.StartTime, request.EndTime)
+	if err != nil {
+		s.logger.Error("Failed to set experiment start and end time in repository", "error", err)
+		// ROLLBACK
+		return nil, nil, err
+	}
+
+	// COMMIT TRANSACTION
+
+	expById, err := s.experimentRepository.GetExperimentByUUID(ctx, expId)
+	if err != nil {
+		s.logger.Error("Failed to retrieve experiment by id from repository", "error", err)
+		return nil, nil, err
+	}
+
+	s.enrichWithExperimentStatus(&expById)
+
+	resp := experiment.NewExperimentResponse(expById)
+	return &resp, nil, nil
 }
 
 func (s *ExperimentService) enrichWithAATestDates(exp *experiment2.Experiment, fromTime time.Time) {
@@ -221,16 +264,3 @@ func (s *ExperimentService) convertExperimentMetricRequestToExperimentMetric(exp
 		NIM:       expMetReq.NIM,
 	}
 }
-
-//func (s *ExperimentService) GetAbsoluteSampleSize(ctx context.Context, details experiment.GetAbsoluteSampleSizeRequest) (*experiment.GetAbsoluteSampleSizeResponse, error) {
-//	total, per_variant, split, err := s.statsEngineClient.GetAbsoluteSampleSize(ctx, details.AbsolutePercentageMDE, details.BaselineProportion, details.Alpha, details.Power, details.Treatments)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	return &experiment.GetAbsoluteSampleSizeResponse{
-//		TotalSampleSize:      total,
-//		PerVariantSampleSize: per_variant,
-//		Allocations:          split,
-//	}, nil
-//}

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	experiment2 "github.com/Dan-Sones/prismdbmodels/model/experiment"
 	"github.com/google/uuid"
@@ -221,6 +222,15 @@ func (r *ExperimentRepository) UpdateBoundsForExperimentVariant(ctx context.Cont
 		WHERE experiment_id = $3 AND variant_key = $4`,
 		upperBound, lowerBound, experimentId, variantKey,
 	)
+
+	return err
+}
+
+func (r *ExperimentRepository) SetExperimentStartAndEndTime(ctx context.Context, experimentId uuid.UUID, startTime time.Time, endTime time.Time) error {
+	_, err := r.pgxPool.Exec(ctx, `UPDATE prism.experiments	
+		SET start_time = $1, end_time = $2
+		WHERE id = $3`,
+		startTime, endTime, experimentId)
 
 	return err
 }

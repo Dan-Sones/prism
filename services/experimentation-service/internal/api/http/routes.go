@@ -24,7 +24,11 @@ func RegisterRoutes(router *chi.Mux, c Controllers) {
 		r.Route("/experiments", func(r chi.Router) {
 			r.Post("/", c.ExperimentController.CreateExperiment)
 			r.Get("/", c.ExperimentController.GetExperiments)
-			r.Get("/{experimentId}", c.ExperimentController.GetExperimentByUUID)
+			r.Route("/{experimentId}", func(r chi.Router) {
+				r.Get("/", c.ExperimentController.GetExperimentByUUID)
+				r.Put("/begin-ab", c.ExperimentController.UpdateExperimentForABPhase)
+			})
+
 		})
 
 		r.Route("/events-catalog", func(r chi.Router) {
