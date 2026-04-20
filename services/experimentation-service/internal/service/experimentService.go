@@ -23,17 +23,17 @@ type ExperimentService struct {
 	bucketAllocationRepository *repository.BucketAllocationRepository
 	metricsCatalogService      *MetricsCatalogService
 	queryBuilder               QueryBuilder
-	eventsRepository           EventsRepository
+	eventsService              *EventService
 	statsEngineClient          clients.StatsEngineClient
 	logger                     *slog.Logger
 }
 
-func NewExperimentService(experimentRepository *repository.ExperimentRepository, bucketAllocationRepository *repository.BucketAllocationRepository, queryBuilder QueryBuilder, eventsRepository EventsRepository, metricCatalogService *MetricsCatalogService, statsEngineClient clients.StatsEngineClient, logger *slog.Logger) *ExperimentService {
+func NewExperimentService(experimentRepository *repository.ExperimentRepository, bucketAllocationRepository *repository.BucketAllocationRepository, queryBuilder QueryBuilder, eventsService *EventService, metricCatalogService *MetricsCatalogService, statsEngineClient clients.StatsEngineClient, logger *slog.Logger) *ExperimentService {
 	return &ExperimentService{
 		experimentRepository:       experimentRepository,
 		bucketAllocationRepository: bucketAllocationRepository,
 		queryBuilder:               queryBuilder,
-		eventsRepository:           eventsRepository,
+		eventsService:              eventsService,
 		metricsCatalogService:      metricCatalogService,
 		statsEngineClient:          statsEngineClient,
 		logger:                     logger,
@@ -172,7 +172,26 @@ func (s *ExperimentService) CalculateRequiredSampleSizeForMetrics(ctx context.Co
 		queries = append(queries, query)
 	}
 
-	fmt.Println(queries)
+	// Hardcoded to the one for now as we are JUST implementing success metrics
+	// doing multiple will come later
+	binaryMQresult, err := s.eventsService.PerformBinaryMetricQuery(ctx, queries[0])
+	if err != nil {
+		s.logger.Error("Failed to perform binary metric query for experiment metric", "error", err)
+		return err
+	}
+
+	// HARDCODED TEMPORARILY - Need to refactor models (?) to fetch actual mde
+	MDE := 0.05
+
+	total, perVariant, split, err := s.statsEngineClient.CalculateSampleSizeForBinomialMetric(ctx, MDE, binaryMQresult.Numerator, binaryMQresult.Denominator, 2)
+	if err != nil {
+		s.logger.Error("Failed to calculate required sample size for experiment metric using stats engine client", "error", err)
+		return err
+	}
+
+	fmt.Printf("Total sample size required: %d\n", total)
+	fmt.Printf("Sample size per variant: %v\n", perVariant)
+	fmt.Printf("Traffic split: %v\n", split)
 
 	//Execute queries and build a request to the stats_engine
 	return nil
