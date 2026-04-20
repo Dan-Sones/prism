@@ -19,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	StatsEngine_CalculateSampleSizeAbsoluteMetric_FullMethodName = "/stats_engine.v1.StatsEngine/CalculateSampleSizeAbsoluteMetric"
+	StatsEngine_CalculateSampleSizeForBinomialMetric_FullMethodName = "/stats_engine.v1.StatsEngine/CalculateSampleSizeForBinomialMetric"
 )
 
 // StatsEngineClient is the client API for StatsEngine service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type StatsEngineClient interface {
-	CalculateSampleSizeAbsoluteMetric(ctx context.Context, in *CalculateSampleSizeAbsoluteMetricRequest, opts ...grpc.CallOption) (*CalculateSampleSizeAbsoluteMetricResponse, error)
+	CalculateSampleSizeForBinomialMetric(ctx context.Context, in *CalculateSampleSizeForBinomialMetricRequest, opts ...grpc.CallOption) (*CalculateSampleSizeForBinomialMetricResponse, error)
 }
 
 type statsEngineClient struct {
@@ -37,10 +37,10 @@ func NewStatsEngineClient(cc grpc.ClientConnInterface) StatsEngineClient {
 	return &statsEngineClient{cc}
 }
 
-func (c *statsEngineClient) CalculateSampleSizeAbsoluteMetric(ctx context.Context, in *CalculateSampleSizeAbsoluteMetricRequest, opts ...grpc.CallOption) (*CalculateSampleSizeAbsoluteMetricResponse, error) {
+func (c *statsEngineClient) CalculateSampleSizeForBinomialMetric(ctx context.Context, in *CalculateSampleSizeForBinomialMetricRequest, opts ...grpc.CallOption) (*CalculateSampleSizeForBinomialMetricResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(CalculateSampleSizeAbsoluteMetricResponse)
-	err := c.cc.Invoke(ctx, StatsEngine_CalculateSampleSizeAbsoluteMetric_FullMethodName, in, out, cOpts...)
+	out := new(CalculateSampleSizeForBinomialMetricResponse)
+	err := c.cc.Invoke(ctx, StatsEngine_CalculateSampleSizeForBinomialMetric_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (c *statsEngineClient) CalculateSampleSizeAbsoluteMetric(ctx context.Contex
 // All implementations must embed UnimplementedStatsEngineServer
 // for forward compatibility.
 type StatsEngineServer interface {
-	CalculateSampleSizeAbsoluteMetric(context.Context, *CalculateSampleSizeAbsoluteMetricRequest) (*CalculateSampleSizeAbsoluteMetricResponse, error)
+	CalculateSampleSizeForBinomialMetric(context.Context, *CalculateSampleSizeForBinomialMetricRequest) (*CalculateSampleSizeForBinomialMetricResponse, error)
 	mustEmbedUnimplementedStatsEngineServer()
 }
 
@@ -62,8 +62,8 @@ type StatsEngineServer interface {
 // pointer dereference when methods are called.
 type UnimplementedStatsEngineServer struct{}
 
-func (UnimplementedStatsEngineServer) CalculateSampleSizeAbsoluteMetric(context.Context, *CalculateSampleSizeAbsoluteMetricRequest) (*CalculateSampleSizeAbsoluteMetricResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method CalculateSampleSizeAbsoluteMetric not implemented")
+func (UnimplementedStatsEngineServer) CalculateSampleSizeForBinomialMetric(context.Context, *CalculateSampleSizeForBinomialMetricRequest) (*CalculateSampleSizeForBinomialMetricResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method CalculateSampleSizeForBinomialMetric not implemented")
 }
 func (UnimplementedStatsEngineServer) mustEmbedUnimplementedStatsEngineServer() {}
 func (UnimplementedStatsEngineServer) testEmbeddedByValue()                     {}
@@ -86,20 +86,20 @@ func RegisterStatsEngineServer(s grpc.ServiceRegistrar, srv StatsEngineServer) {
 	s.RegisterService(&StatsEngine_ServiceDesc, srv)
 }
 
-func _StatsEngine_CalculateSampleSizeAbsoluteMetric_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CalculateSampleSizeAbsoluteMetricRequest)
+func _StatsEngine_CalculateSampleSizeForBinomialMetric_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CalculateSampleSizeForBinomialMetricRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(StatsEngineServer).CalculateSampleSizeAbsoluteMetric(ctx, in)
+		return srv.(StatsEngineServer).CalculateSampleSizeForBinomialMetric(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: StatsEngine_CalculateSampleSizeAbsoluteMetric_FullMethodName,
+		FullMethod: StatsEngine_CalculateSampleSizeForBinomialMetric_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(StatsEngineServer).CalculateSampleSizeAbsoluteMetric(ctx, req.(*CalculateSampleSizeAbsoluteMetricRequest))
+		return srv.(StatsEngineServer).CalculateSampleSizeForBinomialMetric(ctx, req.(*CalculateSampleSizeForBinomialMetricRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -112,8 +112,8 @@ var StatsEngine_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*StatsEngineServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "CalculateSampleSizeAbsoluteMetric",
-			Handler:    _StatsEngine_CalculateSampleSizeAbsoluteMetric_Handler,
+			MethodName: "CalculateSampleSizeForBinomialMetric",
+			Handler:    _StatsEngine_CalculateSampleSizeForBinomialMetric_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

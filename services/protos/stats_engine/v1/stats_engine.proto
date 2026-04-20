@@ -5,18 +5,19 @@ option go_package="experimentation-service/internal/grpc/generated/v1;stats_engi
 package stats_engine.v1;
 
 service StatsEngine {
-  rpc CalculateSampleSizeAbsoluteMetric (CalculateSampleSizeAbsoluteMetricRequest) returns (CalculateSampleSizeAbsoluteMetricResponse);
+  rpc CalculateSampleSizeForBinomialMetric (CalculateSampleSizeForBinomialMetricRequest) returns (CalculateSampleSizeForBinomialMetricResponse);
 }
 
-message CalculateSampleSizeAbsoluteMetricRequest {
-  double absolute_percentage_mde = 1;
-  double baseline_proportion = 2;
-  double alpha = 3;
-  double power = 4;
-  int32 variant_count = 5;
+message CalculateSampleSizeForBinomialMetricRequest {
+  double absolute_percentage_mde =1;
+  int64 experiment_exposures = 2;
+  int64 experiment_conversions = 3;
+//  double alpha = 3; -- Going to hardcode these for now
+//  double power = 4;
+  int32 variant_count = 4;
 }
 
-message CalculateSampleSizeAbsoluteMetricResponse {
+message CalculateSampleSizeForBinomialMetricResponse {
   int32 total = 1;
   repeated int32 per_variant = 2;
   repeated double split = 3;

@@ -21,31 +21,32 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type CalculateSampleSizeAbsoluteMetricRequest struct {
+type CalculateSampleSizeForBinomialMetricRequest struct {
 	state                 protoimpl.MessageState `protogen:"open.v1"`
 	AbsolutePercentageMde float64                `protobuf:"fixed64,1,opt,name=absolute_percentage_mde,json=absolutePercentageMde,proto3" json:"absolute_percentage_mde,omitempty"`
-	BaselineProportion    float64                `protobuf:"fixed64,2,opt,name=baseline_proportion,json=baselineProportion,proto3" json:"baseline_proportion,omitempty"`
-	Alpha                 float64                `protobuf:"fixed64,3,opt,name=alpha,proto3" json:"alpha,omitempty"`
-	Power                 float64                `protobuf:"fixed64,4,opt,name=power,proto3" json:"power,omitempty"`
-	VariantCount          int32                  `protobuf:"varint,5,opt,name=variant_count,json=variantCount,proto3" json:"variant_count,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+	ExperimentExposures   int64                  `protobuf:"varint,2,opt,name=experiment_exposures,json=experimentExposures,proto3" json:"experiment_exposures,omitempty"`
+	ExperimentConversions int64                  `protobuf:"varint,3,opt,name=experiment_conversions,json=experimentConversions,proto3" json:"experiment_conversions,omitempty"`
+	// double alpha = 3; -- Going to hardcode these for now
+	// double power = 4;
+	VariantCount  int32 `protobuf:"varint,4,opt,name=variant_count,json=variantCount,proto3" json:"variant_count,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CalculateSampleSizeAbsoluteMetricRequest) Reset() {
-	*x = CalculateSampleSizeAbsoluteMetricRequest{}
+func (x *CalculateSampleSizeForBinomialMetricRequest) Reset() {
+	*x = CalculateSampleSizeForBinomialMetricRequest{}
 	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CalculateSampleSizeAbsoluteMetricRequest) String() string {
+func (x *CalculateSampleSizeForBinomialMetricRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CalculateSampleSizeAbsoluteMetricRequest) ProtoMessage() {}
+func (*CalculateSampleSizeForBinomialMetricRequest) ProtoMessage() {}
 
-func (x *CalculateSampleSizeAbsoluteMetricRequest) ProtoReflect() protoreflect.Message {
+func (x *CalculateSampleSizeForBinomialMetricRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -57,47 +58,40 @@ func (x *CalculateSampleSizeAbsoluteMetricRequest) ProtoReflect() protoreflect.M
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CalculateSampleSizeAbsoluteMetricRequest.ProtoReflect.Descriptor instead.
-func (*CalculateSampleSizeAbsoluteMetricRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use CalculateSampleSizeForBinomialMetricRequest.ProtoReflect.Descriptor instead.
+func (*CalculateSampleSizeForBinomialMetricRequest) Descriptor() ([]byte, []int) {
 	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *CalculateSampleSizeAbsoluteMetricRequest) GetAbsolutePercentageMde() float64 {
+func (x *CalculateSampleSizeForBinomialMetricRequest) GetAbsolutePercentageMde() float64 {
 	if x != nil {
 		return x.AbsolutePercentageMde
 	}
 	return 0
 }
 
-func (x *CalculateSampleSizeAbsoluteMetricRequest) GetBaselineProportion() float64 {
+func (x *CalculateSampleSizeForBinomialMetricRequest) GetExperimentExposures() int64 {
 	if x != nil {
-		return x.BaselineProportion
+		return x.ExperimentExposures
 	}
 	return 0
 }
 
-func (x *CalculateSampleSizeAbsoluteMetricRequest) GetAlpha() float64 {
+func (x *CalculateSampleSizeForBinomialMetricRequest) GetExperimentConversions() int64 {
 	if x != nil {
-		return x.Alpha
+		return x.ExperimentConversions
 	}
 	return 0
 }
 
-func (x *CalculateSampleSizeAbsoluteMetricRequest) GetPower() float64 {
-	if x != nil {
-		return x.Power
-	}
-	return 0
-}
-
-func (x *CalculateSampleSizeAbsoluteMetricRequest) GetVariantCount() int32 {
+func (x *CalculateSampleSizeForBinomialMetricRequest) GetVariantCount() int32 {
 	if x != nil {
 		return x.VariantCount
 	}
 	return 0
 }
 
-type CalculateSampleSizeAbsoluteMetricResponse struct {
+type CalculateSampleSizeForBinomialMetricResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Total         int32                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
 	PerVariant    []int32                `protobuf:"varint,2,rep,packed,name=per_variant,json=perVariant,proto3" json:"per_variant,omitempty"`
@@ -106,20 +100,20 @@ type CalculateSampleSizeAbsoluteMetricResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CalculateSampleSizeAbsoluteMetricResponse) Reset() {
-	*x = CalculateSampleSizeAbsoluteMetricResponse{}
+func (x *CalculateSampleSizeForBinomialMetricResponse) Reset() {
+	*x = CalculateSampleSizeForBinomialMetricResponse{}
 	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CalculateSampleSizeAbsoluteMetricResponse) String() string {
+func (x *CalculateSampleSizeForBinomialMetricResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CalculateSampleSizeAbsoluteMetricResponse) ProtoMessage() {}
+func (*CalculateSampleSizeForBinomialMetricResponse) ProtoMessage() {}
 
-func (x *CalculateSampleSizeAbsoluteMetricResponse) ProtoReflect() protoreflect.Message {
+func (x *CalculateSampleSizeForBinomialMetricResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -131,26 +125,26 @@ func (x *CalculateSampleSizeAbsoluteMetricResponse) ProtoReflect() protoreflect.
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CalculateSampleSizeAbsoluteMetricResponse.ProtoReflect.Descriptor instead.
-func (*CalculateSampleSizeAbsoluteMetricResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use CalculateSampleSizeForBinomialMetricResponse.ProtoReflect.Descriptor instead.
+func (*CalculateSampleSizeForBinomialMetricResponse) Descriptor() ([]byte, []int) {
 	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *CalculateSampleSizeAbsoluteMetricResponse) GetTotal() int32 {
+func (x *CalculateSampleSizeForBinomialMetricResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
 	}
 	return 0
 }
 
-func (x *CalculateSampleSizeAbsoluteMetricResponse) GetPerVariant() []int32 {
+func (x *CalculateSampleSizeForBinomialMetricResponse) GetPerVariant() []int32 {
 	if x != nil {
 		return x.PerVariant
 	}
 	return nil
 }
 
-func (x *CalculateSampleSizeAbsoluteMetricResponse) GetSplit() []float64 {
+func (x *CalculateSampleSizeForBinomialMetricResponse) GetSplit() []float64 {
 	if x != nil {
 		return x.Split
 	}
@@ -161,20 +155,19 @@ var File_stats_engine_v1_stats_engine_proto protoreflect.FileDescriptor
 
 const file_stats_engine_v1_stats_engine_proto_rawDesc = "" +
 	"\n" +
-	"\"stats_engine/v1/stats_engine.proto\x12\x0fstats_engine.v1\"\xe4\x01\n" +
-	"(CalculateSampleSizeAbsoluteMetricRequest\x126\n" +
-	"\x17absolute_percentage_mde\x18\x01 \x01(\x01R\x15absolutePercentageMde\x12/\n" +
-	"\x13baseline_proportion\x18\x02 \x01(\x01R\x12baselineProportion\x12\x14\n" +
-	"\x05alpha\x18\x03 \x01(\x01R\x05alpha\x12\x14\n" +
-	"\x05power\x18\x04 \x01(\x01R\x05power\x12#\n" +
-	"\rvariant_count\x18\x05 \x01(\x05R\fvariantCount\"x\n" +
-	")CalculateSampleSizeAbsoluteMetricResponse\x12\x14\n" +
+	"\"stats_engine/v1/stats_engine.proto\x12\x0fstats_engine.v1\"\xf4\x01\n" +
+	"+CalculateSampleSizeForBinomialMetricRequest\x126\n" +
+	"\x17absolute_percentage_mde\x18\x01 \x01(\x01R\x15absolutePercentageMde\x121\n" +
+	"\x14experiment_exposures\x18\x02 \x01(\x03R\x13experimentExposures\x125\n" +
+	"\x16experiment_conversions\x18\x03 \x01(\x03R\x15experimentConversions\x12#\n" +
+	"\rvariant_count\x18\x04 \x01(\x05R\fvariantCount\"{\n" +
+	",CalculateSampleSizeForBinomialMetricResponse\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x05R\x05total\x12\x1f\n" +
 	"\vper_variant\x18\x02 \x03(\x05R\n" +
 	"perVariant\x12\x14\n" +
-	"\x05split\x18\x03 \x03(\x01R\x05split2\xaa\x01\n" +
-	"\vStatsEngine\x12\x9a\x01\n" +
-	"!CalculateSampleSizeAbsoluteMetric\x129.stats_engine.v1.CalculateSampleSizeAbsoluteMetricRequest\x1a:.stats_engine.v1.CalculateSampleSizeAbsoluteMetricResponseBAZ?experimentation-service/internal/grpc/generated/v1;stats_engineb\x06proto3"
+	"\x05split\x18\x03 \x03(\x01R\x05split2\xb3\x01\n" +
+	"\vStatsEngine\x12\xa3\x01\n" +
+	"$CalculateSampleSizeForBinomialMetric\x12<.stats_engine.v1.CalculateSampleSizeForBinomialMetricRequest\x1a=.stats_engine.v1.CalculateSampleSizeForBinomialMetricResponseBAZ?experimentation-service/internal/grpc/generated/v1;stats_engineb\x06proto3"
 
 var (
 	file_stats_engine_v1_stats_engine_proto_rawDescOnce sync.Once
@@ -190,12 +183,12 @@ func file_stats_engine_v1_stats_engine_proto_rawDescGZIP() []byte {
 
 var file_stats_engine_v1_stats_engine_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_stats_engine_v1_stats_engine_proto_goTypes = []any{
-	(*CalculateSampleSizeAbsoluteMetricRequest)(nil),  // 0: stats_engine.v1.CalculateSampleSizeAbsoluteMetricRequest
-	(*CalculateSampleSizeAbsoluteMetricResponse)(nil), // 1: stats_engine.v1.CalculateSampleSizeAbsoluteMetricResponse
+	(*CalculateSampleSizeForBinomialMetricRequest)(nil),  // 0: stats_engine.v1.CalculateSampleSizeForBinomialMetricRequest
+	(*CalculateSampleSizeForBinomialMetricResponse)(nil), // 1: stats_engine.v1.CalculateSampleSizeForBinomialMetricResponse
 }
 var file_stats_engine_v1_stats_engine_proto_depIdxs = []int32{
-	0, // 0: stats_engine.v1.StatsEngine.CalculateSampleSizeAbsoluteMetric:input_type -> stats_engine.v1.CalculateSampleSizeAbsoluteMetricRequest
-	1, // 1: stats_engine.v1.StatsEngine.CalculateSampleSizeAbsoluteMetric:output_type -> stats_engine.v1.CalculateSampleSizeAbsoluteMetricResponse
+	0, // 0: stats_engine.v1.StatsEngine.CalculateSampleSizeForBinomialMetric:input_type -> stats_engine.v1.CalculateSampleSizeForBinomialMetricRequest
+	1, // 1: stats_engine.v1.StatsEngine.CalculateSampleSizeForBinomialMetric:output_type -> stats_engine.v1.CalculateSampleSizeForBinomialMetricResponse
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
