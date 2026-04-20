@@ -6,6 +6,7 @@ import (
 	"experimentation-service/internal/problems"
 	"experimentation-service/internal/repository"
 	"experimentation-service/internal/validators"
+	"fmt"
 	"log/slog"
 	"os"
 	"strconv"
@@ -18,13 +19,13 @@ import (
 type ExperimentService struct {
 	experimentRepository       *repository.ExperimentRepository
 	bucketAllocationRepository *repository.BucketAllocationRepository
-	metricsCatalogService      MetricsCatalogService
+	metricsCatalogService      *MetricsCatalogService
 	queryBuilder               QueryBuilder
 	eventsRepository           EventsRepository
 	logger                     *slog.Logger
 }
 
-func NewExperimentService(experimentRepository *repository.ExperimentRepository, bucketAllocationRepository *repository.BucketAllocationRepository, queryBuilder QueryBuilder, eventsRepository EventsRepository, metricCatalogService MetricsCatalogService, logger *slog.Logger) *ExperimentService {
+func NewExperimentService(experimentRepository *repository.ExperimentRepository, bucketAllocationRepository *repository.BucketAllocationRepository, queryBuilder QueryBuilder, eventsRepository EventsRepository, metricCatalogService *MetricsCatalogService, logger *slog.Logger) *ExperimentService {
 	return &ExperimentService{
 		experimentRepository:       experimentRepository,
 		bucketAllocationRepository: bucketAllocationRepository,
@@ -144,30 +145,30 @@ func (s *ExperimentService) ConfigureExperimentForAA(ctx context.Context, experi
 }
 
 func (s *ExperimentService) CalculateVarianceForExperimentMetrics(ctx context.Context, expId uuid.UUID) error {
-	_, err := s.experimentRepository.GetExperimentByUUID(ctx, expId)
+	exp, err := s.experimentRepository.GetExperimentByUUID(ctx, expId)
 	if err != nil {
 		s.logger.Error("Failed to retrieve metrics for experiment from repository", "error", err)
 		return err
 	}
 
-	//var queries []string
-	//
-	//for _, experimentMetric := range exp.Metrics {
-	//	metric, err := s.metricCatalogRepository.GetMetricById(ctx, experimentMetric.MetricID)
-	//	if err != nil {
-	//		s.logger.Error("Failed to retrieve metric by id from repository", "error", err)
-	//		return err
-	//	}
-	//
-	//	query, err := s.queryBuilder.BuildQueryFor(exp.FeatureFlagID, *metric)
-	//	if err != nil {
-	//		s.logger.Error("Failed to build query for experiment metric", "error", err)
-	//		return err
-	//	}
-	//	queries = append(queries, query)
-	//}
-	//
-	//fmt.Println(queries)
+	var queries []string
+
+	for _, experimentMetric := range exp.Metrics {
+		enrichedMetric, err := s.metricsCatalogService.GetMetricById(ctx, experimentMetric.MetricID)
+		if err != nil {
+			s.logger.Error("Failed to retrieve metric details for experiment metric from metrics catalog service", "error", err)
+			return err
+		}
+
+		query, err := s.queryBuilder.BuildQueryFor(exp.FeatureFlagID, *enrichedMetric)
+		if err != nil {
+			s.logger.Error("Failed to build query for experiment metric", "error", err)
+			return err
+		}
+		queries = append(queries, query)
+	}
+
+	fmt.Println(queries)
 
 	//Execute queries and build a request to the stats_engine
 	return nil

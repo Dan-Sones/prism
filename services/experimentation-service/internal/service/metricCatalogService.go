@@ -116,6 +116,26 @@ func (m *MetricsCatalogService) GetMetricByKey(ctx context.Context, metricKey st
 	return enrichedMetric, err
 }
 
+func (m *MetricsCatalogService) GetMetricById(ctx context.Context, metricId uuid.UUID) (*metric.EnrichedMetric, error) {
+	mt, err := m.metricsRepo.GetMetricById(ctx, metricId)
+	if err != nil {
+		m.logger.Error("Error fetching metric type by id", "error", err, "metricId", metricId)
+
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, status.Error(codes.NotFound, "Metric not found")
+		}
+
+		return nil, err
+	}
+
+	enrichedMetric, err := m.EnrichMetric(ctx, *mt)
+	if err != nil {
+		m.logger.Error("Failed to enrich metric", "error", err, "metricId", mt.ID)
+	}
+
+	return enrichedMetric, err
+}
+
 func (m *MetricsCatalogService) SearchMetrics(ctx context.Context, searchQuery string) ([]*metric.EnrichedMetric, error) {
 	metrics, err := m.metricsRepo.SearchMetrics(ctx, searchQuery)
 	if err != nil {
