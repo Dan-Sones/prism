@@ -128,7 +128,7 @@ func (c *ExperimentController) UpdateExperimentForABPhase(w http.ResponseWriter,
 	WriteResponse(w, http.StatusOK, experiment)
 }
 
-func (c *ExperimentController) CalculateVarianceForExperimentMetrics(w http.ResponseWriter, r *http.Request) {
+func (c *ExperimentController) CalculateRequiredSampleSizeForMetrics(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	expId := chi.URLParam(r, "experimentId")
@@ -144,6 +144,6 @@ func (c *ExperimentController) CalculateVarianceForExperimentMetrics(w http.Resp
 		return
 	}
 
-	c.experimentService.CalculateVarianceForExperimentMetrics(ctx, expUuid)
+	c.experimentService.CalculateRequiredSampleSizeForMetrics(ctx, expUuid)
 	WriteResponse(w, http.StatusOK, map[string]string{"message": "Hi!"})
 }

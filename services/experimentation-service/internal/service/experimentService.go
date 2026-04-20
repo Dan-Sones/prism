@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"experimentation-service/internal/clients"
 	"experimentation-service/internal/model/experiment"
 	"experimentation-service/internal/problems"
 	"experimentation-service/internal/repository"
@@ -22,16 +23,18 @@ type ExperimentService struct {
 	metricsCatalogService      *MetricsCatalogService
 	queryBuilder               QueryBuilder
 	eventsRepository           EventsRepository
+	statsEngineClient          clients.StatsEngineClient
 	logger                     *slog.Logger
 }
 
-func NewExperimentService(experimentRepository *repository.ExperimentRepository, bucketAllocationRepository *repository.BucketAllocationRepository, queryBuilder QueryBuilder, eventsRepository EventsRepository, metricCatalogService *MetricsCatalogService, logger *slog.Logger) *ExperimentService {
+func NewExperimentService(experimentRepository *repository.ExperimentRepository, bucketAllocationRepository *repository.BucketAllocationRepository, queryBuilder QueryBuilder, eventsRepository EventsRepository, metricCatalogService *MetricsCatalogService, statsEngineClient clients.StatsEngineClient, logger *slog.Logger) *ExperimentService {
 	return &ExperimentService{
 		experimentRepository:       experimentRepository,
 		bucketAllocationRepository: bucketAllocationRepository,
 		queryBuilder:               queryBuilder,
 		eventsRepository:           eventsRepository,
 		metricsCatalogService:      metricCatalogService,
+		statsEngineClient:          statsEngineClient,
 		logger:                     logger,
 	}
 }
@@ -144,7 +147,7 @@ func (s *ExperimentService) ConfigureExperimentForAA(ctx context.Context, experi
 	return nil
 }
 
-func (s *ExperimentService) CalculateVarianceForExperimentMetrics(ctx context.Context, expId uuid.UUID) error {
+func (s *ExperimentService) CalculateRequiredSampleSizeForMetrics(ctx context.Context, expId uuid.UUID) error {
 	exp, err := s.experimentRepository.GetExperimentByUUID(ctx, expId)
 	if err != nil {
 		s.logger.Error("Failed to retrieve metrics for experiment from repository", "error", err)

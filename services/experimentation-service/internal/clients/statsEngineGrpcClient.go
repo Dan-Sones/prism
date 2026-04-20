@@ -10,7 +10,7 @@ import (
 )
 
 type StatsEngineClient interface {
-	GetAbsoluteSampleSize(ctx context.Context, absolutePercentageMDE, baselineProportion, alpha, power float64, treatments int) (total int, per_variant []int, split []float64, error error)
+	CalculateSampleSizeForBinomialMetric(ctx context.Context, absolutePercentageMDE float64, experimentConversions, experimentExposures, treatments int) (total int, per_variant []int, split []float64, error error)
 	Close() error
 }
 
@@ -19,12 +19,11 @@ type GrpcStatsEngineClient struct {
 	client pb.StatsEngineClient
 }
 
-func (g *GrpcStatsEngineClient) GetAbsoluteSampleSize(ctx context.Context, absolutePercentageMDE, baselineProportion, alpha, power float64, treatments int) (total int, per_variant []int, split []float64, error error) {
-	resp, err := g.client.CalculateSampleSizeAbsoluteMetric(ctx, &pb.CalculateSampleSizeAbsoluteMetricRequest{
+func (g *GrpcStatsEngineClient) CalculateSampleSizeForBinomialMetric(ctx context.Context, absolutePercentageMDE float64, experimentConversions, experimentExposures, treatments int) (total int, per_variant []int, split []float64, error error) {
+	resp, err := g.client.CalculateSampleSizeForBinomialMetric(ctx, &pb.CalculateSampleSizeForBinomialMetricRequest{
 		AbsolutePercentageMde: absolutePercentageMDE,
-		BaselineProportion:    baselineProportion,
-		Alpha:                 alpha,
-		Power:                 power,
+		ExperimentConversions: int64(experimentConversions),
+		ExperimentExposures:   int64(experimentExposures),
 		VariantCount:          int32(treatments),
 	})
 	if err != nil {
@@ -37,7 +36,6 @@ func (g *GrpcStatsEngineClient) GetAbsoluteSampleSize(ctx context.Context, absol
 	}
 
 	return int(resp.Total), perVariant, resp.Split, nil
-
 }
 
 func (g *GrpcStatsEngineClient) Close() error {
