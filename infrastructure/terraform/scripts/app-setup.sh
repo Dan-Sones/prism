@@ -2,13 +2,14 @@
 set -e
 
 apt-get update
-apt-get install -y openjdk-21-jdk maven docker.io docker-compose make tmux
+apt-get install -y openjdk-21-jdk maven make tmux postgresql-client curl ca-certificates
+
+curl -fsSL https://get.docker.com -o /tmp/get-docker.sh
+sh /tmp/get-docker.sh
+rm /tmp/get-docker.sh
 
 # tmux config
 cat > /root/.tmux.conf <<'TMUXCONF'
-unbind C-b
-set-option -g prefix C-a
-bind-key C-a send-prefix
 
 # Split pane horizontally with Ctrl-a [
 bind-key [ split-window -h -c "#{pane_current_path}"
@@ -31,11 +32,6 @@ TMUXCONF
 
 # Auto-launch tmux on login
 echo 'if command -v tmux &>/dev/null && [ -z "$TMUX" ]; then tmux new-session -A -s main; fi' >> /root/.bashrc
-systemctl enable docker
-systemctl start docker
-usermod -aG docker ubuntu
+
 
 git clone -b events-service https://github.com/Dan-Sones/prism.git /root/prism
-
-cd /root/prism/services
-make docker-build
