@@ -10,13 +10,13 @@ import (
 func TestClickhouseQueryBuilder_BuildInEventKeyWhere(t *testing.T) {
 	tests := []struct {
 		name string
-		m    metric.Metric
+		m    metric.EnrichedMetric
 		want string
 	}{
 		{
 			name: "Single event key",
-			m: metric.Metric{
-				MetricComponents: []metric.MetricComponent{
+			m: metric.EnrichedMetric{
+				MetricComponents: []metric.EnrichedMetricComponent{
 					{
 						EventType: event.EventType{
 							EventKey: "eventA",
@@ -28,8 +28,8 @@ func TestClickhouseQueryBuilder_BuildInEventKeyWhere(t *testing.T) {
 		},
 		{
 			name: "Multiple event keys",
-			m: metric.Metric{
-				MetricComponents: []metric.MetricComponent{
+			m: metric.EnrichedMetric{
+				MetricComponents: []metric.EnrichedMetricComponent{
 					{
 						EventType: event.EventType{
 							EventKey: "eventA",
@@ -68,12 +68,12 @@ func TestClickhouseQueryBuilder_BuildSelectItemForCountDistinct(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		component metric.MetricComponent
+		component metric.EnrichedMetricComponent
 		want      string
 	}{
 		{
 			name: "Count distinct on system column",
-			component: metric.MetricComponent{
+			component: metric.EnrichedMetricComponent{
 				EventType: event.EventType{
 					EventKey: "eventA",
 				},
@@ -84,7 +84,7 @@ func TestClickhouseQueryBuilder_BuildSelectItemForCountDistinct(t *testing.T) {
 		},
 		{
 			name: "Count distinct on string event field",
-			component: metric.MetricComponent{
+			component: metric.EnrichedMetricComponent{
 				EventType: event.EventType{
 					EventKey: "eventA",
 				},
@@ -98,7 +98,7 @@ func TestClickhouseQueryBuilder_BuildSelectItemForCountDistinct(t *testing.T) {
 		},
 		{
 			name: "Count distinct on float event field",
-			component: metric.MetricComponent{
+			component: metric.EnrichedMetricComponent{
 				EventType: event.EventType{
 					EventKey: "eventA",
 				},
@@ -112,7 +112,7 @@ func TestClickhouseQueryBuilder_BuildSelectItemForCountDistinct(t *testing.T) {
 		},
 		{
 			name: "Count distinct on int event field",
-			component: metric.MetricComponent{
+			component: metric.EnrichedMetricComponent{
 				EventType: event.EventType{
 					EventKey: "eventA",
 				},
@@ -146,15 +146,15 @@ func TestClickhouseQueryBuilder_BuildQueryForExperimentMetric_Ratio(t *testing.T
 	tests := []struct {
 		name          string
 		experimentKey string
-		m             metric.Metric
+		m             metric.EnrichedMetric
 		expectedQuery string
 	}{
 		{
 			name:          "BINARY Ratio Metric System Column Name: purchase conversion rate",
 			experimentKey: "button_color_v1",
-			m: metric.Metric{
+			m: metric.EnrichedMetric{
 				MetricType: metric.MetricTypeRatio,
-				MetricComponents: []metric.MetricComponent{
+				MetricComponents: []metric.EnrichedMetricComponent{
 					{
 						Role: metric.ComponentRoleNumerator,
 						EventType: event.EventType{
@@ -193,7 +193,7 @@ func TestClickhouseQueryBuilder_BuildQueryForExperimentMetric_Ratio(t *testing.T
 
 func TestClickhouseQueryBuilder_BuildQueryFor_NoMetricComponents(t *testing.T) {
 	experimentKey := "button_color_v1"
-	m := metric.Metric{
+	m := metric.EnrichedMetric{
 		MetricType: metric.MetricTypeRatio,
 	}
 

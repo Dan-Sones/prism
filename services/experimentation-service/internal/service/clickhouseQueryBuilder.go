@@ -9,7 +9,7 @@ import (
 )
 
 type QueryBuilder interface {
-	BuildQueryFor(experimentKey string, m metric.Metric) (string, error)
+	BuildQueryFor(experimentKey string, m metric.EnrichedMetric) (string, error)
 }
 
 type Query struct {
@@ -64,7 +64,7 @@ func NewClickhouseQueryBuilder() *ClickhouseQueryBuilder {
 	return &ClickhouseQueryBuilder{}
 }
 
-func (c *ClickhouseQueryBuilder) BuildQueryFor(experimentKey string, m metric.Metric) (string, error) {
+func (c *ClickhouseQueryBuilder) BuildQueryFor(experimentKey string, m metric.EnrichedMetric) (string, error) {
 	if len(m.MetricComponents) == 0 {
 		return "", errors.New("metric must have at least one component")
 	}
@@ -77,7 +77,7 @@ func (c *ClickhouseQueryBuilder) BuildQueryFor(experimentKey string, m metric.Me
 
 }
 
-func (c *ClickhouseQueryBuilder) buildForRatioMetric(experimentKey string, m metric.Metric) (string, error) {
+func (c *ClickhouseQueryBuilder) buildForRatioMetric(experimentKey string, m metric.EnrichedMetric) (string, error) {
 	var query Query
 
 	query.WHERE = append(query.WHERE, "experiment_key = '"+experimentKey+"'")
@@ -108,7 +108,7 @@ func (c *ClickhouseQueryBuilder) buildForRatioMetric(experimentKey string, m met
 	return query.BuildQueryString(), nil
 }
 
-func (c *ClickhouseQueryBuilder) BuildSelectForNumeratorComponent(component metric.MetricComponent) (string, error) {
+func (c *ClickhouseQueryBuilder) BuildSelectForNumeratorComponent(component metric.EnrichedMetricComponent) (string, error) {
 	switch component.AggregationOperation {
 	case metric.AggregationOperationCountDistinct:
 		return c.BuildSelectItemForCountDistinct(component)
@@ -117,7 +117,7 @@ func (c *ClickhouseQueryBuilder) BuildSelectForNumeratorComponent(component metr
 	}
 }
 
-func (c *ClickhouseQueryBuilder) BuildSelectForDenominatorComponent(component metric.MetricComponent) (string, error) {
+func (c *ClickhouseQueryBuilder) BuildSelectForDenominatorComponent(component metric.EnrichedMetricComponent) (string, error) {
 	switch component.AggregationOperation {
 	case metric.AggregationOperationCountDistinct:
 		return c.BuildSelectItemForCountDistinct(component)
@@ -126,7 +126,7 @@ func (c *ClickhouseQueryBuilder) BuildSelectForDenominatorComponent(component me
 	}
 }
 
-func (c *ClickhouseQueryBuilder) BuildSelectItemForCountDistinct(component metric.MetricComponent) (string, error) {
+func (c *ClickhouseQueryBuilder) BuildSelectItemForCountDistinct(component metric.EnrichedMetricComponent) (string, error) {
 	// See if the count distinct is on a system column or an event field
 	if component.SystemColumnName != nil {
 		return fmt.Sprintf("uniqExactIf(%s, event_key = '%s') AS %s", *component.SystemColumnName, component.EventType.EventKey, component.Role), nil
@@ -145,7 +145,7 @@ func (c *ClickhouseQueryBuilder) BuildSelectItemForCountDistinct(component metri
 	return "", fmt.Errorf("invalid component configuration, component does not have SystemColumnName OR AggregationField: %v", component)
 }
 
-func (c *ClickhouseQueryBuilder) BuildInEventKeyWhere(m metric.Metric) string {
+func (c *ClickhouseQueryBuilder) BuildInEventKeyWhere(m metric.EnrichedMetric) string {
 	var eventKeys []string
 	for _, component := range m.MetricComponents {
 		eventKeys = append(eventKeys, component.EventType.EventKey)
