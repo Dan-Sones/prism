@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"stats_engine/v1/stats_engine.proto\x12\x0fstats_engine.v1\"k\n\x1a\x43\x61lculateSampleSizeRequest\x12/\n\x07metrics\x18\x01 \x03(\x0b\x32\x1e.stats_engine.v1.MetricDetails\x12\r\n\x05\x61lpha\x18\x02 \x01(\x01\x12\r\n\x05power\x18\x03 \x01(\x01\"\x9e\x01\n\rMetricDetails\x12\x12\n\nmetric_key\x18\x01 \x01(\t\x12\x10\n\x08\x62\x61seline\x18\x02 \x01(\x01\x12\x11\n\tis_binary\x18\x03 \x01(\x08\x12\x1f\n\x17\x61\x62solute_percentage_mde\x18\x04 \x01(\x01\x12\x33\n\tdirection\x18\x05 \x01(\x0e\x32 .stats_engine.v1.MetricDirection\"P\n\x1b\x43\x61lculateSampleSizeResponse\x12\r\n\x05total\x18\x01 \x01(\x05\x12\x13\n\x0bper_variant\x18\x02 \x03(\x05\x12\r\n\x05split\x18\x03 \x03(\x01*\x1f\n\x0fMetricDirection\x12\x0c\n\x08INCREASE\x10\x00\x32\x7f\n\x0bStatsEngine\x12p\n\x13\x43\x61lculateSampleSize\x12+.stats_engine.v1.CalculateSampleSizeRequest\x1a,.stats_engine.v1.CalculateSampleSizeResponseBAZ?experimentation-service/internal/grpc/generated/v1;stats_engineb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"stats_engine/v1/stats_engine.proto\x12\x0fstats_engine.v1\"k\n\x1a\x43\x61lculateSampleSizeRequest\x12/\n\x07metrics\x18\x01 \x03(\x0b\x32\x1e.stats_engine.v1.MetricDetails\x12\r\n\x05\x61lpha\x18\x02 \x01(\x01\x12\r\n\x05power\x18\x03 \x01(\x01\"\x9e\x01\n\rMetricDetails\x12\x12\n\nmetric_key\x18\x01 \x01(\t\x12\x10\n\x08\x62\x61seline\x18\x02 \x01(\x01\x12\x11\n\tis_binary\x18\x03 \x01(\x08\x12\x1f\n\x17\x61\x62solute_percentage_mde\x18\x04 \x01(\x01\x12\x33\n\tdirection\x18\x05 \x01(\x0e\x32 .stats_engine.v1.MetricDirection\"h\n\x1b\x43\x61lculateSampleSizeResponse\x12\x19\n\x11total_sample_size\x18\x01 \x01(\x05\x12\x1f\n\x17sample_size_per_variant\x18\x02 \x03(\x05\x12\r\n\x05split\x18\x03 \x03(\x01*\x1f\n\x0fMetricDirection\x12\x0c\n\x08INCREASE\x10\x00\x32\x7f\n\x0bStatsEngine\x12p\n\x13\x43\x61lculateSampleSize\x12+.stats_engine.v1.CalculateSampleSizeRequest\x1a,.stats_engine.v1.CalculateSampleSizeResponseBAZ?experimentation-service/internal/grpc/generated/v1;stats_engineb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,14 +32,14 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'stats_engine.v1.stats_engin
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'Z?experimentation-service/internal/grpc/generated/v1;stats_engine'
-  _globals['_METRICDIRECTION']._serialized_start=407
-  _globals['_METRICDIRECTION']._serialized_end=438
+  _globals['_METRICDIRECTION']._serialized_start=431
+  _globals['_METRICDIRECTION']._serialized_end=462
   _globals['_CALCULATESAMPLESIZEREQUEST']._serialized_start=55
   _globals['_CALCULATESAMPLESIZEREQUEST']._serialized_end=162
   _globals['_METRICDETAILS']._serialized_start=165
   _globals['_METRICDETAILS']._serialized_end=323
   _globals['_CALCULATESAMPLESIZERESPONSE']._serialized_start=325
-  _globals['_CALCULATESAMPLESIZERESPONSE']._serialized_end=405
-  _globals['_STATSENGINE']._serialized_start=440
-  _globals['_STATSENGINE']._serialized_end=567
+  _globals['_CALCULATESAMPLESIZERESPONSE']._serialized_end=429
+  _globals['_STATSENGINE']._serialized_start=464
+  _globals['_STATSENGINE']._serialized_end=591
 # @@protoc_insertion_point(module_scope)

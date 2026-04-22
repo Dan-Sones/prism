@@ -32,4 +32,13 @@ class StatsEngineServer(ses_grpc.StatsEngineServicer):
                 "nim": None,  # Just looking at success metrics atm so no need for this
             }
 
-        get_sample_size(df, request.power, request.alpha)
+        total_sample_size = get_sample_size(df, request.power, request.alpha)
+        per_variant_sample_size = total_sample_size / 2 # Only control and treatment atm, so divide by 2
+
+        res = {
+            "total_sample_size": total_sample_size.astype(int),
+            "sample_size_per_variant": [per_variant_sample_size.astype(int), per_variant_sample_size.astype(int)],
+            "split": [0.5, 0.5], # Only control and treatment atm
+        }
+
+        return ses_pb.CalculateSampleSizeResponse(**res)

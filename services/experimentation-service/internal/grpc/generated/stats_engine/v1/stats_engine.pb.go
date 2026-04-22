@@ -201,12 +201,12 @@ func (x *MetricDetails) GetDirection() MetricDirection {
 }
 
 type CalculateSampleSizeResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Total         int32                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
-	PerVariant    []int32                `protobuf:"varint,2,rep,packed,name=per_variant,json=perVariant,proto3" json:"per_variant,omitempty"`
-	Split         []float64              `protobuf:"fixed64,3,rep,packed,name=split,proto3" json:"split,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	TotalSampleSize      int32                  `protobuf:"varint,1,opt,name=total_sample_size,json=totalSampleSize,proto3" json:"total_sample_size,omitempty"`
+	SampleSizePerVariant []int32                `protobuf:"varint,2,rep,packed,name=sample_size_per_variant,json=sampleSizePerVariant,proto3" json:"sample_size_per_variant,omitempty"`
+	Split                []float64              `protobuf:"fixed64,3,rep,packed,name=split,proto3" json:"split,omitempty"`
+	unknownFields        protoimpl.UnknownFields
+	sizeCache            protoimpl.SizeCache
 }
 
 func (x *CalculateSampleSizeResponse) Reset() {
@@ -239,16 +239,16 @@ func (*CalculateSampleSizeResponse) Descriptor() ([]byte, []int) {
 	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *CalculateSampleSizeResponse) GetTotal() int32 {
+func (x *CalculateSampleSizeResponse) GetTotalSampleSize() int32 {
 	if x != nil {
-		return x.Total
+		return x.TotalSampleSize
 	}
 	return 0
 }
 
-func (x *CalculateSampleSizeResponse) GetPerVariant() []int32 {
+func (x *CalculateSampleSizeResponse) GetSampleSizePerVariant() []int32 {
 	if x != nil {
-		return x.PerVariant
+		return x.SampleSizePerVariant
 	}
 	return nil
 }
@@ -275,11 +275,10 @@ const file_stats_engine_v1_stats_engine_proto_rawDesc = "" +
 	"\bbaseline\x18\x02 \x01(\x01R\bbaseline\x12\x1b\n" +
 	"\tis_binary\x18\x03 \x01(\bR\bisBinary\x126\n" +
 	"\x17absolute_percentage_mde\x18\x04 \x01(\x01R\x15absolutePercentageMde\x12>\n" +
-	"\tdirection\x18\x05 \x01(\x0e2 .stats_engine.v1.MetricDirectionR\tdirection\"j\n" +
-	"\x1bCalculateSampleSizeResponse\x12\x14\n" +
-	"\x05total\x18\x01 \x01(\x05R\x05total\x12\x1f\n" +
-	"\vper_variant\x18\x02 \x03(\x05R\n" +
-	"perVariant\x12\x14\n" +
+	"\tdirection\x18\x05 \x01(\x0e2 .stats_engine.v1.MetricDirectionR\tdirection\"\x96\x01\n" +
+	"\x1bCalculateSampleSizeResponse\x12*\n" +
+	"\x11total_sample_size\x18\x01 \x01(\x05R\x0ftotalSampleSize\x125\n" +
+	"\x17sample_size_per_variant\x18\x02 \x03(\x05R\x14sampleSizePerVariant\x12\x14\n" +
 	"\x05split\x18\x03 \x03(\x01R\x05split*\x1f\n" +
 	"\x0fMetricDirection\x12\f\n" +
 	"\bINCREASE\x10\x002\x7f\n" +

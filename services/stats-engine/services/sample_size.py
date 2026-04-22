@@ -1,8 +1,10 @@
 import spotify_confidence
 import pandas as pd
+import numpy as np
 from spotify_confidence import SampleSizeCalculator
 
-def get_sample_size_for_binomial_metric(baseline: float, absolute_percentage_mde: float, treatments: int, power: float, alpha: float):
+
+def get_sample_size_for_binomial_metric(baseline: float, absolute_percentage_mde: float, treatments: int, power: float, alpha: float) -> np.float64:
     total, per_variant, allocations = spotify_confidence.SampleSize.binomial(
         absolute_percentage_mde=absolute_percentage_mde,
         baseline_proportion=baseline,
@@ -31,9 +33,12 @@ def get_sample_size(df: pd.DataFrame, power: float, alpha: float):
         preferred_direction_column="direction",
     )
 
-    print(result.to_string())
+    # Just found this method, I don't really get the maths behind it though
+    # Maybe save this as a talking point for future work?
+    # optimal = calculator.optimal_weights_and_sample_size(result, 2)
+    return result["required_sample_size_for_"
+                      "metric"].max()
 
-    return result
 
 
 def calculate_interval_from_alpha(alpha: float) -> float:

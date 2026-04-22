@@ -27,7 +27,7 @@ enum MetricDirection {
 }
 
 message CalculateSampleSizeResponse {
-  int32 total = 1;
-  repeated int32 per_variant = 2;
+  int32 total_sample_size = 1;
+  repeated int32 sample_size_per_variant = 2;
   repeated double split = 3;
 }
