@@ -144,6 +144,10 @@ func (c *ExperimentController) CalculateRequiredSampleSizeForMetrics(w http.Resp
 		return
 	}
 
-	c.experimentService.CalculateRequiredSampleSizeForMetrics(ctx, expUuid)
-	WriteResponse(w, http.StatusOK, map[string]string{"message": "Hi!"})
+	res, err := c.experimentService.GetRequiredSampleSizeForMetrics(ctx, expUuid)
+	if err != nil {
+		problems.NewInternalServerError().Write(w)
+		return
+	}
+	WriteResponse(w, http.StatusOK, res)
 }

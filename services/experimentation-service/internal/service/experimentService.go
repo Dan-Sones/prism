@@ -8,7 +8,6 @@ import (
 	"experimentation-service/internal/problems"
 	"experimentation-service/internal/repository"
 	"experimentation-service/internal/validators"
-	"fmt"
 	"log/slog"
 	"os"
 	"strconv"
@@ -148,11 +147,18 @@ func (s *ExperimentService) ConfigureExperimentForAA(ctx context.Context, experi
 	return nil
 }
 
-func (s *ExperimentService) CalculateRequiredSampleSizeForMetrics(ctx context.Context, expId uuid.UUID) error {
+func (s *ExperimentService) GetRequiredSampleSizeForMetrics(ctx context.Context, expId uuid.UUID) (*sampleSize.RequiredSampleSizeResponse, error) {
 	exp, err := s.experimentRepository.GetExperimentByUUID(ctx, expId)
 	if err != nil {
 		s.logger.Error("Failed to retrieve metrics for experiment from repository", "error", err)
-		return err
+		return nil, err
+	}
+
+	if exp.TotalRequiredSampleSize != nil {
+		return &sampleSize.RequiredSampleSizeResponse{
+			TotalRequiredSampleSize: *exp.TotalRequiredSampleSize,
+			SampleSizePerVariant:    GetSampleSizeByVariant(*exp.TotalRequiredSampleSize, exp.Variants),
+		}, nil
 	}
 
 	var experimentMetricsWithQueries []sampleSize.MetricForExperiment
@@ -161,13 +167,13 @@ func (s *ExperimentService) CalculateRequiredSampleSizeForMetrics(ctx context.Co
 		enrichedMetric, err := s.metricsCatalogService.GetMetricById(ctx, experimentMetric.MetricID)
 		if err != nil {
 			s.logger.Error("Failed to retrieve metric details for experiment metric from metrics catalog service", "error", err)
-			return err
+			return nil, err
 		}
 
 		query, err := s.queryBuilder.BuildQueryFor(exp.FeatureFlagID, *enrichedMetric)
 		if err != nil {
 			s.logger.Error("Failed to build query for experiment metric", "error", err)
-			return err
+			return nil, err
 		}
 
 		// TODO: We will need a switch case here when we have more metric types
@@ -175,7 +181,7 @@ func (s *ExperimentService) CalculateRequiredSampleSizeForMetrics(ctx context.Co
 		result, err := s.eventsService.PerformBinaryMetricQuery(ctx, query)
 		if err != nil {
 			s.logger.Error("Failed to perform binary metric query for experiment metric", "error", err)
-			return err
+			return nil, err
 		}
 
 		baselineConversionRate := float64(result.Numerator) / float64(result.Denominator)
@@ -183,17 +189,32 @@ func (s *ExperimentService) CalculateRequiredSampleSizeForMetrics(ctx context.Co
 		experimentMetricsWithQueries = append(experimentMetricsWithQueries, sampleSize.NewMetricForExperiment(*experimentMetric.MDE, baselineConversionRate, enrichedMetric.MetricKey, enrichedMetric.IsBinary, experimentMetric.Direction))
 	}
 
-	total, perVariant, split, err := s.statsEngineClient.CalculateSampleSize(ctx, experimentMetricsWithQueries, 0.05, 0.8, len(exp.Variants))
+	// TODO: we're ignoring the split - if we ever go down the "confidence" split route we can't just split 50/50 at query time
+	total, _, _, err := s.statsEngineClient.CalculateSampleSize(ctx, experimentMetricsWithQueries, 0.05, 0.8, len(exp.Variants))
 	if err != nil {
 		s.logger.Error("Failed to calculate required sample size for experiment metric using stats engine client", "error", err)
-		return err
+		return nil, err
 	}
 
-	fmt.Printf("Total sample size required: %d\n", total)
-	fmt.Printf("Sample size per variant: %v\n", perVariant)
-	fmt.Printf("Traffic split: %v\n", split)
+	err = s.experimentRepository.SetTotalRequiredSampleSizeForExperiment(ctx, expId, total)
+	if err != nil {
+		s.logger.Error("Failed to set total required sample size for experiment in repository", "error", err)
+		return nil, err
+	}
 
-	return nil
+	return &sampleSize.RequiredSampleSizeResponse{
+		TotalRequiredSampleSize: total,
+		SampleSizePerVariant:    GetSampleSizeByVariant(total, exp.Variants),
+	}, nil
+}
+
+func GetSampleSizeByVariant(totalSampleSize int, expVariants []experiment2.ExperimentVariant) map[string]int {
+	sampleSizePerVariant := make(map[string]int)
+	for _, variant := range expVariants {
+		sampleSizePerVariant[variant.VariantKey] = totalSampleSize / len(expVariants)
+	}
+
+	return sampleSizePerVariant
 }
 
 func (s *ExperimentService) UpdateExperimentForABPhase(ctx context.Context, expId uuid.UUID, request experiment.UpdateExperimentPhaseRequest) (*experiment.ExperimentResponse, []problems.Violation, error) {
