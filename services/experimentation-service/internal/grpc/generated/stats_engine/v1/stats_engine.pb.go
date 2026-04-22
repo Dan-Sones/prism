@@ -21,32 +21,72 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type CalculateSampleSizeForBinomialMetricRequest struct {
-	state                 protoimpl.MessageState `protogen:"open.v1"`
-	AbsolutePercentageMde float64                `protobuf:"fixed64,1,opt,name=absolute_percentage_mde,json=absolutePercentageMde,proto3" json:"absolute_percentage_mde,omitempty"`
-	ExperimentExposures   int64                  `protobuf:"varint,2,opt,name=experiment_exposures,json=experimentExposures,proto3" json:"experiment_exposures,omitempty"`
-	ExperimentConversions int64                  `protobuf:"varint,3,opt,name=experiment_conversions,json=experimentConversions,proto3" json:"experiment_conversions,omitempty"`
-	// double alpha = 3; -- Going to hardcode these for now
-	// double power = 4;
-	VariantCount  int32 `protobuf:"varint,4,opt,name=variant_count,json=variantCount,proto3" json:"variant_count,omitempty"`
+type MetricDirection int32
+
+const (
+	MetricDirection_INCREASE MetricDirection = 0
+)
+
+// Enum value maps for MetricDirection.
+var (
+	MetricDirection_name = map[int32]string{
+		0: "INCREASE",
+	}
+	MetricDirection_value = map[string]int32{
+		"INCREASE": 0,
+	}
+)
+
+func (x MetricDirection) Enum() *MetricDirection {
+	p := new(MetricDirection)
+	*p = x
+	return p
+}
+
+func (x MetricDirection) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (MetricDirection) Descriptor() protoreflect.EnumDescriptor {
+	return file_stats_engine_v1_stats_engine_proto_enumTypes[0].Descriptor()
+}
+
+func (MetricDirection) Type() protoreflect.EnumType {
+	return &file_stats_engine_v1_stats_engine_proto_enumTypes[0]
+}
+
+func (x MetricDirection) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use MetricDirection.Descriptor instead.
+func (MetricDirection) EnumDescriptor() ([]byte, []int) {
+	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{0}
+}
+
+type CalculateSampleSizeRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Metrics       []*MetricDetails       `protobuf:"bytes,1,rep,name=metrics,proto3" json:"metrics,omitempty"`
+	Alpha         float64                `protobuf:"fixed64,2,opt,name=alpha,proto3" json:"alpha,omitempty"`
+	Power         float64                `protobuf:"fixed64,3,opt,name=power,proto3" json:"power,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CalculateSampleSizeForBinomialMetricRequest) Reset() {
-	*x = CalculateSampleSizeForBinomialMetricRequest{}
+func (x *CalculateSampleSizeRequest) Reset() {
+	*x = CalculateSampleSizeRequest{}
 	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CalculateSampleSizeForBinomialMetricRequest) String() string {
+func (x *CalculateSampleSizeRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CalculateSampleSizeForBinomialMetricRequest) ProtoMessage() {}
+func (*CalculateSampleSizeRequest) ProtoMessage() {}
 
-func (x *CalculateSampleSizeForBinomialMetricRequest) ProtoReflect() protoreflect.Message {
+func (x *CalculateSampleSizeRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -58,40 +98,109 @@ func (x *CalculateSampleSizeForBinomialMetricRequest) ProtoReflect() protoreflec
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CalculateSampleSizeForBinomialMetricRequest.ProtoReflect.Descriptor instead.
-func (*CalculateSampleSizeForBinomialMetricRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use CalculateSampleSizeRequest.ProtoReflect.Descriptor instead.
+func (*CalculateSampleSizeRequest) Descriptor() ([]byte, []int) {
 	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *CalculateSampleSizeForBinomialMetricRequest) GetAbsolutePercentageMde() float64 {
+func (x *CalculateSampleSizeRequest) GetMetrics() []*MetricDetails {
+	if x != nil {
+		return x.Metrics
+	}
+	return nil
+}
+
+func (x *CalculateSampleSizeRequest) GetAlpha() float64 {
+	if x != nil {
+		return x.Alpha
+	}
+	return 0
+}
+
+func (x *CalculateSampleSizeRequest) GetPower() float64 {
+	if x != nil {
+		return x.Power
+	}
+	return 0
+}
+
+type MetricDetails struct {
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	MetricKey             string                 `protobuf:"bytes,1,opt,name=metric_key,json=metricKey,proto3" json:"metric_key,omitempty"`
+	Baseline              float64                `protobuf:"fixed64,2,opt,name=baseline,proto3" json:"baseline,omitempty"`
+	IsBinary              bool                   `protobuf:"varint,3,opt,name=is_binary,json=isBinary,proto3" json:"is_binary,omitempty"`
+	AbsolutePercentageMde float64                `protobuf:"fixed64,4,opt,name=absolute_percentage_mde,json=absolutePercentageMde,proto3" json:"absolute_percentage_mde,omitempty"`
+	Direction             MetricDirection        `protobuf:"varint,5,opt,name=direction,proto3,enum=stats_engine.v1.MetricDirection" json:"direction,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
+}
+
+func (x *MetricDetails) Reset() {
+	*x = MetricDetails{}
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MetricDetails) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MetricDetails) ProtoMessage() {}
+
+func (x *MetricDetails) ProtoReflect() protoreflect.Message {
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MetricDetails.ProtoReflect.Descriptor instead.
+func (*MetricDetails) Descriptor() ([]byte, []int) {
+	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *MetricDetails) GetMetricKey() string {
+	if x != nil {
+		return x.MetricKey
+	}
+	return ""
+}
+
+func (x *MetricDetails) GetBaseline() float64 {
+	if x != nil {
+		return x.Baseline
+	}
+	return 0
+}
+
+func (x *MetricDetails) GetIsBinary() bool {
+	if x != nil {
+		return x.IsBinary
+	}
+	return false
+}
+
+func (x *MetricDetails) GetAbsolutePercentageMde() float64 {
 	if x != nil {
 		return x.AbsolutePercentageMde
 	}
 	return 0
 }
 
-func (x *CalculateSampleSizeForBinomialMetricRequest) GetExperimentExposures() int64 {
+func (x *MetricDetails) GetDirection() MetricDirection {
 	if x != nil {
-		return x.ExperimentExposures
+		return x.Direction
 	}
-	return 0
+	return MetricDirection_INCREASE
 }
 
-func (x *CalculateSampleSizeForBinomialMetricRequest) GetExperimentConversions() int64 {
-	if x != nil {
-		return x.ExperimentConversions
-	}
-	return 0
-}
-
-func (x *CalculateSampleSizeForBinomialMetricRequest) GetVariantCount() int32 {
-	if x != nil {
-		return x.VariantCount
-	}
-	return 0
-}
-
-type CalculateSampleSizeForBinomialMetricResponse struct {
+type CalculateSampleSizeResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Total         int32                  `protobuf:"varint,1,opt,name=total,proto3" json:"total,omitempty"`
 	PerVariant    []int32                `protobuf:"varint,2,rep,packed,name=per_variant,json=perVariant,proto3" json:"per_variant,omitempty"`
@@ -100,21 +209,21 @@ type CalculateSampleSizeForBinomialMetricResponse struct {
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *CalculateSampleSizeForBinomialMetricResponse) Reset() {
-	*x = CalculateSampleSizeForBinomialMetricResponse{}
-	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[1]
+func (x *CalculateSampleSizeResponse) Reset() {
+	*x = CalculateSampleSizeResponse{}
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *CalculateSampleSizeForBinomialMetricResponse) String() string {
+func (x *CalculateSampleSizeResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*CalculateSampleSizeForBinomialMetricResponse) ProtoMessage() {}
+func (*CalculateSampleSizeResponse) ProtoMessage() {}
 
-func (x *CalculateSampleSizeForBinomialMetricResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[1]
+func (x *CalculateSampleSizeResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -125,26 +234,26 @@ func (x *CalculateSampleSizeForBinomialMetricResponse) ProtoReflect() protorefle
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use CalculateSampleSizeForBinomialMetricResponse.ProtoReflect.Descriptor instead.
-func (*CalculateSampleSizeForBinomialMetricResponse) Descriptor() ([]byte, []int) {
-	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{1}
+// Deprecated: Use CalculateSampleSizeResponse.ProtoReflect.Descriptor instead.
+func (*CalculateSampleSizeResponse) Descriptor() ([]byte, []int) {
+	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *CalculateSampleSizeForBinomialMetricResponse) GetTotal() int32 {
+func (x *CalculateSampleSizeResponse) GetTotal() int32 {
 	if x != nil {
 		return x.Total
 	}
 	return 0
 }
 
-func (x *CalculateSampleSizeForBinomialMetricResponse) GetPerVariant() []int32 {
+func (x *CalculateSampleSizeResponse) GetPerVariant() []int32 {
 	if x != nil {
 		return x.PerVariant
 	}
 	return nil
 }
 
-func (x *CalculateSampleSizeForBinomialMetricResponse) GetSplit() []float64 {
+func (x *CalculateSampleSizeResponse) GetSplit() []float64 {
 	if x != nil {
 		return x.Split
 	}
@@ -155,19 +264,27 @@ var File_stats_engine_v1_stats_engine_proto protoreflect.FileDescriptor
 
 const file_stats_engine_v1_stats_engine_proto_rawDesc = "" +
 	"\n" +
-	"\"stats_engine/v1/stats_engine.proto\x12\x0fstats_engine.v1\"\xf4\x01\n" +
-	"+CalculateSampleSizeForBinomialMetricRequest\x126\n" +
-	"\x17absolute_percentage_mde\x18\x01 \x01(\x01R\x15absolutePercentageMde\x121\n" +
-	"\x14experiment_exposures\x18\x02 \x01(\x03R\x13experimentExposures\x125\n" +
-	"\x16experiment_conversions\x18\x03 \x01(\x03R\x15experimentConversions\x12#\n" +
-	"\rvariant_count\x18\x04 \x01(\x05R\fvariantCount\"{\n" +
-	",CalculateSampleSizeForBinomialMetricResponse\x12\x14\n" +
+	"\"stats_engine/v1/stats_engine.proto\x12\x0fstats_engine.v1\"\x82\x01\n" +
+	"\x1aCalculateSampleSizeRequest\x128\n" +
+	"\ametrics\x18\x01 \x03(\v2\x1e.stats_engine.v1.MetricDetailsR\ametrics\x12\x14\n" +
+	"\x05alpha\x18\x02 \x01(\x01R\x05alpha\x12\x14\n" +
+	"\x05power\x18\x03 \x01(\x01R\x05power\"\xdf\x01\n" +
+	"\rMetricDetails\x12\x1d\n" +
+	"\n" +
+	"metric_key\x18\x01 \x01(\tR\tmetricKey\x12\x1a\n" +
+	"\bbaseline\x18\x02 \x01(\x01R\bbaseline\x12\x1b\n" +
+	"\tis_binary\x18\x03 \x01(\bR\bisBinary\x126\n" +
+	"\x17absolute_percentage_mde\x18\x04 \x01(\x01R\x15absolutePercentageMde\x12>\n" +
+	"\tdirection\x18\x05 \x01(\x0e2 .stats_engine.v1.MetricDirectionR\tdirection\"j\n" +
+	"\x1bCalculateSampleSizeResponse\x12\x14\n" +
 	"\x05total\x18\x01 \x01(\x05R\x05total\x12\x1f\n" +
 	"\vper_variant\x18\x02 \x03(\x05R\n" +
 	"perVariant\x12\x14\n" +
-	"\x05split\x18\x03 \x03(\x01R\x05split2\xb3\x01\n" +
-	"\vStatsEngine\x12\xa3\x01\n" +
-	"$CalculateSampleSizeForBinomialMetric\x12<.stats_engine.v1.CalculateSampleSizeForBinomialMetricRequest\x1a=.stats_engine.v1.CalculateSampleSizeForBinomialMetricResponseBAZ?experimentation-service/internal/grpc/generated/v1;stats_engineb\x06proto3"
+	"\x05split\x18\x03 \x03(\x01R\x05split*\x1f\n" +
+	"\x0fMetricDirection\x12\f\n" +
+	"\bINCREASE\x10\x002\x7f\n" +
+	"\vStatsEngine\x12p\n" +
+	"\x13CalculateSampleSize\x12+.stats_engine.v1.CalculateSampleSizeRequest\x1a,.stats_engine.v1.CalculateSampleSizeResponseBAZ?experimentation-service/internal/grpc/generated/v1;stats_engineb\x06proto3"
 
 var (
 	file_stats_engine_v1_stats_engine_proto_rawDescOnce sync.Once
@@ -181,19 +298,24 @@ func file_stats_engine_v1_stats_engine_proto_rawDescGZIP() []byte {
 	return file_stats_engine_v1_stats_engine_proto_rawDescData
 }
 
-var file_stats_engine_v1_stats_engine_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_stats_engine_v1_stats_engine_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_stats_engine_v1_stats_engine_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
 var file_stats_engine_v1_stats_engine_proto_goTypes = []any{
-	(*CalculateSampleSizeForBinomialMetricRequest)(nil),  // 0: stats_engine.v1.CalculateSampleSizeForBinomialMetricRequest
-	(*CalculateSampleSizeForBinomialMetricResponse)(nil), // 1: stats_engine.v1.CalculateSampleSizeForBinomialMetricResponse
+	(MetricDirection)(0),                // 0: stats_engine.v1.MetricDirection
+	(*CalculateSampleSizeRequest)(nil),  // 1: stats_engine.v1.CalculateSampleSizeRequest
+	(*MetricDetails)(nil),               // 2: stats_engine.v1.MetricDetails
+	(*CalculateSampleSizeResponse)(nil), // 3: stats_engine.v1.CalculateSampleSizeResponse
 }
 var file_stats_engine_v1_stats_engine_proto_depIdxs = []int32{
-	0, // 0: stats_engine.v1.StatsEngine.CalculateSampleSizeForBinomialMetric:input_type -> stats_engine.v1.CalculateSampleSizeForBinomialMetricRequest
-	1, // 1: stats_engine.v1.StatsEngine.CalculateSampleSizeForBinomialMetric:output_type -> stats_engine.v1.CalculateSampleSizeForBinomialMetricResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	2, // 0: stats_engine.v1.CalculateSampleSizeRequest.metrics:type_name -> stats_engine.v1.MetricDetails
+	0, // 1: stats_engine.v1.MetricDetails.direction:type_name -> stats_engine.v1.MetricDirection
+	1, // 2: stats_engine.v1.StatsEngine.CalculateSampleSize:input_type -> stats_engine.v1.CalculateSampleSizeRequest
+	3, // 3: stats_engine.v1.StatsEngine.CalculateSampleSize:output_type -> stats_engine.v1.CalculateSampleSizeResponse
+	3, // [3:4] is the sub-list for method output_type
+	2, // [2:3] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_stats_engine_v1_stats_engine_proto_init() }
@@ -206,13 +328,14 @@ func file_stats_engine_v1_stats_engine_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_stats_engine_v1_stats_engine_proto_rawDesc), len(file_stats_engine_v1_stats_engine_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   2,
+			NumEnums:      1,
+			NumMessages:   3,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_stats_engine_v1_stats_engine_proto_goTypes,
 		DependencyIndexes: file_stats_engine_v1_stats_engine_proto_depIdxs,
+		EnumInfos:         file_stats_engine_v1_stats_engine_proto_enumTypes,
 		MessageInfos:      file_stats_engine_v1_stats_engine_proto_msgTypes,
 	}.Build()
 	File_stats_engine_v1_stats_engine_proto = out.File

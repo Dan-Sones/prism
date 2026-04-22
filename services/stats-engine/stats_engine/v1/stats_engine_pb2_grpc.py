@@ -34,17 +34,17 @@ class StatsEngineStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.CalculateSampleSizeForBinomialMetric = channel.unary_unary(
-                '/stats_engine.v1.StatsEngine/CalculateSampleSizeForBinomialMetric',
-                request_serializer=stats__engine_dot_v1_dot_stats__engine__pb2.CalculateSampleSizeForBinomialMetricRequest.SerializeToString,
-                response_deserializer=stats__engine_dot_v1_dot_stats__engine__pb2.CalculateSampleSizeForBinomialMetricResponse.FromString,
+        self.CalculateSampleSize = channel.unary_unary(
+                '/stats_engine.v1.StatsEngine/CalculateSampleSize',
+                request_serializer=stats__engine_dot_v1_dot_stats__engine__pb2.CalculateSampleSizeRequest.SerializeToString,
+                response_deserializer=stats__engine_dot_v1_dot_stats__engine__pb2.CalculateSampleSizeResponse.FromString,
                 _registered_method=True)
 
 
 class StatsEngineServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def CalculateSampleSizeForBinomialMetric(self, request, context):
+    def CalculateSampleSize(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -53,10 +53,10 @@ class StatsEngineServicer(object):
 
 def add_StatsEngineServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'CalculateSampleSizeForBinomialMetric': grpc.unary_unary_rpc_method_handler(
-                    servicer.CalculateSampleSizeForBinomialMetric,
-                    request_deserializer=stats__engine_dot_v1_dot_stats__engine__pb2.CalculateSampleSizeForBinomialMetricRequest.FromString,
-                    response_serializer=stats__engine_dot_v1_dot_stats__engine__pb2.CalculateSampleSizeForBinomialMetricResponse.SerializeToString,
+            'CalculateSampleSize': grpc.unary_unary_rpc_method_handler(
+                    servicer.CalculateSampleSize,
+                    request_deserializer=stats__engine_dot_v1_dot_stats__engine__pb2.CalculateSampleSizeRequest.FromString,
+                    response_serializer=stats__engine_dot_v1_dot_stats__engine__pb2.CalculateSampleSizeResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -70,7 +70,7 @@ class StatsEngine(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def CalculateSampleSizeForBinomialMetric(request,
+    def CalculateSampleSize(request,
             target,
             options=(),
             channel_credentials=None,
@@ -83,9 +83,9 @@ class StatsEngine(object):
         return grpc.experimental.unary_unary(
             request,
             target,
-            '/stats_engine.v1.StatsEngine/CalculateSampleSizeForBinomialMetric',
-            stats__engine_dot_v1_dot_stats__engine__pb2.CalculateSampleSizeForBinomialMetricRequest.SerializeToString,
-            stats__engine_dot_v1_dot_stats__engine__pb2.CalculateSampleSizeForBinomialMetricResponse.FromString,
+            '/stats_engine.v1.StatsEngine/CalculateSampleSize',
+            stats__engine_dot_v1_dot_stats__engine__pb2.CalculateSampleSizeRequest.SerializeToString,
+            stats__engine_dot_v1_dot_stats__engine__pb2.CalculateSampleSizeResponse.FromString,
             options,
             channel_credentials,
             insecure,
