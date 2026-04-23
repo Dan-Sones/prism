@@ -4,6 +4,7 @@ import (
 	"errors"
 	eventModel "experimentation-service/internal/model/event"
 	"fmt"
+	"time"
 
 	"github.com/Dan-Sones/prismdbmodels/model/event"
 	"github.com/Dan-Sones/prismdbmodels/model/metric"
@@ -21,24 +22,25 @@ func NewClickhouseQueryBuilder() *ClickhouseQueryBuilder {
 	return &ClickhouseQueryBuilder{}
 }
 
-func (c *ClickhouseQueryBuilder) BuildQueryFor(experimentKey string, m metric.EnrichedMetric) (eventModel.QueryString, error) {
+func (c *ClickhouseQueryBuilder) BuildQueryFor(experimentKey string, m metric.EnrichedMetric, startTime, endTime time.Time) (eventModel.QueryString, error) {
 	if len(m.MetricComponents) == 0 {
 		return "", errors.New("metric must have at least one component")
 	}
 
 	if m.MetricType == metric.MetricTypeRatio {
-		return c.buildForRatioMetric(experimentKey, m)
+		return c.buildForRatioMetric(experimentKey, m, startTime, endTime)
 	}
 
 	return "", nil
 
 }
 
-func (c *ClickhouseQueryBuilder) buildForRatioMetric(experimentKey string, m metric.EnrichedMetric) (eventModel.QueryString, error) {
+func (c *ClickhouseQueryBuilder) buildForRatioMetric(experimentKey string, m metric.EnrichedMetric, startTime, endTime time.Time) (eventModel.QueryString, error) {
 	var query eventModel.ClickhouseQuery
 
 	query.WHERE = append(query.WHERE, "experiment_key = '"+experimentKey+"'")
 	query.WHERE = append(query.WHERE, c.BuildInEventKeyWhere(m))
+	query.WHERE = append(query.WHERE, c.BuildTimeRangeWhere(startTime, endTime))
 
 	query.SELECT = append(query.SELECT, "variant_key")
 	for _, component := range m.MetricComponents {
@@ -116,4 +118,11 @@ func (c *ClickhouseQueryBuilder) BuildInEventKeyWhere(m metric.EnrichedMetric) s
 		}
 	}
 	return fmt.Sprintf("event_key IN (%s)", inClause)
+}
+
+func (c *ClickhouseQueryBuilder) BuildTimeRangeWhere(startTime, endTime time.Time) string {
+	const layout = "2006-01-02 15:04:05"
+	return fmt.Sprintf(
+		"sent_at >= '%s' AND sent_at <= '%s'", startTime.UTC().Format(layout), endTime.UTC().Format(layout),
+	)
 }
