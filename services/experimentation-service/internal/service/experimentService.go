@@ -170,7 +170,7 @@ func (s *ExperimentService) GetRequiredSampleSizeForMetrics(ctx context.Context,
 			return nil, err
 		}
 
-		query, err := s.queryBuilder.BuildQueryFor(exp.FeatureFlagID, *enrichedMetric)
+		query, err := s.queryBuilder.BuildQueryFor(exp.FeatureFlagID, *enrichedMetric, exp.AAStartTime, exp.AAEndTime)
 		if err != nil {
 			s.logger.Error("Failed to build query for experiment metric", "error", err)
 			return nil, err

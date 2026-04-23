@@ -26,7 +26,7 @@ func RegisterRoutes(router *chi.Mux, c Controllers) {
 			r.Get("/", c.ExperimentController.GetExperiments)
 			r.Route("/{experimentId}", func(r chi.Router) {
 				r.Get("/", c.ExperimentController.GetExperimentByUUID)
-				r.Get("/variance-for-metrics", c.ExperimentController.CalculateRequiredSampleSizeForMetrics)
+				r.Get("/calculate-sample-size", c.ExperimentController.CalculateRequiredSampleSizeForMetrics)
 				r.Put("/begin-ab", c.ExperimentController.UpdateExperimentForABPhase)
 			})
 
