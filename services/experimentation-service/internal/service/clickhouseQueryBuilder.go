@@ -11,7 +11,7 @@ import (
 )
 
 type QueryBuilder interface {
-	BuildQueryFor(experimentKey string, m metric.EnrichedMetric) (eventModel.QueryString, error)
+	BuildQueryFor(experimentKey string, m metric.EnrichedMetric, startTime, endTime time.Time) (eventModel.QueryString, error)
 }
 
 type ClickhouseQueryBuilder struct {
