@@ -155,6 +155,8 @@ func (r *ExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Co
 	sql := `SELECT
     e.id,
     e.name,
+    e.aa_end_time,
+    e.aa_end_time,
     e.feature_flag_id,
     e.unique_salt,
     v.variant_key,
@@ -193,7 +195,7 @@ func (r *ExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Co
 		var experimentId uuid.UUID
 		var exp experiment2.Experiment
 		var ev experiment2.ExperimentVariant
-		err := rows.Scan(&experimentId, &exp.Name, &exp.FeatureFlagID, &exp.UniqueSalt, &ev.VariantKey, &ev.UpperBound, &ev.LowerBound)
+		err := rows.Scan(&experimentId, &exp.Name, &exp.FeatureFlagID, &exp.UniqueSalt, &ev.VariantKey, &ev.UpperBound, &ev.LowerBound, &exp.AAStartTime, &exp.AAEndTime)
 		if err != nil {
 			return nil, err
 		}

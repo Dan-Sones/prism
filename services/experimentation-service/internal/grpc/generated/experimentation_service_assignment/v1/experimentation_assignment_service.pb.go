@@ -24,6 +24,7 @@ const (
 type GetExperimentsAndVariantsForBucketRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	BucketId      int32                  `protobuf:"varint,1,opt,name=bucket_id,json=bucketId,proto3" json:"bucket_id,omitempty"`
+	Requester     string                 `protobuf:"bytes,2,opt,name=requester,proto3" json:"requester,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -63,6 +64,13 @@ func (x *GetExperimentsAndVariantsForBucketRequest) GetBucketId() int32 {
 		return x.BucketId
 	}
 	return 0
+}
+
+func (x *GetExperimentsAndVariantsForBucketRequest) GetRequester() string {
+	if x != nil {
+		return x.Requester
+	}
+	return ""
 }
 
 type VariantDetails struct {
@@ -233,9 +241,10 @@ var File_experimentation_service_assignment_v1_experimentation_assignment_servic
 
 const file_experimentation_service_assignment_v1_experimentation_assignment_service_proto_rawDesc = "" +
 	"\n" +
-	"Nexperimentation_service_assignment/v1/experimentation_assignment_service.proto\x12\rassignment.v1\"H\n" +
+	"Nexperimentation_service_assignment/v1/experimentation_assignment_service.proto\x12\rassignment.v1\"f\n" +
 	")GetExperimentsAndVariantsForBucketRequest\x12\x1b\n" +
-	"\tbucket_id\x18\x01 \x01(\x05R\bbucketId\"\x88\x01\n" +
+	"\tbucket_id\x18\x01 \x01(\x05R\bbucketId\x12\x1c\n" +
+	"\trequester\x18\x02 \x01(\tR\trequester\"\x88\x01\n" +
 	"\x0eVariantDetails\x12\x1f\n" +
 	"\vvariant_key\x18\x01 \x01(\tR\n" +
 	"variantKey\x12\x1f\n" +

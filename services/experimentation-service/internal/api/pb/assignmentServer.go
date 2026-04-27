@@ -23,7 +23,7 @@ func NewAssignmentServer(assignmentService *service.AssignmentService) *Assignme
 }
 
 func (s *AssignmentServer) GetExperimentsAndVariantsForBucket(ctx context.Context, req *pb.GetExperimentsAndVariantsForBucketRequest) (*pb.GetExperimentsAndVariantsForBucketResponse, error) {
-	experimentsAndVariants, violations, err := s.assignmentService.GetExperimentsAndVariantsForBucket(ctx, req.BucketId)
+	experimentsAndVariants, violations, err := s.assignmentService.GetExperimentsAndVariantsForBucket(ctx, req.BucketId, req.GetRequester())
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "internal server error")
 	}
