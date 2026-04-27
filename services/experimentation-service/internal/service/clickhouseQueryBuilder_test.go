@@ -221,12 +221,13 @@ func TestClickhouseQueryBuilder_BuildQueryFor_NoMetricComponents(t *testing.T) {
 
 func TestNewClickhouseQueryBuilder_BuildTimeRangeWhere(t *testing.T) {
 	builder := &ClickhouseQueryBuilder{}
+	const layout = "2006-01-02 15:04:05"
 
-	startTime := time.Now()
-	endTime := startTime.Add(1 * time.Hour)
+	startTime := time.Now().UTC()
+	endTime := startTime.UTC().Add(1 * time.Hour)
 
-	expected := fmt.Sprintf("timestamp >= toDateTime('%s') AND timestamp <= toDateTime('%s')",
-		startTime.Format(time.RFC3339), endTime.Format(time.RFC3339))
+	expected := fmt.Sprintf("sent_at >= '%s' AND sent_at <= '%s'",
+		startTime.Format(layout), endTime.Format(layout))
 
 	got := builder.BuildTimeRangeWhere(startTime, endTime)
 	if got != expected {
