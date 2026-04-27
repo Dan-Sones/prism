@@ -74,7 +74,7 @@ func main() {
 	})
 
 	go assignmentCacheInvalidationService.ListenForInvalidations(context.Background())
-	go startGrpcServer(logger, assignmentService)
+	go startGrpcServer(logger, assignmentService, bucketService)
 
 	logger.Info("assignment-service started")
 	http2.ListenAndServe(":8082", router)
@@ -105,10 +105,10 @@ func getGrpcExperimentClient() clients.ExperimentClient {
 	return client
 }
 
-func startGrpcServer(logger *slog.Logger, assignmentService *service.AssignmentService) {
+func startGrpcServer(logger *slog.Logger, assignmentService *service.AssignmentService, bucketService *service.BucketService) {
 	grpcServer := grpc.NewServer()
 
-	assignmentServer := pb.NewAssignmentServer(assignmentService, logger)
+	assignmentServer := pb.NewAssignmentServer(assignmentService, bucketService, logger)
 	assignment_service.RegisterAssignmentServiceServer(grpcServer, assignmentServer)
 
 	reflection.Register(grpcServer)

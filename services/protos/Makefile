@@ -4,6 +4,7 @@ EVENTS_SERVICE_DIR := ../events-service
 BUCKET_FINDER_SERVICE_DIR := ../../tools/bucket-finder
 STATS_ENGINE_DIR := ../stats-engine
 EXPERIMENT_SIMULATOR_DIR := ../../tools/experiment-simulator
+DATA_COOKING_SERVICE_DIR := ../data-cooking-service
 
 EXPERIMENTATION_GEN_DIR := $(EXPERIMENTATION_SERVICE_DIR)/internal/grpc/generated
 ASSIGNMENT_GEN_DIR := $(ASSIGNMENT_SERVICE_DIR)/internal/grpc/generated
@@ -11,6 +12,7 @@ EVENTS_GEN_DIR := $(EVENTS_SERVICE_DIR)/src/main/java
 BUCKET_FINDER_GEN_DIR := $(BUCKET_FINDER_SERVICE_DIR)/internal/grpc/generated
 STATS_ENGINE_GEN_DIR := $(STATS_ENGINE_DIR)
 EXPERIMENT_SIMULATOR_GEN_DIR := $(EXPERIMENT_SIMULATOR_DIR)/internal/grpc/generated
+DATA_COOKING_GEN_DIR := $(DATA_COOKING_SERVICE_DIR)/internal/grpc/generated
 
 .PHONY: generate clean
 
@@ -74,6 +76,16 @@ generate:
 		--go-grpc_opt=paths=source_relative \
 		assignment_service/v1/*.proto
 	@echo "Files Generated in $(EXPERIMENT_SIMULATOR_GEN_DIR)"
+	@echo "Generating protos for data-cooking-service..."
+	@mkdir -p $(DATA_COOKING_GEN_DIR)
+	protoc \
+		--proto_path=. \
+		--go_out=$(DATA_COOKING_GEN_DIR) \
+		--go_opt=paths=source_relative \
+		--go-grpc_out=$(DATA_COOKING_GEN_DIR) \
+		--go-grpc_opt=paths=source_relative \
+		assignment_service/v1/*.proto
+	@echo "Files Generated in $(DATA_COOKING_GEN_DIR)"
 
 
 clean:
