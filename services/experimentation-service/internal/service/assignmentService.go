@@ -36,7 +36,7 @@ func (a *AssignmentService) GetExperimentsAndVariantsForBucketAtTime(ctx context
 	if err != nil {
 		a.logger.Error("Failed to get experiments and variants for bucket from repository", "bucketId", bucketId, "error", err)
 		return nil, nil, err
-	}
+
 
 	// If the assignment service is the requestor, for all active a/a tests we want to override to make sure the control is shown only
 	// the data-cooking-service will then be the one to see the real assignments by looking them up as they go through.
