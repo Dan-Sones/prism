@@ -17,9 +17,6 @@ public class EventRequest {
     @JsonProperty("user_details")
     private UserDetails userDetails;
 
-    @JsonProperty("experiment_details")
-    private ExperimentDetails experimentDetails;
-
     @JsonProperty("sent_at")
     private Instant sentAt;
 
