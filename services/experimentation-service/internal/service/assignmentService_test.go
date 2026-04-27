@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"errors"
+	"io"
+	"log/slog"
 	"testing"
 	"time"
 
@@ -11,25 +13,26 @@ import (
 )
 
 type mockExperimentRepository struct {
-	getFunc func(ctx context.Context, bucketId int32) ([]*experiment.ExperimentWithVariants, error)
+	getFunc func(ctx context.Context, bucketId int32, atTime time.Time) ([]*experiment.ExperimentWithVariants, error)
 }
 
-func (m *mockExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*experiment.ExperimentWithVariants, error) {
-	return m.getFunc(ctx, bucketId)
+func (m *mockExperimentRepository) GetExperimentsAndVariantsForBucketAtTime(ctx context.Context, bucketId int32, atTime time.Time) ([]*experiment.ExperimentWithVariants, error) {
+	return m.getFunc(ctx, bucketId, atTime)
 }
 
 func TestGetExperimentsAndVariantsForBucket_RepoErrorsShouldPropagate(t *testing.T) {
 	mockRepo := &mockExperimentRepository{
-		getFunc: func(ctx context.Context, bucketId int32) ([]*experiment.ExperimentWithVariants, error) {
+		getFunc: func(ctx context.Context, bucketId int32, atTime time.Time) ([]*experiment.ExperimentWithVariants, error) {
 			return nil, errors.New("repo error")
 		},
 	}
 	service := &AssignmentService{
 		experimentRepository: mockRepo,
 		bucketCount:          100,
+		logger:               slog.New(slog.NewTextHandler(io.Discard, nil)),
 	}
 
-	_, _, err := service.GetExperimentsAndVariantsForBucket(context.Background(), 10, "assignment-service")
+	_, _, err := service.GetExperimentsAndVariantsForBucketAtTime(context.Background(), 10, "assignment-service", time.Now())
 	if err == nil {
 		t.Errorf("Expected error, got nil")
 	} else if err.Error() != "repo error" {
@@ -68,7 +71,7 @@ func TestGetExperimentsAndVariantsForBucket_Validation(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, violations, err := service.GetExperimentsAndVariantsForBucket(context.Background(), tt.bucketId, "assignment-service")
+			_, violations, err := service.GetExperimentsAndVariantsForBucketAtTime(context.Background(), tt.bucketId, "assignment-service", time.Now())
 			if err != nil {
 				t.Fatalf("Expected no error, got %v", err)
 			}
@@ -93,7 +96,7 @@ func TestGetExperimentsAndVariantsForBucket_Validation(t *testing.T) {
 
 func TestGetExperimentsAndVariantsForBucket_AAOverride(t *testing.T) {
 	mockRepo := &mockExperimentRepository{
-		getFunc: func(ctx context.Context, bucketId int32) ([]*experiment.ExperimentWithVariants, error) {
+		getFunc: func(ctx context.Context, bucketId int32, atTime time.Time) ([]*experiment.ExperimentWithVariants, error) {
 
 			exp1Id, err := uuid.NewUUID()
 			if err != nil {
@@ -133,7 +136,7 @@ func TestGetExperimentsAndVariantsForBucket_AAOverride(t *testing.T) {
 		bucketCount:          100,
 	}
 
-	results, _, err := service.GetExperimentsAndVariantsForBucket(context.Background(), 10, "assignment-service")
+	results, _, err := service.GetExperimentsAndVariantsForBucketAtTime(context.Background(), 10, "assignment-service", time.Now())
 	if err != nil {
 		t.Fatalf("Expected no error, got %v", err)
 	}

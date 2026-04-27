@@ -19,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	ExperimentationServiceAssignment_GetExperimentsAndVariantsForBucket_FullMethodName = "/assignment.v1.ExperimentationServiceAssignment/GetExperimentsAndVariantsForBucket"
+	ExperimentationServiceAssignment_GetExperimentsAndVariantsForBucketAtTime_FullMethodName = "/assignment.v1.ExperimentationServiceAssignment/GetExperimentsAndVariantsForBucketAtTime"
 )
 
 // ExperimentationServiceAssignmentClient is the client API for ExperimentationServiceAssignment service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ExperimentationServiceAssignmentClient interface {
-	GetExperimentsAndVariantsForBucket(ctx context.Context, in *GetExperimentsAndVariantsForBucketRequest, opts ...grpc.CallOption) (*GetExperimentsAndVariantsForBucketResponse, error)
+	GetExperimentsAndVariantsForBucketAtTime(ctx context.Context, in *GetExperimentsAndVariantsForBucketAtTimeRequest, opts ...grpc.CallOption) (*GetExperimentsAndVariantsForBucketAtTimeResponse, error)
 }
 
 type experimentationServiceAssignmentClient struct {
@@ -37,10 +37,10 @@ func NewExperimentationServiceAssignmentClient(cc grpc.ClientConnInterface) Expe
 	return &experimentationServiceAssignmentClient{cc}
 }
 
-func (c *experimentationServiceAssignmentClient) GetExperimentsAndVariantsForBucket(ctx context.Context, in *GetExperimentsAndVariantsForBucketRequest, opts ...grpc.CallOption) (*GetExperimentsAndVariantsForBucketResponse, error) {
+func (c *experimentationServiceAssignmentClient) GetExperimentsAndVariantsForBucketAtTime(ctx context.Context, in *GetExperimentsAndVariantsForBucketAtTimeRequest, opts ...grpc.CallOption) (*GetExperimentsAndVariantsForBucketAtTimeResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetExperimentsAndVariantsForBucketResponse)
-	err := c.cc.Invoke(ctx, ExperimentationServiceAssignment_GetExperimentsAndVariantsForBucket_FullMethodName, in, out, cOpts...)
+	out := new(GetExperimentsAndVariantsForBucketAtTimeResponse)
+	err := c.cc.Invoke(ctx, ExperimentationServiceAssignment_GetExperimentsAndVariantsForBucketAtTime_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (c *experimentationServiceAssignmentClient) GetExperimentsAndVariantsForBuc
 // All implementations must embed UnimplementedExperimentationServiceAssignmentServer
 // for forward compatibility.
 type ExperimentationServiceAssignmentServer interface {
-	GetExperimentsAndVariantsForBucket(context.Context, *GetExperimentsAndVariantsForBucketRequest) (*GetExperimentsAndVariantsForBucketResponse, error)
+	GetExperimentsAndVariantsForBucketAtTime(context.Context, *GetExperimentsAndVariantsForBucketAtTimeRequest) (*GetExperimentsAndVariantsForBucketAtTimeResponse, error)
 	mustEmbedUnimplementedExperimentationServiceAssignmentServer()
 }
 
@@ -62,8 +62,8 @@ type ExperimentationServiceAssignmentServer interface {
 // pointer dereference when methods are called.
 type UnimplementedExperimentationServiceAssignmentServer struct{}
 
-func (UnimplementedExperimentationServiceAssignmentServer) GetExperimentsAndVariantsForBucket(context.Context, *GetExperimentsAndVariantsForBucketRequest) (*GetExperimentsAndVariantsForBucketResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method GetExperimentsAndVariantsForBucket not implemented")
+func (UnimplementedExperimentationServiceAssignmentServer) GetExperimentsAndVariantsForBucketAtTime(context.Context, *GetExperimentsAndVariantsForBucketAtTimeRequest) (*GetExperimentsAndVariantsForBucketAtTimeResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetExperimentsAndVariantsForBucketAtTime not implemented")
 }
 func (UnimplementedExperimentationServiceAssignmentServer) mustEmbedUnimplementedExperimentationServiceAssignmentServer() {
 }
@@ -87,20 +87,20 @@ func RegisterExperimentationServiceAssignmentServer(s grpc.ServiceRegistrar, srv
 	s.RegisterService(&ExperimentationServiceAssignment_ServiceDesc, srv)
 }
 
-func _ExperimentationServiceAssignment_GetExperimentsAndVariantsForBucket_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetExperimentsAndVariantsForBucketRequest)
+func _ExperimentationServiceAssignment_GetExperimentsAndVariantsForBucketAtTime_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetExperimentsAndVariantsForBucketAtTimeRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ExperimentationServiceAssignmentServer).GetExperimentsAndVariantsForBucket(ctx, in)
+		return srv.(ExperimentationServiceAssignmentServer).GetExperimentsAndVariantsForBucketAtTime(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: ExperimentationServiceAssignment_GetExperimentsAndVariantsForBucket_FullMethodName,
+		FullMethod: ExperimentationServiceAssignment_GetExperimentsAndVariantsForBucketAtTime_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ExperimentationServiceAssignmentServer).GetExperimentsAndVariantsForBucket(ctx, req.(*GetExperimentsAndVariantsForBucketRequest))
+		return srv.(ExperimentationServiceAssignmentServer).GetExperimentsAndVariantsForBucketAtTime(ctx, req.(*GetExperimentsAndVariantsForBucketAtTimeRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -113,8 +113,8 @@ var ExperimentationServiceAssignment_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*ExperimentationServiceAssignmentServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GetExperimentsAndVariantsForBucket",
-			Handler:    _ExperimentationServiceAssignment_GetExperimentsAndVariantsForBucket_Handler,
+			MethodName: "GetExperimentsAndVariantsForBucketAtTime",
+			Handler:    _ExperimentationServiceAssignment_GetExperimentsAndVariantsForBucketAtTime_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

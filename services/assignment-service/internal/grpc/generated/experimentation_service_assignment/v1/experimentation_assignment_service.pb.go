@@ -9,6 +9,7 @@ package experimentation_service_assignment
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
+	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -21,28 +22,29 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type GetExperimentsAndVariantsForBucketRequest struct {
+type GetExperimentsAndVariantsForBucketAtTimeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	BucketId      int32                  `protobuf:"varint,1,opt,name=bucket_id,json=bucketId,proto3" json:"bucket_id,omitempty"`
 	Requester     string                 `protobuf:"bytes,2,opt,name=requester,proto3" json:"requester,omitempty"`
+	Timestamp     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=timestamp,proto3" json:"timestamp,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetExperimentsAndVariantsForBucketRequest) Reset() {
-	*x = GetExperimentsAndVariantsForBucketRequest{}
+func (x *GetExperimentsAndVariantsForBucketAtTimeRequest) Reset() {
+	*x = GetExperimentsAndVariantsForBucketAtTimeRequest{}
 	mi := &file_experimentation_service_assignment_v1_experimentation_assignment_service_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetExperimentsAndVariantsForBucketRequest) String() string {
+func (x *GetExperimentsAndVariantsForBucketAtTimeRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetExperimentsAndVariantsForBucketRequest) ProtoMessage() {}
+func (*GetExperimentsAndVariantsForBucketAtTimeRequest) ProtoMessage() {}
 
-func (x *GetExperimentsAndVariantsForBucketRequest) ProtoReflect() protoreflect.Message {
+func (x *GetExperimentsAndVariantsForBucketAtTimeRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_experimentation_service_assignment_v1_experimentation_assignment_service_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -54,23 +56,30 @@ func (x *GetExperimentsAndVariantsForBucketRequest) ProtoReflect() protoreflect.
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetExperimentsAndVariantsForBucketRequest.ProtoReflect.Descriptor instead.
-func (*GetExperimentsAndVariantsForBucketRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetExperimentsAndVariantsForBucketAtTimeRequest.ProtoReflect.Descriptor instead.
+func (*GetExperimentsAndVariantsForBucketAtTimeRequest) Descriptor() ([]byte, []int) {
 	return file_experimentation_service_assignment_v1_experimentation_assignment_service_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *GetExperimentsAndVariantsForBucketRequest) GetBucketId() int32 {
+func (x *GetExperimentsAndVariantsForBucketAtTimeRequest) GetBucketId() int32 {
 	if x != nil {
 		return x.BucketId
 	}
 	return 0
 }
 
-func (x *GetExperimentsAndVariantsForBucketRequest) GetRequester() string {
+func (x *GetExperimentsAndVariantsForBucketAtTimeRequest) GetRequester() string {
 	if x != nil {
 		return x.Requester
 	}
 	return ""
+}
+
+func (x *GetExperimentsAndVariantsForBucketAtTimeRequest) GetTimestamp() *timestamppb.Timestamp {
+	if x != nil {
+		return x.Timestamp
+	}
+	return nil
 }
 
 type VariantDetails struct {
@@ -193,27 +202,27 @@ func (x *ExperimentDetails) GetVariants() []*VariantDetails {
 	return nil
 }
 
-type GetExperimentsAndVariantsForBucketResponse struct {
+type GetExperimentsAndVariantsForBucketAtTimeResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Experiments   []*ExperimentDetails   `protobuf:"bytes,1,rep,name=experiments,proto3" json:"experiments,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *GetExperimentsAndVariantsForBucketResponse) Reset() {
-	*x = GetExperimentsAndVariantsForBucketResponse{}
+func (x *GetExperimentsAndVariantsForBucketAtTimeResponse) Reset() {
+	*x = GetExperimentsAndVariantsForBucketAtTimeResponse{}
 	mi := &file_experimentation_service_assignment_v1_experimentation_assignment_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *GetExperimentsAndVariantsForBucketResponse) String() string {
+func (x *GetExperimentsAndVariantsForBucketAtTimeResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*GetExperimentsAndVariantsForBucketResponse) ProtoMessage() {}
+func (*GetExperimentsAndVariantsForBucketAtTimeResponse) ProtoMessage() {}
 
-func (x *GetExperimentsAndVariantsForBucketResponse) ProtoReflect() protoreflect.Message {
+func (x *GetExperimentsAndVariantsForBucketAtTimeResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_experimentation_service_assignment_v1_experimentation_assignment_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -225,12 +234,12 @@ func (x *GetExperimentsAndVariantsForBucketResponse) ProtoReflect() protoreflect
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use GetExperimentsAndVariantsForBucketResponse.ProtoReflect.Descriptor instead.
-func (*GetExperimentsAndVariantsForBucketResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use GetExperimentsAndVariantsForBucketAtTimeResponse.ProtoReflect.Descriptor instead.
+func (*GetExperimentsAndVariantsForBucketAtTimeResponse) Descriptor() ([]byte, []int) {
 	return file_experimentation_service_assignment_v1_experimentation_assignment_service_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *GetExperimentsAndVariantsForBucketResponse) GetExperiments() []*ExperimentDetails {
+func (x *GetExperimentsAndVariantsForBucketAtTimeResponse) GetExperiments() []*ExperimentDetails {
 	if x != nil {
 		return x.Experiments
 	}
@@ -241,10 +250,11 @@ var File_experimentation_service_assignment_v1_experimentation_assignment_servic
 
 const file_experimentation_service_assignment_v1_experimentation_assignment_service_proto_rawDesc = "" +
 	"\n" +
-	"Nexperimentation_service_assignment/v1/experimentation_assignment_service.proto\x12\rassignment.v1\"f\n" +
-	")GetExperimentsAndVariantsForBucketRequest\x12\x1b\n" +
+	"Nexperimentation_service_assignment/v1/experimentation_assignment_service.proto\x12\rassignment.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"\xa6\x01\n" +
+	"/GetExperimentsAndVariantsForBucketAtTimeRequest\x12\x1b\n" +
 	"\tbucket_id\x18\x01 \x01(\x05R\bbucketId\x12\x1c\n" +
-	"\trequester\x18\x02 \x01(\tR\trequester\"\x88\x01\n" +
+	"\trequester\x18\x02 \x01(\tR\trequester\x128\n" +
+	"\ttimestamp\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\ttimestamp\"\x88\x01\n" +
 	"\x0eVariantDetails\x12\x1f\n" +
 	"\vvariant_key\x18\x01 \x01(\tR\n" +
 	"variantKey\x12\x1f\n" +
@@ -257,11 +267,11 @@ const file_experimentation_service_assignment_v1_experimentation_assignment_serv
 	"\x0eexperiment_key\x18\x01 \x01(\tR\rexperimentKey\x12\x1f\n" +
 	"\vunique_salt\x18\x02 \x01(\tR\n" +
 	"uniqueSalt\x129\n" +
-	"\bvariants\x18\x03 \x03(\v2\x1d.assignment.v1.VariantDetailsR\bvariants\"p\n" +
-	"*GetExperimentsAndVariantsForBucketResponse\x12B\n" +
-	"\vexperiments\x18\x01 \x03(\v2 .assignment.v1.ExperimentDetailsR\vexperiments2\xbe\x01\n" +
-	" ExperimentationServiceAssignment\x12\x99\x01\n" +
-	"\"GetExperimentsAndVariantsForBucket\x128.assignment.v1.GetExperimentsAndVariantsForBucketRequest\x1a9.assignment.v1.GetExperimentsAndVariantsForBucketResponseBzZxexperimentation-service/internal/grpc/generated/experimentation_service_assignment/v1;experimentation_service_assignmentb\x06proto3"
+	"\bvariants\x18\x03 \x03(\v2\x1d.assignment.v1.VariantDetailsR\bvariants\"v\n" +
+	"0GetExperimentsAndVariantsForBucketAtTimeResponse\x12B\n" +
+	"\vexperiments\x18\x01 \x03(\v2 .assignment.v1.ExperimentDetailsR\vexperiments2\xd0\x01\n" +
+	" ExperimentationServiceAssignment\x12\xab\x01\n" +
+	"(GetExperimentsAndVariantsForBucketAtTime\x12>.assignment.v1.GetExperimentsAndVariantsForBucketAtTimeRequest\x1a?.assignment.v1.GetExperimentsAndVariantsForBucketAtTimeResponseBzZxexperimentation-service/internal/grpc/generated/experimentation_service_assignment/v1;experimentation_service_assignmentb\x06proto3"
 
 var (
 	file_experimentation_service_assignment_v1_experimentation_assignment_service_proto_rawDescOnce sync.Once
@@ -277,21 +287,23 @@ func file_experimentation_service_assignment_v1_experimentation_assignment_servi
 
 var file_experimentation_service_assignment_v1_experimentation_assignment_service_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_experimentation_service_assignment_v1_experimentation_assignment_service_proto_goTypes = []any{
-	(*GetExperimentsAndVariantsForBucketRequest)(nil),  // 0: assignment.v1.GetExperimentsAndVariantsForBucketRequest
-	(*VariantDetails)(nil),                             // 1: assignment.v1.VariantDetails
-	(*ExperimentDetails)(nil),                          // 2: assignment.v1.ExperimentDetails
-	(*GetExperimentsAndVariantsForBucketResponse)(nil), // 3: assignment.v1.GetExperimentsAndVariantsForBucketResponse
+	(*GetExperimentsAndVariantsForBucketAtTimeRequest)(nil), // 0: assignment.v1.GetExperimentsAndVariantsForBucketAtTimeRequest
+	(*VariantDetails)(nil),                                   // 1: assignment.v1.VariantDetails
+	(*ExperimentDetails)(nil),                                // 2: assignment.v1.ExperimentDetails
+	(*GetExperimentsAndVariantsForBucketAtTimeResponse)(nil), // 3: assignment.v1.GetExperimentsAndVariantsForBucketAtTimeResponse
+	(*timestamppb.Timestamp)(nil),                            // 4: google.protobuf.Timestamp
 }
 var file_experimentation_service_assignment_v1_experimentation_assignment_service_proto_depIdxs = []int32{
-	1, // 0: assignment.v1.ExperimentDetails.variants:type_name -> assignment.v1.VariantDetails
-	2, // 1: assignment.v1.GetExperimentsAndVariantsForBucketResponse.experiments:type_name -> assignment.v1.ExperimentDetails
-	0, // 2: assignment.v1.ExperimentationServiceAssignment.GetExperimentsAndVariantsForBucket:input_type -> assignment.v1.GetExperimentsAndVariantsForBucketRequest
-	3, // 3: assignment.v1.ExperimentationServiceAssignment.GetExperimentsAndVariantsForBucket:output_type -> assignment.v1.GetExperimentsAndVariantsForBucketResponse
-	3, // [3:4] is the sub-list for method output_type
-	2, // [2:3] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	4, // 0: assignment.v1.GetExperimentsAndVariantsForBucketAtTimeRequest.timestamp:type_name -> google.protobuf.Timestamp
+	1, // 1: assignment.v1.ExperimentDetails.variants:type_name -> assignment.v1.VariantDetails
+	2, // 2: assignment.v1.GetExperimentsAndVariantsForBucketAtTimeResponse.experiments:type_name -> assignment.v1.ExperimentDetails
+	0, // 3: assignment.v1.ExperimentationServiceAssignment.GetExperimentsAndVariantsForBucketAtTime:input_type -> assignment.v1.GetExperimentsAndVariantsForBucketAtTimeRequest
+	3, // 4: assignment.v1.ExperimentationServiceAssignment.GetExperimentsAndVariantsForBucketAtTime:output_type -> assignment.v1.GetExperimentsAndVariantsForBucketAtTimeResponse
+	4, // [4:5] is the sub-list for method output_type
+	3, // [3:4] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for extension type_name
+	3, // [3:3] is the sub-list for extension extendee
+	0, // [0:3] is the sub-list for field type_name
 }
 
 func init() {

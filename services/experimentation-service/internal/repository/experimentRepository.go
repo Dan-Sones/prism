@@ -11,7 +11,7 @@ import (
 )
 
 type ExperimentRepositoryInterface interface {
-	GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*experiment2.ExperimentWithVariants, error)
+	GetExperimentsAndVariantsForBucketAtTime(ctx context.Context, bucketId int32, atTime time.Time) ([]*experiment2.ExperimentWithVariants, error)
 }
 
 type ExperimentRepository struct {
@@ -151,12 +151,14 @@ func (r *ExperimentRepository) GetVariantsForExperiment(ctx context.Context, exp
 	return pgx.CollectRows(rows, pgx.RowToStructByNameLax[experiment2.ExperimentVariant])
 }
 
-func (r *ExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Context, bucketId int32) ([]*experiment2.ExperimentWithVariants, error) {
+func (r *ExperimentRepository) GetExperimentsAndVariantsForBucketAtTime(ctx context.Context, bucketId int32, atTime time.Time) ([]*experiment2.ExperimentWithVariants, error) {
 	sql := `SELECT
     e.id,
     e.name,
     e.aa_start_time,
     e.aa_end_time,
+    e.start_time,
+    e.end_time,
     e.feature_flag_id,
     e.unique_salt,
     v.variant_key,
@@ -172,15 +174,14 @@ func (r *ExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Co
 	 WHERE ba.bucket_number = $1
     AND (
       (e.aa_start_time IS NOT NULL AND e.aa_end_time IS NOT NULL
-       AND e.aa_start_time <= now() AND e.aa_end_time >= now())
+       AND e.aa_start_time <= $2 AND e.aa_end_time >= $2)
       OR
       (e.start_time IS NOT NULL AND e.end_time IS NOT NULL
-       AND e.start_time <= now() AND e.end_time >= now())
+       AND e.start_time <= $2 AND e.end_time >= $2)
     )
 	`
-	// ONLY return experiments that are currently within their AA window or their standard experiement window.
 
-	rows, err := r.pgxPool.Query(ctx, sql, bucketId)
+	rows, err := r.pgxPool.Query(ctx, sql, bucketId, atTime)
 	if err != nil {
 		return nil, err
 	}
@@ -196,7 +197,7 @@ func (r *ExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Co
 		var experimentId uuid.UUID
 		var exp experiment2.Experiment
 		var ev experiment2.ExperimentVariant
-		err := rows.Scan(&experimentId, &exp.Name, &exp.AAStartTime, &exp.AAEndTime, &exp.FeatureFlagID, &exp.UniqueSalt, &ev.VariantKey, &ev.UpperBound, &ev.LowerBound, &ev.VariantType)
+		err := rows.Scan(&experimentId, &exp.Name, &exp.AAStartTime, &exp.AAEndTime, &exp.StartTime, &exp.EndTime, &exp.FeatureFlagID, &exp.UniqueSalt, &ev.VariantKey, &ev.UpperBound, &ev.LowerBound, &ev.VariantType)
 		if err != nil {
 			return nil, err
 		}

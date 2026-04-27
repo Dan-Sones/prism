@@ -22,8 +22,8 @@ func NewAssignmentServer(assignmentService *service.AssignmentService) *Assignme
 	}
 }
 
-func (s *AssignmentServer) GetExperimentsAndVariantsForBucket(ctx context.Context, req *pb.GetExperimentsAndVariantsForBucketRequest) (*pb.GetExperimentsAndVariantsForBucketResponse, error) {
-	experimentsAndVariants, violations, err := s.assignmentService.GetExperimentsAndVariantsForBucket(ctx, req.BucketId, req.GetRequester())
+func (s *AssignmentServer) GetExperimentsAndVariantsForBucketAtTime(ctx context.Context, req *pb.GetExperimentsAndVariantsForBucketAtTimeRequest) (*pb.GetExperimentsAndVariantsForBucketAtTimeResponse, error) {
+	experimentsAndVariants, violations, err := s.assignmentService.GetExperimentsAndVariantsForBucketAtTime(ctx, req.BucketId, req.GetRequester(), req.GetTimestamp().AsTime())
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "internal server error")
 	}
@@ -31,7 +31,7 @@ func (s *AssignmentServer) GetExperimentsAndVariantsForBucket(ctx context.Contex
 		return nil, violationsToGrpcError(violations)
 	}
 
-	response := &pb.GetExperimentsAndVariantsForBucketResponse{
+	response := &pb.GetExperimentsAndVariantsForBucketAtTimeResponse{
 		Experiments: make([]*pb.ExperimentDetails, len(experimentsAndVariants)),
 	}
 

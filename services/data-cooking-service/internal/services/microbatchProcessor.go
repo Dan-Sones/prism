@@ -61,6 +61,17 @@ func (p *MicroBatchProcessorImp) getExperimentsForUserIds(ctx context.Context, e
 func (p *MicroBatchProcessorImp) cookEvents(events []model.DownstreamEvent, assignments Assignments) []*model.CookedDownstreamEvent {
 	var cookedEvents []*model.CookedDownstreamEvent
 
+	// Given the user id within the event, lookup their assignments AT the point of time in the event.
+	// There could be an unlimited backlog in kafka, so we need the assignment at the point of the event, not at the point of processing.
+
+	// Given the user id within the event, look up their assignment. Make sure to put requestor as data-cooking-service so we don't get the a/a override
+	// From this will we get a list of experiment keys for the userId
+	// for each experiment key, we can then look up each of those and get back the enriched experiment.
+	// if the event_key is in use for that experiment then we will write a row for the event for that experiment
+	// If the experiment is in the a/a period, we set is_aa to true
+
+	// need to consider batching here. - This is LOTS of grpc requests. Caching might be needed.
+
 	for _, event := range events {
 		for experimentKey, variantKey := range assignments[event.UserDetails.ID] {
 			cookedEvents = append(cookedEvents, &model.CookedDownstreamEvent{

@@ -1,15 +1,18 @@
 syntax = "proto3";
 
+import "google/protobuf/timestamp.proto";
+
 package assignment.v1;
 option go_package = "experimentation-service/internal/grpc/generated/experimentation_service_assignment/v1;experimentation_service_assignment";
 
 service ExperimentationServiceAssignment {
-  rpc GetExperimentsAndVariantsForBucket(GetExperimentsAndVariantsForBucketRequest) returns (GetExperimentsAndVariantsForBucketResponse);
+  rpc GetExperimentsAndVariantsForBucketAtTime(GetExperimentsAndVariantsForBucketAtTimeRequest) returns (GetExperimentsAndVariantsForBucketAtTimeResponse);
 }
 
-message GetExperimentsAndVariantsForBucketRequest {
+message GetExperimentsAndVariantsForBucketAtTimeRequest {
   int32 bucket_id = 1;
   string requester = 2;
+  google.protobuf.Timestamp timestamp = 3;
 }
 
 message VariantDetails {
@@ -24,6 +27,6 @@ message ExperimentDetails {
   repeated VariantDetails variants = 3;
 }
 
-message GetExperimentsAndVariantsForBucketResponse {
+message GetExperimentsAndVariantsForBucketAtTimeResponse {
   repeated ExperimentDetails experiments = 1;
 }

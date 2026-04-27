@@ -39,7 +39,7 @@ func (e *AssignmentService) GetAssignmentsForUserId(ctx context.Context, userId 
 	if len(experiments) > 0 {
 		e.logger.Info("Fetched assignments from cache", "bucket", bucket)
 	} else {
-		experiments, err = e.experimentClient.GetExperimentsAndVariantsForBucket(ctx, bucket)
+		experiments, err = e.experimentClient.GetExperimentsAndVariantsForBucketAtTime(ctx, bucket, time.Now())
 		if err != nil {
 			return nil, fmt.Errorf("failed to get experiments and variants for bucket %d: %w", bucket, err)
 		}

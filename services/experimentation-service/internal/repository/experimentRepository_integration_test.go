@@ -92,7 +92,7 @@ func TestExperimentRepository_GetExperimentsAndVariantsForBucket_ShouldOnlyRetur
 
 	tests := []ExperimentRepositoryIntegrationTest{
 		{
-			name:     "only returns experiments whose A/A or A/B window is currently active",
+			name:     "only returns experiments within a/a or a/b window at provided time",
 			bucketId: 21,
 			experimentsToCreate: []experiment2.Experiment{
 				{
@@ -187,7 +187,7 @@ func commonTestPattern(t *testing.T, givenExperiments []experiment2.Experiment, 
 	}
 
 	// When
-	returnedExperiments, err := expRepo.GetExperimentsAndVariantsForBucket(ctx, bucketId)
+	returnedExperiments, err := expRepo.GetExperimentsAndVariantsForBucketAtTime(ctx, bucketId, time.Now())
 	if err != nil {
 		t.Fatalf("failed to get experiments and variants for bucket: %s", err)
 	}
