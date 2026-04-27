@@ -35,7 +35,8 @@ func NewGrpcClient(adminAddr string) (*GrpcExperimentClient, error) {
 
 func (c *GrpcExperimentClient) GetExperimentsAndVariantsForBucket(ctx context.Context, id int32) ([]model.ExperimentWithVariants, error) {
 	resp, err := c.client.GetExperimentsAndVariantsForBucket(ctx, &pb.GetExperimentsAndVariantsForBucketRequest{
-		BucketId: id,
+		BucketId:  id,
+		Requester: "assignment-service",
 	})
 	if err != nil {
 		return nil, err
