@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"experimentation-service/internal/model/event"
 	"experimentation-service/internal/model/graph"
 	"fmt"
 	"time"
@@ -194,4 +195,34 @@ func (e *ClickHouseEventsRepository) GetLastReceivedTimeForEventKey(ctx context.
 	}
 
 	return lastReceivedTime, nil
+}
+
+func (e *ClickHouseEventsRepository) PerformBinaryMetricQuery(ctx context.Context, query event.QueryString) (event.BinaryMetricQueryResult, error) {
+	rows, err := e.connection.Query(ctx, string(query))
+	if err != nil {
+		return event.BinaryMetricQueryResult{}, err
+	}
+
+	defer rows.Close()
+
+	var result event.BinaryMetricQueryResult
+	for rows.Next() {
+		// TODO: ignore variant key stuff for now as this is still a/a
+		var variantKey string
+		var numeratorValue uint64
+		var denominatorValue uint64
+
+		if err := rows.Scan(&variantKey, &numeratorValue, &denominatorValue); err != nil {
+			return event.BinaryMetricQueryResult{}, err
+		}
+
+		result.Denominator = int(denominatorValue)
+		result.Numerator = int(numeratorValue)
+	}
+
+	if err := rows.Err(); err != nil {
+		return event.BinaryMetricQueryResult{}, err
+	}
+
+	return result, nil
 }

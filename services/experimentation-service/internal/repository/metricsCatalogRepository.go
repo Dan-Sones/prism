@@ -71,6 +71,23 @@ FROM prism.metrics`
 	return metrics, nil
 }
 
+func (m *MetricsCatalogRepository) GetMetricComponents(ctx context.Context, metricId uuid.UUID) ([]metric.MetricComponent, error) {
+	sql := `SELECT * FROM prism.metric_components WHERE metric_id = $1`
+
+	rows, err := m.pgx.Query(ctx, sql, metricId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	components, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[metric.MetricComponent])
+	if err != nil {
+		return nil, err
+	}
+
+	return components, nil
+}
+
 func (m *MetricsCatalogRepository) IsMetricKeyAvailable(ctx context.Context, metricKey string) (bool, error) {
 	var existing *string
 	err := m.pgx.QueryRow(ctx, "SELECT id FROM prism.metrics WHERE metric_key = $1", metricKey).Scan(&existing)
@@ -89,28 +106,35 @@ func (m *MetricsCatalogRepository) IsMetricKeyAvailable(ctx context.Context, met
 	return true, nil
 }
 
-func (m *MetricsCatalogRepository) GetMetricByKey(ctx context.Context, metricKey string) (*metric.Metric, []metricreq.MetricComponentRow, error) {
-	rows, err := m.pgx.Query(ctx, "SELECT id, name, description, metric_key, metric_type, analysis_unit, created_at, is_binary FROM prism.metrics WHERE metric_key = $1", metricKey)
+func (m *MetricsCatalogRepository) GetMetricByKey(ctx context.Context, metricKey string) (*metric.Metric, error) {
+	rows, err := m.pgx.Query(ctx, "SELECT * FROM prism.metrics WHERE metric_key = $1", metricKey)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	metricRes, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByName[metric.Metric])
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	rows, err = m.pgx.Query(ctx, "SELECT id, metric_id, role, event_type_id, agg_operation, agg_field_id, system_column_name FROM prism.metric_components WHERE metric_id = $1", metricRes.ID)
+	return metricRes, nil
+}
+
+func (m *MetricsCatalogRepository) GetMetricById(ctx context.Context, metricId uuid.UUID) (*metric.Metric, error) {
+	sql := `SELECT * FROM prism.metrics WHERE id = $1`
+
+	rows, err := m.pgx.Query(ctx, sql, metricId)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
+	defer rows.Close()
 
-	componentRows, err := pgx.CollectRows(rows, pgx.RowToStructByNameLax[metricreq.MetricComponentRow])
+	theMetric, err := pgx.CollectOneRow(rows, pgx.RowToAddrOfStructByName[metric.Metric])
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
-
-	return metricRes, componentRows, nil
+	
+	return theMetric, nil
 }
 
 func (m *MetricsCatalogRepository) SearchMetrics(ctx context.Context, searchTerm string) ([]*metric.Metric, error) {

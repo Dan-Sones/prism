@@ -2,7 +2,9 @@ package service
 
 import (
 	"context"
+	"experimentation-service/internal/clients"
 	"experimentation-service/internal/model/experiment"
+	"experimentation-service/internal/model/experiment/sampleSize"
 	"experimentation-service/internal/problems"
 	"experimentation-service/internal/repository"
 	"experimentation-service/internal/validators"
@@ -18,13 +20,21 @@ import (
 type ExperimentService struct {
 	experimentRepository       *repository.ExperimentRepository
 	bucketAllocationRepository *repository.BucketAllocationRepository
+	metricsCatalogService      *MetricsCatalogService
+	queryBuilder               QueryBuilder
+	eventsService              *EventService
+	statsEngineClient          clients.StatsEngineClient
 	logger                     *slog.Logger
 }
 
-func NewExperimentService(experimentRepository *repository.ExperimentRepository, bucketAllocationRepository *repository.BucketAllocationRepository, logger *slog.Logger) *ExperimentService {
+func NewExperimentService(experimentRepository *repository.ExperimentRepository, bucketAllocationRepository *repository.BucketAllocationRepository, queryBuilder QueryBuilder, eventsService *EventService, metricCatalogService *MetricsCatalogService, statsEngineClient clients.StatsEngineClient, logger *slog.Logger) *ExperimentService {
 	return &ExperimentService{
 		experimentRepository:       experimentRepository,
 		bucketAllocationRepository: bucketAllocationRepository,
+		queryBuilder:               queryBuilder,
+		eventsService:              eventsService,
+		metricsCatalogService:      metricCatalogService,
+		statsEngineClient:          statsEngineClient,
 		logger:                     logger,
 	}
 }
@@ -85,7 +95,6 @@ func (s *ExperimentService) GetExperiments(ctx context.Context, search string) (
 }
 
 func (s *ExperimentService) GetExperimentByUUID(ctx context.Context, expId uuid.UUID) (experiment.ExperimentResponse, error) {
-
 	expById, err := s.experimentRepository.GetExperimentByUUID(ctx, expId)
 	if err != nil {
 		s.logger.Error("Failed to retrieve experiment by id from repository", "error", err)
@@ -136,6 +145,120 @@ func (s *ExperimentService) ConfigureExperimentForAA(ctx context.Context, experi
 	}
 
 	return nil
+}
+
+func (s *ExperimentService) GetRequiredSampleSizeForMetrics(ctx context.Context, expId uuid.UUID) (*sampleSize.RequiredSampleSizeResponse, error) {
+	exp, err := s.experimentRepository.GetExperimentByUUID(ctx, expId)
+	if err != nil {
+		s.logger.Error("Failed to retrieve metrics for experiment from repository", "error", err)
+		return nil, err
+	}
+
+	if exp.TotalRequiredSampleSize != nil {
+		return &sampleSize.RequiredSampleSizeResponse{
+			TotalRequiredSampleSize: *exp.TotalRequiredSampleSize,
+			SampleSizePerVariant:    GetSampleSizeByVariant(*exp.TotalRequiredSampleSize, exp.Variants),
+		}, nil
+	}
+
+	var experimentMetricsWithQueries []sampleSize.MetricForExperiment
+
+	for _, experimentMetric := range exp.Metrics {
+		enrichedMetric, err := s.metricsCatalogService.GetMetricById(ctx, experimentMetric.MetricID)
+		if err != nil {
+			s.logger.Error("Failed to retrieve metric details for experiment metric from metrics catalog service", "error", err)
+			return nil, err
+		}
+
+		query, err := s.queryBuilder.BuildQueryFor(exp.FeatureFlagID, *enrichedMetric, exp.AAStartTime, exp.AAEndTime)
+		if err != nil {
+			s.logger.Error("Failed to build query for experiment metric", "error", err)
+			return nil, err
+		}
+
+		// TODO: We will need a switch case here when we have more metric types
+		// Will also involve creating a more generic version of enriched metric and binary result.
+		result, err := s.eventsService.PerformBinaryMetricQuery(ctx, query)
+		if err != nil {
+			s.logger.Error("Failed to perform binary metric query for experiment metric", "error", err)
+			return nil, err
+		}
+
+		baselineConversionRate := float64(result.Numerator) / float64(result.Denominator)
+
+		experimentMetricsWithQueries = append(experimentMetricsWithQueries, sampleSize.NewMetricForExperiment(*experimentMetric.MDE, baselineConversionRate, enrichedMetric.MetricKey, enrichedMetric.IsBinary, experimentMetric.Direction))
+	}
+
+	// TODO: we're ignoring the split - if we ever go down the "confidence" split route we can't just split 50/50 at query time
+	total, _, _, err := s.statsEngineClient.CalculateSampleSize(ctx, experimentMetricsWithQueries, 0.05, 0.8, len(exp.Variants))
+	if err != nil {
+		s.logger.Error("Failed to calculate required sample size for experiment metric using stats engine client", "error", err)
+		return nil, err
+	}
+
+	err = s.experimentRepository.SetTotalRequiredSampleSizeForExperiment(ctx, expId, total)
+	if err != nil {
+		s.logger.Error("Failed to set total required sample size for experiment in repository", "error", err)
+		return nil, err
+	}
+
+	return &sampleSize.RequiredSampleSizeResponse{
+		TotalRequiredSampleSize: total,
+		SampleSizePerVariant:    GetSampleSizeByVariant(total, exp.Variants),
+	}, nil
+}
+
+func GetSampleSizeByVariant(totalSampleSize int, expVariants []experiment2.ExperimentVariant) map[string]int {
+	sampleSizePerVariant := make(map[string]int)
+	for _, variant := range expVariants {
+		sampleSizePerVariant[variant.VariantKey] = totalSampleSize / len(expVariants)
+	}
+
+	return sampleSizePerVariant
+}
+
+func (s *ExperimentService) UpdateExperimentForABPhase(ctx context.Context, expId uuid.UUID, request experiment.UpdateExperimentPhaseRequest) (*experiment.ExperimentResponse, []problems.Violation, error) {
+	// When the user has reviewed the results of the A/A test we need to:
+	// Ask them for the start and end date of the test - validate these
+	// Set the experiment start and end date in the database
+	// Look at the requried sample size for the experiment based on the calculation
+	// do some maths given the sample size and the number of buckets to determine how many buckets need to be allocated to the experiment
+	// assign those buckets to the experiment using the bucket allocation repository
+	// set the bounds for the control and treatment variants to ensure traffic is split evenly between them
+	// this all needs to be done within a transaction to ensure we don't end up in a bad state where some of these steps succeed and others fail
+
+	violations := validators.ValidateUpdateExperimentPhaseRequest(request)
+	if len(violations) > 0 {
+		return nil, violations, nil
+	}
+
+	_, err := s.experimentRepository.GetExperimentByUUID(ctx, expId)
+	if err != nil {
+		s.logger.Error("Failed to retrieve experiment by id from repository", "error", err)
+		return nil, nil, err
+	}
+
+	// BEGIN TRANSACTION
+
+	err = s.experimentRepository.SetExperimentStartAndEndTime(ctx, expId, request.StartTime, request.EndTime)
+	if err != nil {
+		s.logger.Error("Failed to set experiment start and end time in repository", "error", err)
+		// ROLLBACK
+		return nil, nil, err
+	}
+
+	// COMMIT TRANSACTION
+
+	expById, err := s.experimentRepository.GetExperimentByUUID(ctx, expId)
+	if err != nil {
+		s.logger.Error("Failed to retrieve experiment by id from repository", "error", err)
+		return nil, nil, err
+	}
+
+	s.enrichWithExperimentStatus(&expById)
+
+	resp := experiment.NewExperimentResponse(expById)
+	return &resp, nil, nil
 }
 
 func (s *ExperimentService) enrichWithAATestDates(exp *experiment2.Experiment, fromTime time.Time) {
@@ -221,16 +344,3 @@ func (s *ExperimentService) convertExperimentMetricRequestToExperimentMetric(exp
 		NIM:       expMetReq.NIM,
 	}
 }
-
-//func (s *ExperimentService) GetAbsoluteSampleSize(ctx context.Context, details experiment.GetAbsoluteSampleSizeRequest) (*experiment.GetAbsoluteSampleSizeResponse, error) {
-//	total, per_variant, split, err := s.statsEngineClient.GetAbsoluteSampleSize(ctx, details.AbsolutePercentageMDE, details.BaselineProportion, details.Alpha, details.Power, details.Treatments)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	return &experiment.GetAbsoluteSampleSizeResponse{
-//		TotalSampleSize:      total,
-//		PerVariantSampleSize: per_variant,
-//		Allocations:          split,
-//	}, nil
-//}

@@ -44,6 +44,8 @@ func main() {
 		"CLICKHOUSE_DB",
 		"CLICKHOUSE_USER",
 		"CLICKHOUSE_PASSWORD",
+		"STATS_ENGINE_GRPC_SERVER_ADDRESS",
+		"STATS_ENGINE_GRPC_SERVER_PORT",
 	)
 
 	pgPool := clients.GetPostgresConnectionPool()
@@ -55,6 +57,15 @@ func main() {
 		os.Exit(1)
 	}
 	defer clickhouseConn.Close()
+
+	statsEngineAddress := fmt.Sprintf("%s:%s", os.Getenv("STATS_ENGINE_GRPC_SERVER_ADDRESS"), os.Getenv("STATS_ENGINE_GRPC_SERVER_PORT"))
+
+	statsEngineClient, err := clients.NewStatsEngineClient(statsEngineAddress)
+	if err != nil {
+		logger.Error("Failed to connect to Stats Engine gRPC server", "error", err)
+		os.Exit(1)
+	}
+	defer statsEngineClient.Close()
 
 	// Global Values
 	bucketCount, err := utils.GetBucketCount()
@@ -71,11 +82,12 @@ func main() {
 	bucketAllocationRepository := repository.NewBucketAllocationRepository(pgPool)
 
 	// Services
-	experimentService := service.NewExperimentService(experimentRepository, bucketAllocationRepository, logger)
-	assignmentService := service.NewAssignmentService(experimentRepository, bucketCount, logger)
-	eventsCatalogService := service.NewEventsCatalogService(eventsCatalogRepository, logger)
 	eventService := service.NewEventsService(eventsRepository, eventsCatalogRepository, logger)
 	metricsCatalogService := service.NewMetricsCatalogService(metricsCatalogRepository, eventsCatalogRepository, logger)
+	clickhouseQueryBuilder := service.NewClickhouseQueryBuilder()
+	experimentService := service.NewExperimentService(experimentRepository, bucketAllocationRepository, clickhouseQueryBuilder, eventService, metricsCatalogService, statsEngineClient, logger)
+	assignmentService := service.NewAssignmentService(experimentRepository, bucketCount, logger)
+	eventsCatalogService := service.NewEventsCatalogService(eventsCatalogRepository, logger)
 
 	// Controllers
 	experimentController := controller.NewExperimentController(experimentService)

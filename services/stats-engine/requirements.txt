@@ -2,3 +2,4 @@ spotify-confidence
 grpcio-tools
 python-dotenv
 grpcio-reflection
+pandas

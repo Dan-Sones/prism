@@ -1,7 +1,10 @@
 package service
 
 import (
+	event2 "experimentation-service/internal/model/event"
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/Dan-Sones/prismdbmodels/model/event"
 	"github.com/Dan-Sones/prismdbmodels/model/metric"
@@ -10,13 +13,13 @@ import (
 func TestClickhouseQueryBuilder_BuildInEventKeyWhere(t *testing.T) {
 	tests := []struct {
 		name string
-		m    metric.Metric
+		m    metric.EnrichedMetric
 		want string
 	}{
 		{
 			name: "Single event key",
-			m: metric.Metric{
-				MetricComponents: []metric.MetricComponent{
+			m: metric.EnrichedMetric{
+				MetricComponents: []metric.EnrichedMetricComponent{
 					{
 						EventType: event.EventType{
 							EventKey: "eventA",
@@ -28,8 +31,8 @@ func TestClickhouseQueryBuilder_BuildInEventKeyWhere(t *testing.T) {
 		},
 		{
 			name: "Multiple event keys",
-			m: metric.Metric{
-				MetricComponents: []metric.MetricComponent{
+			m: metric.EnrichedMetric{
+				MetricComponents: []metric.EnrichedMetricComponent{
 					{
 						EventType: event.EventType{
 							EventKey: "eventA",
@@ -68,12 +71,12 @@ func TestClickhouseQueryBuilder_BuildSelectItemForCountDistinct(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		component metric.MetricComponent
+		component metric.EnrichedMetricComponent
 		want      string
 	}{
 		{
 			name: "Count distinct on system column",
-			component: metric.MetricComponent{
+			component: metric.EnrichedMetricComponent{
 				EventType: event.EventType{
 					EventKey: "eventA",
 				},
@@ -84,7 +87,7 @@ func TestClickhouseQueryBuilder_BuildSelectItemForCountDistinct(t *testing.T) {
 		},
 		{
 			name: "Count distinct on string event field",
-			component: metric.MetricComponent{
+			component: metric.EnrichedMetricComponent{
 				EventType: event.EventType{
 					EventKey: "eventA",
 				},
@@ -98,7 +101,7 @@ func TestClickhouseQueryBuilder_BuildSelectItemForCountDistinct(t *testing.T) {
 		},
 		{
 			name: "Count distinct on float event field",
-			component: metric.MetricComponent{
+			component: metric.EnrichedMetricComponent{
 				EventType: event.EventType{
 					EventKey: "eventA",
 				},
@@ -112,7 +115,7 @@ func TestClickhouseQueryBuilder_BuildSelectItemForCountDistinct(t *testing.T) {
 		},
 		{
 			name: "Count distinct on int event field",
-			component: metric.MetricComponent{
+			component: metric.EnrichedMetricComponent{
 				EventType: event.EventType{
 					EventKey: "eventA",
 				},
@@ -143,18 +146,28 @@ func TestClickhouseQueryBuilder_BuildSelectItemForCountDistinct(t *testing.T) {
 func TestClickhouseQueryBuilder_BuildQueryForExperimentMetric_Ratio(t *testing.T) {
 	sysColName := "user_id"
 
+	startTime, err := time.Parse(time.RFC3339, "2026-04-23T14:30:00Z")
+	if err != nil {
+		t.Fatalf("Error parsing start time: %v", err)
+	}
+	endTime := startTime.Add(1 * time.Hour)
+
 	tests := []struct {
 		name          string
 		experimentKey string
-		m             metric.Metric
-		expectedQuery string
+		m             metric.EnrichedMetric
+		startTime     time.Time
+		endTime       time.Time
+		expectedQuery event2.QueryString
 	}{
 		{
 			name:          "BINARY Ratio Metric System Column Name: purchase conversion rate",
 			experimentKey: "button_color_v1",
-			m: metric.Metric{
+			startTime:     startTime,
+			endTime:       endTime,
+			m: metric.EnrichedMetric{
 				MetricType: metric.MetricTypeRatio,
-				MetricComponents: []metric.MetricComponent{
+				MetricComponents: []metric.EnrichedMetricComponent{
 					{
 						Role: metric.ComponentRoleNumerator,
 						EventType: event.EventType{
@@ -173,14 +186,14 @@ func TestClickhouseQueryBuilder_BuildQueryForExperimentMetric_Ratio(t *testing.T
 					},
 				},
 			},
-			expectedQuery: `SELECT variant_key, uniqExactIf(user_id, event_key = 'purchase') AS numerator, uniqExactIf(user_id, event_key = 'experiment_exposure') AS denominator FROM events WHERE experiment_key = 'button_color_v1' AND event_key IN ('purchase', 'experiment_exposure') GROUP BY variant_key;`,
+			expectedQuery: `SELECT variant_key, uniqExactIf(user_id, event_key = 'purchase') AS numerator, uniqExactIf(user_id, event_key = 'experiment_exposure') AS denominator FROM events WHERE experiment_key = 'button_color_v1' AND event_key IN ('purchase', 'experiment_exposure') AND sent_at >= '2026-04-23 14:30:00' AND sent_at <= '2026-04-23 15:30:00' GROUP BY variant_key;`,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			builder := &ClickhouseQueryBuilder{}
-			query, err := builder.BuildQueryForExperimentMetric(tt.experimentKey, tt.m)
+			query, err := builder.BuildQueryFor(tt.experimentKey, tt.m, startTime, endTime)
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)
 			}
@@ -189,4 +202,36 @@ func TestClickhouseQueryBuilder_BuildQueryForExperimentMetric_Ratio(t *testing.T
 			}
 		})
 	}
+}
+
+func TestClickhouseQueryBuilder_BuildQueryFor_NoMetricComponents(t *testing.T) {
+	experimentKey := "button_color_v1"
+	m := metric.EnrichedMetric{
+		MetricType: metric.MetricTypeRatio,
+	}
+	startTime := time.Now()
+	endTime := startTime.Add(1 * time.Hour)
+
+	builder := &ClickhouseQueryBuilder{}
+	_, err := builder.BuildQueryFor(experimentKey, m, startTime, endTime)
+	if err.Error() != "metric must have at least one component" {
+		t.Fatalf("Expected error about missing metric components, got: %v", err)
+	}
+}
+
+func TestNewClickhouseQueryBuilder_BuildTimeRangeWhere(t *testing.T) {
+	builder := &ClickhouseQueryBuilder{}
+	const layout = "2006-01-02 15:04:05"
+
+	startTime := time.Now().UTC()
+	endTime := startTime.UTC().Add(1 * time.Hour)
+
+	expected := fmt.Sprintf("sent_at >= '%s' AND sent_at <= '%s'",
+		startTime.Format(layout), endTime.Format(layout))
+
+	got := builder.BuildTimeRangeWhere(startTime, endTime)
+	if got != expected {
+		t.Errorf("Expected %v, got %v", expected, got)
+	}
+
 }

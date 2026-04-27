@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"experimentation-service/internal/model/event"
 	"experimentation-service/internal/model/graph"
 	"time"
 )
@@ -16,4 +17,5 @@ type EventsRepository interface {
 	GetTotalEventsPast24HoursForEventKey(ctx context.Context, eventKey string) (int, error)
 	GetTotalEventsPast7DaysForEventKey(ctx context.Context, eventKey string) (int, error)
 	GetLastReceivedTimeForEventKey(ctx context.Context, eventKey string) (time.Time, error)
+	PerformBinaryMetricQuery(ctx context.Context, query event.QueryString) (event.BinaryMetricQueryResult, error)
 }

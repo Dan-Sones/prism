@@ -87,19 +87,67 @@ func (c *ExperimentController) GetExperimentByUUID(w http.ResponseWriter, r *htt
 	WriteResponse(w, http.StatusOK, exps)
 }
 
-//func (c *ExperimentController) GetAbsoluteSampleSize(w http.ResponseWriter, r *http.Request) {
-//	ctx := r.Context()
-//
-//	if r.Body == nil {
-//		problems.NewBadRequestError("Request body is required").Write(w)
-//		return
-//	}
-//
-//	var body experiment.GetAbsoluteSampleSizeRequest
-//	err := json.NewDecoder(r.Body).Decode(&body)
-//	if err != nil {
-//		problems.NewBadRequestError("Invalid request body").Write(w)
-//		return
-//	}
-//
-//}
+func (c *ExperimentController) UpdateExperimentForABPhase(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	expId := chi.URLParam(r, "experimentId")
+
+	if expId == "" {
+		problems.NewBadRequestError("experimentId is required")
+		return
+	}
+
+	expUuid, err := uuid.Parse(expId)
+	if err != nil {
+		problems.NewBadRequestError("experimentId must be a valid uuid")
+		return
+	}
+
+	if r.Body == nil {
+		problems.NewBadRequestError("Request body is required").Write(w)
+		return
+	}
+
+	var body experiment.UpdateExperimentPhaseRequest
+	err = json.NewDecoder(r.Body).Decode(&body)
+	if err != nil {
+		problems.NewBadRequestError("Invalid request body").Write(w)
+		return
+	}
+
+	experiment, violations, err := c.experimentService.UpdateExperimentForABPhase(ctx, expUuid, body)
+	if err != nil {
+		problems.NewInternalServerError().Write(w)
+		return
+	}
+	if len(violations) > 0 {
+		problems.NewValidationError(violations).Write(w)
+		return
+	}
+
+	WriteResponse(w, http.StatusOK, experiment)
+}
+
+func (c *ExperimentController) CalculateRequiredSampleSizeForMetrics(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	expId := chi.URLParam(r, "experimentId")
+
+	if expId == "" {
+		problems.NewBadRequestError("experimentId is required")
+		return
+	}
+
+	expUuid, err := uuid.Parse(expId)
+	if err != nil {
+		problems.NewBadRequestError("experimentId must be a valid uuid")
+		return
+	}
+
+	res, err := c.experimentService.GetRequiredSampleSizeForMetrics(ctx, expUuid)
+	if err != nil {
+		problems.NewInternalServerError().Write(w)
+		return
+	}
+	WriteResponse(w, http.StatusOK, res)
+}

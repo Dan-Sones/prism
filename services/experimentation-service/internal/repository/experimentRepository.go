@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	experiment2 "github.com/Dan-Sones/prismdbmodels/model/experiment"
 	"github.com/google/uuid"
@@ -78,14 +79,15 @@ func (r *ExperimentRepository) CreateNewExperiment(ctx context.Context, experime
 }
 
 func (r *ExperimentRepository) GetExperimentByUUID(ctx context.Context, id uuid.UUID) (experiment2.Experiment, error) {
-	var exp experiment2.Experiment
-
-	err := r.pgxPool.QueryRow(ctx, `
-        SELECT id, name, feature_flag_id, aa_start_time, aa_end_time, hypothesis, description, created_at
+	rows, err := r.pgxPool.Query(ctx, `
+        SELECT *
         FROM prism.experiments WHERE id = $1`, id,
-	).Scan(
-		&exp.ID, &exp.Name, &exp.FeatureFlagID, &exp.AAStartTime, &exp.AAEndTime, &exp.Hypothesis, &exp.Description, &exp.CreatedAt,
 	)
+	if err != nil {
+		return experiment2.Experiment{}, err
+	}
+
+	exp, err := pgx.CollectOneRow(rows, pgx.RowToStructByNameLax[experiment2.Experiment])
 	if err != nil {
 		return experiment2.Experiment{}, err
 	}
@@ -221,6 +223,24 @@ func (r *ExperimentRepository) UpdateBoundsForExperimentVariant(ctx context.Cont
 		WHERE experiment_id = $3 AND variant_key = $4`,
 		upperBound, lowerBound, experimentId, variantKey,
 	)
+
+	return err
+}
+
+func (r *ExperimentRepository) SetExperimentStartAndEndTime(ctx context.Context, experimentId uuid.UUID, startTime time.Time, endTime time.Time) error {
+	_, err := r.pgxPool.Exec(ctx, `UPDATE prism.experiments	
+		SET start_time = $1, end_time = $2
+		WHERE id = $3`,
+		startTime, endTime, experimentId)
+
+	return err
+}
+
+func (r *ExperimentRepository) SetTotalRequiredSampleSizeForExperiment(ctx context.Context, experimentId uuid.UUID, totalRequiredSampleSize int) error {
+	_, err := r.pgxPool.Exec(ctx, `UPDATE prism.experiments	
+		SET total_required_sample_size = $1
+		WHERE id = $2`,
+		totalRequiredSampleSize, experimentId)
 
 	return err
 }
