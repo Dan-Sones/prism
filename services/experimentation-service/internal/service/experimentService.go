@@ -127,16 +127,16 @@ func (s *ExperimentService) ConfigureExperimentForAA(ctx context.Context, experi
 		return err
 	}
 
-	// set bounds to 100 for the control variant and 0 for the others to ensure all traffic goes to the control variant
+	// Assign 50% of traffic to control and 50% to treatment for the duration of the A/A test by setting the bounds for the variants accordingly
 	for _, variant := range experiment3.Variants {
 		if variant.VariantType == experiment2.VariantTypeControl {
-			err = s.experimentRepository.UpdateBoundsForExperimentVariant(ctx, experiment3.ID, variant.VariantKey, 100, 0)
+			err = s.experimentRepository.UpdateBoundsForExperimentVariant(ctx, experiment3.ID, variant.VariantKey, 50, 0)
 			if err != nil {
 				s.logger.Error("Failed to update bounds for control variant for A/A test", "error", err)
 				return err
 			}
 		} else if variant.VariantType == experiment2.VariantTypeTreatment {
-			err = s.experimentRepository.UpdateBoundsForExperimentVariant(ctx, experiment3.ID, variant.VariantKey, 0, 0)
+			err = s.experimentRepository.UpdateBoundsForExperimentVariant(ctx, experiment3.ID, variant.VariantKey, 51, 100)
 			if err != nil {
 				s.logger.Error("Failed to update bounds for treatment variant for A/A test", "error", err)
 				return err
