@@ -155,13 +155,14 @@ func (r *ExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Co
 	sql := `SELECT
     e.id,
     e.name,
-    e.aa_end_time,
+    e.aa_start_time,
     e.aa_end_time,
     e.feature_flag_id,
     e.unique_salt,
     v.variant_key,
     v.upper_bound,
-    v.lower_bound
+    v.lower_bound,
+    v.variant_type
 	FROM
 		prism.experiments e
 	JOIN
@@ -195,7 +196,7 @@ func (r *ExperimentRepository) GetExperimentsAndVariantsForBucket(ctx context.Co
 		var experimentId uuid.UUID
 		var exp experiment2.Experiment
 		var ev experiment2.ExperimentVariant
-		err := rows.Scan(&experimentId, &exp.Name, &exp.FeatureFlagID, &exp.UniqueSalt, &ev.VariantKey, &ev.UpperBound, &ev.LowerBound, &exp.AAStartTime, &exp.AAEndTime)
+		err := rows.Scan(&experimentId, &exp.Name, &exp.AAStartTime, &exp.AAEndTime, &exp.FeatureFlagID, &exp.UniqueSalt, &ev.VariantKey, &ev.UpperBound, &ev.LowerBound, &ev.VariantType)
 		if err != nil {
 			return nil, err
 		}

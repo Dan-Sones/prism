@@ -4,11 +4,11 @@ WITH experiment_1 AS (
         RETURNING id),
      variant_1 AS (
          INSERT INTO prism.variants (experiment_id, name, variant_key, lower_bound, upper_bound, variant_type)
-             VALUES ((SELECT id FROM experiment_1), 'Button - Blue', 'button_blue', 0, 100, 'control')
+             VALUES ((SELECT id FROM experiment_1), 'Button - Blue', 'button_blue', 0, 50, 'control')
              RETURNING id),
      variant_2 AS (
          INSERT INTO prism.variants (experiment_id, name, variant_key, lower_bound, upper_bound, variant_type)
-             VALUES ((SELECT id FROM experiment_1), 'Button - Green', 'button_green', 0, 0, 'treatment')
+             VALUES ((SELECT id FROM experiment_1), 'Button - Green', 'button_green', 51, 100, 'treatment')
              RETURNING id),
      bucket_allocations AS (
          INSERT INTO prism.bucket_allocations (experiment_id, bucket_number)
