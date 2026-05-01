@@ -102,6 +102,5 @@ public class DownstreamEventTest {
 
         Assertions.assertEquals(sentAt, downstreamEvent.getSentAt());
         Assertions.assertNotNull(downstreamEvent.getReceivedAt());
-
     }
 }

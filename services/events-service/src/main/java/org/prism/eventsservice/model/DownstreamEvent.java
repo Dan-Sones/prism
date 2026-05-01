@@ -3,6 +3,7 @@ package org.prism.eventsservice.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.Data;
 import org.prism.eventsservice.grpc.events_catalog.v1.EventField;
@@ -25,6 +26,10 @@ public class DownstreamEvent {
     @JsonProperty("received_at")
     private Instant receivedAt;
 
+    // Only to be set on experiment_exposure events
+    @JsonProperty("experiment_key")
+    Optional<String> experimentKey;
+
     private Map<String, OutboundEventField> properties;
 
     public DownstreamEvent(EventType eventDefinition, EventRequest eventRequest) {
@@ -33,7 +38,7 @@ public class DownstreamEvent {
         this.userDetails = eventRequest.getUserDetails();
         this.sentAt = eventRequest.getSentAt();
         this.receivedAt = Instant.now();
-
+        this.experimentKey = eventRequest.getExperimentKey();
 
         // By streaming like this events without definitions will be ignored and NOT written to kafka
         this.properties = eventDefinition.getFieldsList().stream()

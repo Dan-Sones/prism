@@ -3,6 +3,7 @@ package org.prism.eventsservice.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;
 import java.util.Map;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,6 +20,10 @@ public class EventRequest {
 
     @JsonProperty("sent_at")
     private Instant sentAt;
+
+    // Only to be set on experiment_exposure events
+    @JsonProperty("experiment_key")
+    Optional<String> experimentKey;
 
     private Map<String, Object> properties;
 }

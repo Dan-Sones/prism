@@ -105,6 +105,16 @@ func (p *MicroBatchProcessorImp) cookEvents(events []model.DownstreamEvent, assi
 				}
 			}
 
+			if event.EventKey == "experiment_exposure" {
+				cookedEvents = append(cookedEvents, &model.CookedDownstreamEvent{
+					DownstreamEvent: event,
+					ExperimentKey:   exp.ExperimentKey,
+					VariantKey:      variantKeyWithinExperiment,
+					IsAA:            event.SentAt.After(experimentDetails.AAStartTime) && event.SentAt.Before(experimentDetails.AAEndTime),
+				})
+				continue
+			}
+
 			eventKeyInExperiment := p.isEventKeyInExperiment(event.EventKey, experimentDetails)
 			if !eventKeyInExperiment {
 				continue

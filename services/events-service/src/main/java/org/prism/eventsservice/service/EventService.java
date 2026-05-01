@@ -85,6 +85,12 @@ public class EventService {
             missingFields.add("sentAt");
         }
 
+        if ("experiment_exposure".equals(eventRequest.getEventKey())
+                && (eventRequest.getExperimentKey() == null
+                        || eventRequest.getExperimentKey().isEmpty())) {
+            missingFields.add("experimentKey");
+        }
+
         return new EventValidationResult(missingFields.isEmpty(), missingFields);
     }
 
