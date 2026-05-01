@@ -39,10 +39,18 @@ func main() {
 		"DATA_COOKING_SERVICE_MICROBATCH_FLUSH_TIMEOUT_SECONDS",
 		"ASSIGNMENT_SERVICE_GRPC_SERVER_ADDRESS",
 		"ASSIGNMENT_SERVICE_GRPC_SERVER_PORT",
+		"EXPERIMENTATION_SERVICE_GRPC_SERVER_ADDRESS",
+		"EXPERIMENTATION_SERVICE_GRPC_SERVER_PORT",
 	)
 
 	assignmentGrpcClient := getGrpcAssignmentClient()
 	defer assignmentGrpcClient.Close()
+
+	experimentationAssignmentGrpcClient := getGrpcExperimentationAssignmentClient()
+	defer experimentationAssignmentGrpcClient.Close()
+
+	experimentationExperimentGrpcClient := getGrpcExperimentationExperimentClient()
+	defer experimentationExperimentGrpcClient.Close()
 
 	clickhouseConn, err := clients.NewClickhouseConnection()
 	if err != nil {
@@ -67,7 +75,7 @@ func main() {
 	cookedEventsRepository := repository.NewCookedEventsRepositoryClickhouse(clickhouseConn)
 
 	// service
-	microBatchProcessor := services.NewMicroBatchProcessorImp(cookedEventsRepository, assignmentGrpcClient)
+	microBatchProcessor := services.NewMicroBatchProcessorImp(cookedEventsRepository, assignmentGrpcClient, experimentationExperimentGrpcClient, experimentationAssignmentGrpcClient)
 	eventReader := microbatcher.NewEventReaderImp(kafkaClient, logger)
 	microBatchService := microbatcher.NewMicroBatchingService(microBatchSizeInt, utils.GetFlushTimeoutDuration(), eventReader, microBatchProcessor, logger)
 
@@ -95,6 +103,26 @@ func loadEnv() {
 func getGrpcAssignmentClient() clients.AssignmentClient {
 	address := fmt.Sprintf("%s:%s", os.Getenv("ASSIGNMENT_SERVICE_GRPC_SERVER_ADDRESS"), os.Getenv("ASSIGNMENT_SERVICE_GRPC_SERVER_PORT"))
 	client, err := clients.NewGrpcAssignmentClient(address)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return client
+}
+
+func getGrpcExperimentationAssignmentClient() clients.ExperimentationAssignmentClient {
+	address := fmt.Sprintf("%s:%s", os.Getenv("EXPERIMENTATION_SERVICE_GRPC_SERVER_ADDRESS"), os.Getenv("EXPERIMENTATION_SERVICE_GRPC_SERVER_PORT"))
+	client, err := clients.NewGrpcExperimentationAssignmentClient(address)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return client
+}
+
+func getGrpcExperimentationExperimentClient() clients.ExperimentationExperimentClient {
+	address := fmt.Sprintf("%s:%s", os.Getenv("EXPERIMENTATION_SERVICE_GRPC_SERVER_ADDRESS"), os.Getenv("EXPERIMENTATION_SERVICE_GRPC_SERVER_PORT"))
+	client, err := clients.NewGrpcExperimentationExperimentClient(address)
 	if err != nil {
 		log.Fatal(err)
 	}

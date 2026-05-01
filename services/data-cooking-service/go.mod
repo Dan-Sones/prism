@@ -11,6 +11,7 @@ require (
 )
 
 require (
+	github.com/jackc/pgx/v5 v5.9.2 // indirect
 	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/text v0.33.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217 // indirect

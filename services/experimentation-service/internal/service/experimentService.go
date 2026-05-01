@@ -14,6 +14,7 @@ import (
 	"time"
 
 	experiment2 "github.com/Dan-Sones/prismdbmodels/model/experiment"
+	"github.com/Dan-Sones/prismdbmodels/model/metric"
 	"github.com/google/uuid"
 )
 
@@ -103,6 +104,47 @@ func (s *ExperimentService) GetExperimentByUUID(ctx context.Context, expId uuid.
 
 	s.enrichWithExperimentStatus(&expById)
 	return experiment.NewExperimentResponse(expById), nil
+}
+
+func (s *ExperimentService) GetEnrichedExperimentByKey(ctx context.Context, experimentKey string) (experiment2.EnrichedExperiment, error) {
+	expByKey, err := s.experimentRepository.GetExperimentByKey(ctx, experimentKey)
+	if err != nil {
+		s.logger.Error("Failed to retrieve experiment by id from repository", "error", err)
+		return experiment2.EnrichedExperiment{}, err
+	}
+
+	s.enrichWithExperimentStatus(&expByKey)
+
+	metricIds := make([]uuid.UUID, 0, len(expByKey.Metrics))
+	for _, em := range expByKey.Metrics {
+		metricIds = append(metricIds, em.MetricID)
+	}
+
+	enrichedMetrics := make([]metric.EnrichedMetric, 0, len(metricIds))
+	for _, metricId := range metricIds {
+		enrichedMetric, err := s.metricsCatalogService.GetMetricById(ctx, metricId)
+		if err != nil {
+			s.logger.Error("Failed to retrieve metric details for experiment metric from metrics catalog service", "error", err, "metricId", metricId)
+			return experiment2.EnrichedExperiment{}, err
+		}
+		enrichedMetrics = append(enrichedMetrics, *enrichedMetric)
+	}
+
+	return experiment2.EnrichedExperiment{
+		ID:            expByKey.ID,
+		Name:          expByKey.Name,
+		Status:        expByKey.Status,
+		CreatedAt:     expByKey.CreatedAt.Time,
+		FeatureFlagID: expByKey.FeatureFlagID,
+		StartTime:     &expByKey.StartTime.Time,
+		EndTime:       &expByKey.EndTime.Time,
+		AAStartTime:   expByKey.AAStartTime,
+		AAEndTime:     expByKey.AAEndTime,
+		Hypothesis:    expByKey.Hypothesis,
+		Description:   expByKey.Description,
+		Metrics:       enrichedMetrics,
+		Variants:      expByKey.Variants,
+	}, nil
 }
 
 func (s *ExperimentService) ConfigureExperimentForAA(ctx context.Context, experiment3 experiment2.Experiment) error {

@@ -24,6 +24,7 @@ import (
 
 	pbEventsCatalog "experimentation-service/internal/grpc/generated/events_catalog/v1"
 	pbExperimentationAssignment "experimentation-service/internal/grpc/generated/experimentation_service_assignment/v1"
+	pbExperimentationExperiments "experimentation-service/internal/grpc/generated/experimentation_service_experiments/v1"
 )
 
 func main() {
@@ -95,7 +96,7 @@ func main() {
 	eventController := controller.NewEventController(eventService)
 	metricsCatalogController := controller.NewMetricsCatalogController(metricsCatalogService)
 
-	go startGrpcServer(logger, assignmentService, eventsCatalogService)
+	go startGrpcServer(logger, assignmentService, eventsCatalogService, experimentService)
 
 	router := http.NewRouter()
 	http.RegisterRoutes(router, http.Controllers{
@@ -130,13 +131,15 @@ func loadEnv() {
 	_ = godotenv.Load("../../infrastructure/.env")
 }
 
-func startGrpcServer(logger *slog.Logger, assignmentService *service.AssignmentService, eventsCatalogService *service.EventsCatalogService) {
+func startGrpcServer(logger *slog.Logger, assignmentService *service.AssignmentService, eventsCatalogService *service.EventsCatalogService, experimentService *service.ExperimentService) {
 	grpcServer := grpc.NewServer()
 
 	experimentationAssignmentServer := pb.NewAssignmentServer(assignmentService)
 	eventsCatalogServer := pb.NewEventsCatalogServer(eventsCatalogService)
+	experimentsServer := pb.NewExperimentsServer(experimentService)
 	pbExperimentationAssignment.RegisterExperimentationServiceAssignmentServer(grpcServer, experimentationAssignmentServer)
 	pbEventsCatalog.RegisterEventsCatalogServiceServer(grpcServer, eventsCatalogServer)
+	pbExperimentationExperiments.RegisterExperimentationServiceExperimentsServer(grpcServer, experimentsServer)
 
 	reflection.Register(grpcServer)
 

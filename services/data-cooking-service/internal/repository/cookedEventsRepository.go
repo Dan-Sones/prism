@@ -32,7 +32,7 @@ func (r *CookedEventsRepositoryClickhouse) InsertBatch(ctx context.Context, cook
 	}
 
 	for _, cookedEvent := range cookedEvents {
-		err := batch.Append(cookedEvent.ExperimentKey, cookedEvent.VariantKey, cookedEvent.EventKey, cookedEvent.UserDetails.ID, cookedEvent.SentAt, cookedEvent.ReceivedAt, cookedEvent.GetStringProperties(), cookedEvent.GetIntProperties(), cookedEvent.GetFloatProperties())
+		err := batch.Append(cookedEvent.ExperimentKey, cookedEvent.VariantKey, cookedEvent.EventKey, cookedEvent.UserDetails.ID, cookedEvent.SentAt, cookedEvent.ReceivedAt, cookedEvent.GetStringProperties(), cookedEvent.GetIntProperties(), cookedEvent.GetFloatProperties(), cookedEvent.IsAA)
 		if err != nil {
 			return err
 		}

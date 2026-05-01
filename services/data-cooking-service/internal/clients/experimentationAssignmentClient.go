@@ -11,28 +11,29 @@ import (
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
-type ExperimentationClient interface {
+type ExperimentationAssignmentClient interface {
 	GetExperimentsAndVariantsForBucketAtTime(ctx context.Context, bucketId int, requester string, atTime time.Time) ([]model.ExperimentWithVariants, error)
+	Close() error
 }
 
-type GrpcExperimentationClient struct {
+type GrpcExperimentationAssignmentClient struct {
 	conn   *grpc.ClientConn
 	client experimentation_service_assignment.ExperimentationServiceAssignmentClient
 }
 
-func NewGrpcExperimentationClient(experimentationServiceAddr string) (*GrpcExperimentationClient, error) {
+func NewGrpcExperimentationAssignmentClient(experimentationServiceAddr string) (*GrpcExperimentationAssignmentClient, error) {
 	conn, err := grpc.NewClient(experimentationServiceAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
 
-	return &GrpcExperimentationClient{
+	return &GrpcExperimentationAssignmentClient{
 		conn:   conn,
 		client: experimentation_service_assignment.NewExperimentationServiceAssignmentClient(conn),
 	}, nil
 }
 
-func (c *GrpcExperimentationClient) GetExperimentsAndVariantsForBucketAtTime(ctx context.Context, bucketId int, requester string, atTime time.Time) ([]model.ExperimentWithVariants, error) {
+func (c *GrpcExperimentationAssignmentClient) GetExperimentsAndVariantsForBucketAtTime(ctx context.Context, bucketId int, requester string, atTime time.Time) ([]model.ExperimentWithVariants, error) {
 	req := &experimentation_service_assignment.GetExperimentsAndVariantsForBucketAtTimeRequest{
 		BucketId:  int32(bucketId),
 		Requester: requester,
@@ -64,6 +65,6 @@ func (c *GrpcExperimentationClient) GetExperimentsAndVariantsForBucketAtTime(ctx
 	return experimentsWithVariants, nil
 }
 
-func (c *GrpcExperimentationClient) Close() error {
+func (c *GrpcExperimentationAssignmentClient) Close() error {
 	return c.conn.Close()
 }

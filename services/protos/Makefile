@@ -26,6 +26,7 @@ generate:
 		--go-grpc_out=$(EXPERIMENTATION_GEN_DIR) \
 		--go-grpc_opt=paths=source_relative \
 		experimentation_service_assignment/v1/*.proto \
+		experimentation_service_experiments/v1/*.proto \
 		events_catalog/v1/*.proto \
 		stats_engine/v1/*.proto
 
@@ -85,7 +86,8 @@ generate:
 		--go-grpc_out=$(DATA_COOKING_GEN_DIR) \
 		--go-grpc_opt=paths=source_relative \
 		assignment_service/v1/*.proto \
-		experimentation_service_assignment/v1/*.proto
+		experimentation_service_assignment/v1/*.proto \
+		experimentation_service_experiments/v1/*.proto
 
 	@echo "Files Generated in $(DATA_COOKING_GEN_DIR)"
 
