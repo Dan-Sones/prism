@@ -119,7 +119,17 @@ func (es *ExperimentSimulation) GetAATestParticipantsWithActions() *[]model.Expe
 		log.Fatalf("Failed to complete simulation: %v \n", err)
 	}
 
+	treatmentVariantKey, err := es.GetTreatmentVariantKey()
+	if err != nil {
+		log.Fatalf("Failed to complete simulation: %v \n", err)
+	}
+
 	numExposureEventsForControlVariant, err := es.GetNumberOfEventTypeToPublishForVariantAndPhase("experiment_exposure", controlVariantKey, model.ExperimentPhaseAA)
+	if err != nil {
+		log.Fatalf("Failed to complete simulation: %v \n", err)
+	}
+
+	numExposureEventsForTreatmentVariant, err := es.GetNumberOfEventTypeToPublishForVariantAndPhase("experiment_exposure", treatmentVariantKey, model.ExperimentPhaseAA)
 	if err != nil {
 		log.Fatalf("Failed to complete simulation: %v \n", err)
 	}
@@ -128,12 +138,19 @@ func (es *ExperimentSimulation) GetAATestParticipantsWithActions() *[]model.Expe
 
 	fmt.Println("Fetching User IDs From Grpc")
 
-	userIds, err := es.UserIdService.GetXUserIdsWithinExperimentAndVariant(*numExposureEventsForControlVariant, es.ExperimentConfig.ExperimentKey, controlVariantKey)
+	controlUserIds, err := es.UserIdService.GetXUserIdsWithinExperimentAndVariant(*numExposureEventsForControlVariant, es.ExperimentConfig.ExperimentKey, controlVariantKey)
 	if err != nil {
 		log.Fatalf("Failed to complete simulation: %v \n", err)
 	}
 
-	experimentParticipantsWithExposureEvents := es.createExperimentParticipantsWithExposureEventsForUserIds(userIds, controlVariantKey, es.ExperimentConfig.ExperimentKey)
+	treatmentUserIds, err := es.UserIdService.GetXUserIdsWithinExperimentAndVariant(*numExposureEventsForTreatmentVariant, es.ExperimentConfig.ExperimentKey, treatmentVariantKey)
+	if err != nil {
+		log.Fatalf("Failed to complete simulation: %v \n", err)
+	}
+
+	userIds := append(controlUserIds, treatmentUserIds...)
+
+	experimentParticipantsWithExposureEvents := es.createExperimentParticipantsWithExposureEventsForUserIds(userIds, es.ExperimentConfig.ExperimentKey)
 
 	numExperimentParticipants := len(experimentParticipantsWithExposureEvents)
 
@@ -151,6 +168,26 @@ func (es *ExperimentSimulation) GetAATestParticipantsWithActions() *[]model.Expe
 				fieldSeed := DeriveSeed(es.ExperimentConfig.RandomSeed, string(controlVariantKey), string(eventKey), string(fieldName), strconv.Itoa(i))
 				randSouce := rand.New(rand.NewSource(fieldSeed))
 				value := GenerateDataForField(fieldConfig.Type, fieldConfig.AA[controlVariantKey], randSouce)
+				fieldValues[fieldName] = value
+			}
+			experimentParticipantsWithExposureEvents[i].AddAction(model.NewParticipantEventParameters(eventKey, fieldValues))
+		}
+	}
+
+	for eventKey, numOfEventToPublish := range variantToEventToAmountExcludingExposure[treatmentVariantKey] {
+		for i := 0; i < numOfEventToPublish; i++ {
+			if i >= numExperimentParticipants {
+				log.Fatalf("You defined %d experiment_exposure events but then asked for %d %s events - That's not possible! ", numExperimentParticipants, numOfEventToPublish, eventKey)
+			}
+
+			eventFields := es.ExperimentConfig.Events[eventKey].Fields
+
+			fieldValues := make(map[model.EventField]interface{})
+
+			for fieldName, fieldConfig := range eventFields {
+				fieldSeed := DeriveSeed(es.ExperimentConfig.RandomSeed, string(treatmentVariantKey), string(eventKey), string(fieldName), strconv.Itoa(i))
+				randSouce := rand.New(rand.NewSource(fieldSeed))
+				value := GenerateDataForField(fieldConfig.Type, fieldConfig.AA[treatmentVariantKey], randSouce)
 				fieldValues[fieldName] = value
 			}
 			experimentParticipantsWithExposureEvents[i].AddAction(model.NewParticipantEventParameters(eventKey, fieldValues))
@@ -185,11 +222,11 @@ func DeriveSeed(parent int64, parts ...string) int64 {
 	return int64(h.Sum64())
 }
 
-func (es *ExperimentSimulation) createExperimentParticipantsWithExposureEventsForUserIds(userIds []string, variantKey model.VariantKey, experimentKey string) []model.ExperimentParticipant {
+func (es *ExperimentSimulation) createExperimentParticipantsWithExposureEventsForUserIds(userIds []string, experimentKey string) []model.ExperimentParticipant {
 	var experimentParticipants []model.ExperimentParticipant
 
 	for _, userId := range userIds {
-		participant := model.NewExperimentParticipant(userId, variantKey, experimentKey)
+		participant := model.NewExperimentParticipant(userId, experimentKey)
 		participant.AddAction(model.NewParticipantEventParameters("experiment_exposure", map[model.EventField]interface{}{}))
 		experimentParticipants = append(experimentParticipants, participant)
 	}
@@ -200,12 +237,8 @@ func (es *ExperimentSimulation) createExperimentParticipantsWithExposureEventsFo
 func (es *ExperimentSimulation) GetVariantToEventToAmountExcludingExposure(phase model.ExperimentPhaseType) map[model.VariantKey]map[model.EventKey]int {
 	variantToEventKeyToAmount := make(map[model.VariantKey]map[model.EventKey]int)
 
-	for variantKey, varType := range es.GetVariantKeys() {
-		if phase == model.ExperimentPhaseAA && varType == model.Treatment {
-			continue
-		}
-
-		eventToAmountForVariant, err := es.GetNumberOfEventsToPublishForVariantAndPhase(variantKey, model.ExperimentPhaseAA)
+	for variantKey, _ := range es.GetVariantKeys() {
+		eventToAmountForVariant, err := es.GetNumberOfEventsToPublishForVariantAndPhase(variantKey, phase)
 		if err != nil {
 			log.Fatalf("Failed to complete simulation: %v \n", err)
 		}
@@ -255,6 +288,16 @@ func (es *ExperimentSimulation) GetControlVariantKey() (model.VariantKey, error)
 	}
 
 	return "", errors.New("no Control Variant Specified")
+}
+
+func (es *ExperimentSimulation) GetTreatmentVariantKey() (model.VariantKey, error) {
+	for key, role := range es.ExperimentConfig.Variants {
+		if role == model.Treatment {
+			return key, nil
+		}
+	}
+
+	return "", errors.New("no Treatment Variant Specified")
 }
 
 func (es *ExperimentSimulation) GetNumberOfEventTypeToPublishForVariantAndPhase(event_key model.EventKey, variant_key model.VariantKey, phase model.ExperimentPhaseType) (*int, error) {

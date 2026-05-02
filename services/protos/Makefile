@@ -75,7 +75,8 @@ generate:
 		--go_opt=paths=source_relative \
 		--go-grpc_out=$(EXPERIMENT_SIMULATOR_GEN_DIR) \
 		--go-grpc_opt=paths=source_relative \
-		assignment_service/v1/*.proto
+		assignment_service/v1/*.proto \
+		experimentation_service_assignment/v1/*.proto
 	@echo "Files Generated in $(EXPERIMENT_SIMULATOR_GEN_DIR)"
 	@echo "Generating protos for data-cooking-service..."
 	@mkdir -p $(DATA_COOKING_GEN_DIR)

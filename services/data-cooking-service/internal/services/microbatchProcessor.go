@@ -5,6 +5,7 @@ import (
 	"data-cooking-service/internal/clients"
 	"data-cooking-service/internal/repository"
 	"encoding/json"
+	"log/slog"
 
 	"github.com/Dan-Sones/prismdbmodels/model"
 	"github.com/Dan-Sones/prismdbmodels/model/experiment"
@@ -17,51 +18,48 @@ type MicroBatchProcessorImp struct {
 	assignmentClient                clients.AssignmentClient
 	experimentClient                clients.ExperimentationExperimentClient
 	experimentationAssignmentClient clients.ExperimentationAssignmentClient
+	logger                          *slog.Logger
 }
 
-func NewMicroBatchProcessorImp(repository repository.CookedEventsRepository, assignmentClient clients.AssignmentClient, experimentClient clients.ExperimentationExperimentClient, experimentationAssignmentClient clients.ExperimentationAssignmentClient) *MicroBatchProcessorImp {
+func NewMicroBatchProcessorImp(repository repository.CookedEventsRepository, assignmentClient clients.AssignmentClient,
+	experimentClient clients.ExperimentationExperimentClient,
+	experimentationAssignmentClient clients.ExperimentationAssignmentClient, logger *slog.Logger) *MicroBatchProcessorImp {
 	return &MicroBatchProcessorImp{
 		cookedEventsRepository:          repository,
 		assignmentClient:                assignmentClient,
 		experimentClient:                experimentClient,
 		experimentationAssignmentClient: experimentationAssignmentClient,
+		logger:                          logger,
 	}
 }
 
 func (p *MicroBatchProcessorImp) ProcessMicrobatch(ctx context.Context, microbatch [][]byte) error {
+	p.logger.Info("processing microbatch", "size", len(microbatch))
+
 	events, err := p.unMarshalMicrobatch(microbatch)
 	if err != nil {
+		p.logger.Error("failed to unmarshal microbatch", "error", err)
 		return err
 	}
 
-	assignments, err := p.getExperimentsForUserIds(ctx, events)
+	cookedEvents, err := p.cookEvents(events)
 	if err != nil {
+		p.logger.Error("failed to cook events", "error", err)
 		return err
 	}
 
-	cookedEvents, err := p.cookEvents(events, assignments)
-	if err != nil {
-		return err
-	}
-
+	p.logger.Info("inserting cooked events", "count", len(cookedEvents))
 	err = p.cookedEventsRepository.InsertBatch(ctx, cookedEvents)
 	if err != nil {
+		p.logger.Error("failed to insert cooked events batch", "error", err)
 		return err
 	}
 
+	p.logger.Info("microbatch processed successfully", "events_in", len(events), "events_out", len(cookedEvents))
 	return nil
 }
 
-func (p *MicroBatchProcessorImp) getExperimentsForUserIds(ctx context.Context, events []model.DownstreamEvent) (Assignments, error) {
-	userIds := make([]string, 0, len(events))
-	for _, event := range events {
-		userIds = append(userIds, event.UserDetails.ID)
-	}
-
-	return p.assignmentClient.GetExperimentsAndVariantsForUsers(ctx, userIds)
-}
-
-func (p *MicroBatchProcessorImp) cookEvents(events []model.DownstreamEvent, assignments Assignments) ([]*model.CookedDownstreamEvent, error) {
+func (p *MicroBatchProcessorImp) cookEvents(events []model.DownstreamEvent) ([]*model.CookedDownstreamEvent, error) {
 	var cookedEvents []*model.CookedDownstreamEvent
 
 	uniqueUserIds := p.deduplicateUserIds(events)
@@ -71,13 +69,13 @@ func (p *MicroBatchProcessorImp) cookEvents(events []model.DownstreamEvent, assi
 	enrichedExperimentDetails := make(map[string]experiment.EnrichedExperiment)
 
 	for _, event := range events {
-		// TODO: maybe a better context type here?
 		eventCtx := context.Background()
 		bucket, ok := userIdToBucket[event.UserDetails.ID]
 		if !ok {
 			var err error
 			bucket, err = p.assignmentClient.GetBucketForUserId(eventCtx, event.UserDetails.ID)
 			if err != nil {
+				p.logger.Error("failed to get bucket for user", "user_id", event.UserDetails.ID, "error", err)
 				return nil, err
 			}
 			userIdToBucket[event.UserDetails.ID] = bucket
@@ -85,12 +83,14 @@ func (p *MicroBatchProcessorImp) cookEvents(events []model.DownstreamEvent, assi
 
 		assigmentForBucketAtEventTime, err := p.experimentationAssignmentClient.GetExperimentsAndVariantsForBucketAtTime(eventCtx, bucket, "data-cooking-service", event.SentAt)
 		if err != nil {
+			p.logger.Error("failed to get experiments for bucket at time", "bucket", bucket, "sent_at", event.SentAt, "error", err)
 			return nil, err
 		}
 
 		for _, exp := range assigmentForBucketAtEventTime {
 			variantKeyWithinExperiment, err := p.assignmentClient.GetVariantForUserFromExperimentDetails(eventCtx, event.UserDetails.ID, exp)
 			if err != nil {
+				p.logger.Error("failed to get variant for user from experiment details", "user_id", event.UserDetails.ID, "experiment_key", exp.ExperimentKey, "error", err)
 				return nil, err
 			}
 
@@ -101,42 +101,41 @@ func (p *MicroBatchProcessorImp) cookEvents(events []model.DownstreamEvent, assi
 			} else {
 				experimentDetails, err = p.experimentClient.GetEnrichedExperimentByKey(eventCtx, exp.ExperimentKey)
 				if err != nil {
+					p.logger.Error("failed to get enriched experiment", "experiment_key", exp.ExperimentKey, "error", err)
 					return nil, err
 				}
+				enrichedExperimentDetails[exp.ExperimentKey] = experimentDetails
 			}
+
+			isAA := event.SentAt.After(experimentDetails.AAStartTime) && event.SentAt.Before(experimentDetails.AAEndTime)
 
 			if event.EventKey == "experiment_exposure" {
+				p.logger.Debug("cooking exposure event", "user_id", event.UserDetails.ID, "experiment_key", exp.ExperimentKey, "variant_key", variantKeyWithinExperiment, "is_aa", isAA)
 				cookedEvents = append(cookedEvents, &model.CookedDownstreamEvent{
 					DownstreamEvent: event,
 					ExperimentKey:   exp.ExperimentKey,
 					VariantKey:      variantKeyWithinExperiment,
-					IsAA:            event.SentAt.After(experimentDetails.AAStartTime) && event.SentAt.Before(experimentDetails.AAEndTime),
+					IsAA:            isAA,
 				})
 				continue
 			}
 
-			eventKeyInExperiment := p.isEventKeyInExperiment(event.EventKey, experimentDetails)
-			if !eventKeyInExperiment {
+			if !p.isEventKeyInExperiment(event.EventKey, experimentDetails) {
+				p.logger.Debug("event key not in experiment, skipping", "event_key", event.EventKey, "experiment_key", exp.ExperimentKey)
 				continue
-			} else {
-
-				if event.SentAt.After(experimentDetails.AAStartTime) && event.SentAt.Before(experimentDetails.AAEndTime) {
-
-				}
-
-				cookedEvents = append(cookedEvents, &model.CookedDownstreamEvent{
-					DownstreamEvent: event,
-					ExperimentKey:   exp.ExperimentKey,
-					VariantKey:      variantKeyWithinExperiment,
-					IsAA:            event.SentAt.After(experimentDetails.AAStartTime) && event.SentAt.Before(experimentDetails.AAEndTime),
-				})
-
 			}
+
+			p.logger.Debug("cooking metric event", "user_id", event.UserDetails.ID, "event_key", event.EventKey, "experiment_key", exp.ExperimentKey, "variant_key", variantKeyWithinExperiment, "is_aa", isAA)
+			cookedEvents = append(cookedEvents, &model.CookedDownstreamEvent{
+				DownstreamEvent: event,
+				ExperimentKey:   exp.ExperimentKey,
+				VariantKey:      variantKeyWithinExperiment,
+				IsAA:            isAA,
+			})
 		}
-
 	}
 
-	return nil, nil
+	return cookedEvents, nil
 }
 
 func (p *MicroBatchProcessorImp) isEventKeyInExperiment(eventKey string, experiment experiment.EnrichedExperiment) bool {

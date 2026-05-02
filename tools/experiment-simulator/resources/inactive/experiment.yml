@@ -1,0 +1,34 @@
+experiment_1:
+  random_seed: 21
+  experiment_key: buy_button
+  variants:
+    button_color_blue: control
+    button_color_red: treatment
+  aa:
+    duration_seconds: 60
+    publish_amounts:
+      experiment_exposure:
+        button_color_blue: 5000
+        button_color_red: 5000
+      purchase:
+        button_color_blue: 3000
+        button_color_red: 3000iiiiiiiiiiiwi
+  ab:
+    duration_seconds: 120
+    publish_amounts:
+      experiment_exposure:
+        button_color_blue: 5000
+        button_color_red: 5000
+      purchase:
+        button_color_blue: 5000
+        button_color_red: 5000
+  events:
+    purchase:
+      fields:
+        amount:
+          type: float
+          aa:
+            button_color_blue: { min: 10.0, max: 500.0 }
+          ab:
+            button_color_blue: { min: 10.0, max: 500.0 }
+            button_color_red: { min: 10.0, max: 600.0 }

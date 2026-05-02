@@ -5,12 +5,15 @@ import (
 	"experiment-simulator/internal/grpc/generated/assignment_service/v1"
 	"io"
 
+	"github.com/go-faster/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
 
 type AssignmentClient interface {
 	GetExperimentsAndVariantsForUser(ctx context.Context, userId string) (*assignment_service.GetExperimentsAndVariantsForUserResponse, error)
+	GetBucketForUser(ctx context.Context, userId string) (int, error)
+	GetVariantForUserFromExperimentDetails(ctx context.Context, userId string, expDetails ExperimentWithVariants) (string, error)
 	Close() error
 }
 
@@ -67,6 +70,48 @@ func (c *GrpcAssignmentClient) GetExperimentsAndVariantsForUsers(ctx context.Con
 	}
 
 	return assignments, nil
+}
+
+func (c *GrpcAssignmentClient) GetBucketForUser(ctx context.Context, userId string) (int, error) {
+	resp, err := c.client.GetBucketForUser(ctx, &assignment_service.GetBucketForUserRequest{
+		UserId: userId,
+	})
+	if err != nil {
+		return 0, err
+	}
+
+	return int(resp.Bucket), nil
+}
+
+func (c *GrpcAssignmentClient) GetVariantForUserFromExperimentDetails(ctx context.Context, userId string, expWithVariants ExperimentWithVariants) (string, error) {
+	res, err := c.client.GetVariantForUserFromExperimentDetails(ctx, &assignment_service.GetVariantForUserFromExperimentDetailsRequest{
+		UserId:            userId,
+		ExperimentDetails: convertExperimentDetailsToProto(expWithVariants),
+	})
+
+	if err != nil {
+		return "", errors.Wrapf(err, "failed to get variant for user %s from experiment details", userId)
+	}
+
+	return res.VariantKey, nil
+}
+
+func convertExperimentDetailsToProto(details ExperimentWithVariants) *assignment_service.ExperimentDetails {
+	variants := make([]*assignment_service.VariantDetails, len(details.Variants))
+	for i, v := range details.Variants {
+		lowerBound := int32(v.LowerBound)
+		variants[i] = &assignment_service.VariantDetails{
+			VariantKey: v.VariantKey,
+			UpperBound: int32(v.UpperBound),
+			LowerBound: &lowerBound,
+		}
+	}
+
+	return &assignment_service.ExperimentDetails{
+		ExperimentKey: details.ExperimentKey,
+		UniqueSalt:    details.UniqueSalt,
+		Variants:      variants,
+	}
 }
 
 func (c *GrpcAssignmentClient) Close() error {

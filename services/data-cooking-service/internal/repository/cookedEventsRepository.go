@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
@@ -23,6 +24,7 @@ func NewCookedEventsRepositoryClickhouse(connection driver.Conn) *CookedEventsRe
 }
 
 func (r *CookedEventsRepositoryClickhouse) InsertBatch(ctx context.Context, cookedEvents []*model.CookedDownstreamEvent) error {
+	fmt.Printf("Inserting batch of %d cooked events\n", len(cookedEvents))
 	insertCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 

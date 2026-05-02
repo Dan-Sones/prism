@@ -75,7 +75,7 @@ func main() {
 	cookedEventsRepository := repository.NewCookedEventsRepositoryClickhouse(clickhouseConn)
 
 	// service
-	microBatchProcessor := services.NewMicroBatchProcessorImp(cookedEventsRepository, assignmentGrpcClient, experimentationExperimentGrpcClient, experimentationAssignmentGrpcClient)
+	microBatchProcessor := services.NewMicroBatchProcessorImp(cookedEventsRepository, assignmentGrpcClient, experimentationExperimentGrpcClient, experimentationAssignmentGrpcClient, logger)
 	eventReader := microbatcher.NewEventReaderImp(kafkaClient, logger)
 	microBatchService := microbatcher.NewMicroBatchingService(microBatchSizeInt, utils.GetFlushTimeoutDuration(), eventReader, microBatchProcessor, logger)
 

@@ -60,5 +60,10 @@ $$
                                              role, event_type_id, agg_operation, system_column_name)
         VALUES (v_metric_id, 'denominator',
                 v_exposure_event_id, 'COUNT_DISTINCT', 'user_id');
+
+        INSERT INTO prism.experiment_metric (experiment_id, metric_id, role, direction, mde)
+        SELECT e.id, v_metric_id, 'success', 'increase', 0.05
+        FROM prism.experiments e
+        WHERE e.feature_flag_id = 'button_color_v1';
     END
 $$;

@@ -5,6 +5,7 @@ import (
 	pb "data-cooking-service/internal/grpc/generated/experimentation_service_experiments/v1"
 	"time"
 
+	dbEvent "github.com/Dan-Sones/prismdbmodels/model/event"
 	dbExperiment "github.com/Dan-Sones/prismdbmodels/model/experiment"
 	dbMetric "github.com/Dan-Sones/prismdbmodels/model/metric"
 	"github.com/google/uuid"
@@ -125,6 +126,7 @@ func fromProtoMetricComponent(c *pb.EnrichedMetricComponent) dbMetric.EnrichedMe
 		ID:                   id,
 		Role:                 fromProtoComponentRole(c.Role),
 		AggregationOperation: fromProtoAggregationOperation(c.AggregationOperation),
+		EventType:            fromProtoEventType(c.EventType),
 	}
 
 	if c.SystemColumnName != nil {
@@ -132,6 +134,12 @@ func fromProtoMetricComponent(c *pb.EnrichedMetricComponent) dbMetric.EnrichedMe
 	}
 
 	return comp
+}
+
+func fromProtoEventType(eventKey string) dbEvent.EventType {
+	return dbEvent.EventType{
+		EventKey: eventKey,
+	}
 }
 
 func fromProtoExperimentStatus(s pb.ExperimentStatus) dbExperiment.ExperimentStatus {
