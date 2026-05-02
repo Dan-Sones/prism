@@ -46,12 +46,13 @@ func (s *BucketAllocationService) AssignAllBucketsToExperiment(ctx context.Conte
 	return nil
 }
 
-func (s *BucketAllocationService) AssignPercentageOfBucketsToExperiment(ctx context.Context, experimentId uuid.UUID, percentage int) error {
+func (s *BucketAllocationService) GetPercentageOfBuckets(percentage int) ([]int, error) {
+
 	bucketCount := os.Getenv("BUCKET_COUNT")
 	bCount, err := strconv.Atoi(bucketCount)
 	if err != nil {
 		s.logger.Error("Failed to convert bucket count to int", "error", err)
-		return err
+		return nil, err
 	}
 
 	bucketsToAssign := (bCount * percentage) / 100
@@ -67,11 +68,5 @@ func (s *BucketAllocationService) AssignPercentageOfBucketsToExperiment(ctx cont
 		bucketIds[i], bucketIds[j] = bucketIds[j], bucketIds[i]
 	})
 
-	err = s.bucketAllocationRepository.AssignListOfBucketsToExperiment(ctx, experimentId, bucketIds[:bucketsToAssign], repository.PhaseAB)
-	if err != nil {
-		s.logger.Error("Failed to assign buckets to experiment", "error", err)
-		return err
-	}
-
-	return nil
+	return bucketIds[:bucketsToAssign], nil
 }

@@ -17,28 +17,39 @@ import (
 )
 
 type ExperimentService struct {
-	experimentRepository    *repository.ExperimentRepository
-	bucketAllocationService *BucketAllocationService
-	metricsCatalogService   *MetricsCatalogService
-	queryBuilder            QueryBuilder
-	eventsService           *EventService
-	statsEngineClient       clients.StatsEngineClient
-	logger                  *slog.Logger
+	experimentRepository      *repository.ExperimentRepository
+	experimentPhaseRepository *repository.ExperimentPhaseRepository
+	bucketAllocationService   *BucketAllocationService
+	metricsCatalogService     *MetricsCatalogService
+	queryBuilder              QueryBuilder
+	eventsService             *EventService
+	statsEngineClient         clients.StatsEngineClient
+	logger                    *slog.Logger
 }
 
-func NewExperimentService(experimentRepository *repository.ExperimentRepository, bucketAllocationService *BucketAllocationService, queryBuilder QueryBuilder, eventsService *EventService, metricCatalogService *MetricsCatalogService, statsEngineClient clients.StatsEngineClient, logger *slog.Logger) *ExperimentService {
+func NewExperimentService(experimentRepository *repository.ExperimentRepository,
+	bucketAllocationService *BucketAllocationService,
+	queryBuilder QueryBuilder,
+	eventsService *EventService,
+	metricCatalogService *MetricsCatalogService,
+	statsEngineClient clients.StatsEngineClient,
+	experimentPhaseRepository *repository.ExperimentPhaseRepository,
+	logger *slog.Logger,
+) *ExperimentService {
 	return &ExperimentService{
-		experimentRepository:    experimentRepository,
-		bucketAllocationService: bucketAllocationService,
-		queryBuilder:            queryBuilder,
-		eventsService:           eventsService,
-		metricsCatalogService:   metricCatalogService,
-		statsEngineClient:       statsEngineClient,
-		logger:                  logger,
+		experimentRepository:      experimentRepository,
+		bucketAllocationService:   bucketAllocationService,
+		experimentPhaseRepository: experimentPhaseRepository,
+		queryBuilder:              queryBuilder,
+		eventsService:             eventsService,
+		metricsCatalogService:     metricCatalogService,
+		statsEngineClient:         statsEngineClient,
+		logger:                    logger,
 	}
 }
 
-func (s *ExperimentService) CreateExperiment(ctx context.Context, expReq experiment.CreateExperimentRequest) (*experiment.ExperimentResponse, []problems.Violation, error) {
+func (s *ExperimentService) CreateExperiment(ctx context.Context,
+	expReq experiment.CreateExperimentRequest) (*experiment.ExperimentResponse, []problems.Violation, error) {
 	violations := validators.ValidateExperiment(expReq)
 	if len(violations) > 0 {
 		return nil, violations, nil
@@ -211,7 +222,11 @@ func (s *ExperimentService) GetRequiredSampleSizeForMetrics(ctx context.Context,
 
 		baselineConversionRate := float64(result.Numerator) / float64(result.Denominator)
 
-		experimentMetricsWithQueries = append(experimentMetricsWithQueries, sampleSize.NewMetricForExperiment(*experimentMetric.MDE, baselineConversionRate, enrichedMetric.MetricKey, enrichedMetric.IsBinary, experimentMetric.Direction))
+		experimentMetricsWithQueries = append(experimentMetricsWithQueries,
+			sampleSize.NewMetricForExperiment(*experimentMetric.MDE,
+				baselineConversionRate, enrichedMetric.MetricKey,
+				enrichedMetric.IsBinary,
+				experimentMetric.Direction))
 	}
 
 	// TODO: we're ignoring the split - if we ever go down the "confidence" split route we can't just split 50/50 at query time
@@ -242,7 +257,9 @@ func GetSampleSizeByVariant(totalSampleSize int, expVariants []experiment2.Exper
 	return sampleSizePerVariant
 }
 
-func (s *ExperimentService) UpdateExperimentForABPhase(ctx context.Context, expId uuid.UUID, request experiment.UpdateExperimentPhaseRequest) (*experiment.ExperimentResponse, []problems.Violation, error) {
+func (s *ExperimentService) UpdateExperimentForABPhase(ctx context.Context,
+	expId uuid.UUID,
+	request experiment.UpdateExperimentPhaseRequest) (*experiment.ExperimentResponse, []problems.Violation, error) {
 	// When the user has reviewed the results of the A/A test we need to:
 	// Ask them for the start and end date of the test - validate these
 	// Set the experiment start and end date in the database
@@ -263,23 +280,17 @@ func (s *ExperimentService) UpdateExperimentForABPhase(ctx context.Context, expI
 		return nil, nil, err
 	}
 
-	// BEGIN TRANSACTION
-
-	err = s.bucketAllocationService.AssignPercentageOfBucketsToExperiment(ctx, expId, request.BucketAllocation)
+	buckets, err := s.bucketAllocationService.GetPercentageOfBuckets(request.BucketAllocation)
 	if err != nil {
-		s.logger.Error("Failed to assign buckets to experiment for A/B test", "error", err)
-		// ROLLBACK
+		s.logger.Error("Failed to get percentage allocation of buckets", "error", err)
 		return nil, nil, err
 	}
 
-	err = s.experimentRepository.SetExperimentStartAndEndTime(ctx, expId, request.StartTime, request.EndTime)
+	err = s.experimentPhaseRepository.TransitionToABPhase(ctx, expId, request.StartTime, request.EndTime, buckets)
 	if err != nil {
-		s.logger.Error("Failed to set experiment start and end time in repository", "error", err)
-		// ROLLBACK
+		s.logger.Error("Failed to transition experiment to AB phase in repository", "error", err)
 		return nil, nil, err
 	}
-
-	// COMMIT TRANSACTION
 
 	expById, err := s.experimentRepository.GetExperimentByUUID(ctx, expId)
 	if err != nil {
