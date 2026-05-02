@@ -15,9 +15,12 @@ func TestExperimentSimulation_GetVariantToEventToAmountExcludingExposure(t *test
 		es   ExperimentSimulation
 	}{
 		{
-			name: "aa with one variant and one event",
+			name: "aa phase with control and treatment",
 			want: map[model.VariantKey]map[model.EventKey]int{
 				"button_blue": map[model.EventKey]int{
+					"purchase": 5000,
+				},
+				"button_green": map[model.EventKey]int{
 					"purchase": 5000,
 				},
 			},
@@ -33,7 +36,8 @@ func TestExperimentSimulation_GetVariantToEventToAmountExcludingExposure(t *test
 						DurationSeconds: 10,
 						PublishAmounts: map[model.EventKey]map[model.VariantKey]int{
 							"purchase": {
-								"button_blue": 5000,
+								"button_blue":  5000,
+								"button_green": 5000,
 							},
 						},
 					},
