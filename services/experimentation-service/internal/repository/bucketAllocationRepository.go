@@ -8,6 +8,13 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
+type ExperimentPhase string
+
+const (
+	PhaseAA ExperimentPhase = "AA"
+	PhaseAB ExperimentPhase = "AB"
+)
+
 type BucketAllocationRepository struct {
 	pgxPool *pgxpool.Pool
 }
@@ -16,30 +23,21 @@ func NewBucketAllocationRepository(pool *pgxpool.Pool) *BucketAllocationReposito
 	return &BucketAllocationRepository{pgxPool: pool}
 }
 
-func (r *BucketAllocationRepository) AssignBucketToExperiment(ctx context.Context, experimentId uuid.UUID, bucketNumber int) error {
+func (r *BucketAllocationRepository) AssignBucketToExperiment(ctx context.Context, experimentId uuid.UUID, bucketNumber int, phase ExperimentPhase) error {
 	_, err := r.pgxPool.Exec(
-		context.Background(),
-		`INSERT INTO prism.bucket_allocations (experiment_id, bucket_number) VALUES ($1, $2)`,
-		experimentId, bucketNumber,
+		ctx,
+		`INSERT INTO prism.bucket_allocations (experiment_id, bucket_number, phase) VALUES ($1, $2, $3)`,
+		experimentId, bucketNumber, phase,
 	)
 	return err
 }
 
-func (r *BucketAllocationRepository) UnassignBucketFromExperiment(ctx context.Context, experimentId uuid.UUID, bucketNumber int) error {
-	_, err := r.pgxPool.Exec(
-		context.Background(),
-		`DELETE FROM prism.bucket_allocations WHERE experiment_id = $1 AND bucket_number = $2`,
-		experimentId, bucketNumber,
-	)
-	return err
-}
-
-func (r *BucketAllocationRepository) AssignListOfBucketsToExperiment(ctx context.Context, experimentId uuid.UUID, bucketNumbers []int) error {
+func (r *BucketAllocationRepository) AssignListOfBucketsToExperiment(ctx context.Context, experimentId uuid.UUID, bucketNumbers []int, phase ExperimentPhase) error {
 	batch := &pgx.Batch{}
 	for _, bucketNumber := range bucketNumbers {
 		batch.Queue(
-			`INSERT INTO prism.bucket_allocations (experiment_id, bucket_number) VALUES ($1, $2)`,
-			experimentId, bucketNumber,
+			`INSERT INTO prism.bucket_allocations (experiment_id, bucket_number, phase) VALUES ($1, $2, $3)`,
+			experimentId, bucketNumber, phase,
 		)
 	}
 
@@ -49,24 +47,5 @@ func (r *BucketAllocationRepository) AssignListOfBucketsToExperiment(ctx context
 			return err
 		}
 	}
-	return nil
-}
-
-func (r *BucketAllocationRepository) UnassignListOfBucketsFromExperiment(ctx context.Context, experimentId uuid.UUID, bucketNumbers []int) error {
-	batch := &pgx.Batch{}
-	for _, bucketNumber := range bucketNumbers {
-		batch.Queue(
-			`DELETE FROM prism.bucket_allocations WHERE experiment_id = $1 AND bucket_number = $2`,
-			experimentId, bucketNumber,
-		)
-	}
-
-	br := r.pgxPool.SendBatch(ctx, batch)
-	for range bucketNumbers {
-		if _, err := br.Exec(); err != nil {
-			return err
-		}
-	}
-	
-	return nil
+	return br.Close()
 }

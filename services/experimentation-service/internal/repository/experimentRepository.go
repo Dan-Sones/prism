@@ -201,10 +201,10 @@ func (r *ExperimentRepository) GetExperimentsAndVariantsForBucketAtTime(ctx cont
 	 WHERE ba.bucket_number = $1
     AND (
       (e.aa_start_time IS NOT NULL AND e.aa_end_time IS NOT NULL
-       AND e.aa_start_time <= $2 AND e.aa_end_time >= $2)
+       AND e.aa_start_time <= $2 AND e.aa_end_time >= $2 AND ba.phase = 'AA')
       OR
       (e.start_time IS NOT NULL AND e.end_time IS NOT NULL
-       AND e.start_time <= $2 AND e.end_time >= $2)
+       AND e.start_time <= $2 AND e.end_time >= $2 AND ba.phase = 'AB')
     )
 	`
 

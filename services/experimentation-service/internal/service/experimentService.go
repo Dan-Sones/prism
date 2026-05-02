@@ -265,6 +265,13 @@ func (s *ExperimentService) UpdateExperimentForABPhase(ctx context.Context, expI
 
 	// BEGIN TRANSACTION
 
+	err = s.bucketAllocationService.AssignPercentageOfBucketsToExperiment(ctx, expId, request.BucketAllocation)
+	if err != nil {
+		s.logger.Error("Failed to assign buckets to experiment for A/B test", "error", err)
+		// ROLLBACK
+		return nil, nil, err
+	}
+
 	err = s.experimentRepository.SetExperimentStartAndEndTime(ctx, expId, request.StartTime, request.EndTime)
 	if err != nil {
 		s.logger.Error("Failed to set experiment start and end time in repository", "error", err)
