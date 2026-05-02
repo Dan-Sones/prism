@@ -9,8 +9,6 @@ import (
 	"experimentation-service/internal/repository"
 	"experimentation-service/internal/validators"
 	"log/slog"
-	"os"
-	"strconv"
 	"time"
 
 	experiment2 "github.com/Dan-Sones/prismdbmodels/model/experiment"
@@ -19,24 +17,24 @@ import (
 )
 
 type ExperimentService struct {
-	experimentRepository       *repository.ExperimentRepository
-	bucketAllocationRepository *repository.BucketAllocationRepository
-	metricsCatalogService      *MetricsCatalogService
-	queryBuilder               QueryBuilder
-	eventsService              *EventService
-	statsEngineClient          clients.StatsEngineClient
-	logger                     *slog.Logger
+	experimentRepository    *repository.ExperimentRepository
+	bucketAllocationService *BucketAllocationService
+	metricsCatalogService   *MetricsCatalogService
+	queryBuilder            QueryBuilder
+	eventsService           *EventService
+	statsEngineClient       clients.StatsEngineClient
+	logger                  *slog.Logger
 }
 
-func NewExperimentService(experimentRepository *repository.ExperimentRepository, bucketAllocationRepository *repository.BucketAllocationRepository, queryBuilder QueryBuilder, eventsService *EventService, metricCatalogService *MetricsCatalogService, statsEngineClient clients.StatsEngineClient, logger *slog.Logger) *ExperimentService {
+func NewExperimentService(experimentRepository *repository.ExperimentRepository, bucketAllocationService *BucketAllocationService, queryBuilder QueryBuilder, eventsService *EventService, metricCatalogService *MetricsCatalogService, statsEngineClient clients.StatsEngineClient, logger *slog.Logger) *ExperimentService {
 	return &ExperimentService{
-		experimentRepository:       experimentRepository,
-		bucketAllocationRepository: bucketAllocationRepository,
-		queryBuilder:               queryBuilder,
-		eventsService:              eventsService,
-		metricsCatalogService:      metricCatalogService,
-		statsEngineClient:          statsEngineClient,
-		logger:                     logger,
+		experimentRepository:    experimentRepository,
+		bucketAllocationService: bucketAllocationService,
+		queryBuilder:            queryBuilder,
+		eventsService:           eventsService,
+		metricsCatalogService:   metricCatalogService,
+		statsEngineClient:       statsEngineClient,
+		logger:                  logger,
 	}
 }
 
@@ -148,22 +146,7 @@ func (s *ExperimentService) GetEnrichedExperimentByKey(ctx context.Context, expe
 }
 
 func (s *ExperimentService) ConfigureExperimentForAA(ctx context.Context, experiment3 experiment2.Experiment) error {
-	// Assign ALL buckets to the control variant for the duration of the A/A test
-	bucketCount := os.Getenv("BUCKET_COUNT")
-	bCount, err := strconv.Atoi(bucketCount)
-	if err != nil {
-		s.logger.Error("Failed to convert bucket count to int", "error", err)
-		return err
-	}
-
-	// create an array of each of the bucket ids to assign to the control variant
-	var bucketIds []int
-	for i := 0; i < bCount; i++ {
-		bucketIds = append(bucketIds, i)
-	}
-
-	// use the bucket repo to set
-	err = s.bucketAllocationRepository.AssignListOfBucketsToExperiment(ctx, experiment3.ID, bucketIds)
+	err := s.bucketAllocationService.AssignAllBucketsToExperiment(ctx, experiment3.ID)
 	if err != nil {
 		s.logger.Error("Failed to assign buckets to experiment for A/A test", "error", err)
 		return err
