@@ -15,9 +15,12 @@ func TestExperimentSimulation_GetVariantToEventToAmountExcludingExposure(t *test
 		es   ExperimentSimulation
 	}{
 		{
-			name: "aa with one variant and one event",
+			name: "aa phase with control and treatment",
 			want: map[model.VariantKey]map[model.EventKey]int{
 				"button_blue": map[model.EventKey]int{
+					"purchase": 5000,
+				},
+				"button_green": map[model.EventKey]int{
 					"purchase": 5000,
 				},
 			},
@@ -33,7 +36,8 @@ func TestExperimentSimulation_GetVariantToEventToAmountExcludingExposure(t *test
 						DurationSeconds: 10,
 						PublishAmounts: map[model.EventKey]map[model.VariantKey]int{
 							"purchase": {
-								"button_blue": 5000,
+								"button_blue":  5000,
+								"button_green": 5000,
 							},
 						},
 					},
@@ -145,17 +149,12 @@ func (m MockUserIdService) GetXUserIdsWithinExperimentAndVariant(count int, expe
 	return userIds, nil
 }
 
-func TestExperimentSimulation_GetAATestParticipantsWithActions_ConversionEventsMapOverExposureEvents(t *testing.T) {
-
-	x := rand.NewSource(21)
-
-	muid := MockUserIdService{RandSource: x}
-
+func newAATestSimulation() (*ExperimentSimulation, func() *[]model.ExperimentParticipant) {
 	mnOrderTotal := float64(1)
 	mxOrderTotal := float64(500)
 
 	es := &ExperimentSimulation{
-		UserIdService: muid,
+		UserIdService: MockUserIdService{RandSource: rand.NewSource(21)},
 		ExperimentConfig: model.ExperimentConfig{
 			ExperimentKey: "best_experiment_ever",
 			RandomSeed:    21,
@@ -167,10 +166,12 @@ func TestExperimentSimulation_GetAATestParticipantsWithActions_ConversionEventsM
 				DurationSeconds: 10,
 				PublishAmounts: map[model.EventKey]map[model.VariantKey]int{
 					"experiment_exposure": {
-						"button_blue": 5000,
+						"button_blue":  5000,
+						"button_green": 5000,
 					},
 					"purchase": {
-						"button_blue": 3000,
+						"button_blue":  3000,
+						"button_green": 3000,
 					},
 				},
 			},
@@ -180,10 +181,8 @@ func TestExperimentSimulation_GetAATestParticipantsWithActions_ConversionEventsM
 						"order_total": {
 							Type: model.FieldTypeFloat,
 							AA: map[model.VariantKey]model.FieldConfigMinMax{
-								"button_blue": model.FieldConfigMinMax{
-									Min: &mnOrderTotal,
-									Max: &mxOrderTotal,
-								},
+								"button_blue":  {Min: &mnOrderTotal, Max: &mxOrderTotal},
+								"button_green": {Min: &mnOrderTotal, Max: &mxOrderTotal},
 							},
 						},
 					},
@@ -192,34 +191,51 @@ func TestExperimentSimulation_GetAATestParticipantsWithActions_ConversionEventsM
 		},
 	}
 
-	expParticipants := *es.GetAATestParticipantsWithActions()
+	return es, es.GetAATestParticipantsWithActions
+}
 
-	gotNumExperimentParticpantsExposed := len(expParticipants)
-	wantNumExperimentParticipantsExposed := es.ExperimentConfig.AA.PublishAmounts["experiment_exposure"]["button_blue"]
-	wantNumPurchaseEvents := es.ExperimentConfig.AA.PublishAmounts["purchase"]["button_blue"]
+func TestExperimentSimulation_GetAATestParticipantsWithActions_TotalParticipantsMatchExposureEvents(t *testing.T) {
+	es, getParticipants := newAATestSimulation()
+	participants := *getParticipants()
 
-	if gotNumExperimentParticpantsExposed != wantNumExperimentParticipantsExposed {
-		t.Errorf("got %d exposed particpants, want %d", gotNumExperimentParticpantsExposed, wantNumExperimentParticipantsExposed)
+	wantTotal := es.ExperimentConfig.AA.PublishAmounts["experiment_exposure"]["button_blue"] +
+		es.ExperimentConfig.AA.PublishAmounts["experiment_exposure"]["button_green"]
+
+	if len(participants) != wantTotal {
+		t.Errorf("got %d participants, want %d", len(participants), wantTotal)
 	}
+}
 
-	countPurchaseEvents := 0
+func TestExperimentSimulation_GetAATestParticipantsWithActions_ControlPurchaseEventsMapOverExposureEvents(t *testing.T) {
+	es, getParticipants := newAATestSimulation()
+	participants := *getParticipants()
 
-	for i := range wantNumExperimentParticipantsExposed {
+	wantControlPurchases := es.ExperimentConfig.AA.PublishAmounts["purchase"]["button_blue"]
 
-		if expParticipants[i].Actions[0].EventKey != "experiment_exposure" {
-			t.Errorf("wanted experiment exposure event as first event but got %s", expParticipants[i].Actions[0].EventKey)
+	for i := range wantControlPurchases {
+		if participants[i].Actions[0].EventKey != "experiment_exposure" {
+			t.Errorf("control participant %d: expected experiment_exposure as 1st event but got %s", i, participants[i].Actions[0].EventKey)
 		}
-
-		if i < wantNumPurchaseEvents {
-			countPurchaseEvents += 1
-			if expParticipants[i].Actions[1].EventKey != "purchase" {
-				t.Errorf("Expected the 2nd event for first %d participants to be purchase but participant %d had %s", wantNumExperimentParticipantsExposed, i, expParticipants[i].Actions[0].EventKey)
-			}
+		if participants[i].Actions[1].EventKey != "purchase" {
+			t.Errorf("control participant %d: expected purchase as 2nd event but got %s", i, participants[i].Actions[1].EventKey)
 		}
 	}
+}
 
-	if countPurchaseEvents != wantNumPurchaseEvents {
-		t.Errorf("got %d purchase events, want %d", countPurchaseEvents, wantNumPurchaseEvents)
+func TestExperimentSimulation_GetAATestParticipantsWithActions_TreatmentPurchaseEventsMapOverExposureEvents(t *testing.T) {
+	es, getParticipants := newAATestSimulation()
+	participants := *getParticipants()
+
+	controlExposures := es.ExperimentConfig.AA.PublishAmounts["experiment_exposure"]["button_blue"]
+	wantTreatmentPurchases := es.ExperimentConfig.AA.PublishAmounts["purchase"]["button_green"]
+
+	for i := range wantTreatmentPurchases {
+		idx := controlExposures + i
+		if participants[idx].Actions[0].EventKey != "experiment_exposure" {
+			t.Errorf("treatment participant %d: expected experiment_exposure as 1st event but got %s", idx, participants[idx].Actions[0].EventKey)
+		}
+		if participants[idx].Actions[1].EventKey != "purchase" {
+			t.Errorf("treatment participant %d: expected purchase as 2nd event but got %s", idx, participants[idx].Actions[1].EventKey)
+		}
 	}
-
 }

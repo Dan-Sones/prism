@@ -4,11 +4,11 @@ WITH experiment_1 AS (
         RETURNING id),
      variant_1 AS (
          INSERT INTO prism.variants (experiment_id, name, variant_key, lower_bound, upper_bound, variant_type)
-             VALUES ((SELECT id FROM experiment_1), 'Button - Blue', 'button_blue', 0, 100, 'control')
+             VALUES ((SELECT id FROM experiment_1), 'Button - Blue', 'button_blue', 0, 50, 'control')
              RETURNING id),
      variant_2 AS (
          INSERT INTO prism.variants (experiment_id, name, variant_key, lower_bound, upper_bound, variant_type)
-             VALUES ((SELECT id FROM experiment_1), 'Button - Green', 'button_green', 0, 0, 'treatment')
+             VALUES ((SELECT id FROM experiment_1), 'Button - Green', 'button_green', 51, 100, 'treatment')
              RETURNING id),
      bucket_allocations AS (
          INSERT INTO prism.bucket_allocations (experiment_id, bucket_number)
@@ -60,5 +60,10 @@ $$
                                              role, event_type_id, agg_operation, system_column_name)
         VALUES (v_metric_id, 'denominator',
                 v_exposure_event_id, 'COUNT_DISTINCT', 'user_id');
+
+        INSERT INTO prism.experiment_metric (experiment_id, metric_id, role, direction, mde)
+        SELECT e.id, v_metric_id, 'success', 'increase', 0.05
+        FROM prism.experiments e
+        WHERE e.feature_flag_id = 'button_color_v1';
     END
 $$;

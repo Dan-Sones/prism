@@ -205,6 +205,310 @@ func (x *UserAssignments) GetAssignments() map[string]string {
 	return nil
 }
 
+type GetBucketForUserRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetBucketForUserRequest) Reset() {
+	*x = GetBucketForUserRequest{}
+	mi := &file_assignment_service_v1_assignment_service_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetBucketForUserRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBucketForUserRequest) ProtoMessage() {}
+
+func (x *GetBucketForUserRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_assignment_service_v1_assignment_service_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBucketForUserRequest.ProtoReflect.Descriptor instead.
+func (*GetBucketForUserRequest) Descriptor() ([]byte, []int) {
+	return file_assignment_service_v1_assignment_service_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetBucketForUserRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+type GetBucketForUserResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Bucket        int32                  `protobuf:"varint,1,opt,name=bucket,proto3" json:"bucket,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetBucketForUserResponse) Reset() {
+	*x = GetBucketForUserResponse{}
+	mi := &file_assignment_service_v1_assignment_service_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetBucketForUserResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetBucketForUserResponse) ProtoMessage() {}
+
+func (x *GetBucketForUserResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_assignment_service_v1_assignment_service_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetBucketForUserResponse.ProtoReflect.Descriptor instead.
+func (*GetBucketForUserResponse) Descriptor() ([]byte, []int) {
+	return file_assignment_service_v1_assignment_service_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *GetBucketForUserResponse) GetBucket() int32 {
+	if x != nil {
+		return x.Bucket
+	}
+	return 0
+}
+
+type VariantDetails struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	VariantKey    string                 `protobuf:"bytes,1,opt,name=variant_key,json=variantKey,proto3" json:"variant_key,omitempty"`
+	UpperBound    int32                  `protobuf:"varint,2,opt,name=upper_bound,json=upperBound,proto3" json:"upper_bound,omitempty"`
+	LowerBound    *int32                 `protobuf:"varint,3,opt,name=lower_bound,json=lowerBound,proto3,oneof" json:"lower_bound,omitempty"` // Optional is required for 0 values
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *VariantDetails) Reset() {
+	*x = VariantDetails{}
+	mi := &file_assignment_service_v1_assignment_service_proto_msgTypes[6]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *VariantDetails) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*VariantDetails) ProtoMessage() {}
+
+func (x *VariantDetails) ProtoReflect() protoreflect.Message {
+	mi := &file_assignment_service_v1_assignment_service_proto_msgTypes[6]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use VariantDetails.ProtoReflect.Descriptor instead.
+func (*VariantDetails) Descriptor() ([]byte, []int) {
+	return file_assignment_service_v1_assignment_service_proto_rawDescGZIP(), []int{6}
+}
+
+func (x *VariantDetails) GetVariantKey() string {
+	if x != nil {
+		return x.VariantKey
+	}
+	return ""
+}
+
+func (x *VariantDetails) GetUpperBound() int32 {
+	if x != nil {
+		return x.UpperBound
+	}
+	return 0
+}
+
+func (x *VariantDetails) GetLowerBound() int32 {
+	if x != nil && x.LowerBound != nil {
+		return *x.LowerBound
+	}
+	return 0
+}
+
+type ExperimentDetails struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ExperimentKey string                 `protobuf:"bytes,1,opt,name=experiment_key,json=experimentKey,proto3" json:"experiment_key,omitempty"`
+	UniqueSalt    string                 `protobuf:"bytes,2,opt,name=unique_salt,json=uniqueSalt,proto3" json:"unique_salt,omitempty"`
+	Variants      []*VariantDetails      `protobuf:"bytes,3,rep,name=variants,proto3" json:"variants,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExperimentDetails) Reset() {
+	*x = ExperimentDetails{}
+	mi := &file_assignment_service_v1_assignment_service_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExperimentDetails) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExperimentDetails) ProtoMessage() {}
+
+func (x *ExperimentDetails) ProtoReflect() protoreflect.Message {
+	mi := &file_assignment_service_v1_assignment_service_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExperimentDetails.ProtoReflect.Descriptor instead.
+func (*ExperimentDetails) Descriptor() ([]byte, []int) {
+	return file_assignment_service_v1_assignment_service_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *ExperimentDetails) GetExperimentKey() string {
+	if x != nil {
+		return x.ExperimentKey
+	}
+	return ""
+}
+
+func (x *ExperimentDetails) GetUniqueSalt() string {
+	if x != nil {
+		return x.UniqueSalt
+	}
+	return ""
+}
+
+func (x *ExperimentDetails) GetVariants() []*VariantDetails {
+	if x != nil {
+		return x.Variants
+	}
+	return nil
+}
+
+type GetVariantForUserFromExperimentDetailsRequest struct {
+	state             protoimpl.MessageState `protogen:"open.v1"`
+	UserId            string                 `protobuf:"bytes,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	ExperimentDetails *ExperimentDetails     `protobuf:"bytes,2,opt,name=experimentDetails,proto3" json:"experimentDetails,omitempty"`
+	unknownFields     protoimpl.UnknownFields
+	sizeCache         protoimpl.SizeCache
+}
+
+func (x *GetVariantForUserFromExperimentDetailsRequest) Reset() {
+	*x = GetVariantForUserFromExperimentDetailsRequest{}
+	mi := &file_assignment_service_v1_assignment_service_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetVariantForUserFromExperimentDetailsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetVariantForUserFromExperimentDetailsRequest) ProtoMessage() {}
+
+func (x *GetVariantForUserFromExperimentDetailsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_assignment_service_v1_assignment_service_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetVariantForUserFromExperimentDetailsRequest.ProtoReflect.Descriptor instead.
+func (*GetVariantForUserFromExperimentDetailsRequest) Descriptor() ([]byte, []int) {
+	return file_assignment_service_v1_assignment_service_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *GetVariantForUserFromExperimentDetailsRequest) GetUserId() string {
+	if x != nil {
+		return x.UserId
+	}
+	return ""
+}
+
+func (x *GetVariantForUserFromExperimentDetailsRequest) GetExperimentDetails() *ExperimentDetails {
+	if x != nil {
+		return x.ExperimentDetails
+	}
+	return nil
+}
+
+type GetVariantForUserFromExperimentDetailsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	VariantKey    string                 `protobuf:"bytes,1,opt,name=variant_key,json=variantKey,proto3" json:"variant_key,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetVariantForUserFromExperimentDetailsResponse) Reset() {
+	*x = GetVariantForUserFromExperimentDetailsResponse{}
+	mi := &file_assignment_service_v1_assignment_service_proto_msgTypes[9]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetVariantForUserFromExperimentDetailsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetVariantForUserFromExperimentDetailsResponse) ProtoMessage() {}
+
+func (x *GetVariantForUserFromExperimentDetailsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_assignment_service_v1_assignment_service_proto_msgTypes[9]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetVariantForUserFromExperimentDetailsResponse.ProtoReflect.Descriptor instead.
+func (*GetVariantForUserFromExperimentDetailsResponse) Descriptor() ([]byte, []int) {
+	return file_assignment_service_v1_assignment_service_proto_rawDescGZIP(), []int{9}
+}
+
+func (x *GetVariantForUserFromExperimentDetailsResponse) GetVariantKey() string {
+	if x != nil {
+		return x.VariantKey
+	}
+	return ""
+}
+
 var File_assignment_service_v1_assignment_service_proto protoreflect.FileDescriptor
 
 const file_assignment_service_v1_assignment_service_proto_rawDesc = "" +
@@ -224,10 +528,35 @@ const file_assignment_service_v1_assignment_service_proto_rawDesc = "" +
 	"\vassignments\x18\x02 \x03(\v27.assignment_service.v1.UserAssignments.AssignmentsEntryR\vassignments\x1a>\n" +
 	"\x10AssignmentsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\xca\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"2\n" +
+	"\x17GetBucketForUserRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\"2\n" +
+	"\x18GetBucketForUserResponse\x12\x16\n" +
+	"\x06bucket\x18\x01 \x01(\x05R\x06bucket\"\x88\x01\n" +
+	"\x0eVariantDetails\x12\x1f\n" +
+	"\vvariant_key\x18\x01 \x01(\tR\n" +
+	"variantKey\x12\x1f\n" +
+	"\vupper_bound\x18\x02 \x01(\x05R\n" +
+	"upperBound\x12$\n" +
+	"\vlower_bound\x18\x03 \x01(\x05H\x00R\n" +
+	"lowerBound\x88\x01\x01B\x0e\n" +
+	"\f_lower_bound\"\x9e\x01\n" +
+	"\x11ExperimentDetails\x12%\n" +
+	"\x0eexperiment_key\x18\x01 \x01(\tR\rexperimentKey\x12\x1f\n" +
+	"\vunique_salt\x18\x02 \x01(\tR\n" +
+	"uniqueSalt\x12A\n" +
+	"\bvariants\x18\x03 \x03(\v2%.assignment_service.v1.VariantDetailsR\bvariants\"\xa0\x01\n" +
+	"-GetVariantForUserFromExperimentDetailsRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\tR\x06userId\x12V\n" +
+	"\x11experimentDetails\x18\x02 \x01(\v2(.assignment_service.v1.ExperimentDetailsR\x11experimentDetails\"Q\n" +
+	".GetVariantForUserFromExperimentDetailsResponse\x12\x1f\n" +
+	"\vvariant_key\x18\x01 \x01(\tR\n" +
+	"variantKey2\xf7\x04\n" +
 	"\x11AssignmentService\x12\xa3\x01\n" +
 	" GetExperimentsAndVariantsForUser\x12>.assignment_service.v1.GetExperimentsAndVariantsForUserRequest\x1a?.assignment_service.v1.GetExperimentsAndVariantsForUserResponse\x12\x8e\x01\n" +
-	"!GetExperimentsAndVariantsForUsers\x12?.assignment_service.v1.GetExperimentsAndVariantsForUsersRequest\x1a&.assignment_service.v1.UserAssignments0\x01BNZLassignment-service/server/api/proto/assignment_service/v1;assignment_serviceb\x06proto3"
+	"!GetExperimentsAndVariantsForUsers\x12?.assignment_service.v1.GetExperimentsAndVariantsForUsersRequest\x1a&.assignment_service.v1.UserAssignments0\x01\x12s\n" +
+	"\x10GetBucketForUser\x12..assignment_service.v1.GetBucketForUserRequest\x1a/.assignment_service.v1.GetBucketForUserResponse\x12\xb5\x01\n" +
+	"&GetVariantForUserFromExperimentDetails\x12D.assignment_service.v1.GetVariantForUserFromExperimentDetailsRequest\x1aE.assignment_service.v1.GetVariantForUserFromExperimentDetailsResponseBNZLassignment-service/server/api/proto/assignment_service/v1;assignment_serviceb\x06proto3"
 
 var (
 	file_assignment_service_v1_assignment_service_proto_rawDescOnce sync.Once
@@ -241,27 +570,39 @@ func file_assignment_service_v1_assignment_service_proto_rawDescGZIP() []byte {
 	return file_assignment_service_v1_assignment_service_proto_rawDescData
 }
 
-var file_assignment_service_v1_assignment_service_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_assignment_service_v1_assignment_service_proto_msgTypes = make([]protoimpl.MessageInfo, 12)
 var file_assignment_service_v1_assignment_service_proto_goTypes = []any{
-	(*GetExperimentsAndVariantsForUserRequest)(nil),  // 0: assignment_service.v1.GetExperimentsAndVariantsForUserRequest
-	(*GetExperimentsAndVariantsForUsersRequest)(nil), // 1: assignment_service.v1.GetExperimentsAndVariantsForUsersRequest
-	(*GetExperimentsAndVariantsForUserResponse)(nil), // 2: assignment_service.v1.GetExperimentsAndVariantsForUserResponse
-	(*UserAssignments)(nil),                          // 3: assignment_service.v1.UserAssignments
-	nil,                                              // 4: assignment_service.v1.GetExperimentsAndVariantsForUserResponse.AssignmentsEntry
-	nil,                                              // 5: assignment_service.v1.UserAssignments.AssignmentsEntry
+	(*GetExperimentsAndVariantsForUserRequest)(nil),        // 0: assignment_service.v1.GetExperimentsAndVariantsForUserRequest
+	(*GetExperimentsAndVariantsForUsersRequest)(nil),       // 1: assignment_service.v1.GetExperimentsAndVariantsForUsersRequest
+	(*GetExperimentsAndVariantsForUserResponse)(nil),       // 2: assignment_service.v1.GetExperimentsAndVariantsForUserResponse
+	(*UserAssignments)(nil),                                // 3: assignment_service.v1.UserAssignments
+	(*GetBucketForUserRequest)(nil),                        // 4: assignment_service.v1.GetBucketForUserRequest
+	(*GetBucketForUserResponse)(nil),                       // 5: assignment_service.v1.GetBucketForUserResponse
+	(*VariantDetails)(nil),                                 // 6: assignment_service.v1.VariantDetails
+	(*ExperimentDetails)(nil),                              // 7: assignment_service.v1.ExperimentDetails
+	(*GetVariantForUserFromExperimentDetailsRequest)(nil),  // 8: assignment_service.v1.GetVariantForUserFromExperimentDetailsRequest
+	(*GetVariantForUserFromExperimentDetailsResponse)(nil), // 9: assignment_service.v1.GetVariantForUserFromExperimentDetailsResponse
+	nil, // 10: assignment_service.v1.GetExperimentsAndVariantsForUserResponse.AssignmentsEntry
+	nil, // 11: assignment_service.v1.UserAssignments.AssignmentsEntry
 }
 var file_assignment_service_v1_assignment_service_proto_depIdxs = []int32{
-	4, // 0: assignment_service.v1.GetExperimentsAndVariantsForUserResponse.assignments:type_name -> assignment_service.v1.GetExperimentsAndVariantsForUserResponse.AssignmentsEntry
-	5, // 1: assignment_service.v1.UserAssignments.assignments:type_name -> assignment_service.v1.UserAssignments.AssignmentsEntry
-	0, // 2: assignment_service.v1.AssignmentService.GetExperimentsAndVariantsForUser:input_type -> assignment_service.v1.GetExperimentsAndVariantsForUserRequest
-	1, // 3: assignment_service.v1.AssignmentService.GetExperimentsAndVariantsForUsers:input_type -> assignment_service.v1.GetExperimentsAndVariantsForUsersRequest
-	2, // 4: assignment_service.v1.AssignmentService.GetExperimentsAndVariantsForUser:output_type -> assignment_service.v1.GetExperimentsAndVariantsForUserResponse
-	3, // 5: assignment_service.v1.AssignmentService.GetExperimentsAndVariantsForUsers:output_type -> assignment_service.v1.UserAssignments
-	4, // [4:6] is the sub-list for method output_type
-	2, // [2:4] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	10, // 0: assignment_service.v1.GetExperimentsAndVariantsForUserResponse.assignments:type_name -> assignment_service.v1.GetExperimentsAndVariantsForUserResponse.AssignmentsEntry
+	11, // 1: assignment_service.v1.UserAssignments.assignments:type_name -> assignment_service.v1.UserAssignments.AssignmentsEntry
+	6,  // 2: assignment_service.v1.ExperimentDetails.variants:type_name -> assignment_service.v1.VariantDetails
+	7,  // 3: assignment_service.v1.GetVariantForUserFromExperimentDetailsRequest.experimentDetails:type_name -> assignment_service.v1.ExperimentDetails
+	0,  // 4: assignment_service.v1.AssignmentService.GetExperimentsAndVariantsForUser:input_type -> assignment_service.v1.GetExperimentsAndVariantsForUserRequest
+	1,  // 5: assignment_service.v1.AssignmentService.GetExperimentsAndVariantsForUsers:input_type -> assignment_service.v1.GetExperimentsAndVariantsForUsersRequest
+	4,  // 6: assignment_service.v1.AssignmentService.GetBucketForUser:input_type -> assignment_service.v1.GetBucketForUserRequest
+	8,  // 7: assignment_service.v1.AssignmentService.GetVariantForUserFromExperimentDetails:input_type -> assignment_service.v1.GetVariantForUserFromExperimentDetailsRequest
+	2,  // 8: assignment_service.v1.AssignmentService.GetExperimentsAndVariantsForUser:output_type -> assignment_service.v1.GetExperimentsAndVariantsForUserResponse
+	3,  // 9: assignment_service.v1.AssignmentService.GetExperimentsAndVariantsForUsers:output_type -> assignment_service.v1.UserAssignments
+	5,  // 10: assignment_service.v1.AssignmentService.GetBucketForUser:output_type -> assignment_service.v1.GetBucketForUserResponse
+	9,  // 11: assignment_service.v1.AssignmentService.GetVariantForUserFromExperimentDetails:output_type -> assignment_service.v1.GetVariantForUserFromExperimentDetailsResponse
+	8,  // [8:12] is the sub-list for method output_type
+	4,  // [4:8] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_assignment_service_v1_assignment_service_proto_init() }
@@ -269,13 +610,14 @@ func file_assignment_service_v1_assignment_service_proto_init() {
 	if File_assignment_service_v1_assignment_service_proto != nil {
 		return
 	}
+	file_assignment_service_v1_assignment_service_proto_msgTypes[6].OneofWrappers = []any{}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_assignment_service_v1_assignment_service_proto_rawDesc), len(file_assignment_service_v1_assignment_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   6,
+			NumMessages:   12,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

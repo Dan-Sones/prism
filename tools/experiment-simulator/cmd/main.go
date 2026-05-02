@@ -41,7 +41,13 @@ func main() {
 		log.Fatal(err)
 	}
 
-	userIdService := services.NewUserIdService(assignmentClient)
+	experimentationAddress := fmt.Sprintf("%s:%s", os.Getenv("EXPERIMENTATION_SERVICE_GRPC_SERVER_ADDRESS"), os.Getenv("EXPERIMENTATION_SERVICE_GRPC_SERVER_PORT"))
+	experimentationAssignmentClient, err := clients.NewGrpcExperimentationAssignmentClient(experimentationAddress)
+	if err != nil {
+		log.Fatal(err)
+	}
+	
+	userIdService := services.NewUserIdService(assignmentClient, experimentationAssignmentClient)
 
 	clickhouse, err := clients.NewClickhouseConnection()
 	if err != nil {

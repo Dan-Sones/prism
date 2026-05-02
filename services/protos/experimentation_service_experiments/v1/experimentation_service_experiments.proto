@@ -1,0 +1,112 @@
+syntax = "proto3";
+
+package experimentation.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "experimentation-service/internal/grpc/generated/experimentation/v1;experimentation";
+
+service ExperimentationServiceExperiments {
+  rpc GetEnrichedExperimentByKey(GetEnrichedExperimentByKeyRequest) returns (GetEnrichedExperimentByKeyResponse);
+}
+
+message GetEnrichedExperimentByKeyRequest {
+  string experiment_key = 1;
+}
+
+message GetEnrichedExperimentByKeyResponse {
+  EnrichedExperiment experiment = 1;
+}
+
+enum ExperimentStatus {
+  EXPERIMENT_STATUS_UNSPECIFIED = 0;
+  EXPERIMENT_STATUS_AA_PLANNED = 1;
+  EXPERIMENT_STATUS_AA = 2;
+  EXPERIMENT_STATUS_AA_COMPLETE = 3;
+  EXPERIMENT_STATUS_AB_PLANNED = 4;
+  EXPERIMENT_STATUS_AB = 5;
+  EXPERIMENT_STATUS_AB_COMPLETE = 6;
+}
+
+enum VariantType {
+  VARIANT_TYPE_UNSPECIFIED = 0;
+  VARIANT_TYPE_CONTROL = 1;
+  VARIANT_TYPE_TREATMENT = 2;
+}
+
+enum MetricType {
+  METRIC_TYPE_UNSPECIFIED = 0;
+  METRIC_TYPE_SIMPLE = 1;
+  METRIC_TYPE_RATIO = 2;
+}
+
+enum AnalysisUnit {
+  ANALYSIS_UNIT_UNSPECIFIED = 0;
+  ANALYSIS_UNIT_USER = 1;
+}
+
+enum ComponentRole {
+  COMPONENT_ROLE_UNSPECIFIED = 0;
+  COMPONENT_ROLE_BASE_EVENT = 1;
+  COMPONENT_ROLE_NUMERATOR = 2;
+  COMPONENT_ROLE_DENOMINATOR = 3;
+}
+
+enum AggregationOperation {
+  AGGREGATION_OPERATION_UNSPECIFIED = 0;
+  AGGREGATION_OPERATION_COUNT = 1;
+  AGGREGATION_OPERATION_SUM = 2;
+  AGGREGATION_OPERATION_AVG = 3;
+  AGGREGATION_OPERATION_MIN = 4;
+  AGGREGATION_OPERATION_MAX = 5;
+  AGGREGATION_OPERATION_COUNT_DISTINCT = 6;
+  AGGREGATION_OPERATION_PERCENTILE_95 = 7;
+  AGGREGATION_OPERATION_PERCENTILE_99 = 8;
+}
+
+message ExperimentVariant {
+  string name = 1;
+  string feature_flag_id = 2;
+  string variant_key = 3;
+  int32 upper_bound = 4;
+  int32 lower_bound = 5;
+  VariantType variant_type = 6;
+}
+
+message EnrichedMetricComponent {
+  string id = 1;
+  ComponentRole role = 2;
+  string event_type = 3;
+  AggregationOperation aggregation_operation = 4;
+  optional string aggregation_field = 5;
+  optional string system_column_name = 6;
+}
+
+message EnrichedMetric {
+  string id = 1;
+  string name = 2;
+  string metric_key = 3;
+  string description = 4;
+  google.protobuf.Timestamp created_at = 5;
+  MetricType metric_type = 6;
+  AnalysisUnit analysis_unit = 7;
+  repeated EnrichedMetricComponent metric_components = 8;
+  bool is_binary = 9;
+}
+
+message EnrichedExperiment {
+  string id = 1;
+  string name = 2;
+  google.protobuf.Timestamp created_at = 3;
+  string feature_flag_id = 4;
+  optional google.protobuf.Timestamp start_time = 5;
+  optional google.protobuf.Timestamp end_time = 6;
+  google.protobuf.Timestamp aa_start_time = 7;
+  google.protobuf.Timestamp aa_end_time = 8;
+  string hypothesis = 9;
+  string description = 10;
+  ExperimentStatus status = 11;
+  repeated EnrichedMetric metrics = 12;
+  repeated ExperimentVariant variants = 13;
+}
+

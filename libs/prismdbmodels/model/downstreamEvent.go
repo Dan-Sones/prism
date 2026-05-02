@@ -3,13 +3,13 @@ package model
 import "time"
 
 type DownstreamEvent struct {
-	ID                string                        `json:"id"`
-	EventKey          string                        `json:"event_key"`
-	UserDetails       UserDetails                   `json:"user_details"`
-	ExperimentDetails ExperimentDetails             `json:"experiment_details"`
-	SentAt            time.Time                     `json:"sent_at"`
-	ReceivedAt        time.Time                     `json:"received_at"`
-	Properties        map[string]OutboundEventField `json:"properties"`
+	ID            string                        `json:"id"`
+	EventKey      string                        `json:"event_key"`
+	ExperimentKey *string                       `json:"experiment_key"`
+	UserDetails   UserDetails                   `json:"user_details"`
+	SentAt        time.Time                     `json:"sent_at"`
+	ReceivedAt    time.Time                     `json:"received_at"`
+	Properties    map[string]OutboundEventField `json:"properties"`
 }
 
 func (e *DownstreamEvent) GetStringProperties() map[string]string {

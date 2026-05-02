@@ -85,14 +85,10 @@ public class EventService {
             missingFields.add("sentAt");
         }
 
-        if (eventRequest.getExperimentDetails().getExperiment_key() == null
-                || eventRequest.getExperimentDetails().getExperiment_key().isEmpty()) {
-            missingFields.add("experimentDetails.experimentKey");
-        }
-
-        if (eventRequest.getExperimentDetails().getVariant_key() == null
-                || eventRequest.getExperimentDetails().getVariant_key().isEmpty()) {
-            missingFields.add("experimentDetails.variantKey");
+        if ("experiment_exposure".equals(eventRequest.getEventKey())
+                && (eventRequest.getExperimentKey() == null
+                        || eventRequest.getExperimentKey().isEmpty())) {
+            missingFields.add("experimentKey");
         }
 
         return new EventValidationResult(missingFields.isEmpty(), missingFields);

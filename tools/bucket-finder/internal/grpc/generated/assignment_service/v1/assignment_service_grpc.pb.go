@@ -19,8 +19,10 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AssignmentService_GetExperimentsAndVariantsForUser_FullMethodName  = "/assignment_service.v1.AssignmentService/GetExperimentsAndVariantsForUser"
-	AssignmentService_GetExperimentsAndVariantsForUsers_FullMethodName = "/assignment_service.v1.AssignmentService/GetExperimentsAndVariantsForUsers"
+	AssignmentService_GetExperimentsAndVariantsForUser_FullMethodName       = "/assignment_service.v1.AssignmentService/GetExperimentsAndVariantsForUser"
+	AssignmentService_GetExperimentsAndVariantsForUsers_FullMethodName      = "/assignment_service.v1.AssignmentService/GetExperimentsAndVariantsForUsers"
+	AssignmentService_GetBucketForUser_FullMethodName                       = "/assignment_service.v1.AssignmentService/GetBucketForUser"
+	AssignmentService_GetVariantForUserFromExperimentDetails_FullMethodName = "/assignment_service.v1.AssignmentService/GetVariantForUserFromExperimentDetails"
 )
 
 // AssignmentServiceClient is the client API for AssignmentService service.
@@ -29,6 +31,8 @@ const (
 type AssignmentServiceClient interface {
 	GetExperimentsAndVariantsForUser(ctx context.Context, in *GetExperimentsAndVariantsForUserRequest, opts ...grpc.CallOption) (*GetExperimentsAndVariantsForUserResponse, error)
 	GetExperimentsAndVariantsForUsers(ctx context.Context, in *GetExperimentsAndVariantsForUsersRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[UserAssignments], error)
+	GetBucketForUser(ctx context.Context, in *GetBucketForUserRequest, opts ...grpc.CallOption) (*GetBucketForUserResponse, error)
+	GetVariantForUserFromExperimentDetails(ctx context.Context, in *GetVariantForUserFromExperimentDetailsRequest, opts ...grpc.CallOption) (*GetVariantForUserFromExperimentDetailsResponse, error)
 }
 
 type assignmentServiceClient struct {
@@ -68,12 +72,34 @@ func (c *assignmentServiceClient) GetExperimentsAndVariantsForUsers(ctx context.
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type AssignmentService_GetExperimentsAndVariantsForUsersClient = grpc.ServerStreamingClient[UserAssignments]
 
+func (c *assignmentServiceClient) GetBucketForUser(ctx context.Context, in *GetBucketForUserRequest, opts ...grpc.CallOption) (*GetBucketForUserResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetBucketForUserResponse)
+	err := c.cc.Invoke(ctx, AssignmentService_GetBucketForUser_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *assignmentServiceClient) GetVariantForUserFromExperimentDetails(ctx context.Context, in *GetVariantForUserFromExperimentDetailsRequest, opts ...grpc.CallOption) (*GetVariantForUserFromExperimentDetailsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetVariantForUserFromExperimentDetailsResponse)
+	err := c.cc.Invoke(ctx, AssignmentService_GetVariantForUserFromExperimentDetails_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AssignmentServiceServer is the server API for AssignmentService service.
 // All implementations must embed UnimplementedAssignmentServiceServer
 // for forward compatibility.
 type AssignmentServiceServer interface {
 	GetExperimentsAndVariantsForUser(context.Context, *GetExperimentsAndVariantsForUserRequest) (*GetExperimentsAndVariantsForUserResponse, error)
 	GetExperimentsAndVariantsForUsers(*GetExperimentsAndVariantsForUsersRequest, grpc.ServerStreamingServer[UserAssignments]) error
+	GetBucketForUser(context.Context, *GetBucketForUserRequest) (*GetBucketForUserResponse, error)
+	GetVariantForUserFromExperimentDetails(context.Context, *GetVariantForUserFromExperimentDetailsRequest) (*GetVariantForUserFromExperimentDetailsResponse, error)
 	mustEmbedUnimplementedAssignmentServiceServer()
 }
 
@@ -89,6 +115,12 @@ func (UnimplementedAssignmentServiceServer) GetExperimentsAndVariantsForUser(con
 }
 func (UnimplementedAssignmentServiceServer) GetExperimentsAndVariantsForUsers(*GetExperimentsAndVariantsForUsersRequest, grpc.ServerStreamingServer[UserAssignments]) error {
 	return status.Error(codes.Unimplemented, "method GetExperimentsAndVariantsForUsers not implemented")
+}
+func (UnimplementedAssignmentServiceServer) GetBucketForUser(context.Context, *GetBucketForUserRequest) (*GetBucketForUserResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetBucketForUser not implemented")
+}
+func (UnimplementedAssignmentServiceServer) GetVariantForUserFromExperimentDetails(context.Context, *GetVariantForUserFromExperimentDetailsRequest) (*GetVariantForUserFromExperimentDetailsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetVariantForUserFromExperimentDetails not implemented")
 }
 func (UnimplementedAssignmentServiceServer) mustEmbedUnimplementedAssignmentServiceServer() {}
 func (UnimplementedAssignmentServiceServer) testEmbeddedByValue()                           {}
@@ -140,6 +172,42 @@ func _AssignmentService_GetExperimentsAndVariantsForUsers_Handler(srv interface{
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
 type AssignmentService_GetExperimentsAndVariantsForUsersServer = grpc.ServerStreamingServer[UserAssignments]
 
+func _AssignmentService_GetBucketForUser_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBucketForUserRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssignmentServiceServer).GetBucketForUser(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssignmentService_GetBucketForUser_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssignmentServiceServer).GetBucketForUser(ctx, req.(*GetBucketForUserRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AssignmentService_GetVariantForUserFromExperimentDetails_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetVariantForUserFromExperimentDetailsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AssignmentServiceServer).GetVariantForUserFromExperimentDetails(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AssignmentService_GetVariantForUserFromExperimentDetails_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AssignmentServiceServer).GetVariantForUserFromExperimentDetails(ctx, req.(*GetVariantForUserFromExperimentDetailsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AssignmentService_ServiceDesc is the grpc.ServiceDesc for AssignmentService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -150,6 +218,14 @@ var AssignmentService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetExperimentsAndVariantsForUser",
 			Handler:    _AssignmentService_GetExperimentsAndVariantsForUser_Handler,
+		},
+		{
+			MethodName: "GetBucketForUser",
+			Handler:    _AssignmentService_GetBucketForUser_Handler,
+		},
+		{
+			MethodName: "GetVariantForUserFromExperimentDetails",
+			Handler:    _AssignmentService_GetVariantForUserFromExperimentDetails_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{

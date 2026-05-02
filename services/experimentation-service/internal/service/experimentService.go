@@ -14,6 +14,7 @@ import (
 	"time"
 
 	experiment2 "github.com/Dan-Sones/prismdbmodels/model/experiment"
+	"github.com/Dan-Sones/prismdbmodels/model/metric"
 	"github.com/google/uuid"
 )
 
@@ -105,6 +106,47 @@ func (s *ExperimentService) GetExperimentByUUID(ctx context.Context, expId uuid.
 	return experiment.NewExperimentResponse(expById), nil
 }
 
+func (s *ExperimentService) GetEnrichedExperimentByKey(ctx context.Context, experimentKey string) (experiment2.EnrichedExperiment, error) {
+	expByKey, err := s.experimentRepository.GetExperimentByKey(ctx, experimentKey)
+	if err != nil {
+		s.logger.Error("Failed to retrieve experiment by id from repository", "error", err)
+		return experiment2.EnrichedExperiment{}, err
+	}
+
+	s.enrichWithExperimentStatus(&expByKey)
+
+	metricIds := make([]uuid.UUID, 0, len(expByKey.Metrics))
+	for _, em := range expByKey.Metrics {
+		metricIds = append(metricIds, em.MetricID)
+	}
+
+	enrichedMetrics := make([]metric.EnrichedMetric, 0, len(metricIds))
+	for _, metricId := range metricIds {
+		enrichedMetric, err := s.metricsCatalogService.GetMetricById(ctx, metricId)
+		if err != nil {
+			s.logger.Error("Failed to retrieve metric details for experiment metric from metrics catalog service", "error", err, "metricId", metricId)
+			return experiment2.EnrichedExperiment{}, err
+		}
+		enrichedMetrics = append(enrichedMetrics, *enrichedMetric)
+	}
+
+	return experiment2.EnrichedExperiment{
+		ID:            expByKey.ID,
+		Name:          expByKey.Name,
+		Status:        expByKey.Status,
+		CreatedAt:     expByKey.CreatedAt.Time,
+		FeatureFlagID: expByKey.FeatureFlagID,
+		StartTime:     &expByKey.StartTime.Time,
+		EndTime:       &expByKey.EndTime.Time,
+		AAStartTime:   expByKey.AAStartTime,
+		AAEndTime:     expByKey.AAEndTime,
+		Hypothesis:    expByKey.Hypothesis,
+		Description:   expByKey.Description,
+		Metrics:       enrichedMetrics,
+		Variants:      expByKey.Variants,
+	}, nil
+}
+
 func (s *ExperimentService) ConfigureExperimentForAA(ctx context.Context, experiment3 experiment2.Experiment) error {
 	// Assign ALL buckets to the control variant for the duration of the A/A test
 	bucketCount := os.Getenv("BUCKET_COUNT")
@@ -127,16 +169,16 @@ func (s *ExperimentService) ConfigureExperimentForAA(ctx context.Context, experi
 		return err
 	}
 
-	// set bounds to 100 for the control variant and 0 for the others to ensure all traffic goes to the control variant
+	// Assign 50% of traffic to control and 50% to treatment for the duration of the A/A test by setting the bounds for the variants accordingly
 	for _, variant := range experiment3.Variants {
 		if variant.VariantType == experiment2.VariantTypeControl {
-			err = s.experimentRepository.UpdateBoundsForExperimentVariant(ctx, experiment3.ID, variant.VariantKey, 100, 0)
+			err = s.experimentRepository.UpdateBoundsForExperimentVariant(ctx, experiment3.ID, variant.VariantKey, 50, 0)
 			if err != nil {
 				s.logger.Error("Failed to update bounds for control variant for A/A test", "error", err)
 				return err
 			}
 		} else if variant.VariantType == experiment2.VariantTypeTreatment {
-			err = s.experimentRepository.UpdateBoundsForExperimentVariant(ctx, experiment3.ID, variant.VariantKey, 0, 0)
+			err = s.experimentRepository.UpdateBoundsForExperimentVariant(ctx, experiment3.ID, variant.VariantKey, 51, 100)
 			if err != nil {
 				s.logger.Error("Failed to update bounds for treatment variant for A/A test", "error", err)
 				return err

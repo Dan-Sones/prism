@@ -18,15 +18,13 @@ func NewParticipantEventParameters(eventKey EventKey, properties map[EventField]
 
 type ExperimentParticipant struct {
 	UserId        string
-	VariantKey    VariantKey
 	ExperimentKey string
 	Actions       []ParticipantEventParameters
 }
 
-func NewExperimentParticipant(userId string, variantKey VariantKey, experimentKey string) ExperimentParticipant {
+func NewExperimentParticipant(userId string, experimentKey string) ExperimentParticipant {
 	return ExperimentParticipant{
 		UserId:        userId,
-		VariantKey:    variantKey,
 		ExperimentKey: experimentKey,
 	}
 }
@@ -41,14 +39,11 @@ func (ep *ExperimentParticipant) PerformActionsWithDelay(performer ActionPerform
 		//time.Sleep(time.Duration(rand.IntN(1000)) * time.Millisecond)
 
 		eventReq := EventRequest{
-			EventKey: action.EventKey,
-			ExperimentDetails: ExperimentDetails{
-				ExperimentKey: ep.ExperimentKey,
-				VariantKey:    string(ep.VariantKey),
-			},
-			UserDetails: UserDetails{Id: ep.UserId},
-			SentAt:      time.Now(),
-			Properties:  action.properties,
+			EventKey:      action.EventKey,
+			ExperimentKey: ep.ExperimentKey,
+			UserDetails:   UserDetails{Id: ep.UserId},
+			SentAt:        time.Now(),
+			Properties:    action.properties,
 		}
 
 		performer.PerformAction(eventReq)

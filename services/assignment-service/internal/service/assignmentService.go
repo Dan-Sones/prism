@@ -39,7 +39,7 @@ func (e *AssignmentService) GetAssignmentsForUserId(ctx context.Context, userId 
 	if len(experiments) > 0 {
 		e.logger.Info("Fetched assignments from cache", "bucket", bucket)
 	} else {
-		experiments, err = e.experimentClient.GetExperimentsAndVariantsForBucket(ctx, bucket)
+		experiments, err = e.experimentClient.GetExperimentsAndVariantsForBucketAtTime(ctx, bucket, time.Now())
 		if err != nil {
 			return nil, fmt.Errorf("failed to get experiments and variants for bucket %d: %w", bucket, err)
 		}
@@ -58,7 +58,7 @@ func (e *AssignmentService) GetAssignmentsForUserId(ctx context.Context, userId 
 
 	assignments := make(map[string]string)
 	for _, experiment := range experiments {
-		variant, err := e.getVariantForExperiment(experiment, userId)
+		variant, err := e.GetVariantForExperiment(experiment, userId)
 		if err != nil {
 			e.logger.Error("Failed to get variant for experiment", "experiment", experiment.ExperimentKey, "user_id", userId, "error", err)
 			continue
@@ -69,7 +69,7 @@ func (e *AssignmentService) GetAssignmentsForUserId(ctx context.Context, userId 
 	return assignments, nil
 }
 
-func (e *AssignmentService) getVariantForExperiment(experiments model.ExperimentWithVariants, userId string) (string, error) {
+func (e *AssignmentService) GetVariantForExperiment(experiments model.ExperimentWithVariants, userId string) (string, error) {
 	numberLinePosition := e.getNumberLinePositionForUserAndExperiment(userId, experiments.ExperimentKey, experiments.UniqueSalt)
 
 	for _, variant := range experiments.Variants {

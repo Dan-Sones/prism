@@ -4,15 +4,17 @@ import (
 	"assignment-service/internal/model"
 	"context"
 	"fmt"
+	"time"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/protobuf/types/known/timestamppb"
 
 	pb "assignment-service/internal/grpc/generated/experimentation_service_assignment/v1"
 )
 
 type ExperimentClient interface {
-	GetExperimentsAndVariantsForBucket(ctx context.Context, id int32) ([]model.ExperimentWithVariants, error)
+	GetExperimentsAndVariantsForBucketAtTime(ctx context.Context, id int32, atTime time.Time) ([]model.ExperimentWithVariants, error)
 	Close() error
 }
 
@@ -33,9 +35,11 @@ func NewGrpcClient(adminAddr string) (*GrpcExperimentClient, error) {
 	}, nil
 }
 
-func (c *GrpcExperimentClient) GetExperimentsAndVariantsForBucket(ctx context.Context, id int32) ([]model.ExperimentWithVariants, error) {
-	resp, err := c.client.GetExperimentsAndVariantsForBucket(ctx, &pb.GetExperimentsAndVariantsForBucketRequest{
-		BucketId: id,
+func (c *GrpcExperimentClient) GetExperimentsAndVariantsForBucketAtTime(ctx context.Context, id int32, atTime time.Time) ([]model.ExperimentWithVariants, error) {
+	resp, err := c.client.GetExperimentsAndVariantsForBucketAtTime(ctx, &pb.GetExperimentsAndVariantsForBucketAtTimeRequest{
+		BucketId:  id,
+		Requester: "assignment-service",
+		Timestamp: timestamppb.New(atTime),
 	})
 	if err != nil {
 		return nil, err

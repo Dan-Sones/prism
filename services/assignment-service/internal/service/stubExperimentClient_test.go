@@ -3,13 +3,14 @@ package service
 import (
 	"assignment-service/internal/model"
 	"context"
+	"time"
 )
 
 type StubExperimentClient struct {
 	experiments map[int32][]model.ExperimentWithVariants
 }
 
-func (s *StubExperimentClient) GetExperimentsAndVariantsForBucket(ctx context.Context, id int32) ([]model.ExperimentWithVariants, error) {
+func (s *StubExperimentClient) GetExperimentsAndVariantsForBucketAtTime(ctx context.Context, id int32, atTime time.Time) ([]model.ExperimentWithVariants, error) {
 	if experiments, ok := s.experiments[id]; ok {
 		return experiments, nil
 	}

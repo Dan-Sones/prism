@@ -66,7 +66,6 @@ public class DownstreamEventTest {
         Instant sentAt = Instant.now();
         EventRequest event = EventRequest.builder()
                 .eventKey(eventKey)
-                .experimentDetails(new ExperimentDetails("experiment1", "variantA"))
                 .userDetails(userDetails)
                 .sentAt(sentAt)
                 .properties(properties)
@@ -103,13 +102,5 @@ public class DownstreamEventTest {
 
         Assertions.assertEquals(sentAt, downstreamEvent.getSentAt());
         Assertions.assertNotNull(downstreamEvent.getReceivedAt());
-
-        Assertions.assertEquals(
-                event.getExperimentDetails().getExperiment_key(),
-                downstreamEvent.getExperimentDetails().getExperiment_key());
-
-        Assertions.assertEquals(
-                event.getExperimentDetails().getVariant_key(),
-                downstreamEvent.getExperimentDetails().getVariant_key());
     }
 }
