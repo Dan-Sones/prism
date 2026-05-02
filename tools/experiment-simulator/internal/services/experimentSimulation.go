@@ -174,9 +174,11 @@ func (es *ExperimentSimulation) GetAATestParticipantsWithActions() *[]model.Expe
 		}
 	}
 
+	controlOffset := len(controlUserIds)
 	for eventKey, numOfEventToPublish := range variantToEventToAmountExcludingExposure[treatmentVariantKey] {
 		for i := 0; i < numOfEventToPublish; i++ {
-			if i >= numExperimentParticipants {
+			idx := controlOffset + i
+			if idx >= numExperimentParticipants {
 				log.Fatalf("You defined %d experiment_exposure events but then asked for %d %s events - That's not possible! ", numExperimentParticipants, numOfEventToPublish, eventKey)
 			}
 
@@ -190,7 +192,7 @@ func (es *ExperimentSimulation) GetAATestParticipantsWithActions() *[]model.Expe
 				value := GenerateDataForField(fieldConfig.Type, fieldConfig.AA[treatmentVariantKey], randSouce)
 				fieldValues[fieldName] = value
 			}
-			experimentParticipantsWithExposureEvents[i].AddAction(model.NewParticipantEventParameters(eventKey, fieldValues))
+			experimentParticipantsWithExposureEvents[idx].AddAction(model.NewParticipantEventParameters(eventKey, fieldValues))
 		}
 	}
 
@@ -314,7 +316,7 @@ func (es *ExperimentSimulation) GetNumberOfEventTypeToPublishForVariantAndPhase(
 
 		amountToPublish, amountExistsInSection := es.ExperimentConfig.AA.PublishAmounts[event_key][variant_key]
 		if !amountExistsInSection {
-			return nil, errors.New("publish_amount not found for variant")
+			return nil, fmt.Errorf("publish_amount not found for variant, %s", variant_key)
 		}
 
 		return &amountToPublish, nil
