@@ -85,7 +85,6 @@ func (s *ExperimentService) CreateExperiment(ctx context.Context,
 
 	metricsForExperiment, err := s.GetMetricsForExperiment(ctx, expById.ID)
 	if err != nil {
-		s.logger.Error("Failed to retrieve metrics for experiment from repository", "error", err)
 		return nil, nil, err
 	}
 
@@ -104,10 +103,8 @@ func (s *ExperimentService) GetExperiments(ctx context.Context, search string) (
 
 	for _, e := range exps {
 		s.enrichWithExperimentStatus(e)
-
 		metricsForExperiment, err := s.GetMetricsForExperiment(ctx, e.ID)
 		if err != nil {
-			s.logger.Error("Failed to retrieve metrics for experiment from repository", "error", err)
 			return nil, err
 		}
 
@@ -126,7 +123,6 @@ func (s *ExperimentService) GetExperimentByUUID(ctx context.Context, expId uuid.
 
 	metricsForExperiment, err := s.GetMetricsForExperiment(ctx, expById.ID)
 	if err != nil {
-		s.logger.Error("Failed to retrieve metrics for experiment from repository", "error", err)
 		return experiment.ExperimentResponse{}, err
 	}
 
@@ -147,7 +143,6 @@ func (s *ExperimentService) GetEnrichedExperimentByKey(ctx context.Context, expe
 func (s *ExperimentService) GetMetricsForExperiment(ctx context.Context, expId uuid.UUID) ([]metric.EnrichedMetric, error) {
 	metricsForExperiment, err := s.experimentRepository.GetMetricsForExperiment(ctx, expId)
 	if err != nil {
-		s.logger.Error("Failed to retrieve metrics for experiment from repository", "error", err)
 		return nil, err
 	}
 
@@ -312,7 +307,6 @@ func (s *ExperimentService) UpdateExperimentForABPhase(ctx context.Context,
 	s.enrichWithExperimentStatus(&expById)
 	metricsForExperiment, err := s.GetMetricsForExperiment(ctx, expById.ID)
 	if err != nil {
-		s.logger.Error("Failed to retrieve metrics for experiment from repository", "error", err)
 		return nil, nil, err
 	}
 

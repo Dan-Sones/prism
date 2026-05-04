@@ -14,7 +14,7 @@ const DetailCell = ({
   ...rest
 }: DetailCellProps) => (
   <div className={className} {...rest}>
-    <p className="text-xs text-gray-400">{label}</p>
+    <p className="pb-0.5 text-xs text-gray-400">{label}</p>
     <p
       className={`text-sm font-medium ${mono ? "font-mono" : ""} ${valueClassName || ""}`}
     >
