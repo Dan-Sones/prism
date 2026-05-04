@@ -2,6 +2,7 @@ import type { EventType } from "../../../api/eventsCatalog";
 import Spinner from "../../../components/spinner/Spinner";
 import FieldKey from "../../../components/fieldKey/FieldKey";
 import Card from "../../../components/card/Card";
+import DetailCell from "../../../components/card/DetailCell";
 
 interface EventDetailsProps {
   EventDetails?: EventType;
@@ -31,28 +32,25 @@ const EventDetails = (props: EventDetailsProps) => {
   return (
     <Card>
       <div className="grid grid-cols-2 gap-4 border-b border-gray-200 pb-4">
-        <div>
-          <p className="text-xs text-gray-400">Event Key</p>
-          <p className="font-mono text-sm font-medium">
-            {EventDetails?.event_key}
-          </p>
-        </div>
-        <div>
-          <p className="text-xs text-gray-400">Version</p>
-          <p className="text-sm">v{EventDetails?.version}</p>
-        </div>
-        <div>
-          <p className="text-xs text-gray-400">Created</p>
-          <p className="font-mono text-sm">
-            {EventDetails?.created_at
+        <DetailCell label="Event Key" value={EventDetails?.event_key} mono />
+        <DetailCell
+          label="Version"
+          value={
+            EventDetails?.version != null
+              ? `v${EventDetails.version}`
+              : undefined
+          }
+        />
+        <DetailCell
+          label="Created"
+          value={
+            EventDetails?.created_at
               ? new Date(EventDetails.created_at).toLocaleString()
-              : "—"}
-          </p>
-        </div>
-        <div>
-          <p className="text-xs text-gray-400">Description</p>
-          <p className="text-sm">{EventDetails?.description ?? "—"}</p>
-        </div>
+              : undefined
+          }
+          mono
+        />
+        <DetailCell label="Description" value={EventDetails?.description} />
       </div>
 
       <div>

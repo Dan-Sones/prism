@@ -3,7 +3,7 @@ import type { UpdateExperimentPhaseRequest } from "./model/experiment";
 
 export const updateExperimentPhase = async (
   experimentId: string,
-  request: UpdateExperimentPhaseRequest
+  request: UpdateExperimentPhaseRequest,
 ): Promise<void> => {
   await axiosClient.put(`/experiments/${experimentId}/begin-ab`, request);
 };

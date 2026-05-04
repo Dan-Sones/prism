@@ -1,3 +1,5 @@
+import type { Metric } from "../../metricsCatalog";
+
 export type CreateExperimentRequestBody = {
   name: string;
   feature_flag_id: string;
@@ -50,18 +52,20 @@ export type ExperimentResponse = {
   status: ExperimentStatus;
   created_at: string;
   feature_flag_id: string;
-  start_time: Date;
-  end_time: Date;
+  start_time?: Date;
+  end_time?: Date;
   aa_start_time: Date;
   aa_end_time: Date;
+  unique_salt: string;
   hypothesis: string;
   description: string;
+  total_required_sample_size?: number;
   metrics: Array<ExperimentMetricResponse>;
   variants: Array<ExperimentVariantResponse>;
 };
 
 export type ExperimentMetricResponse = {
-  metric_id: string;
+  metric_details: Metric;
   role: CreateExperimentMetricRole;
   direction: CreateExperimentMetricDirection;
   mde?: number;

@@ -1,5 +1,6 @@
 import type { ExperimentResponse } from "../../../api/experiments";
 import Card from "../../../components/card/Card";
+import DetailCell from "../../../components/card/DetailCell";
 import Spinner from "../../../components/spinner/Spinner";
 import ExperimentStatusPuck from "./ExperimentStatusPuck";
 
@@ -8,6 +9,11 @@ interface ExperimentDetailsProps {
   isLoading?: boolean;
   isError?: boolean;
 }
+
+const formatDate = (date?: Date) =>
+  date
+    ? new Date(date).toLocaleDateString(undefined, { dateStyle: "medium" })
+    : "—";
 
 const ExperimentDetails = (props: ExperimentDetailsProps) => {
   const { experimentDetails, isLoading, isError } = props;
@@ -32,27 +38,65 @@ const ExperimentDetails = (props: ExperimentDetailsProps) => {
 
   return (
     <Card>
-      <div className="grid grid-cols-2 gap-4 border-b border-gray-200 pb-4">
-        <div>
-          <p className="text-xs text-gray-400">Feature Flag Key</p>
-          <p className="font-mono text-sm font-medium">
-            {experimentDetails?.feature_flag_id || "—"}
-          </p>
-        </div>
+      <div className="grid grid-cols-2 gap-4 border-b border-gray-200 pb-2">
+        <DetailCell
+          label="Feature Flag Key"
+          value={experimentDetails?.feature_flag_id}
+          mono
+        />
         <div>
           <p className="text-xs text-gray-400">Status</p>
-
           <ExperimentStatusPuck status={experimentDetails?.status} />
         </div>
-
-        <div>
-          <p className="text-xs text-gray-400">Created</p>
-          <p className="font-mono text-sm">
-            {experimentDetails?.created_at
+        <DetailCell
+          label="Created"
+          value={
+            experimentDetails?.created_at
               ? new Date(experimentDetails.created_at).toLocaleString()
-              : "—"}
-          </p>
-        </div>
+              : null
+          }
+        />
+      </div>
+      <div className="border-b border-gray-200 pb-2">
+        <DetailCell
+          label="Description"
+          value={experimentDetails?.description || "—"}
+        />
+      </div>
+      <div className="border-b border-gray-200 pb-2">
+        <DetailCell
+          label="Hypothesis"
+          value={experimentDetails?.hypothesis || "—"}
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        {experimentDetails?.start_time && experimentDetails?.end_time ? (
+          <>
+            <DetailCell
+              label="Start Date"
+              value={formatDate(experimentDetails?.start_time)}
+              valueClassName="font-normal"
+            />
+            <DetailCell
+              label="End Date"
+              value={formatDate(experimentDetails?.end_time)}
+              valueClassName="font-normal"
+            />
+          </>
+        ) : (
+          <>
+            <DetailCell
+              label="A/A Start Date"
+              value={formatDate(experimentDetails?.aa_start_time)}
+              valueClassName="font-normal"
+            />
+            <DetailCell
+              label="A/A End Date"
+              value={formatDate(experimentDetails?.aa_end_time)}
+              valueClassName="font-normal"
+            />
+          </>
+        )}
       </div>
     </Card>
   );

@@ -1,6 +1,6 @@
 import type { Metric } from "../../../api/metricsCatalog";
 import Card from "../../../components/card/Card";
-import FieldKey from "../../../components/fieldKey/FieldKey";
+import DetailCell from "../../../components/card/DetailCell";
 import Spinner from "../../../components/spinner/Spinner";
 
 interface MetricDetailsProps {
@@ -31,27 +31,20 @@ const MetricDetails = (props: MetricDetailsProps) => {
   return (
     <Card>
       <div className="grid grid-cols-2 gap-4 border-b border-gray-200 pb-4">
-        <div>
-          <p className="text-xs text-gray-400">Metric Key</p>
-          <p className="font-mono text-sm font-medium">
-            {metricDetails?.metric_key}
-          </p>
-        </div>
-        <div>
-          <p className="text-xs text-gray-400">Type</p>
-          <p className="text-sm font-semibold">
-            {metricDetails?.metric_type.toLocaleUpperCase()}
-          </p>
-        </div>
-
-        <div>
-          <p className="text-xs text-gray-400">Created</p>
-          <p className="font-mono text-sm">
-            {metricDetails?.created_at
+        <DetailCell label="Metric Key" value={metricDetails?.metric_key} mono />
+        <DetailCell
+          label="Type"
+          value={metricDetails?.metric_type.toLocaleUpperCase()}
+        />
+        <DetailCell
+          label="Created"
+          value={
+            metricDetails?.created_at
               ? new Date(metricDetails.created_at).toLocaleString()
-              : "—"}
-          </p>
-        </div>
+              : undefined
+          }
+          mono
+        />
       </div>
     </Card>
   );

@@ -1,5 +1,5 @@
-import Card from "../../../components/card/Card";
-import CheckCircleIcon from "../../../components/icons/CheckCircleIcon";
+import Card from "../../../../../components/card/Card";
+import CheckCircleIcon from "../../../../../components/icons/CheckCircleIcon";
 
 const AATestGreenbox = () => {
   return (
