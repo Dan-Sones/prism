@@ -40,11 +40,14 @@ const DateRangePicker = ({
         selected={range}
         animate
         onSelect={(selected) => {
+          const toUtcMidnight = (d: Date) =>
+            new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+
           if (selected?.from) {
-            setStartDate(selected.from);
+            setStartDate(toUtcMidnight(selected.from));
           }
           if (selected?.to) {
-            setEndDate(selected.to);
+            setEndDate(toUtcMidnight(selected.to));
           }
         }}
         disabled={[{ before: tomorrow }]}
@@ -54,7 +57,6 @@ const DateRangePicker = ({
           root: `${defaultClassNames.root}`,
           chevron: `w-4 h-4 fill-purple-700`,
           day: `group w-8 h-8 rounded-full`,
-          caption_label: `text-xs`,
           disabled: `text-gray-500`,
         }}
         components={{
