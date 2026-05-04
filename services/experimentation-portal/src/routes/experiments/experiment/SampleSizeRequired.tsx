@@ -7,7 +7,7 @@ interface SampleSizeRequiredProps {
 const SampleSizeRequired = (props: SampleSizeRequiredProps) => {
   return (
     <Card>
-      <h2 className="font-mono">Sample Size Required</h2>
+      <h2 className="text-lg font-semibold">Sample Size Required</h2>
       <p className="text-3xl font-bold">
         {props.requiredSampleSize?.toLocaleString()}
       </p>
