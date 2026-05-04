@@ -11,7 +11,7 @@ import (
 )
 
 type QueryBuilder interface {
-	BuildQueryFor(experimentKey string, m metric.EnrichedMetric, startTime, endTime time.Time) (eventModel.QueryString, error)
+	BuildQueryFor(experimentKey string, m metric.EnrichedMetric, startTime, endTime time.Time, isAA bool) (eventModel.QueryString, error)
 }
 
 type ClickhouseQueryBuilder struct {
@@ -22,25 +22,26 @@ func NewClickhouseQueryBuilder() *ClickhouseQueryBuilder {
 	return &ClickhouseQueryBuilder{}
 }
 
-func (c *ClickhouseQueryBuilder) BuildQueryFor(experimentKey string, m metric.EnrichedMetric, startTime, endTime time.Time) (eventModel.QueryString, error) {
+func (c *ClickhouseQueryBuilder) BuildQueryFor(experimentKey string, m metric.EnrichedMetric, startTime, endTime time.Time, isAA bool) (eventModel.QueryString, error) {
 	if len(m.MetricComponents) == 0 {
 		return "", errors.New("metric must have at least one component")
 	}
 
 	if m.MetricType == metric.MetricTypeRatio {
-		return c.buildForRatioMetric(experimentKey, m, startTime, endTime)
+		return c.buildForRatioMetric(experimentKey, m, startTime, endTime, isAA)
 	}
 
 	return "", nil
 
 }
 
-func (c *ClickhouseQueryBuilder) buildForRatioMetric(experimentKey string, m metric.EnrichedMetric, startTime, endTime time.Time) (eventModel.QueryString, error) {
+func (c *ClickhouseQueryBuilder) buildForRatioMetric(experimentKey string, m metric.EnrichedMetric, startTime, endTime time.Time, isAA bool) (eventModel.QueryString, error) {
 	var query eventModel.ClickhouseQuery
 
 	query.WHERE = append(query.WHERE, "experiment_key = '"+experimentKey+"'")
 	query.WHERE = append(query.WHERE, c.BuildInEventKeyWhere(m))
 	query.WHERE = append(query.WHERE, c.BuildTimeRangeWhere(startTime, endTime))
+	query.WHERE = append(query.WHERE, c.BuildIsAAWhere(isAA))
 
 	query.SELECT = append(query.SELECT, "variant_key")
 	for _, component := range m.MetricComponents {
@@ -125,4 +126,8 @@ func (c *ClickhouseQueryBuilder) BuildTimeRangeWhere(startTime, endTime time.Tim
 	return fmt.Sprintf(
 		"sent_at >= '%s' AND sent_at <= '%s'", startTime.UTC().Format(layout), endTime.UTC().Format(layout),
 	)
+}
+
+func (c *ClickhouseQueryBuilder) BuildIsAAWhere(isAA bool) string {
+	return fmt.Sprintf("is_aa = %t", isAA)
 }

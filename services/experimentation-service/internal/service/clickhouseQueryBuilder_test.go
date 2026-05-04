@@ -158,13 +158,15 @@ func TestClickhouseQueryBuilder_BuildQueryForExperimentMetric_Ratio(t *testing.T
 		m             metric.EnrichedMetric
 		startTime     time.Time
 		endTime       time.Time
+		isAA          bool
 		expectedQuery event2.QueryString
 	}{
 		{
-			name:          "BINARY Ratio Metric System Column Name: purchase conversion rate",
+			name:          "BINARY Ratio Metric System Column Name, AA: purchase conversion rate",
 			experimentKey: "button_color_v1",
 			startTime:     startTime,
 			endTime:       endTime,
+			isAA:          true,
 			m: metric.EnrichedMetric{
 				MetricType: metric.MetricTypeRatio,
 				MetricComponents: []metric.EnrichedMetricComponent{
@@ -186,14 +188,43 @@ func TestClickhouseQueryBuilder_BuildQueryForExperimentMetric_Ratio(t *testing.T
 					},
 				},
 			},
-			expectedQuery: `SELECT variant_key, uniqExactIf(user_id, event_key = 'purchase') AS numerator, uniqExactIf(user_id, event_key = 'experiment_exposure') AS denominator FROM cooked_events WHERE experiment_key = 'button_color_v1' AND event_key IN ('purchase', 'experiment_exposure') AND sent_at >= '2026-04-23 14:30:00' AND sent_at <= '2026-04-23 15:30:00' GROUP BY variant_key;`,
+			expectedQuery: `SELECT variant_key, uniqExactIf(user_id, event_key = 'purchase') AS numerator, uniqExactIf(user_id, event_key = 'experiment_exposure') AS denominator FROM cooked_events WHERE experiment_key = 'button_color_v1' AND event_key IN ('purchase', 'experiment_exposure') AND sent_at >= '2026-04-23 14:30:00' AND sent_at <= '2026-04-23 15:30:00' AND is_aa = true GROUP BY variant_key;`,
+		},
+		{
+			name:          "BINARY Ratio Metric System Column Name, NOT AA: purchase conversion rate",
+			experimentKey: "button_color_v1",
+			startTime:     startTime,
+			endTime:       endTime,
+			isAA:          false,
+			m: metric.EnrichedMetric{
+				MetricType: metric.MetricTypeRatio,
+				MetricComponents: []metric.EnrichedMetricComponent{
+					{
+						Role: metric.ComponentRoleNumerator,
+						EventType: event.EventType{
+							EventKey: "purchase",
+						},
+						AggregationOperation: metric.AggregationOperationCountDistinct,
+						SystemColumnName:     &sysColName,
+					},
+					{
+						Role: metric.ComponentRoleDenominator,
+						EventType: event.EventType{
+							EventKey: "experiment_exposure",
+						},
+						AggregationOperation: metric.AggregationOperationCountDistinct,
+						SystemColumnName:     &sysColName,
+					},
+				},
+			},
+			expectedQuery: `SELECT variant_key, uniqExactIf(user_id, event_key = 'purchase') AS numerator, uniqExactIf(user_id, event_key = 'experiment_exposure') AS denominator FROM cooked_events WHERE experiment_key = 'button_color_v1' AND event_key IN ('purchase', 'experiment_exposure') AND sent_at >= '2026-04-23 14:30:00' AND sent_at <= '2026-04-23 15:30:00' AND is_aa = false GROUP BY variant_key;`,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			builder := &ClickhouseQueryBuilder{}
-			query, err := builder.BuildQueryFor(tt.experimentKey, tt.m, startTime, endTime)
+			query, err := builder.BuildQueryFor(tt.experimentKey, tt.m, startTime, endTime, tt.isAA)
 			if err != nil {
 				t.Fatalf("Unexpected error: %v", err)
 			}
@@ -213,13 +244,13 @@ func TestClickhouseQueryBuilder_BuildQueryFor_NoMetricComponents(t *testing.T) {
 	endTime := startTime.Add(1 * time.Hour)
 
 	builder := &ClickhouseQueryBuilder{}
-	_, err := builder.BuildQueryFor(experimentKey, m, startTime, endTime)
+	_, err := builder.BuildQueryFor(experimentKey, m, startTime, endTime, false)
 	if err.Error() != "metric must have at least one component" {
 		t.Fatalf("Expected error about missing metric components, got: %v", err)
 	}
 }
 
-func TestNewClickhouseQueryBuilder_BuildTimeRangeWhere(t *testing.T) {
+func TestClickhouseQueryBuilder_BuildTimeRangeWhere(t *testing.T) {
 	builder := &ClickhouseQueryBuilder{}
 	const layout = "2006-01-02 15:04:05"
 
@@ -233,5 +264,34 @@ func TestNewClickhouseQueryBuilder_BuildTimeRangeWhere(t *testing.T) {
 	if got != expected {
 		t.Errorf("Expected %v, got %v", expected, got)
 	}
+}
 
+func TestClickhouseQueryBuilder_BuildIsAAWhere(t *testing.T) {
+	builder := &ClickhouseQueryBuilder{}
+
+	tests := []struct {
+		name string
+		isAA bool
+		want string
+	}{
+		{
+			name: "isAA true",
+			isAA: true,
+			want: "is_aa = true",
+		},
+		{
+			name: "isAA false",
+			isAA: false,
+			want: "is_aa = false",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := builder.BuildIsAAWhere(tt.isAA)
+			if got != tt.want {
+				t.Errorf("Expected %v, got %v", tt.want, got)
+			}
+		})
+	}
 }

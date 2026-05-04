@@ -206,7 +206,10 @@ func (s *ExperimentService) GetRequiredSampleSizeForMetrics(ctx context.Context,
 			return nil, err
 		}
 
-		query, err := s.queryBuilder.BuildQueryFor(exp.FeatureFlagID, *enrichedMetric, exp.AAStartTime, exp.AAEndTime)
+		// set isAA true so we only consider AA events in the data used for the sample size calc
+		// The dates should do this anyway, but this is an extra safeguard
+		isAA := true
+		query, err := s.queryBuilder.BuildQueryFor(exp.FeatureFlagID, *enrichedMetric, exp.AAStartTime, exp.AAEndTime, isAA)
 		if err != nil {
 			s.logger.Error("Failed to build query for experiment metric", "error", err)
 			return nil, err
