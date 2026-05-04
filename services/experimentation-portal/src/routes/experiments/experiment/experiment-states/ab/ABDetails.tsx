@@ -31,15 +31,10 @@ const ABDetails = (props: ABDetailsProps) => {
               {metric.metric_details.name}
             </p>
             <div className="grid grid-cols-2 gap-4">
-              <DetailCell
-                label="Type"
-                value={metric.role}
-                className="font-normal"
-              />
+              <DetailCell label="Type" value={metric.role} />
               <DetailCell
                 label="MDE"
                 value={metric.mde ? `${metric.mde * 100}%` : "—"}
-                className="font-normal"
               />
             </div>
           </div>

@@ -16,7 +16,7 @@ const DetailCell = ({
   <div className={className} {...rest}>
     <p className="pb-0.5 text-xs text-gray-400">{label}</p>
     <p
-      className={`text-sm font-medium ${mono ? "font-mono" : ""} ${valueClassName || ""}`}
+      className={`text-sm font-normal ${mono ? "font-mono" : ""} ${valueClassName || ""}`}
     >
       {value ?? "—"}
     </p>
