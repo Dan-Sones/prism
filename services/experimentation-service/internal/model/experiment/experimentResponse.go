@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/Dan-Sones/prismdbmodels/model/experiment"
+	"github.com/Dan-Sones/prismdbmodels/model/metric"
 	"github.com/google/uuid"
 )
 
@@ -33,14 +34,14 @@ type ExperimentVariantResponse struct {
 }
 
 type ExperimentMetricResponse struct {
-	MetricID  uuid.UUID                            `json:"metric_id"`
-	Role      experiment.ExperimentMetricRole      `json:"role"`
-	Direction experiment.ExperimentMetricDirection `json:"direction"`
-	MDE       *float64                             `json:"mde,omitempty"`
-	NIM       *float64                             `json:"nim,omitempty"`
+	MetricDetails metric.EnrichedMetric                `json:"metric_details"`
+	Role          experiment.ExperimentMetricRole      `json:"role"`
+	Direction     experiment.ExperimentMetricDirection `json:"direction"`
+	MDE           *float64                             `json:"mde,omitempty"`
+	NIM           *float64                             `json:"nim,omitempty"`
 }
 
-func NewExperimentResponse(exp experiment.Experiment) ExperimentResponse {
+func NewExperimentResponse(exp experiment.Experiment, enrichedMetrics []metric.EnrichedMetric) ExperimentResponse {
 	resp := ExperimentResponse{
 		ID:                      exp.ID,
 		Name:                    exp.Name,
@@ -66,12 +67,20 @@ func NewExperimentResponse(exp experiment.Experiment) ExperimentResponse {
 	}
 
 	for _, m := range exp.Metrics {
+		var metricDetails metric.EnrichedMetric
+		for _, em := range enrichedMetrics {
+			if em.ID == m.MetricID {
+				metricDetails = em
+				break
+			}
+		}
+
 		resp.Metrics = append(resp.Metrics, ExperimentMetricResponse{
-			MetricID:  m.MetricID,
-			Role:      m.Role,
-			Direction: m.Direction,
-			MDE:       m.MDE,
-			NIM:       m.NIM,
+			MetricDetails: metricDetails,
+			Role:          m.Role,
+			Direction:     m.Direction,
+			MDE:           m.MDE,
+			NIM:           m.NIM,
 		})
 	}
 

@@ -1,6 +1,8 @@
+import { useQuery } from "@tanstack/react-query";
 import type { ExperimentResponse } from "../../../../../api/experiments";
 import Card from "../../../../../components/card/Card";
 import DetailCell from "../../../../../components/card/DetailCell";
+import { getExperimentMetricDetails } from "../../../../../api/experiments/get-metric-details-for-experiment";
 
 interface ABPlannedProps {
   experimentDetails?: ExperimentResponse;
@@ -32,8 +34,8 @@ const ABPlanned = (props: ABPlannedProps) => {
       <Card>
         <h2 className="text-sm font-semibold">Experiment Metrics</h2>
         {experimentDetails?.metrics.map((metric) => (
-          <div key={metric.id} className="mt-4">
-            <p>{metric.name}</p>
+          <div key={metric.metric_details.id} className="mt-4">
+            <p>{metric.metric_details.name}</p>
           </div>
         ))}
       </Card>

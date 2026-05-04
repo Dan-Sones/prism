@@ -29,7 +29,6 @@ func RegisterRoutes(router *chi.Mux, c Controllers) {
 				r.Get("/calculate-sample-size", c.ExperimentController.CalculateRequiredSampleSizeForMetrics)
 				r.Put("/begin-ab", c.ExperimentController.UpdateExperimentForABPhase)
 			})
-
 		})
 
 		r.Route("/events-catalog", func(r chi.Router) {

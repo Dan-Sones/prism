@@ -1,3 +1,5 @@
+import type { Metric } from "../../metricsCatalog";
+
 export type CreateExperimentRequestBody = {
   name: string;
   feature_flag_id: string;
@@ -63,7 +65,7 @@ export type ExperimentResponse = {
 };
 
 export type ExperimentMetricResponse = {
-  metric_id: string;
+  metric_details: Metric;
   role: CreateExperimentMetricRole;
   direction: CreateExperimentMetricDirection;
   mde?: number;
