@@ -81,12 +81,14 @@ func main() {
 	eventsRepository := repository.NewClickHouseEventsRepository(clickhouseConn)
 	metricsCatalogRepository := repository.NewMetricsCatalogRepository(pgPool)
 	bucketAllocationRepository := repository.NewBucketAllocationRepository(pgPool)
+	experimentPhaseRepository := repository.NewExperimentPhaseRepository(pgPool)
 
 	// Services
+	bucketAllocationService := service.NewBucketAllocationService(bucketAllocationRepository, logger)
 	eventService := service.NewEventsService(eventsRepository, eventsCatalogRepository, logger)
 	metricsCatalogService := service.NewMetricsCatalogService(metricsCatalogRepository, eventsCatalogRepository, logger)
 	clickhouseQueryBuilder := service.NewClickhouseQueryBuilder()
-	experimentService := service.NewExperimentService(experimentRepository, bucketAllocationRepository, clickhouseQueryBuilder, eventService, metricsCatalogService, statsEngineClient, logger)
+	experimentService := service.NewExperimentService(experimentRepository, bucketAllocationService, clickhouseQueryBuilder, eventService, metricsCatalogService, statsEngineClient, experimentPhaseRepository, logger)
 	assignmentService := service.NewAssignmentService(experimentRepository, bucketCount, logger)
 	eventsCatalogService := service.NewEventsCatalogService(eventsCatalogRepository, logger)
 

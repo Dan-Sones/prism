@@ -36,8 +36,8 @@ const AATestComplete = ({ experimentDetails }: AATestCompleteProps) => {
   return (
     <>
       <AATestGreenbox />
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
+        <div className="col-span-3">
           <PostAAConfig experimentId={experimentDetails.id} />
         </div>
         <div>

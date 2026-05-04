@@ -78,3 +78,9 @@ export type RequiredSampleSizeResponse = {
   total_required_sample_size: number;
   sample_size_per_variant: Record<string, number>;
 };
+
+export type UpdateExperimentPhaseRequest = {
+  start_time?: Date;
+  end_time?: Date;
+  bucket_allocation?: number;
+};

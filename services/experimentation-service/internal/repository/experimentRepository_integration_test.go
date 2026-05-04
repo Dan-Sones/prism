@@ -180,7 +180,11 @@ func commonTestPattern(t *testing.T, givenExperiments []experiment2.Experiment, 
 			}
 		}
 
-		err = baRepo.AssignBucketToExperiment(ctx, *experimentId, int(bucketId))
+		phase := PhaseAA
+		if exp.StartTime.Valid {
+			phase = PhaseAB
+		}
+		err = baRepo.AssignBucketToExperiment(ctx, *experimentId, int(bucketId), phase)
 		if err != nil {
 			t.Fatalf("failed to assign bucket to experiment %q: %s", exp.Name, err)
 		}

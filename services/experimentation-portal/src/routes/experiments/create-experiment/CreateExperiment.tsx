@@ -81,7 +81,6 @@ const CreateExperiment = () => {
   });
 
   const onSubmit = (data: CreateExperimentRequestBody) => {
-    console.log(data);
     mutation.mutate(data);
   };
 

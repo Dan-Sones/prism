@@ -201,10 +201,10 @@ func (r *ExperimentRepository) GetExperimentsAndVariantsForBucketAtTime(ctx cont
 	 WHERE ba.bucket_number = $1
     AND (
       (e.aa_start_time IS NOT NULL AND e.aa_end_time IS NOT NULL
-       AND e.aa_start_time <= $2 AND e.aa_end_time >= $2)
+       AND e.aa_start_time <= $2 AND e.aa_end_time >= $2 AND ba.phase = 'AA')
       OR
       (e.start_time IS NOT NULL AND e.end_time IS NOT NULL
-       AND e.start_time <= $2 AND e.end_time >= $2)
+       AND e.start_time <= $2 AND e.end_time >= $2 AND ba.phase = 'AB')
     )
 	`
 
@@ -254,15 +254,6 @@ func (r *ExperimentRepository) UpdateBoundsForExperimentVariant(ctx context.Cont
 		WHERE experiment_id = $3 AND variant_key = $4`,
 		upperBound, lowerBound, experimentId, variantKey,
 	)
-
-	return err
-}
-
-func (r *ExperimentRepository) SetExperimentStartAndEndTime(ctx context.Context, experimentId uuid.UUID, startTime time.Time, endTime time.Time) error {
-	_, err := r.pgxPool.Exec(ctx, `UPDATE prism.experiments	
-		SET start_time = $1, end_time = $2
-		WHERE id = $3`,
-		startTime, endTime, experimentId)
 
 	return err
 }

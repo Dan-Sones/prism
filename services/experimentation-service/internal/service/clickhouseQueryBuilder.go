@@ -60,7 +60,7 @@ func (c *ClickhouseQueryBuilder) buildForRatioMetric(experimentKey string, m met
 		}
 	}
 
-	query.FROM = "events"
+	query.FROM = "cooked_events"
 
 	query.GroupBy = append(query.GroupBy, "variant_key")
 
