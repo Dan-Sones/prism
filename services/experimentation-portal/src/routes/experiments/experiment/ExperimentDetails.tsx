@@ -1,5 +1,6 @@
 import type { ExperimentResponse } from "../../../api/experiments";
 import Card from "../../../components/card/Card";
+import DetailCell from "../../../components/card/DetailCell";
 import Spinner from "../../../components/spinner/Spinner";
 import ExperimentStatusPuck from "./ExperimentStatusPuck";
 
@@ -33,26 +34,24 @@ const ExperimentDetails = (props: ExperimentDetailsProps) => {
   return (
     <Card>
       <div className="grid grid-cols-2 gap-4 border-b border-gray-200 pb-4">
-        <div>
-          <p className="text-xs text-gray-400">Feature Flag Key</p>
-          <p className="font-mono text-sm font-medium">
-            {experimentDetails?.feature_flag_id || "—"}
-          </p>
-        </div>
+        <DetailCell
+          label="Feature Flag Key"
+          value={experimentDetails?.feature_flag_id}
+          mono
+        />
         <div>
           <p className="text-xs text-gray-400">Status</p>
-
           <ExperimentStatusPuck status={experimentDetails?.status} />
         </div>
-
-        <div>
-          <p className="text-xs text-gray-400">Created</p>
-          <p className="font-mono text-sm">
-            {experimentDetails?.created_at
+        <DetailCell
+          label="Created"
+          value={
+            experimentDetails?.created_at
               ? new Date(experimentDetails.created_at).toLocaleString()
-              : "—"}
-          </p>
-        </div>
+              : null
+          }
+          mono
+        />
       </div>
     </Card>
   );
