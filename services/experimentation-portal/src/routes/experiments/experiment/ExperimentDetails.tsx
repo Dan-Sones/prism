@@ -1,11 +1,11 @@
-import type { ExperimentResponse } from "../../../api/experiments";
+import type { EnrichedExperimentResponse } from "../../../api/experiments";
 import Card from "../../../components/card/Card";
 import DetailCell from "../../../components/card/DetailCell";
 import Spinner from "../../../components/spinner/Spinner";
 import ExperimentStatusPuck from "./ExperimentStatusPuck";
 
 interface ExperimentDetailsProps {
-  experimentDetails?: ExperimentResponse;
+  experimentDetails?: EnrichedExperimentResponse;
   isLoading?: boolean;
   isError?: boolean;
 }
@@ -33,7 +33,7 @@ const ExperimentDetails = (props: ExperimentDetailsProps) => {
 
   return (
     <Card>
-      <div className="grid grid-cols-2 gap-4 border-b border-gray-200 pb-4">
+      <div className="grid grid-cols-2 gap-4 border-b border-gray-200 pb-2">
         <DetailCell
           label="Feature Flag Key"
           value={experimentDetails?.feature_flag_id}
@@ -51,6 +51,20 @@ const ExperimentDetails = (props: ExperimentDetailsProps) => {
               : null
           }
           mono
+        />
+      </div>
+      <div className="border-b border-gray-200 pb-2">
+        <DetailCell
+          label="Description"
+          valueClassName="font-normal pt-1"
+          value={experimentDetails?.description || "—"}
+        />
+      </div>
+      <div className="border-b border-gray-200 pb-2">
+        <DetailCell
+          label="Hypothesis"
+          valueClassName="font-normal pt-1"
+          value={experimentDetails?.hypothesis || "—"}
         />
       </div>
     </Card>
