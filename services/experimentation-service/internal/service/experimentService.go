@@ -49,7 +49,7 @@ func NewExperimentService(experimentRepository *repository.ExperimentRepository,
 }
 
 func (s *ExperimentService) CreateExperiment(ctx context.Context,
-	expReq experiment.CreateExperimentRequest) (*experiment2.EnrichedExperiment, []problems.Violation, error) {
+	expReq experiment.CreateExperimentRequest) (*experiment.ExperimentResponse, []problems.Violation, error) {
 	violations := validators.ValidateExperiment(expReq)
 	if len(violations) > 0 {
 		return nil, violations, nil
@@ -81,8 +81,9 @@ func (s *ExperimentService) CreateExperiment(ctx context.Context,
 		return nil, nil, err
 	}
 
-	enrichedExperiment, err := s.enrichExperiment(ctx, expById)
-	return &enrichedExperiment, nil, err
+	s.enrichWithExperimentStatus(&expById)
+	resp := experiment.NewExperimentResponse(expById)
+	return &resp, nil, nil
 }
 
 func (s *ExperimentService) GetExperiments(ctx context.Context, search string) ([]experiment.ExperimentResponse, error) {
@@ -102,14 +103,15 @@ func (s *ExperimentService) GetExperiments(ctx context.Context, search string) (
 	return expsInResFormat, nil
 }
 
-func (s *ExperimentService) GetExperimentByUUID(ctx context.Context, expId uuid.UUID) (experiment2.EnrichedExperiment, error) {
+func (s *ExperimentService) GetExperimentByUUID(ctx context.Context, expId uuid.UUID) (experiment.ExperimentResponse, error) {
 	expById, err := s.experimentRepository.GetExperimentByUUID(ctx, expId)
 	if err != nil {
 		s.logger.Error("Failed to retrieve experiment by id from repository", "error", err)
-		return experiment2.EnrichedExperiment{}, err
+		return experiment.ExperimentResponse{}, err
 	}
 
-	return s.enrichExperiment(ctx, expById)
+	s.enrichWithExperimentStatus(&expById)
+	return experiment.NewExperimentResponse(expById), nil
 }
 
 func (s *ExperimentService) GetEnrichedExperimentByKey(ctx context.Context, experimentKey string) (experiment2.EnrichedExperiment, error) {

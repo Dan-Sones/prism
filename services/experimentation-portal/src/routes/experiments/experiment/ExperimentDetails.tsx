@@ -1,11 +1,11 @@
-import type { EnrichedExperimentResponse } from "../../../api/experiments";
+import type { ExperimentResponse } from "../../../api/experiments";
 import Card from "../../../components/card/Card";
 import DetailCell from "../../../components/card/DetailCell";
 import Spinner from "../../../components/spinner/Spinner";
 import ExperimentStatusPuck from "./ExperimentStatusPuck";
 
 interface ExperimentDetailsProps {
-  experimentDetails?: EnrichedExperimentResponse;
+  experimentDetails?: ExperimentResponse;
   isLoading?: boolean;
   isError?: boolean;
 }

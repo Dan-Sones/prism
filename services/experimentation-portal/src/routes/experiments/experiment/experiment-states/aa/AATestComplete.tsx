@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { type EnrichedExperimentResponse } from "../../../../../api/experiments";
+import { type ExperimentResponse } from "../../../../../api/experiments";
 import LoadingPlaceholder from "../../../../../components/spinner/LoadingPlaceholder";
 import AATestGreenbox from "./AATestGreenbox";
 import PostAAConfig from "./PostAAConfig";
@@ -7,7 +7,7 @@ import SampleSizeRequired from "./SampleSizeRequired";
 import { calculateRequiredSampleSize } from "../../../../../api/experiments/calculate-required-sample-size";
 
 interface AATestCompleteProps {
-  experimentDetails?: EnrichedExperimentResponse;
+  experimentDetails?: ExperimentResponse;
 }
 
 const AATestComplete = ({ experimentDetails }: AATestCompleteProps) => {

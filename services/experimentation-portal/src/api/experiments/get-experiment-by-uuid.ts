@@ -1,10 +1,10 @@
 import { axiosClient } from "../client/axios";
-import type { EnrichedExperimentResponse } from "./model/experiment";
+import type { ExperimentResponse } from "./model/experiment";
 
 export const getExperiment = async (
   id: string,
-): Promise<EnrichedExperimentResponse> => {
-  const response = await axiosClient.get<EnrichedExperimentResponse>(
+): Promise<ExperimentResponse> => {
+  const response = await axiosClient.get<ExperimentResponse>(
     `/experiments/${id}`,
   );
   return response.data;

@@ -1,9 +1,9 @@
-import type { EnrichedExperimentResponse } from "../../../../../api/experiments";
+import type { ExperimentResponse } from "../../../../../api/experiments";
 import Card from "../../../../../components/card/Card";
 import DetailCell from "../../../../../components/card/DetailCell";
 
 interface ABPlannedProps {
-  experimentDetails?: EnrichedExperimentResponse;
+  experimentDetails?: ExperimentResponse;
 }
 
 const formatDate = (date?: Date) =>

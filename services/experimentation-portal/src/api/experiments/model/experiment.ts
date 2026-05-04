@@ -1,5 +1,3 @@
-import type { Metric } from "../../metricsCatalog/model/metricsCatalog";
-
 export type CreateExperimentRequestBody = {
   name: string;
   feature_flag_id: string;
@@ -52,12 +50,14 @@ export type ExperimentResponse = {
   status: ExperimentStatus;
   created_at: string;
   feature_flag_id: string;
-  start_time: Date;
-  end_time: Date;
+  start_time?: Date;
+  end_time?: Date;
   aa_start_time: Date;
   aa_end_time: Date;
+  unique_salt: string;
   hypothesis: string;
   description: string;
+  total_required_sample_size?: number;
   metrics: Array<ExperimentMetricResponse>;
   variants: Array<ExperimentVariantResponse>;
 };
@@ -85,31 +85,4 @@ export type UpdateExperimentPhaseRequest = {
   start_time?: Date;
   end_time?: Date;
   bucket_allocation?: number;
-};
-
-export type EnrichedExperimentVariant = {
-  name: string;
-  feature_flag_id: string;
-  variant_id: string;
-  upper_bound: number;
-  lower_bound: number;
-  variant_type: VariantType;
-};
-
-export type EnrichedExperimentResponse = {
-  id: string;
-  name: string;
-  status: ExperimentStatus;
-  created_at: string;
-  feature_flag_id: string;
-  start_time?: Date;
-  end_time?: Date;
-  aa_start_time: Date;
-  aa_end_time: Date;
-  unique_salt: string;
-  hypothesis: string;
-  description: string;
-  total_required_sample_size?: number;
-  metrics: Array<Metric>;
-  variants: Array<EnrichedExperimentVariant>;
 };

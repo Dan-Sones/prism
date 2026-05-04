@@ -1,9 +1,8 @@
-import type {
-  EnrichedExperimentResponse,} from "../../../../../api/experiments";
+import type { ExperimentResponse } from "../../../../../api/experiments";
 import Card from "../../../../../components/card/Card";
 
 interface AATestDetailsProps {
-  experimentDetails?: EnrichedExperimentResponse;
+  experimentDetails?: ExperimentResponse;
 }
 
 const AATestDetails = (props: AATestDetailsProps) => {

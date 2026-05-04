@@ -8,19 +8,21 @@ import (
 )
 
 type ExperimentResponse struct {
-	ID            uuid.UUID                   `json:"id"`
-	Name          string                      `json:"name"`
-	CreatedAt     time.Time                   `json:"created_at"`
-	FeatureFlagID string                      `json:"feature_flag_id"`
-	StartTime     *time.Time                  `json:"start_time,omitempty"`
-	EndTime       *time.Time                  `json:"end_time,omitempty"`
-	AAStartTime   time.Time                   `json:"aa_start_time"`
-	AAEndTime     time.Time                   `json:"aa_end_time"`
-	Hypothesis    string                      `json:"hypothesis"`
-	Description   string                      `json:"description"`
-	Status        experiment.ExperimentStatus `json:"status"`
-	Metrics       []ExperimentMetricResponse  `json:"metrics"`
-	Variants      []ExperimentVariantResponse `json:"variants"`
+	ID                      uuid.UUID                   `json:"id"`
+	Name                    string                      `json:"name"`
+	CreatedAt               time.Time                   `json:"created_at"`
+	FeatureFlagID           string                      `json:"feature_flag_id"`
+	StartTime               *time.Time                  `json:"start_time,omitempty"`
+	EndTime                 *time.Time                  `json:"end_time,omitempty"`
+	AAStartTime             time.Time                   `json:"aa_start_time"`
+	AAEndTime               time.Time                   `json:"aa_end_time"`
+	UniqueSalt              string                      `json:"unique_salt"`
+	Hypothesis              string                      `json:"hypothesis"`
+	Description             string                      `json:"description"`
+	TotalRequiredSampleSize *int                        `json:"total_required_sample_size,omitempty"`
+	Status                  experiment.ExperimentStatus `json:"status"`
+	Metrics                 []ExperimentMetricResponse  `json:"metrics"`
+	Variants                []ExperimentVariantResponse `json:"variants"`
 }
 
 type ExperimentVariantResponse struct {
@@ -40,17 +42,19 @@ type ExperimentMetricResponse struct {
 
 func NewExperimentResponse(exp experiment.Experiment) ExperimentResponse {
 	resp := ExperimentResponse{
-		ID:            exp.ID,
-		Name:          exp.Name,
-		Status:        exp.Status,
-		CreatedAt:     exp.CreatedAt.Time,
-		FeatureFlagID: exp.FeatureFlagID,
-		AAStartTime:   exp.AAStartTime,
-		AAEndTime:     exp.AAEndTime,
-		Hypothesis:    exp.Hypothesis,
-		Description:   exp.Description,
-		Metrics:       make([]ExperimentMetricResponse, 0, len(exp.Metrics)),
-		Variants:      make([]ExperimentVariantResponse, 0, len(exp.Variants)),
+		ID:                      exp.ID,
+		Name:                    exp.Name,
+		Status:                  exp.Status,
+		CreatedAt:               exp.CreatedAt.Time,
+		FeatureFlagID:           exp.FeatureFlagID,
+		AAStartTime:             exp.AAStartTime,
+		AAEndTime:               exp.AAEndTime,
+		UniqueSalt:              exp.UniqueSalt,
+		Hypothesis:              exp.Hypothesis,
+		Description:             exp.Description,
+		TotalRequiredSampleSize: exp.TotalRequiredSampleSize,
+		Metrics:                 make([]ExperimentMetricResponse, 0, len(exp.Metrics)),
+		Variants:                make([]ExperimentVariantResponse, 0, len(exp.Variants)),
 	}
 
 	if exp.StartTime.Valid {
