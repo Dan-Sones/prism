@@ -172,7 +172,7 @@ func (s *ExperimentService) ConfigureExperimentForAA(ctx context.Context, experi
 				return err
 			}
 		} else if variant.VariantType == experiment2.VariantTypeTreatment {
-			err = s.experimentRepository.UpdateBoundsForExperimentVariant(ctx, experiment3.ID, variant.VariantKey, 51, 99)
+			err = s.experimentRepository.UpdateBoundsForExperimentVariant(ctx, experiment3.ID, variant.VariantKey, 99, 50)
 			if err != nil {
 				s.logger.Error("Failed to update bounds for treatment variant for A/A test", "error", err)
 				return err
