@@ -1,5 +1,5 @@
-import type { ExperimentResponse } from "../../../api/experiments";
-import Card from "../../../components/card/Card";
+import type { ExperimentResponse } from "../../../../../api/experiments";
+import Card from "../../../../../components/card/Card";
 
 interface AATestDetailsProps {
   experimentDetails?: ExperimentResponse;

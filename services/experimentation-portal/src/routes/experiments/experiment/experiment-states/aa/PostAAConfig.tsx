@@ -1,17 +1,17 @@
 import { Controller, useForm, useWatch } from "react-hook-form";
-import Card from "../../../components/card/Card";
-import Label from "../../../components/form/Label";
-import Slider from "../../../components/form/Slider";
-import DateRangePicker from "../../../components/datePicker/DateRangePicker";
-import type { UpdateExperimentPhaseRequest } from "../../../api/experiments/model/experiment";
+import Card from "../../../../../components/card/Card";
+import Label from "../../../../../components/form/Label";
+import Slider from "../../../../../components/form/Slider";
+import DateRangePicker from "../../../../../components/datePicker/DateRangePicker";
+import type { UpdateExperimentPhaseRequest } from "../../../../../api/experiments/model/experiment";
 import type { DateRange } from "react-day-picker";
-import PrimaryButton from "../../../components/button/PrimaryButton";
+import PrimaryButton from "../../../../../components/button/PrimaryButton";
 import { useMutation } from "@tanstack/react-query";
-import { updateExperimentPhase } from "../../../api/experiments/update-experiment-phase";
+import { updateExperimentPhase } from "../../../../../api/experiments/update-experiment-phase";
 import { toast } from "sonner";
-import type { ProblemDetail } from "../../../api/base/problem";
+import type { ProblemDetail } from "../../../../../api/base/problem";
 import type { AxiosError } from "axios";
-import { useErrorBanner } from "../../../context/ErrorBannerContext";
+import { useErrorBanner } from "../../../../../context/ErrorBannerContext";
 
 interface PostAAConfigProps {
   experimentId: string;

@@ -1,4 +1,4 @@
-import Card from "../../../components/card/Card";
+import Card from "../../../../../components/card/Card";
 
 interface SampleSizeRequiredProps {
   requiredSampleSize: number | undefined;

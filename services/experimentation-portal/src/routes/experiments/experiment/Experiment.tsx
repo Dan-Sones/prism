@@ -5,8 +5,8 @@ import { useErrorBanner } from "../../../context/ErrorBannerContext";
 import PageTitle from "../../../components/title/PageTitle";
 import ExperimentDetails from "./ExperimentDetails";
 import type { ExperimentStatus } from "../../../api/experiments/model/experiment";
-import AATestDetails from "./AATestDetails";
-import AATestComplete from "./AATestComplete";
+import AATestDetails from "./experiment-states/aa/AATestDetails";
+import AATestComplete from "./experiment-states/aa/AATestComplete";
 
 const Experiment = () => {
   const params = useParams();
