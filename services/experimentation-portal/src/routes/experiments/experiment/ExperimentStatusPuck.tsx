@@ -17,11 +17,11 @@ const ExperimentStatusPill = ({ status }: ExperimentStatusPuckProps) => {
 
   const statusToDisplay: Record<string, string> = {
     "aa-planned": "A/A Test Planned",
-    "ab-planned": "AB Test Planned",
-    aa: "A/A Test Running",
-    ab: "AB Test Running",
+    "ab-planned": "A/B Test Planned",
+    aa: "A/A Test In Progress",
+    ab: "A/B Test In Progress",
     "aa-complete": "A/A Test Complete",
-    "ab-complete": "AB Test Complete",
+    "ab-complete": "A/B Test Complete",
   };
 
   return (
