@@ -49,7 +49,7 @@ func NewExperimentService(experimentRepository *repository.ExperimentRepository,
 }
 
 func (s *ExperimentService) CreateExperiment(ctx context.Context,
-	expReq experiment.CreateExperimentRequest) (*experiment.ExperimentResponse, []problems.Violation, error) {
+	expReq experiment.CreateExperimentRequest) (*experiment2.EnrichedExperiment, []problems.Violation, error) {
 	violations := validators.ValidateExperiment(expReq)
 	if len(violations) > 0 {
 		return nil, violations, nil
@@ -81,10 +81,8 @@ func (s *ExperimentService) CreateExperiment(ctx context.Context,
 		return nil, nil, err
 	}
 
-	s.enrichWithExperimentStatus(&expById)
-
-	resp := experiment.NewExperimentResponse(expById)
-	return &resp, nil, nil
+	enrichedExperiment, err := s.enrichExperiment(ctx, expById)
+	return &enrichedExperiment, nil, err
 }
 
 func (s *ExperimentService) GetExperiments(ctx context.Context, search string) ([]experiment.ExperimentResponse, error) {
@@ -104,15 +102,14 @@ func (s *ExperimentService) GetExperiments(ctx context.Context, search string) (
 	return expsInResFormat, nil
 }
 
-func (s *ExperimentService) GetExperimentByUUID(ctx context.Context, expId uuid.UUID) (experiment.ExperimentResponse, error) {
+func (s *ExperimentService) GetExperimentByUUID(ctx context.Context, expId uuid.UUID) (experiment2.EnrichedExperiment, error) {
 	expById, err := s.experimentRepository.GetExperimentByUUID(ctx, expId)
 	if err != nil {
 		s.logger.Error("Failed to retrieve experiment by id from repository", "error", err)
-		return experiment.ExperimentResponse{}, err
+		return experiment2.EnrichedExperiment{}, err
 	}
 
-	s.enrichWithExperimentStatus(&expById)
-	return experiment.NewExperimentResponse(expById), nil
+	return s.enrichExperiment(ctx, expById)
 }
 
 func (s *ExperimentService) GetEnrichedExperimentByKey(ctx context.Context, experimentKey string) (experiment2.EnrichedExperiment, error) {
@@ -122,38 +119,7 @@ func (s *ExperimentService) GetEnrichedExperimentByKey(ctx context.Context, expe
 		return experiment2.EnrichedExperiment{}, err
 	}
 
-	s.enrichWithExperimentStatus(&expByKey)
-
-	metricIds := make([]uuid.UUID, 0, len(expByKey.Metrics))
-	for _, em := range expByKey.Metrics {
-		metricIds = append(metricIds, em.MetricID)
-	}
-
-	enrichedMetrics := make([]metric.EnrichedMetric, 0, len(metricIds))
-	for _, metricId := range metricIds {
-		enrichedMetric, err := s.metricsCatalogService.GetMetricById(ctx, metricId)
-		if err != nil {
-			s.logger.Error("Failed to retrieve metric details for experiment metric from metrics catalog service", "error", err, "metricId", metricId)
-			return experiment2.EnrichedExperiment{}, err
-		}
-		enrichedMetrics = append(enrichedMetrics, *enrichedMetric)
-	}
-
-	return experiment2.EnrichedExperiment{
-		ID:            expByKey.ID,
-		Name:          expByKey.Name,
-		Status:        expByKey.Status,
-		CreatedAt:     expByKey.CreatedAt.Time,
-		FeatureFlagID: expByKey.FeatureFlagID,
-		StartTime:     &expByKey.StartTime.Time,
-		EndTime:       &expByKey.EndTime.Time,
-		AAStartTime:   expByKey.AAStartTime,
-		AAEndTime:     expByKey.AAEndTime,
-		Hypothesis:    expByKey.Hypothesis,
-		Description:   expByKey.Description,
-		Metrics:       enrichedMetrics,
-		Variants:      expByKey.Variants,
-	}, nil
+	return s.enrichExperiment(ctx, expByKey)
 }
 
 func (s *ExperimentService) ConfigureExperimentForAA(ctx context.Context, experiment3 experiment2.Experiment) error {
@@ -314,6 +280,43 @@ func (s *ExperimentService) enrichWithAATestDates(exp *experiment2.Experiment, f
 	weekFromNextDay := nextDay.Add(7 * 24 * time.Hour)
 	exp.AAStartTime = nextDay
 	exp.AAEndTime = weekFromNextDay
+}
+
+func (s *ExperimentService) enrichExperiment(ctx context.Context, expByKey experiment2.Experiment) (experiment2.EnrichedExperiment, error) {
+	s.enrichWithExperimentStatus(&expByKey)
+
+	metricIds := make([]uuid.UUID, 0, len(expByKey.Metrics))
+	for _, em := range expByKey.Metrics {
+		metricIds = append(metricIds, em.MetricID)
+	}
+
+	enrichedMetrics := make([]metric.EnrichedMetric, 0, len(metricIds))
+	for _, metricId := range metricIds {
+		enrichedMetric, err := s.metricsCatalogService.GetMetricById(ctx, metricId)
+		if err != nil {
+			s.logger.Error("Failed to retrieve metric details for experiment metric from metrics catalog service", "error", err, "metricId", metricId)
+			return experiment2.EnrichedExperiment{}, err
+		}
+		enrichedMetrics = append(enrichedMetrics, *enrichedMetric)
+	}
+
+	return experiment2.EnrichedExperiment{
+		ID:                      expByKey.ID,
+		Name:                    expByKey.Name,
+		Status:                  expByKey.Status,
+		CreatedAt:               expByKey.CreatedAt.Time,
+		FeatureFlagID:           expByKey.FeatureFlagID,
+		StartTime:               &expByKey.StartTime.Time,
+		EndTime:                 &expByKey.EndTime.Time,
+		AAStartTime:             expByKey.AAStartTime,
+		AAEndTime:               expByKey.AAEndTime,
+		UniqueSalt:              expByKey.UniqueSalt,
+		Hypothesis:              expByKey.Hypothesis,
+		Description:             expByKey.Description,
+		TotalRequiredSampleSize: expByKey.TotalRequiredSampleSize,
+		Metrics:                 enrichedMetrics,
+		Variants:                expByKey.Variants,
+	}, nil
 }
 
 func (s *ExperimentService) convertExperimentRequestToExperiment(expReq experiment.CreateExperimentRequest) experiment2.Experiment {

@@ -1,13 +1,13 @@
 import { axiosClient } from "../client/axios";
 import type {
   CreateExperimentRequestBody,
-  ExperimentResponse,
+  EnrichedExperimentResponse,
 } from "./model/experiment";
 
 export const createExperiment = async (
   experiment: CreateExperimentRequestBody,
-): Promise<ExperimentResponse> => {
-  const response = await axiosClient.post<ExperimentResponse>(
+): Promise<EnrichedExperimentResponse> => {
+  const response = await axiosClient.post<EnrichedExperimentResponse>(
     "/experiments",
     experiment,
   );

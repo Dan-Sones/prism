@@ -13,4 +13,6 @@ export type {
   ExperimentVariantResponse,
   ExperimentStatus,
   RequiredSampleSizeResponse,
+  EnrichedExperimentResponse,
+  EnrichedExperimentVariant,
 } from "./model/experiment";
