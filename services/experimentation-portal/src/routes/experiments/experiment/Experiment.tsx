@@ -5,7 +5,6 @@ import { useErrorBanner } from "../../../context/ErrorBannerContext";
 import PageTitle from "../../../components/title/PageTitle";
 import ExperimentDetails from "./ExperimentDetails";
 import type { ExperimentStatus } from "../../../api/experiments/model/experiment";
-import AATestDetails from "./experiment-states/aa/AATestDetails";
 import AATestComplete from "./experiment-states/aa/AATestComplete";
 import ABDetails from "./experiment-states/ab/ABDetails";
 
@@ -21,8 +20,8 @@ const Experiment = () => {
   });
 
   const displayMap: Record<ExperimentStatus, React.ReactNode> = {
-    "aa-planned": <AATestDetails experimentDetails={data} />,
-    aa: <AATestDetails experimentDetails={data} />,
+    "aa-planned": <ABDetails experimentDetails={data} />,
+    aa: <ABDetails experimentDetails={data} />,
     "aa-complete": <AATestComplete experimentDetails={data} />,
     "ab-planned": <ABDetails experimentDetails={data} />,
     ab: <ABDetails experimentDetails={data} />,

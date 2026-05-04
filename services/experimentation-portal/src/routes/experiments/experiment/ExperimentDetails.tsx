@@ -55,34 +55,48 @@ const ExperimentDetails = (props: ExperimentDetailsProps) => {
               ? new Date(experimentDetails.created_at).toLocaleString()
               : null
           }
-          mono
         />
       </div>
       <div className="border-b border-gray-200 pb-2">
         <DetailCell
           label="Description"
-          valueClassName="font-normal"
           value={experimentDetails?.description || "—"}
         />
       </div>
       <div className="border-b border-gray-200 pb-2">
         <DetailCell
           label="Hypothesis"
-          valueClassName="font-normal"
           value={experimentDetails?.hypothesis || "—"}
         />
       </div>
       <div className="grid grid-cols-2 gap-4">
-        <DetailCell
-          label="Start Date"
-          value={formatDate(experimentDetails?.start_time)}
-          valueClassName="font-normal"
-        />
-        <DetailCell
-          label="End Date"
-          value={formatDate(experimentDetails?.end_time)}
-          valueClassName="font-normal"
-        />
+        {experimentDetails?.start_time && experimentDetails?.end_time ? (
+          <>
+            <DetailCell
+              label="Start Date"
+              value={formatDate(experimentDetails?.start_time)}
+              valueClassName="font-normal"
+            />
+            <DetailCell
+              label="End Date"
+              value={formatDate(experimentDetails?.end_time)}
+              valueClassName="font-normal"
+            />
+          </>
+        ) : (
+          <>
+            <DetailCell
+              label="A/A Start Date"
+              value={formatDate(experimentDetails?.aa_start_time)}
+              valueClassName="font-normal"
+            />
+            <DetailCell
+              label="A/A End Date"
+              value={formatDate(experimentDetails?.aa_end_time)}
+              valueClassName="font-normal"
+            />
+          </>
+        )}
       </div>
     </Card>
   );
