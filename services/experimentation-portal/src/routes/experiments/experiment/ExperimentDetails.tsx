@@ -10,6 +10,11 @@ interface ExperimentDetailsProps {
   isError?: boolean;
 }
 
+const formatDate = (date?: Date) =>
+  date
+    ? new Date(date).toLocaleDateString(undefined, { dateStyle: "medium" })
+    : "—";
+
 const ExperimentDetails = (props: ExperimentDetailsProps) => {
   const { experimentDetails, isLoading, isError } = props;
 
@@ -56,15 +61,27 @@ const ExperimentDetails = (props: ExperimentDetailsProps) => {
       <div className="border-b border-gray-200 pb-2">
         <DetailCell
           label="Description"
-          valueClassName="font-normal pt-1"
+          valueClassName="font-normal"
           value={experimentDetails?.description || "—"}
         />
       </div>
       <div className="border-b border-gray-200 pb-2">
         <DetailCell
           label="Hypothesis"
-          valueClassName="font-normal pt-1"
+          valueClassName="font-normal"
           value={experimentDetails?.hypothesis || "—"}
+        />
+      </div>
+      <div className="grid grid-cols-2 gap-4">
+        <DetailCell
+          label="Start Date"
+          value={formatDate(experimentDetails?.start_time)}
+          valueClassName="font-normal"
+        />
+        <DetailCell
+          label="End Date"
+          value={formatDate(experimentDetails?.end_time)}
+          valueClassName="font-normal"
         />
       </div>
     </Card>

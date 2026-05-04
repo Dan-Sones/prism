@@ -7,7 +7,7 @@ import ExperimentDetails from "./ExperimentDetails";
 import type { ExperimentStatus } from "../../../api/experiments/model/experiment";
 import AATestDetails from "./experiment-states/aa/AATestDetails";
 import AATestComplete from "./experiment-states/aa/AATestComplete";
-import ABPlanned from "./experiment-states/ab-planned/ABPlanned";
+import ABDetails from "./experiment-states/ab/ABDetails";
 
 const Experiment = () => {
   const params = useParams();
@@ -24,8 +24,8 @@ const Experiment = () => {
     "aa-planned": <AATestDetails experimentDetails={data} />,
     aa: <AATestDetails experimentDetails={data} />,
     "aa-complete": <AATestComplete experimentDetails={data} />,
-    "ab-planned": <ABPlanned experimentDetails={data} />,
-    ab: undefined,
+    "ab-planned": <ABDetails experimentDetails={data} />,
+    ab: <ABDetails experimentDetails={data} />,
     "ab-complete": undefined,
   };
 

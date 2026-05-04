@@ -3,35 +3,17 @@ import type { ExperimentResponse } from "../../../../../api/experiments";
 import Card from "../../../../../components/card/Card";
 import DetailCell from "../../../../../components/card/DetailCell";
 
-interface ABPlannedProps {
+interface ABDetailsProps {
   experimentDetails?: ExperimentResponse;
 }
 
-const formatDate = (date?: Date) =>
-  date
-    ? new Date(date).toLocaleDateString(undefined, { dateStyle: "medium" })
-    : "—";
-
-const ABPlanned = (props: ABPlannedProps) => {
+const ABDetails = (props: ABDetailsProps) => {
   const { experimentDetails } = props;
 
   const navigate = useNavigate();
 
   return (
     <>
-      <Card>
-        <h2 className="font-semibold">A/B Test Scheduled</h2>
-        <div className="grid grid-cols-2 gap-4">
-          <DetailCell
-            label="Start Date"
-            value={formatDate(experimentDetails?.start_time)}
-          />
-          <DetailCell
-            label="End Date"
-            value={formatDate(experimentDetails?.end_time)}
-          />
-        </div>
-      </Card>
       <Card>
         {/* TODO: Extract to a component and add support for metrics that aren't just success metrics */}
         <h2 className="font-semibold">Experiment Metrics</h2>
@@ -67,4 +49,4 @@ const ABPlanned = (props: ABPlannedProps) => {
   );
 };
 
-export default ABPlanned;
+export default ABDetails;
