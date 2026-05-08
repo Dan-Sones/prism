@@ -3,7 +3,7 @@ import stats_engine.v1.stats_engine_pb2_grpc as ses_grpc
 import stats_engine.v1.stats_engine_pb2 as ses_pb
 import pandas as pd
 from services.z_test import perform_z_test_for_binary_metric
-from services.decision import make_decision
+from services.decision import make_decision_for_z_test
 
 DIRECTION_MAP = {
       0: "increase",
@@ -61,7 +61,7 @@ class StatsEngineServer(ses_grpc.StatsEngineServicer):
         }
 
         z_test_result = perform_z_test_for_binary_metric(df, request.alpha)
-        decision = make_decision(z_test_result, request.absolute_percentage_mde)
+        decision = make_decision_for_z_test(z_test_result, request.absolute_percentage_mde)
 
         return decision.to_proto()
 
