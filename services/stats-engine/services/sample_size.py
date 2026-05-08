@@ -1,6 +1,7 @@
 import spotify_confidence
 import pandas as pd
 import numpy as np
+from services.helpers import calculate_interval_from_alpha
 from spotify_confidence import SampleSizeCalculator
 
 
@@ -41,5 +42,3 @@ def get_sample_size(df: pd.DataFrame, power: float, alpha: float):
 
 
 
-def calculate_interval_from_alpha(alpha: float) -> float:
-    return 1 - alpha
