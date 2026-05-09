@@ -13,7 +13,6 @@ def perform_z_test_for_binary_metric(df: pd.DataFrame, alpha: float) -> ZTestRes
                        correction_method='bonferroni',
                        categorical_group_columns='variation_name')
 
-    print(ztest.difference('control', 'treatment').to_string())
     return parse_result(ztest.difference('control', 'treatment'))
 
 

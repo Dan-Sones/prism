@@ -9,15 +9,9 @@ service StatsEngine {
   rpc PerformZTestBinaryMetric(PerformZTestBinaryMetricRequest) returns (DecisionOutput);
 }
 
-message PerformZTestBinaryMetricRequest {
-  string control_name = 1;
-  string treatment_name = 2;
-  int32 numerator_control = 3;
-  int32 denominator_control = 4;
-  int32 numerator_treatment = 5;
-  int32 denominator_treatment = 6;
-  double absolute_percentage_mde = 7;
-  double alpha = 8;
+message BinaryObservation {
+  int32 numerator = 1;
+  int32 denominator = 2;
 }
 
 enum DecisionRecommendation {
@@ -39,10 +33,21 @@ message ZTestResult {
   double powered_effect = 9;
 }
 
+message PerformZTestBinaryMetricRequest {
+  string control_name = 1;
+  string treatment_name = 2;
+  BinaryObservation control_observation = 3;
+  BinaryObservation treatment_observation = 4;
+  double absolute_percentage_mde = 5;
+  double alpha = 6;
+}
+
 message DecisionOutput {
   DecisionRecommendation recommendation = 1;
   string recommendation_reason = 2;
   ZTestResult z_test_result = 3;
+  BinaryObservation control_observation = 4;
+  BinaryObservation treatment_observation = 5;
 }
 
 message CalculateSampleSizeRequest {

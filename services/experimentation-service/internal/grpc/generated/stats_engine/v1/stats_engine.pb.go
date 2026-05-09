@@ -116,34 +116,28 @@ func (MetricDirection) EnumDescriptor() ([]byte, []int) {
 	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{1}
 }
 
-type PerformZTestBinaryMetricRequest struct {
-	state                 protoimpl.MessageState `protogen:"open.v1"`
-	ControlName           string                 `protobuf:"bytes,1,opt,name=control_name,json=controlName,proto3" json:"control_name,omitempty"`
-	TreatmentName         string                 `protobuf:"bytes,2,opt,name=treatment_name,json=treatmentName,proto3" json:"treatment_name,omitempty"`
-	NumeratorControl      int32                  `protobuf:"varint,3,opt,name=numerator_control,json=numeratorControl,proto3" json:"numerator_control,omitempty"`
-	DenominatorControl    int32                  `protobuf:"varint,4,opt,name=denominator_control,json=denominatorControl,proto3" json:"denominator_control,omitempty"`
-	NumeratorTreatment    int32                  `protobuf:"varint,5,opt,name=numerator_treatment,json=numeratorTreatment,proto3" json:"numerator_treatment,omitempty"`
-	DenominatorTreatment  int32                  `protobuf:"varint,6,opt,name=denominator_treatment,json=denominatorTreatment,proto3" json:"denominator_treatment,omitempty"`
-	AbsolutePercentageMde float64                `protobuf:"fixed64,7,opt,name=absolute_percentage_mde,json=absolutePercentageMde,proto3" json:"absolute_percentage_mde,omitempty"`
-	Alpha                 float64                `protobuf:"fixed64,8,opt,name=alpha,proto3" json:"alpha,omitempty"`
-	unknownFields         protoimpl.UnknownFields
-	sizeCache             protoimpl.SizeCache
+type BinaryObservation struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Numerator     int32                  `protobuf:"varint,1,opt,name=numerator,proto3" json:"numerator,omitempty"`
+	Denominator   int32                  `protobuf:"varint,2,opt,name=denominator,proto3" json:"denominator,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
-func (x *PerformZTestBinaryMetricRequest) Reset() {
-	*x = PerformZTestBinaryMetricRequest{}
+func (x *BinaryObservation) Reset() {
+	*x = BinaryObservation{}
 	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *PerformZTestBinaryMetricRequest) String() string {
+func (x *BinaryObservation) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*PerformZTestBinaryMetricRequest) ProtoMessage() {}
+func (*BinaryObservation) ProtoMessage() {}
 
-func (x *PerformZTestBinaryMetricRequest) ProtoReflect() protoreflect.Message {
+func (x *BinaryObservation) ProtoReflect() protoreflect.Message {
 	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -155,63 +149,21 @@ func (x *PerformZTestBinaryMetricRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use PerformZTestBinaryMetricRequest.ProtoReflect.Descriptor instead.
-func (*PerformZTestBinaryMetricRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use BinaryObservation.ProtoReflect.Descriptor instead.
+func (*BinaryObservation) Descriptor() ([]byte, []int) {
 	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *PerformZTestBinaryMetricRequest) GetControlName() string {
+func (x *BinaryObservation) GetNumerator() int32 {
 	if x != nil {
-		return x.ControlName
-	}
-	return ""
-}
-
-func (x *PerformZTestBinaryMetricRequest) GetTreatmentName() string {
-	if x != nil {
-		return x.TreatmentName
-	}
-	return ""
-}
-
-func (x *PerformZTestBinaryMetricRequest) GetNumeratorControl() int32 {
-	if x != nil {
-		return x.NumeratorControl
+		return x.Numerator
 	}
 	return 0
 }
 
-func (x *PerformZTestBinaryMetricRequest) GetDenominatorControl() int32 {
+func (x *BinaryObservation) GetDenominator() int32 {
 	if x != nil {
-		return x.DenominatorControl
-	}
-	return 0
-}
-
-func (x *PerformZTestBinaryMetricRequest) GetNumeratorTreatment() int32 {
-	if x != nil {
-		return x.NumeratorTreatment
-	}
-	return 0
-}
-
-func (x *PerformZTestBinaryMetricRequest) GetDenominatorTreatment() int32 {
-	if x != nil {
-		return x.DenominatorTreatment
-	}
-	return 0
-}
-
-func (x *PerformZTestBinaryMetricRequest) GetAbsolutePercentageMde() float64 {
-	if x != nil {
-		return x.AbsolutePercentageMde
-	}
-	return 0
-}
-
-func (x *PerformZTestBinaryMetricRequest) GetAlpha() float64 {
-	if x != nil {
-		return x.Alpha
+		return x.Denominator
 	}
 	return 0
 }
@@ -324,18 +276,104 @@ func (x *ZTestResult) GetPoweredEffect() float64 {
 	return 0
 }
 
+type PerformZTestBinaryMetricRequest struct {
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	ControlName           string                 `protobuf:"bytes,1,opt,name=control_name,json=controlName,proto3" json:"control_name,omitempty"`
+	TreatmentName         string                 `protobuf:"bytes,2,opt,name=treatment_name,json=treatmentName,proto3" json:"treatment_name,omitempty"`
+	ControlObservation    *BinaryObservation     `protobuf:"bytes,3,opt,name=control_observation,json=controlObservation,proto3" json:"control_observation,omitempty"`
+	TreatmentObservation  *BinaryObservation     `protobuf:"bytes,4,opt,name=treatment_observation,json=treatmentObservation,proto3" json:"treatment_observation,omitempty"`
+	AbsolutePercentageMde float64                `protobuf:"fixed64,5,opt,name=absolute_percentage_mde,json=absolutePercentageMde,proto3" json:"absolute_percentage_mde,omitempty"`
+	Alpha                 float64                `protobuf:"fixed64,6,opt,name=alpha,proto3" json:"alpha,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
+}
+
+func (x *PerformZTestBinaryMetricRequest) Reset() {
+	*x = PerformZTestBinaryMetricRequest{}
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PerformZTestBinaryMetricRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PerformZTestBinaryMetricRequest) ProtoMessage() {}
+
+func (x *PerformZTestBinaryMetricRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PerformZTestBinaryMetricRequest.ProtoReflect.Descriptor instead.
+func (*PerformZTestBinaryMetricRequest) Descriptor() ([]byte, []int) {
+	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *PerformZTestBinaryMetricRequest) GetControlName() string {
+	if x != nil {
+		return x.ControlName
+	}
+	return ""
+}
+
+func (x *PerformZTestBinaryMetricRequest) GetTreatmentName() string {
+	if x != nil {
+		return x.TreatmentName
+	}
+	return ""
+}
+
+func (x *PerformZTestBinaryMetricRequest) GetControlObservation() *BinaryObservation {
+	if x != nil {
+		return x.ControlObservation
+	}
+	return nil
+}
+
+func (x *PerformZTestBinaryMetricRequest) GetTreatmentObservation() *BinaryObservation {
+	if x != nil {
+		return x.TreatmentObservation
+	}
+	return nil
+}
+
+func (x *PerformZTestBinaryMetricRequest) GetAbsolutePercentageMde() float64 {
+	if x != nil {
+		return x.AbsolutePercentageMde
+	}
+	return 0
+}
+
+func (x *PerformZTestBinaryMetricRequest) GetAlpha() float64 {
+	if x != nil {
+		return x.Alpha
+	}
+	return 0
+}
+
 type DecisionOutput struct {
 	state                protoimpl.MessageState `protogen:"open.v1"`
 	Recommendation       DecisionRecommendation `protobuf:"varint,1,opt,name=recommendation,proto3,enum=stats_engine.v1.DecisionRecommendation" json:"recommendation,omitempty"`
 	RecommendationReason string                 `protobuf:"bytes,2,opt,name=recommendation_reason,json=recommendationReason,proto3" json:"recommendation_reason,omitempty"`
 	ZTestResult          *ZTestResult           `protobuf:"bytes,3,opt,name=z_test_result,json=zTestResult,proto3" json:"z_test_result,omitempty"`
+	ControlObservation   *BinaryObservation     `protobuf:"bytes,4,opt,name=control_observation,json=controlObservation,proto3" json:"control_observation,omitempty"`
+	TreatmentObservation *BinaryObservation     `protobuf:"bytes,5,opt,name=treatment_observation,json=treatmentObservation,proto3" json:"treatment_observation,omitempty"`
 	unknownFields        protoimpl.UnknownFields
 	sizeCache            protoimpl.SizeCache
 }
 
 func (x *DecisionOutput) Reset() {
 	*x = DecisionOutput{}
-	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[2]
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -347,7 +385,7 @@ func (x *DecisionOutput) String() string {
 func (*DecisionOutput) ProtoMessage() {}
 
 func (x *DecisionOutput) ProtoReflect() protoreflect.Message {
-	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[2]
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -360,7 +398,7 @@ func (x *DecisionOutput) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DecisionOutput.ProtoReflect.Descriptor instead.
 func (*DecisionOutput) Descriptor() ([]byte, []int) {
-	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{2}
+	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *DecisionOutput) GetRecommendation() DecisionRecommendation {
@@ -384,6 +422,20 @@ func (x *DecisionOutput) GetZTestResult() *ZTestResult {
 	return nil
 }
 
+func (x *DecisionOutput) GetControlObservation() *BinaryObservation {
+	if x != nil {
+		return x.ControlObservation
+	}
+	return nil
+}
+
+func (x *DecisionOutput) GetTreatmentObservation() *BinaryObservation {
+	if x != nil {
+		return x.TreatmentObservation
+	}
+	return nil
+}
+
 type CalculateSampleSizeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Metrics       []*MetricDetails       `protobuf:"bytes,1,rep,name=metrics,proto3" json:"metrics,omitempty"`
@@ -395,7 +447,7 @@ type CalculateSampleSizeRequest struct {
 
 func (x *CalculateSampleSizeRequest) Reset() {
 	*x = CalculateSampleSizeRequest{}
-	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[3]
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -407,7 +459,7 @@ func (x *CalculateSampleSizeRequest) String() string {
 func (*CalculateSampleSizeRequest) ProtoMessage() {}
 
 func (x *CalculateSampleSizeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[3]
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -420,7 +472,7 @@ func (x *CalculateSampleSizeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CalculateSampleSizeRequest.ProtoReflect.Descriptor instead.
 func (*CalculateSampleSizeRequest) Descriptor() ([]byte, []int) {
-	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{3}
+	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *CalculateSampleSizeRequest) GetMetrics() []*MetricDetails {
@@ -457,7 +509,7 @@ type MetricDetails struct {
 
 func (x *MetricDetails) Reset() {
 	*x = MetricDetails{}
-	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[4]
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -469,7 +521,7 @@ func (x *MetricDetails) String() string {
 func (*MetricDetails) ProtoMessage() {}
 
 func (x *MetricDetails) ProtoReflect() protoreflect.Message {
-	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[4]
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -482,7 +534,7 @@ func (x *MetricDetails) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetricDetails.ProtoReflect.Descriptor instead.
 func (*MetricDetails) Descriptor() ([]byte, []int) {
-	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{4}
+	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *MetricDetails) GetMetricKey() string {
@@ -531,7 +583,7 @@ type CalculateSampleSizeResponse struct {
 
 func (x *CalculateSampleSizeResponse) Reset() {
 	*x = CalculateSampleSizeResponse{}
-	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[5]
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -543,7 +595,7 @@ func (x *CalculateSampleSizeResponse) String() string {
 func (*CalculateSampleSizeResponse) ProtoMessage() {}
 
 func (x *CalculateSampleSizeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[5]
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -556,7 +608,7 @@ func (x *CalculateSampleSizeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CalculateSampleSizeResponse.ProtoReflect.Descriptor instead.
 func (*CalculateSampleSizeResponse) Descriptor() ([]byte, []int) {
-	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{5}
+	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CalculateSampleSizeResponse) GetTotalSampleSize() int32 {
@@ -584,16 +636,10 @@ var File_stats_engine_v1_stats_engine_proto protoreflect.FileDescriptor
 
 const file_stats_engine_v1_stats_engine_proto_rawDesc = "" +
 	"\n" +
-	"\"stats_engine/v1/stats_engine.proto\x12\x0fstats_engine.v1\"\xfd\x02\n" +
-	"\x1fPerformZTestBinaryMetricRequest\x12!\n" +
-	"\fcontrol_name\x18\x01 \x01(\tR\vcontrolName\x12%\n" +
-	"\x0etreatment_name\x18\x02 \x01(\tR\rtreatmentName\x12+\n" +
-	"\x11numerator_control\x18\x03 \x01(\x05R\x10numeratorControl\x12/\n" +
-	"\x13denominator_control\x18\x04 \x01(\x05R\x12denominatorControl\x12/\n" +
-	"\x13numerator_treatment\x18\x05 \x01(\x05R\x12numeratorTreatment\x123\n" +
-	"\x15denominator_treatment\x18\x06 \x01(\x05R\x14denominatorTreatment\x126\n" +
-	"\x17absolute_percentage_mde\x18\a \x01(\x01R\x15absolutePercentageMde\x12\x14\n" +
-	"\x05alpha\x18\b \x01(\x01R\x05alpha\"\xdd\x02\n" +
+	"\"stats_engine/v1/stats_engine.proto\x12\x0fstats_engine.v1\"S\n" +
+	"\x11BinaryObservation\x12\x1c\n" +
+	"\tnumerator\x18\x01 \x01(\x05R\tnumerator\x12 \n" +
+	"\vdenominator\x18\x02 \x01(\x05R\vdenominator\"\xdd\x02\n" +
 	"\vZTestResult\x12/\n" +
 	"\x13absolute_difference\x18\x01 \x01(\bR\x12absoluteDifference\x12\x19\n" +
 	"\bci_lower\x18\x02 \x01(\x01R\aciLower\x12\x19\n" +
@@ -603,11 +649,20 @@ const file_stats_engine_v1_stats_engine_proto_rawDesc = "" +
 	"\x11adjusted_ci_upper\x18\x06 \x01(\x01R\x0fadjustedCiUpper\x12(\n" +
 	"\x10adjusted_p_value\x18\a \x01(\x01R\x0eadjustedPValue\x12%\n" +
 	"\x0eis_significant\x18\b \x01(\bR\risSignificant\x12%\n" +
-	"\x0epowered_effect\x18\t \x01(\x01R\rpoweredEffect\"\xd8\x01\n" +
+	"\x0epowered_effect\x18\t \x01(\x01R\rpoweredEffect\"\xe7\x02\n" +
+	"\x1fPerformZTestBinaryMetricRequest\x12!\n" +
+	"\fcontrol_name\x18\x01 \x01(\tR\vcontrolName\x12%\n" +
+	"\x0etreatment_name\x18\x02 \x01(\tR\rtreatmentName\x12S\n" +
+	"\x13control_observation\x18\x03 \x01(\v2\".stats_engine.v1.BinaryObservationR\x12controlObservation\x12W\n" +
+	"\x15treatment_observation\x18\x04 \x01(\v2\".stats_engine.v1.BinaryObservationR\x14treatmentObservation\x126\n" +
+	"\x17absolute_percentage_mde\x18\x05 \x01(\x01R\x15absolutePercentageMde\x12\x14\n" +
+	"\x05alpha\x18\x06 \x01(\x01R\x05alpha\"\x86\x03\n" +
 	"\x0eDecisionOutput\x12O\n" +
 	"\x0erecommendation\x18\x01 \x01(\x0e2'.stats_engine.v1.DecisionRecommendationR\x0erecommendation\x123\n" +
 	"\x15recommendation_reason\x18\x02 \x01(\tR\x14recommendationReason\x12@\n" +
-	"\rz_test_result\x18\x03 \x01(\v2\x1c.stats_engine.v1.ZTestResultR\vzTestResult\"\x82\x01\n" +
+	"\rz_test_result\x18\x03 \x01(\v2\x1c.stats_engine.v1.ZTestResultR\vzTestResult\x12S\n" +
+	"\x13control_observation\x18\x04 \x01(\v2\".stats_engine.v1.BinaryObservationR\x12controlObservation\x12W\n" +
+	"\x15treatment_observation\x18\x05 \x01(\v2\".stats_engine.v1.BinaryObservationR\x14treatmentObservation\"\x82\x01\n" +
 	"\x1aCalculateSampleSizeRequest\x128\n" +
 	"\ametrics\x18\x01 \x03(\v2\x1e.stats_engine.v1.MetricDetailsR\ametrics\x12\x14\n" +
 	"\x05alpha\x18\x02 \x01(\x01R\x05alpha\x12\x14\n" +
@@ -647,31 +702,36 @@ func file_stats_engine_v1_stats_engine_proto_rawDescGZIP() []byte {
 }
 
 var file_stats_engine_v1_stats_engine_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_stats_engine_v1_stats_engine_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_stats_engine_v1_stats_engine_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_stats_engine_v1_stats_engine_proto_goTypes = []any{
 	(DecisionRecommendation)(0),             // 0: stats_engine.v1.DecisionRecommendation
 	(MetricDirection)(0),                    // 1: stats_engine.v1.MetricDirection
-	(*PerformZTestBinaryMetricRequest)(nil), // 2: stats_engine.v1.PerformZTestBinaryMetricRequest
+	(*BinaryObservation)(nil),               // 2: stats_engine.v1.BinaryObservation
 	(*ZTestResult)(nil),                     // 3: stats_engine.v1.ZTestResult
-	(*DecisionOutput)(nil),                  // 4: stats_engine.v1.DecisionOutput
-	(*CalculateSampleSizeRequest)(nil),      // 5: stats_engine.v1.CalculateSampleSizeRequest
-	(*MetricDetails)(nil),                   // 6: stats_engine.v1.MetricDetails
-	(*CalculateSampleSizeResponse)(nil),     // 7: stats_engine.v1.CalculateSampleSizeResponse
+	(*PerformZTestBinaryMetricRequest)(nil), // 4: stats_engine.v1.PerformZTestBinaryMetricRequest
+	(*DecisionOutput)(nil),                  // 5: stats_engine.v1.DecisionOutput
+	(*CalculateSampleSizeRequest)(nil),      // 6: stats_engine.v1.CalculateSampleSizeRequest
+	(*MetricDetails)(nil),                   // 7: stats_engine.v1.MetricDetails
+	(*CalculateSampleSizeResponse)(nil),     // 8: stats_engine.v1.CalculateSampleSizeResponse
 }
 var file_stats_engine_v1_stats_engine_proto_depIdxs = []int32{
-	0, // 0: stats_engine.v1.DecisionOutput.recommendation:type_name -> stats_engine.v1.DecisionRecommendation
-	3, // 1: stats_engine.v1.DecisionOutput.z_test_result:type_name -> stats_engine.v1.ZTestResult
-	6, // 2: stats_engine.v1.CalculateSampleSizeRequest.metrics:type_name -> stats_engine.v1.MetricDetails
-	1, // 3: stats_engine.v1.MetricDetails.direction:type_name -> stats_engine.v1.MetricDirection
-	5, // 4: stats_engine.v1.StatsEngine.CalculateSampleSize:input_type -> stats_engine.v1.CalculateSampleSizeRequest
-	2, // 5: stats_engine.v1.StatsEngine.PerformZTestBinaryMetric:input_type -> stats_engine.v1.PerformZTestBinaryMetricRequest
-	7, // 6: stats_engine.v1.StatsEngine.CalculateSampleSize:output_type -> stats_engine.v1.CalculateSampleSizeResponse
-	4, // 7: stats_engine.v1.StatsEngine.PerformZTestBinaryMetric:output_type -> stats_engine.v1.DecisionOutput
-	6, // [6:8] is the sub-list for method output_type
-	4, // [4:6] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	2,  // 0: stats_engine.v1.PerformZTestBinaryMetricRequest.control_observation:type_name -> stats_engine.v1.BinaryObservation
+	2,  // 1: stats_engine.v1.PerformZTestBinaryMetricRequest.treatment_observation:type_name -> stats_engine.v1.BinaryObservation
+	0,  // 2: stats_engine.v1.DecisionOutput.recommendation:type_name -> stats_engine.v1.DecisionRecommendation
+	3,  // 3: stats_engine.v1.DecisionOutput.z_test_result:type_name -> stats_engine.v1.ZTestResult
+	2,  // 4: stats_engine.v1.DecisionOutput.control_observation:type_name -> stats_engine.v1.BinaryObservation
+	2,  // 5: stats_engine.v1.DecisionOutput.treatment_observation:type_name -> stats_engine.v1.BinaryObservation
+	7,  // 6: stats_engine.v1.CalculateSampleSizeRequest.metrics:type_name -> stats_engine.v1.MetricDetails
+	1,  // 7: stats_engine.v1.MetricDetails.direction:type_name -> stats_engine.v1.MetricDirection
+	6,  // 8: stats_engine.v1.StatsEngine.CalculateSampleSize:input_type -> stats_engine.v1.CalculateSampleSizeRequest
+	4,  // 9: stats_engine.v1.StatsEngine.PerformZTestBinaryMetric:input_type -> stats_engine.v1.PerformZTestBinaryMetricRequest
+	8,  // 10: stats_engine.v1.StatsEngine.CalculateSampleSize:output_type -> stats_engine.v1.CalculateSampleSizeResponse
+	5,  // 11: stats_engine.v1.StatsEngine.PerformZTestBinaryMetric:output_type -> stats_engine.v1.DecisionOutput
+	10, // [10:12] is the sub-list for method output_type
+	8,  // [8:10] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_stats_engine_v1_stats_engine_proto_init() }
@@ -685,7 +745,7 @@ func file_stats_engine_v1_stats_engine_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_stats_engine_v1_stats_engine_proto_rawDesc), len(file_stats_engine_v1_stats_engine_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
