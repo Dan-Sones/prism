@@ -220,13 +220,18 @@ func (s *ExperimentService) GetRequiredSampleSizeForMetrics(ctx context.Context,
 
 		// TODO: We will need a switch case here when we have more metric types
 		// Will also involve creating a more generic version of enriched metric and binary result.
-		result, err := s.eventsService.PerformBinaryMetricQuery(ctx, query)
+		resultsByVariant, err := s.eventsService.PerformBinaryMetricQuery(ctx, query)
 		if err != nil {
 			s.logger.Error("Failed to perform binary metric query for experiment metric", "error", err)
 			return nil, err
 		}
 
-		baselineConversionRate := float64(result.Numerator) / float64(result.Denominator)
+		var totalNumerator, totalDenominator int
+		for _, r := range resultsByVariant {
+			totalNumerator += r.Numerator
+			totalDenominator += r.Denominator
+		}
+		baselineConversionRate := float64(totalNumerator) / float64(totalDenominator)
 
 		experimentMetricsWithQueries = append(experimentMetricsWithQueries,
 			sampleSize.NewMetricForExperiment(*experimentMetric.MDE,
@@ -377,6 +382,10 @@ func (s *ExperimentService) convertExperimentRequestToExperiment(expReq experime
 	}
 
 	return exp
+}
+
+func (s *ExperimentService) CheckIfExperimentIsComplete(exp *experiment.ExperimentResponse) bool {
+	return exp.Status == experiment2.ExperimentStatusComplete
 }
 
 func (s *ExperimentService) enrichWithExperimentStatus(exp *experiment2.Experiment) {

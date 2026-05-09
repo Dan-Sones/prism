@@ -197,32 +197,33 @@ func (e *ClickHouseEventsRepository) GetLastReceivedTimeForEventKey(ctx context.
 	return lastReceivedTime, nil
 }
 
-func (e *ClickHouseEventsRepository) PerformBinaryMetricQuery(ctx context.Context, query event.QueryString) (event.BinaryMetricQueryResult, error) {
+func (e *ClickHouseEventsRepository) PerformBinaryMetricQuery(ctx context.Context, query event.QueryString) (map[string]event.BinaryMetricQueryResult, error) {
 	rows, err := e.connection.Query(ctx, string(query))
 	if err != nil {
-		return event.BinaryMetricQueryResult{}, err
+		return nil, err
 	}
 
 	defer rows.Close()
 
-	var result event.BinaryMetricQueryResult
+	results := make(map[string]event.BinaryMetricQueryResult)
 	for rows.Next() {
-		// TODO: ignore variant key stuff for now as this is still a/a
 		var variantKey string
 		var numeratorValue uint64
 		var denominatorValue uint64
 
 		if err := rows.Scan(&variantKey, &numeratorValue, &denominatorValue); err != nil {
-			return event.BinaryMetricQueryResult{}, err
+			return nil, err
 		}
 
-		result.Denominator = int(denominatorValue)
-		result.Numerator = int(numeratorValue)
+		results[variantKey] = event.BinaryMetricQueryResult{
+			Numerator:   int(numeratorValue),
+			Denominator: int(denominatorValue),
+		}
 	}
 
 	if err := rows.Err(); err != nil {
-		return event.BinaryMetricQueryResult{}, err
+		return nil, err
 	}
 
-	return result, nil
+	return results, nil
 }

@@ -11,7 +11,7 @@ import (
 
 type EventsServiceInterface interface {
 	GetEventUsageOverPeriod(ctx context.Context, scale model2.GraphTimeScale, eventKey string) ([]model2.TimeScaleDataPoint, error)
-	PerformBinaryMetricQuery(ctx context.Context, query event.QueryString) (event.BinaryMetricQueryResult, error)
+	PerformBinaryMetricQuery(ctx context.Context, query event.QueryString) (map[string]event.BinaryMetricQueryResult, error)
 }
 
 type EventService struct {
@@ -114,6 +114,6 @@ func (e *EventService) getMissingRatesForEventType(ctx context.Context, eventKey
 	return missingRates, nil
 }
 
-func (e *EventService) PerformBinaryMetricQuery(ctx context.Context, query event.QueryString) (event.BinaryMetricQueryResult, error) {
+func (e *EventService) PerformBinaryMetricQuery(ctx context.Context, query event.QueryString) (map[string]event.BinaryMetricQueryResult, error) {
 	return e.eventsRepository.PerformBinaryMetricQuery(ctx, query)
 }

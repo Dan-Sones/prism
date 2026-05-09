@@ -89,11 +89,14 @@ func main() {
 	metricsCatalogService := service.NewMetricsCatalogService(metricsCatalogRepository, eventsCatalogRepository, logger)
 	clickhouseQueryBuilder := service.NewClickhouseQueryBuilder()
 	experimentService := service.NewExperimentService(experimentRepository, bucketAllocationService, clickhouseQueryBuilder, eventService, metricsCatalogService, statsEngineClient, experimentPhaseRepository, logger)
+	experimentResultsRepository := repository.NewExperimentResultsRepository(pgPool, metricsCatalogService)
+	experimentResultsService := service.NewExperimentResultsService(experimentPhaseRepository, experimentResultsRepository, statsEngineClient, experimentService, metricsCatalogService, eventsRepository, clickhouseQueryBuilder, logger)
 	assignmentService := service.NewAssignmentService(experimentRepository, bucketCount, logger)
 	eventsCatalogService := service.NewEventsCatalogService(eventsCatalogRepository, logger)
 
 	// Controllers
 	experimentController := controller.NewExperimentController(experimentService)
+	experimentResultsController := controller.NewExperimentResultsController(experimentResultsService)
 	eventsCatalogController := controller.NewEventsCatalogController(eventsCatalogService)
 	eventController := controller.NewEventController(eventService)
 	metricsCatalogController := controller.NewMetricsCatalogController(metricsCatalogService)
@@ -102,10 +105,11 @@ func main() {
 
 	router := http.NewRouter()
 	http.RegisterRoutes(router, http.Controllers{
-		ExperimentController:     experimentController,
-		EventsCatalogController:  eventsCatalogController,
-		EventController:          eventController,
-		MetricsCatalogController: metricsCatalogController,
+		ExperimentController:        experimentController,
+		ExperimentResultsController: experimentResultsController,
+		EventsCatalogController:     eventsCatalogController,
+		EventController:             eventController,
+		MetricsCatalogController:    metricsCatalogController,
 	})
 
 	httpPort := fmt.Sprintf(":%s", os.Getenv("EXPERIMENTATION_SERVICE_HTTP_PORT"))

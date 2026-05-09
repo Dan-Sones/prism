@@ -10,5 +10,5 @@ type EnrichedExperimentResults struct {
 	RecommendationReason   string                                            `json:"recommendation_reason"`
 	TestResults            map[uuid.UUID]ZTestResult                         `json:"test_results"`
 	Metrics                map[uuid.UUID]experiment.EnrichedExperimentMetric `json:"metrics"`
-	MetricValues           map[uuid.UUID]MetricValue                         `json:"metric_observations"`
+	MetricValues           map[uuid.UUID]map[string]MetricValue              `json:"metric_observations"`
 }

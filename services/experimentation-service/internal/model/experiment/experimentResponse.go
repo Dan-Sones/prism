@@ -41,6 +41,15 @@ type ExperimentMetricResponse struct {
 	NIM           *float64                             `json:"nim,omitempty"`
 }
 
+func (e *ExperimentResponse) GetVariantKeyByType(targetType experiment.VariantType) (string, bool) {
+	for _, v := range e.Variants {
+		if v.VariantType == targetType {
+			return v.VariantKey, true
+		}
+	}
+	return "", false
+}
+
 func NewExperimentResponse(exp experiment.Experiment, enrichedMetrics []metric.EnrichedMetric) ExperimentResponse {
 	resp := ExperimentResponse{
 		ID:                      exp.ID,

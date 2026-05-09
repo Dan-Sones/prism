@@ -12,11 +12,11 @@ import (
 // maybe a use for generics?
 
 type ExperimentResults struct {
-	DecisionRecommendation DecisionRecommendation      `json:"decision_recommendation"`
-	RecommendationReason   string                      `json:"recommendation_reason"`
-	TestResults            map[uuid.UUID]ZTestResult   `json:"test_results"`
-	Metrics                map[uuid.UUID]metric.Metric `json:"metrics"`
-	MetricValues           map[uuid.UUID]MetricValue   `json:"metric_values"`
+	DecisionRecommendation DecisionRecommendation               `json:"decision_recommendation"`
+	RecommendationReason   string                               `json:"recommendation_reason"`
+	TestResults            map[uuid.UUID]ZTestResult            `json:"test_results"`
+	Metrics                map[uuid.UUID]metric.Metric          `json:"metrics"`
+	MetricValues           map[uuid.UUID]map[string]MetricValue `json:"metric_values"`
 }
 
 type ZTestResult struct {

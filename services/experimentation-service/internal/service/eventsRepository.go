@@ -17,5 +17,5 @@ type EventsRepository interface {
 	GetTotalEventsPast24HoursForEventKey(ctx context.Context, eventKey string) (int, error)
 	GetTotalEventsPast7DaysForEventKey(ctx context.Context, eventKey string) (int, error)
 	GetLastReceivedTimeForEventKey(ctx context.Context, eventKey string) (time.Time, error)
-	PerformBinaryMetricQuery(ctx context.Context, query event.QueryString) (event.BinaryMetricQueryResult, error)
+	PerformBinaryMetricQuery(ctx context.Context, query event.QueryString) (map[string]event.BinaryMetricQueryResult, error)
 }
