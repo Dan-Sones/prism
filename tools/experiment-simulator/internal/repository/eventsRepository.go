@@ -24,7 +24,7 @@ func NewEventsRepositoryClickhouse(connection driver.Conn) *EventsRepositoryClic
 
 func (c *EventsRepositoryClickhouse) GetCountOfEventForVariantAndExperiment(ctx context.Context, eventKey model.EventKey, variantKey model.VariantKey, experimentKey string) (int, error) {
 	query := `
-SELECT count() FROM events WHERE variant_key == @variant_key AND experiment_key == @experiment_key AND event_key == @event_key;
+SELECT count() FROM cooked_events WHERE variant_key = @variant_key AND experiment_key = @experiment_key AND event_key = @event_key;
 `
 	var count uint64
 	if err := c.connection.QueryRow(ctx, query,

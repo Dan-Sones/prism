@@ -36,7 +36,7 @@ func (a *AssertionServiceClickhouse) PerformAssertionsFor(publishAmounts map[mod
 		for variantKey, amount := range variantKeys {
 			count, err := a.eventsRepository.GetCountOfEventForVariantAndExperiment(ctx, eventKey, variantKey, experimentKey)
 			if err != nil {
-				fmt.Errorf("Failed to perform assertions for event key %s ", eventKey)
+				fmt.Printf("Failed to perform assertions for event key %s: %v\n", eventKey, err)
 				continue
 			}
 			if amount != count {

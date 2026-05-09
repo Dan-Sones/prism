@@ -35,7 +35,8 @@ func (es *ExperimentSimulation) SimulateExperiment() {
 	es.PerformAATest(*aaParticipantsWithActions)
 
 	// Wait for the flush to take place so we are asserting against complete results
-	time.Sleep(time.Duration(65 * time.Second))
+	fmt.Println("Waiting for buffer flush cooldown before performing assertions...")
+	time.Sleep(time.Duration(70 * time.Second))
 
 	es.AssertionService.PerformAssertionsFor(es.ExperimentConfig.AA.PublishAmounts, es.ExperimentConfig.ExperimentKey)
 
@@ -80,18 +81,25 @@ func (es *ExperimentSimulation) PerformActions(particpantsWithActions []model.Ex
 	totalActionsPerformed := 0
 	currentParticipant := 0
 	var mu sync.Mutex
+	var wg sync.WaitGroup
 
 	for {
 		select {
 		case <-timeout:
+			wg.Wait()
 			return true
 		case <-ticker.C:
 			if totalActionsPerformed >= totalActions {
+				wg.Wait()
 				return true
 			}
 
 			participant := particpantsWithActions[currentParticipant]
-			go participant.PerformActionsWithDelay(es.Performer)
+			wg.Add(1)
+			go func(p model.ExperimentParticipant) {
+				defer wg.Done()
+				p.PerformActionsWithDelay(es.Performer)
+			}(participant)
 			mu.Lock()
 			totalActionsPerformed += len(participant.Actions)
 			fmt.Printf("Total Actions Performed: %d/%d\r", totalActionsPerformed+1, totalActions)
