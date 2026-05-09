@@ -31,7 +31,7 @@ func NewExperimentSimulation(experimentConfig model.ExperimentConfig, performer 
 }
 
 func (es *ExperimentSimulation) SimulateExperiment() {
-	aaParticipantsWithActions := es.GetAATestParticipantsWithActions()
+	aaParticipantsWithActions := es.GetParticipantsWithActions(model.ExperimentPhaseAA)
 	es.PerformAATest(*aaParticipantsWithActions)
 
 	// Wait for the flush to take place so we are asserting against complete results
@@ -119,7 +119,7 @@ func getTotalActions(particpantsWithActions []model.ExperimentParticipant) int {
 	return totalActions
 }
 
-func (es *ExperimentSimulation) GetAATestParticipantsWithActions() *[]model.ExperimentParticipant {
+func (es *ExperimentSimulation) GetParticipantsWithActions(phase model.ExperimentPhaseType) *[]model.ExperimentParticipant {
 	fmt.Println("Reading Experiment Config")
 
 	controlVariantKey, err := es.GetControlVariantKey()
@@ -132,17 +132,17 @@ func (es *ExperimentSimulation) GetAATestParticipantsWithActions() *[]model.Expe
 		log.Fatalf("Failed to complete simulation: %v \n", err)
 	}
 
-	numExposureEventsForControlVariant, err := es.GetNumberOfEventTypeToPublishForVariantAndPhase("experiment_exposure", controlVariantKey, model.ExperimentPhaseAA)
+	numExposureEventsForControlVariant, err := es.GetNumberOfEventTypeToPublishForVariantAndPhase("experiment_exposure", controlVariantKey, phase)
 	if err != nil {
 		log.Fatalf("Failed to complete simulation: %v \n", err)
 	}
 
-	numExposureEventsForTreatmentVariant, err := es.GetNumberOfEventTypeToPublishForVariantAndPhase("experiment_exposure", treatmentVariantKey, model.ExperimentPhaseAA)
+	numExposureEventsForTreatmentVariant, err := es.GetNumberOfEventTypeToPublishForVariantAndPhase("experiment_exposure", treatmentVariantKey, phase)
 	if err != nil {
 		log.Fatalf("Failed to complete simulation: %v \n", err)
 	}
 
-	variantToEventToAmountExcludingExposure := es.GetVariantToEventToAmountExcludingExposure(model.ExperimentPhaseAA)
+	variantToEventToAmountExcludingExposure := es.GetVariantToEventToAmountExcludingExposure(phase)
 
 	fmt.Println("Fetching User IDs From Grpc")
 
@@ -162,47 +162,35 @@ func (es *ExperimentSimulation) GetAATestParticipantsWithActions() *[]model.Expe
 
 	numExperimentParticipants := len(experimentParticipantsWithExposureEvents)
 
-	for eventKey, numOfEventToPublish := range variantToEventToAmountExcludingExposure[controlVariantKey] {
-		for i := 0; i < numOfEventToPublish; i++ {
-			if i >= numExperimentParticipants {
-				log.Fatalf("You defined %d experiment_exposure events but then asked for %d %s events - That's not possible! ", numExperimentParticipants, numOfEventToPublish, eventKey)
+	addActions := func(variantKey model.VariantKey, offset int) {
+		for eventKey, numOfEventToPublish := range variantToEventToAmountExcludingExposure[variantKey] {
+			for i := 0; i < numOfEventToPublish; i++ {
+				idx := offset + i
+				if idx >= numExperimentParticipants {
+					log.Fatalf("You defined %d experiment_exposure events but then asked for %d %s events - That's not possible! ", numExperimentParticipants, numOfEventToPublish, eventKey)
+				}
+
+				eventFields := es.ExperimentConfig.Events[eventKey].Fields
+				fieldValues := make(map[model.EventField]interface{})
+
+				for fieldName, fieldConfig := range eventFields {
+					fieldSeed := DeriveSeed(es.ExperimentConfig.RandomSeed, string(variantKey), string(eventKey), string(fieldName), strconv.Itoa(i))
+					randSouce := rand.New(rand.NewSource(fieldSeed))
+					var phaseFieldConfig map[model.VariantKey]model.FieldConfigMinMax
+					if phase == model.ExperimentPhaseAA {
+						phaseFieldConfig = fieldConfig.AA
+					} else {
+						phaseFieldConfig = fieldConfig.AB
+					}
+					fieldValues[fieldName] = GenerateDataForField(fieldConfig.Type, phaseFieldConfig[variantKey], randSouce)
+				}
+				experimentParticipantsWithExposureEvents[idx].AddAction(model.NewParticipantEventParameters(eventKey, fieldValues))
 			}
-
-			eventFields := es.ExperimentConfig.Events[eventKey].Fields
-
-			fieldValues := make(map[model.EventField]interface{})
-
-			for fieldName, fieldConfig := range eventFields {
-				fieldSeed := DeriveSeed(es.ExperimentConfig.RandomSeed, string(controlVariantKey), string(eventKey), string(fieldName), strconv.Itoa(i))
-				randSouce := rand.New(rand.NewSource(fieldSeed))
-				value := GenerateDataForField(fieldConfig.Type, fieldConfig.AA[controlVariantKey], randSouce)
-				fieldValues[fieldName] = value
-			}
-			experimentParticipantsWithExposureEvents[i].AddAction(model.NewParticipantEventParameters(eventKey, fieldValues))
 		}
 	}
 
-	controlOffset := len(controlUserIds)
-	for eventKey, numOfEventToPublish := range variantToEventToAmountExcludingExposure[treatmentVariantKey] {
-		for i := 0; i < numOfEventToPublish; i++ {
-			idx := controlOffset + i
-			if idx >= numExperimentParticipants {
-				log.Fatalf("You defined %d experiment_exposure events but then asked for %d %s events - That's not possible! ", numExperimentParticipants, numOfEventToPublish, eventKey)
-			}
-
-			eventFields := es.ExperimentConfig.Events[eventKey].Fields
-
-			fieldValues := make(map[model.EventField]interface{})
-
-			for fieldName, fieldConfig := range eventFields {
-				fieldSeed := DeriveSeed(es.ExperimentConfig.RandomSeed, string(treatmentVariantKey), string(eventKey), string(fieldName), strconv.Itoa(i))
-				randSouce := rand.New(rand.NewSource(fieldSeed))
-				value := GenerateDataForField(fieldConfig.Type, fieldConfig.AA[treatmentVariantKey], randSouce)
-				fieldValues[fieldName] = value
-			}
-			experimentParticipantsWithExposureEvents[idx].AddAction(model.NewParticipantEventParameters(eventKey, fieldValues))
-		}
-	}
+	addActions(controlVariantKey, 0)
+	addActions(treatmentVariantKey, len(controlUserIds))
 
 	return &experimentParticipantsWithExposureEvents
 }
@@ -262,28 +250,28 @@ func (es *ExperimentSimulation) GetVariantToEventToAmountExcludingExposure(phase
 func (es *ExperimentSimulation) GetNumberOfEventsToPublishForVariantAndPhase(variantKey model.VariantKey, phase model.ExperimentPhaseType) (map[model.EventKey]int, error) {
 	eventToAmount := make(map[model.EventKey]int)
 
-	if phase == model.ExperimentPhaseAA {
-		for eventKey, variantToAmountMap := range es.ExperimentConfig.AA.PublishAmounts {
-			if eventKey == "experiment_exposure" {
-				// Experiment Exposure events dealt with elsewhere
-				continue
-			}
-
-			amount, exists := variantToAmountMap[variantKey]
-			if !exists {
-				return nil, errors.New(fmt.Sprintf("number of %s events to publish for variant_key %s in phase %s not in yml", eventKey, variantKey, model.ExperimentPhaseAA))
-			}
-
-			eventToAmount[eventKey] = amount
-
-			return eventToAmount, nil
-		}
+	var publishAmounts map[model.EventKey]map[model.VariantKey]int
+	switch phase {
+	case model.ExperimentPhaseAA:
+		publishAmounts = es.ExperimentConfig.AA.PublishAmounts
+	case model.ExperimentPhaseAB:
+		publishAmounts = es.ExperimentConfig.AB.PublishAmounts
 	}
 
-	// TODO: implement equiv for AB
+	for eventKey, variantToAmountMap := range publishAmounts {
+		if eventKey == "experiment_exposure" {
+			continue
+		}
 
-	return nil, errors.New("it's not possible to reach here! we we are using an enum with only 2 options")
+		amount, exists := variantToAmountMap[variantKey]
+		if !exists {
+			return nil, fmt.Errorf("number of %s events to publish for variant_key %s in phase %s not in yml", eventKey, variantKey, phase)
+		}
 
+		eventToAmount[eventKey] = amount
+	}
+
+	return eventToAmount, nil
 }
 
 func (es *ExperimentSimulation) GetVariantKeys() map[model.VariantKey]model.VariantRole {
@@ -316,23 +304,27 @@ func (es *ExperimentSimulation) GetNumberOfEventTypeToPublishForVariantAndPhase(
 		return nil, errors.New("variant Key Not Found in variants section")
 	}
 
-	if phase == model.ExperimentPhaseAA {
-		_, eventKeyExistsInSection := es.ExperimentConfig.AA.PublishAmounts[event_key]
-		if !eventKeyExistsInSection {
-			return nil, errors.New("event_key not found in aa 'publish_amounts' section")
-		}
-
-		amountToPublish, amountExistsInSection := es.ExperimentConfig.AA.PublishAmounts[event_key][variant_key]
-		if !amountExistsInSection {
-			return nil, fmt.Errorf("publish_amount not found for variant, %s", variant_key)
-		}
-
-		return &amountToPublish, nil
+	var publishAmounts map[model.EventKey]map[model.VariantKey]int
+	switch phase {
+	case model.ExperimentPhaseAA:
+		publishAmounts = es.ExperimentConfig.AA.PublishAmounts
+	case model.ExperimentPhaseAB:
+		publishAmounts = es.ExperimentConfig.AB.PublishAmounts
+	default:
+		return nil, fmt.Errorf("unknown phase: %s", phase)
 	}
 
-	// TODO: AB Equivalent
+	variantAmounts, eventKeyExists := publishAmounts[event_key]
+	if !eventKeyExists {
+		return nil, fmt.Errorf("event_key %s not found in %s publish_amounts", event_key, phase)
+	}
 
-	return nil, errors.New("it's not possible to reach here! we we are using an enum with only 2 options")
+	amountToPublish, amountExists := variantAmounts[variant_key]
+	if !amountExists {
+		return nil, fmt.Errorf("publish_amount not found for variant %s in phase %s", variant_key, phase)
+	}
+
+	return &amountToPublish, nil
 
 }
 
