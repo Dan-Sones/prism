@@ -1,6 +1,7 @@
 package services
 
 import (
+	"context"
 	"encoding/binary"
 	"errors"
 	"experiment-simulator/internal/assertors"
@@ -15,22 +16,25 @@ import (
 )
 
 type ExperimentSimulation struct {
-	ExperimentConfig model.ExperimentConfig
-	AssertionService assertors.AssertionService
-	Performer        model.ActionPerformer
-	UserIdService    UserIdService
+	ExperimentConfig          model.ExperimentConfig
+	AssertionService          assertors.AssertionService
+	Performer                 model.ActionPerformer
+	UserIdService             UserIdService
+	CacheInvalidationProducer *CacheInvalidationProducer
 }
 
-func NewExperimentSimulation(experimentConfig model.ExperimentConfig, performer model.ActionPerformer, userIdService UserIdService, assertionService assertors.AssertionService) ExperimentSimulation {
+func NewExperimentSimulation(experimentConfig model.ExperimentConfig, performer model.ActionPerformer, userIdService UserIdService, assertionService assertors.AssertionService, cacheInvalidationProducer *CacheInvalidationProducer) ExperimentSimulation {
 	return ExperimentSimulation{
-		UserIdService:    userIdService,
-		ExperimentConfig: experimentConfig,
-		Performer:        performer,
-		AssertionService: assertionService,
+		UserIdService:             userIdService,
+		ExperimentConfig:          experimentConfig,
+		Performer:                 performer,
+		AssertionService:          assertionService,
+		CacheInvalidationProducer: cacheInvalidationProducer,
 	}
 }
 
 func (es *ExperimentSimulation) SimulateExperiment() {
+	// todo: improve formatting between stages - messy at the moment
 	aaParticipantsWithActions := es.GetParticipantsWithActions(model.ExperimentPhaseAA)
 	es.PerformAATest(*aaParticipantsWithActions)
 
@@ -38,7 +42,20 @@ func (es *ExperimentSimulation) SimulateExperiment() {
 	fmt.Println("Waiting for buffer flush cooldown before performing assertions...")
 	time.Sleep(time.Duration(70 * time.Second))
 
-	es.AssertionService.PerformAssertionsFor(es.ExperimentConfig.AA.PublishAmounts, es.ExperimentConfig.ExperimentKey)
+	fail := es.AssertionService.PerformAssertionsFor(es.ExperimentConfig.AA.PublishAmounts, es.ExperimentConfig.ExperimentKey)
+	if fail {
+		log.Fatalf("A/A Test Failed - Simulation Aborted")
+	}
+
+	fmt.Println("A/A Test Passed - Proceeding to A/B Test")
+
+	fmt.Println("Invalidating assignment cache...")
+	if err := es.CacheInvalidationProducer.InvalidateExperiment(context.Background(), es.ExperimentConfig.ExperimentKey); err != nil {
+		log.Fatalf("Failed to invalidate cache: %v", err)
+	}
+
+	abParticipantsWithActions := es.GetParticipantsWithActions(model.ExperimentPhaseAB)
+	es.PerformAATest(*abParticipantsWithActions)
 
 }
 
@@ -327,6 +344,32 @@ func (es *ExperimentSimulation) GetNumberOfEventTypeToPublishForVariantAndPhase(
 	return &amountToPublish, nil
 
 }
+
+//func (es *ExperimentSimulation) progressExperimentToABPhase() error {
+// needs more design because we can only send a valid time (midnights) but we need to start the experiment immediately.
+//	url := fmt.Sprintf("http://localhost:8080/api/experiments/%s/begin-ab", es.ExperimentConfig.ExperimentUUID.String())
+//
+//	nextMidnight := time.Now().Truncate(24 * time.Hour).Add(24 * time.Hour)
+//	midnightInSevenDays := time.Now().Add(7 * 24 * time.Hour).Truncate(24 * time.Hour)
+//
+//	body := map[string]interface{}{
+//		"start_time": nextMidnight,
+//		"end_time":   midnightInSevenDays,
+//		// TODO: This will assign 100% of the buckets to the experiment - maybe make this configurable in yml
+//		"bucket_allocation": 100,
+//	}
+//
+//	bodyJson, err := json.Marshal(body)
+//	if err != nil {
+//		return fmt.Errorf("failed to marshal request body: %w", err)
+//	}
+//
+//	r, err := http.NewRequest("PUT", bodyJson, bytes.NewBuffer(bodyJson))
+//	if err != nil {
+//		panic(err)
+//	}
+//
+//}
 
 // Initially ALL users will be assigned to the control Variant.
 // Then generate user id, then make call to assignment service via grpc to check if user is in desired experiment.

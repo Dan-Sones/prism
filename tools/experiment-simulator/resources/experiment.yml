@@ -1,6 +1,7 @@
 experiment_1:
   random_seed: 21
   experiment_key: dev_test
+  experiment_uuid: 542ece8c-56e4-44f5-aa5b-a9bb0fce742c
   variants:
     button_color_blue: control
     button_color_red: treatment

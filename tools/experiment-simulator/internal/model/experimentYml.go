@@ -1,5 +1,7 @@
 package model
 
+import "github.com/google/uuid"
+
 type SimulationConfig map[string]ExperimentConfig
 
 type VariantKey string
@@ -8,12 +10,13 @@ type EventKey string
 type EventField string
 
 type ExperimentConfig struct {
-	ExperimentKey string                     `yaml:"experiment_key"`
-	RandomSeed    int64                      `yaml:"random_seed"`
-	Variants      map[VariantKey]VariantRole `yaml:"variants"`
-	AA            ExperimentPhase            `yaml:"aa"`
-	AB            ExperimentPhase            `yaml:"ab"`
-	Events        map[EventKey]EventConfig   `yaml:"events"`
+	ExperimentKey  string                     `yaml:"experiment_key"`
+	ExperimentUUID uuid.UUID                  `yaml:"experiment_uuid"`
+	RandomSeed     int64                      `yaml:"random_seed"`
+	Variants       map[VariantKey]VariantRole `yaml:"variants"`
+	AA             ExperimentPhase            `yaml:"aa"`
+	AB             ExperimentPhase            `yaml:"ab"`
+	Events         map[EventKey]EventConfig   `yaml:"events"`
 }
 
 type ExperimentPhase struct {

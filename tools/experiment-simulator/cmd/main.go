@@ -55,20 +55,23 @@ func main() {
 		return
 	}
 
+	kafkaProducer, err := clients.NewKafkaProducer()
+	if err != nil {
+		log.Fatalf("Error creating kafka producer: %v\n", err)
+	}
+
 	//// Repositories
 	eventsRepository := repository.NewEventsRepositoryClickhouse(clickhouse)
-	//
-	//// Services
-	//assertionService := assertors.NewAssertionService(eventsRepository)
 
 	performer := services.NewActionPerformerHttp(os.Getenv("EVENTS_SERVICE_SERVER_HOST"), portInt)
 	assertionServiceClickhouse := assertors.NewAssertionServiceClickhouse(eventsRepository)
+	cacheInvalidationProducer := services.NewCacheInvalidationProducer(kafkaProducer)
 
 	simDetails := services.GetSimulation()
 	// TODO: maybe add support for conucrrent, but for now just get the first one.
 	for _, experimentConfig := range simDetails {
 
-		es := services.NewExperimentSimulation(experimentConfig, performer, userIdService, assertionServiceClickhouse)
+		es := services.NewExperimentSimulation(experimentConfig, performer, userIdService, assertionServiceClickhouse, cacheInvalidationProducer)
 		es.SimulateExperiment()
 		//assertionService.WaitForFlush()
 		//
