@@ -8,7 +8,7 @@ import (
 )
 
 type AssertionService interface {
-	PerformAssertionsFor(publishAmounts map[model.EventKey]map[model.VariantKey]int, experimentKey string) (hasFailures bool)
+	PerformAssertionsFor(publishAmounts map[model.EventKey]map[model.VariantKey]int, experimentKey string, phase model.ExperimentPhaseType) (hasFailures bool)
 }
 
 type AssertionServiceClickhouse struct {
@@ -21,7 +21,7 @@ func NewAssertionServiceClickhouse(eventsRepository repository.EventsRepository)
 	}
 }
 
-func (a *AssertionServiceClickhouse) PerformAssertionsFor(publishAmounts map[model.EventKey]map[model.VariantKey]int, experimentKey string) (hasFailures bool) {
+func (a *AssertionServiceClickhouse) PerformAssertionsFor(publishAmounts map[model.EventKey]map[model.VariantKey]int, experimentKey string, phase model.ExperimentPhaseType) (hasFailures bool) {
 	ctx := context.Background()
 
 	results := make(map[model.EventKey]map[model.VariantKey]bool)
@@ -34,7 +34,7 @@ func (a *AssertionServiceClickhouse) PerformAssertionsFor(publishAmounts map[mod
 		}
 
 		for variantKey, amount := range variantKeys {
-			count, err := a.eventsRepository.GetCountOfEventForVariantAndExperiment(ctx, eventKey, variantKey, experimentKey)
+			count, err := a.eventsRepository.GetCountOfEventForVariantAndExperimentInPhase(ctx, eventKey, variantKey, experimentKey, phase)
 			if err != nil {
 				fmt.Printf("Failed to perform assertions for event key %s: %v\n", eventKey, err)
 				continue

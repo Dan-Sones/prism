@@ -56,13 +56,24 @@ func (es *ExperimentSimulation) SimulateExperiment() {
 	fmt.Println("Waiting for buffer flush cooldown before performing assertions...")
 	time.Sleep(time.Duration(70 * time.Second))
 
-	fail := es.AssertionService.PerformAssertionsFor(es.ExperimentConfig.AA.PublishAmounts, es.ExperimentConfig.ExperimentKey)
+	fail := es.AssertionService.PerformAssertionsFor(es.ExperimentConfig.AA.PublishAmounts, es.ExperimentConfig.ExperimentKey, model.ExperimentPhaseAA)
 	if fail {
-		log.Fatalf("A/A Test Failed - Simulation Aborted")
+		log.Fatalf("A/A Phase Failed - Simulation Aborted")
 	}
 
 	abParticipantsWithActions := es.GetParticipantsWithActions(model.ExperimentPhaseAB)
 	es.PerformABTest(*abParticipantsWithActions)
+
+	// Wait for the flush to take place so we are asserting against complete results
+	fmt.Println("Waiting for buffer flush cooldown before performing assertions...")
+	time.Sleep(time.Duration(70 * time.Second))
+
+	fail = es.AssertionService.PerformAssertionsFor(es.ExperimentConfig.AB.PublishAmounts, es.ExperimentConfig.ExperimentKey, model.ExperimentPhaseAB)
+	if fail {
+		log.Fatalf("A/B Phase Failed")
+	}
+
+	fmt.Println("A/B Phase Complete!")
 }
 
 func (es *ExperimentSimulation) PerformAATest(aaParticipantsWithActions []model.ExperimentParticipant) {
