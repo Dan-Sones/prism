@@ -43,7 +43,32 @@ func (et *ExperimentTimingService) MoveABStartToNow(expId uuid.UUID) error {
 	)
 }
 
+func (et *ExperimentTimingService) EndAAPhase(expId uuid.UUID) error {
+	fmt.Println("Ending AA phase for experiment")
+	return et.experimentRepository.UpdateExperimentAATimes(
+		context.Background(),
+		expId,
+		time.Now().UTC().Add(-7*24*time.Hour),
+		time.Now().UTC().Add(-1*time.Second),
+	)
+}
+
+func (et *ExperimentTimingService) EndABPhase(expId uuid.UUID) error {
+	fmt.Println("Ending AB phase for experiment")
+	return et.experimentRepository.UpdateExperimentABTimes(
+		context.Background(),
+		expId,
+		time.Now().UTC().Add(-7*24*time.Hour),
+		time.Now().UTC().Add(-1*time.Second),
+	)
+}
+
 func (et *ExperimentTimingService) ProgressExperimentToABPhase(expId uuid.UUID) error {
+	err := et.EndAAPhase(expId)
+	if err != nil {
+		return fmt.Errorf("failed to end AA phase: %w", err)
+	}
+
 	expServicePort := os.Getenv("EXPERIMENTATION_SERVICE_HTTP_PORT")
 	url := fmt.Sprintf("http://localhost:%s/api/experiments/%s/begin-ab", expServicePort, expId.String())
 

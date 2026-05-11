@@ -1,10 +1,9 @@
 package services
 
 import (
-	"bytes"
 	"context"
 	"encoding/binary"
-	"encoding/json"
+
 	"errors"
 	"experiment-simulator/internal/assertors"
 	"experiment-simulator/internal/model"
@@ -12,8 +11,6 @@ import (
 	"hash/fnv"
 	"log"
 	"math/rand"
-	"net/http"
-	"os"
 	"strconv"
 	"sync"
 	"time"
@@ -64,27 +61,8 @@ func (es *ExperimentSimulation) SimulateExperiment() {
 		log.Fatalf("A/A Test Failed - Simulation Aborted")
 	}
 
-	fmt.Println("A/A Test Passed - Proceeding to A/B Test")
-
-	fmt.Println("Do you want to simulate A/B actions? (y/n)")
-	var input string
-	fmt.Scanln(&input)
-	if input != "y" {
-		fmt.Println("Experiment simulation aborted.")
-		return
-	}
-
-	fmt.Println("Invalidating assignment cache...")
-	if err := es.CacheInvalidationProducer.InvalidateExperiment(context.Background(), es.ExperimentConfig.ExperimentKey); err != nil {
-		log.Fatalf("Failed to invalidate cache: %v", err)
-	}
-
-	err = es.ExperimentTimingService.ProgressExperimentToABPhase()
-	if err != nil {
-		log.Fatalf("Failed to progress experiment to AB phase: %v", err)
-	}
 	abParticipantsWithActions := es.GetParticipantsWithActions(model.ExperimentPhaseAB)
-	es.PerformAATest(*abParticipantsWithActions)
+	es.PerformABTest(*abParticipantsWithActions)
 }
 
 func (es *ExperimentSimulation) PerformAATest(aaParticipantsWithActions []model.ExperimentParticipant) {
@@ -92,12 +70,9 @@ func (es *ExperimentSimulation) PerformAATest(aaParticipantsWithActions []model.
 	durationSeconds := es.ExperimentConfig.AA.DurationSeconds
 	totalActions := getTotalActions(aaParticipantsWithActions)
 
-	fmt.Println("This Experiment Will Produce a total of", totalActions, "actions across all variants and the experiment will run for", durationSeconds, "seconds")
+	fmt.Println("This A/A Phase Will Produce a total of", totalActions, "actions across all variants and the A/A Phase will run for", durationSeconds, "seconds")
 	fmt.Println("")
 
-	fmt.Println("Variation Split")
-
-	fmt.Println("")
 	fmt.Println("Are you ready to begin the experiment simulation? (y/n)")
 	var input string
 	fmt.Scanln(&input)
@@ -116,6 +91,42 @@ func (es *ExperimentSimulation) PerformAATest(aaParticipantsWithActions []model.
 
 	fmt.Println("----Experiment simulation completed.----")
 
+}
+
+func (es *ExperimentSimulation) PerformABTest(abParticipantsWithActions []model.ExperimentParticipant) {
+	durationSeconds := es.ExperimentConfig.AB.DurationSeconds
+	totalActions := getTotalActions(abParticipantsWithActions)
+
+	fmt.Println("This A/B Phase Will Produce a total of", totalActions, "actions across all variants and the A/B Phase will run for", durationSeconds, "seconds")
+	fmt.Println("")
+
+	fmt.Println("Are you ready to begin the experiment simulation? (y/n)")
+	var input string
+	fmt.Scanln(&input)
+	if input != "y" {
+		fmt.Println("Experiment simulation aborted.")
+		return
+	}
+
+	fmt.Println("")
+	fmt.Println("----A/B Phase In Progress----")
+	fmt.Println("")
+
+	err := es.ExperimentTimingService.ProgressExperimentToABPhase(es.ExperimentConfig.ExperimentUUID)
+	if err != nil {
+		log.Fatalf("Failed to progress experiment to AB phase: %v", err)
+	}
+
+	fmt.Println("Invalidating assignment cache...")
+	if err := es.CacheInvalidationProducer.InvalidateExperiment(context.Background(), es.ExperimentConfig.ExperimentKey); err != nil {
+		log.Fatalf("Failed to invalidate cache: %v", err)
+	}
+
+	if es.PerformActions(abParticipantsWithActions, durationSeconds, totalActions) {
+		return
+	}
+
+	fmt.Println("----Experiment simulation completed.----")
 }
 
 func (es *ExperimentSimulation) PerformActions(particpantsWithActions []model.ExperimentParticipant, durationSeconds int, totalActions int) bool {
