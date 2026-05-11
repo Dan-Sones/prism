@@ -126,6 +126,8 @@ func (es *ExperimentSimulation) PerformABTest(abParticipantsWithActions []model.
 		return
 	}
 
+	es.ExperimentTimingService.EndABPhase(es.ExperimentConfig.ExperimentUUID)
+
 	fmt.Println("----Experiment simulation completed.----")
 }
 
