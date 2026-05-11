@@ -1,8 +1,10 @@
 package services
 
 import (
+	"bytes"
 	"context"
 	"encoding/binary"
+	"encoding/json"
 	"errors"
 	"experiment-simulator/internal/assertors"
 	"experiment-simulator/internal/model"
@@ -10,6 +12,8 @@ import (
 	"hash/fnv"
 	"log"
 	"math/rand"
+	"net/http"
+	"os"
 	"strconv"
 	"sync"
 	"time"
@@ -21,20 +25,33 @@ type ExperimentSimulation struct {
 	Performer                 model.ActionPerformer
 	UserIdService             UserIdService
 	CacheInvalidationProducer *CacheInvalidationProducer
+	ExperimentTimingService   *ExperimentTimingService
 }
 
-func NewExperimentSimulation(experimentConfig model.ExperimentConfig, performer model.ActionPerformer, userIdService UserIdService, assertionService assertors.AssertionService, cacheInvalidationProducer *CacheInvalidationProducer) ExperimentSimulation {
+func NewExperimentSimulation(experimentConfig model.ExperimentConfig,
+	performer model.ActionPerformer,
+	userIdService UserIdService,
+	assertionService assertors.AssertionService,
+	cacheInvalidationProducer *CacheInvalidationProducer,
+	experimentTimingService *ExperimentTimingService,
+) ExperimentSimulation {
 	return ExperimentSimulation{
 		UserIdService:             userIdService,
 		ExperimentConfig:          experimentConfig,
 		Performer:                 performer,
 		AssertionService:          assertionService,
 		CacheInvalidationProducer: cacheInvalidationProducer,
+		ExperimentTimingService:   experimentTimingService,
 	}
 }
 
 func (es *ExperimentSimulation) SimulateExperiment() {
 	// todo: improve formatting between stages - messy at the moment
+	err := es.ExperimentTimingService.MoveAAStartToNow(es.ExperimentConfig.ExperimentUUID)
+	if err != nil {
+		log.Fatalf("Failed to move AA start time to now, simulation aborted: %v", err)
+	}
+
 	aaParticipantsWithActions := es.GetParticipantsWithActions(model.ExperimentPhaseAA)
 	es.PerformAATest(*aaParticipantsWithActions)
 
@@ -49,14 +66,25 @@ func (es *ExperimentSimulation) SimulateExperiment() {
 
 	fmt.Println("A/A Test Passed - Proceeding to A/B Test")
 
+	fmt.Println("Do you want to simulate A/B actions? (y/n)")
+	var input string
+	fmt.Scanln(&input)
+	if input != "y" {
+		fmt.Println("Experiment simulation aborted.")
+		return
+	}
+
 	fmt.Println("Invalidating assignment cache...")
 	if err := es.CacheInvalidationProducer.InvalidateExperiment(context.Background(), es.ExperimentConfig.ExperimentKey); err != nil {
 		log.Fatalf("Failed to invalidate cache: %v", err)
 	}
 
+	err = es.ExperimentTimingService.ProgressExperimentToABPhase()
+	if err != nil {
+		log.Fatalf("Failed to progress experiment to AB phase: %v", err)
+	}
 	abParticipantsWithActions := es.GetParticipantsWithActions(model.ExperimentPhaseAB)
 	es.PerformAATest(*abParticipantsWithActions)
-
 }
 
 func (es *ExperimentSimulation) PerformAATest(aaParticipantsWithActions []model.ExperimentParticipant) {
@@ -344,32 +372,6 @@ func (es *ExperimentSimulation) GetNumberOfEventTypeToPublishForVariantAndPhase(
 	return &amountToPublish, nil
 
 }
-
-//func (es *ExperimentSimulation) progressExperimentToABPhase() error {
-// needs more design because we can only send a valid time (midnights) but we need to start the experiment immediately.
-//	url := fmt.Sprintf("http://localhost:8080/api/experiments/%s/begin-ab", es.ExperimentConfig.ExperimentUUID.String())
-//
-//	nextMidnight := time.Now().Truncate(24 * time.Hour).Add(24 * time.Hour)
-//	midnightInSevenDays := time.Now().Add(7 * 24 * time.Hour).Truncate(24 * time.Hour)
-//
-//	body := map[string]interface{}{
-//		"start_time": nextMidnight,
-//		"end_time":   midnightInSevenDays,
-//		// TODO: This will assign 100% of the buckets to the experiment - maybe make this configurable in yml
-//		"bucket_allocation": 100,
-//	}
-//
-//	bodyJson, err := json.Marshal(body)
-//	if err != nil {
-//		return fmt.Errorf("failed to marshal request body: %w", err)
-//	}
-//
-//	r, err := http.NewRequest("PUT", bodyJson, bytes.NewBuffer(bodyJson))
-//	if err != nil {
-//		panic(err)
-//	}
-//
-//}
 
 // Initially ALL users will be assigned to the control Variant.
 // Then generate user id, then make call to assignment service via grpc to check if user is in desired experiment.

@@ -46,7 +46,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	
+
 	userIdService := services.NewUserIdService(assignmentClient, experimentationAssignmentClient)
 
 	clickhouse, err := clients.NewClickhouseConnection()
@@ -60,18 +60,25 @@ func main() {
 		log.Fatalf("Error creating kafka producer: %v\n", err)
 	}
 
+	pgClient := clients.GetPostgresConnectionPool()
+	if err != nil {
+		log.Fatalf("Error creating postgres connection pool: %v\n", err)
+	}
+
 	//// Repositories
 	eventsRepository := repository.NewEventsRepositoryClickhouse(clickhouse)
+	experimentRepository := repository.NewExperimentRepository(pgClient)
 
 	performer := services.NewActionPerformerHttp(os.Getenv("EVENTS_SERVICE_SERVER_HOST"), portInt)
 	assertionServiceClickhouse := assertors.NewAssertionServiceClickhouse(eventsRepository)
 	cacheInvalidationProducer := services.NewCacheInvalidationProducer(kafkaProducer)
+	experimentTimingService := services.NewExperimentTimingService(experimentRepository)
 
 	simDetails := services.GetSimulation()
 	// TODO: maybe add support for conucrrent, but for now just get the first one.
 	for _, experimentConfig := range simDetails {
 
-		es := services.NewExperimentSimulation(experimentConfig, performer, userIdService, assertionServiceClickhouse, cacheInvalidationProducer)
+		es := services.NewExperimentSimulation(experimentConfig, performer, userIdService, assertionServiceClickhouse, cacheInvalidationProducer, experimentTimingService)
 		es.SimulateExperiment()
 		//assertionService.WaitForFlush()
 		//
