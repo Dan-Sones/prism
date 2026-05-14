@@ -40,7 +40,7 @@ func (c *ClickhouseQueryBuilder) buildForRatioMetric(experimentKey string, m met
 
 	query.WHERE = append(query.WHERE, "experiment_key = '"+experimentKey+"'")
 	query.WHERE = append(query.WHERE, c.BuildInEventKeyWhere(m))
-	query.WHERE = append(query.WHERE, c.BuildTimeRangeWhere(startTime, endTime))
+	//query.WHERE = append(query.WHERE, c.BuildTimeRangeWhere(startTime, endTime))
 	query.WHERE = append(query.WHERE, c.BuildIsAAWhere(isAA))
 
 	query.SELECT = append(query.SELECT, "variant_key")

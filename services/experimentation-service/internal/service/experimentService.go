@@ -389,7 +389,7 @@ func (s *ExperimentService) CheckIfExperimentIsComplete(exp *experiment.Experime
 }
 
 func (s *ExperimentService) enrichWithExperimentStatus(exp *experiment2.Experiment) {
-	now := time.Now()
+	now := time.Now().UTC()
 
 	if now.Before(exp.AAStartTime) {
 		exp.Status = experiment2.ExperimentStatusAAPlanned

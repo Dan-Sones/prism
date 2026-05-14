@@ -64,7 +64,7 @@ class StatsEngineServer(ses_grpc.StatsEngineServicer):
         control_obs = BinaryObservation(numerator=request.control_observation.numerator, denominator=request.control_observation.denominator)
         treatment_obs = BinaryObservation(numerator=request.treatment_observation.numerator, denominator=request.treatment_observation.denominator)
 
-        z_test_result = perform_z_test_for_binary_metric(df, request.alpha)
+        z_test_result = perform_z_test_for_binary_metric(df, request.alpha, request.control_name, request.treatment_name)
         decision = make_decision_for_z_test(z_test_result, request.absolute_percentage_mde, control_obs, treatment_obs)
 
         return decision.to_proto()
