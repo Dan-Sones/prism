@@ -1,6 +1,7 @@
 experiment_1:
   random_seed: 21
   experiment_key: dev_test
+  experiment_uuid: a4542da3-340e-4671-a683-7e159a60e79a
   variants:
     button_color_blue: control
     button_color_red: treatment
@@ -8,20 +9,20 @@ experiment_1:
     duration_seconds: 60
     publish_amounts:
       experiment_exposure:
-        button_color_blue: 5000
-        button_color_red: 5000
+        button_color_blue: 4010
+        button_color_red: 3998
       purchase:
-        button_color_blue: 3000
-        button_color_red: 3000
+        button_color_blue: 2000
+        button_color_red: 2200
   ab:
     duration_seconds: 120
     publish_amounts:
       experiment_exposure:
-        button_color_blue: 5000
-        button_color_red: 5000
+        button_color_blue: 4010
+        button_color_red: 3998
       purchase:
-        button_color_blue: 5000
-        button_color_red: 5000
+        button_color_blue: 2000
+        button_color_red: 2200
   events:
     purchase:
       fields:

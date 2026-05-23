@@ -1,7 +1,9 @@
 package services
 
 import (
+	"context"
 	"encoding/binary"
+
 	"errors"
 	"experiment-simulator/internal/assertors"
 	"experiment-simulator/internal/model"
@@ -15,30 +17,63 @@ import (
 )
 
 type ExperimentSimulation struct {
-	ExperimentConfig model.ExperimentConfig
-	AssertionService assertors.AssertionService
-	Performer        model.ActionPerformer
-	UserIdService    UserIdService
+	ExperimentConfig          model.ExperimentConfig
+	AssertionService          assertors.AssertionService
+	Performer                 model.ActionPerformer
+	UserIdService             UserIdService
+	CacheInvalidationProducer *CacheInvalidationProducer
+	ExperimentTimingService   *ExperimentTimingService
 }
 
-func NewExperimentSimulation(experimentConfig model.ExperimentConfig, performer model.ActionPerformer, userIdService UserIdService, assertionService assertors.AssertionService) ExperimentSimulation {
+func NewExperimentSimulation(experimentConfig model.ExperimentConfig,
+	performer model.ActionPerformer,
+	userIdService UserIdService,
+	assertionService assertors.AssertionService,
+	cacheInvalidationProducer *CacheInvalidationProducer,
+	experimentTimingService *ExperimentTimingService,
+) ExperimentSimulation {
 	return ExperimentSimulation{
-		UserIdService:    userIdService,
-		ExperimentConfig: experimentConfig,
-		Performer:        performer,
-		AssertionService: assertionService,
+		UserIdService:             userIdService,
+		ExperimentConfig:          experimentConfig,
+		Performer:                 performer,
+		AssertionService:          assertionService,
+		CacheInvalidationProducer: cacheInvalidationProducer,
+		ExperimentTimingService:   experimentTimingService,
 	}
 }
 
 func (es *ExperimentSimulation) SimulateExperiment() {
-	aaParticipantsWithActions := es.GetAATestParticipantsWithActions()
+	// todo: improve formatting between stages - messy at the moment
+	err := es.ExperimentTimingService.MoveAAStartToNow(es.ExperimentConfig.ExperimentUUID)
+	if err != nil {
+		log.Fatalf("Failed to move AA start time to now, simulation aborted: %v", err)
+	}
+
+	aaParticipantsWithActions := es.GetParticipantsWithActions(model.ExperimentPhaseAA)
 	es.PerformAATest(*aaParticipantsWithActions)
 
 	// Wait for the flush to take place so we are asserting against complete results
-	time.Sleep(time.Duration(65 * time.Second))
+	fmt.Println("Waiting for buffer flush cooldown before performing assertions...")
+	time.Sleep(time.Duration(70 * time.Second))
 
-	es.AssertionService.PerformAssertionsFor(es.ExperimentConfig.AA.PublishAmounts, es.ExperimentConfig.ExperimentKey)
+	fail := es.AssertionService.PerformAssertionsFor(es.ExperimentConfig.AA.PublishAmounts, es.ExperimentConfig.ExperimentKey, model.ExperimentPhaseAA)
+	if fail {
+		log.Fatalf("A/A Phase Failed - Simulation Aborted")
+	}
 
+	abParticipantsWithActions := es.GetParticipantsWithActions(model.ExperimentPhaseAB)
+	es.PerformABTest(*abParticipantsWithActions)
+
+	// Wait for the flush to take place so we are asserting against complete results
+	fmt.Println("Waiting for buffer flush cooldown before performing assertions...")
+	time.Sleep(time.Duration(70 * time.Second))
+
+	fail = es.AssertionService.PerformAssertionsFor(es.ExperimentConfig.AB.PublishAmounts, es.ExperimentConfig.ExperimentKey, model.ExperimentPhaseAB)
+	if fail {
+		log.Fatalf("A/B Phase Failed")
+	}
+
+	fmt.Println("A/B Phase Complete!")
 }
 
 func (es *ExperimentSimulation) PerformAATest(aaParticipantsWithActions []model.ExperimentParticipant) {
@@ -46,12 +81,9 @@ func (es *ExperimentSimulation) PerformAATest(aaParticipantsWithActions []model.
 	durationSeconds := es.ExperimentConfig.AA.DurationSeconds
 	totalActions := getTotalActions(aaParticipantsWithActions)
 
-	fmt.Println("This Experiment Will Produce a total of", totalActions, "actions across all variants and the experiment will run for", durationSeconds, "seconds")
+	fmt.Println("This A/A Phase Will Produce a total of", totalActions, "actions across all variants and the A/A Phase will run for", durationSeconds, "seconds")
 	fmt.Println("")
 
-	fmt.Println("Variation Split")
-
-	fmt.Println("")
 	fmt.Println("Are you ready to begin the experiment simulation? (y/n)")
 	var input string
 	fmt.Scanln(&input)
@@ -72,6 +104,44 @@ func (es *ExperimentSimulation) PerformAATest(aaParticipantsWithActions []model.
 
 }
 
+func (es *ExperimentSimulation) PerformABTest(abParticipantsWithActions []model.ExperimentParticipant) {
+	durationSeconds := es.ExperimentConfig.AB.DurationSeconds
+	totalActions := getTotalActions(abParticipantsWithActions)
+
+	fmt.Println("This A/B Phase Will Produce a total of", totalActions, "actions across all variants and the A/B Phase will run for", durationSeconds, "seconds")
+	fmt.Println("")
+
+	fmt.Println("Are you ready to begin the experiment simulation? (y/n)")
+	var input string
+	fmt.Scanln(&input)
+	if input != "y" {
+		fmt.Println("Experiment simulation aborted.")
+		return
+	}
+
+	fmt.Println("")
+	fmt.Println("----A/B Phase In Progress----")
+	fmt.Println("")
+
+	err := es.ExperimentTimingService.ProgressExperimentToABPhase(es.ExperimentConfig.ExperimentUUID)
+	if err != nil {
+		log.Fatalf("Failed to progress experiment to AB phase: %v", err)
+	}
+
+	fmt.Println("Invalidating assignment cache...")
+	if err := es.CacheInvalidationProducer.InvalidateExperiment(context.Background(), es.ExperimentConfig.ExperimentKey); err != nil {
+		log.Fatalf("Failed to invalidate cache: %v", err)
+	}
+
+	if es.PerformActions(abParticipantsWithActions, durationSeconds, totalActions) {
+		return
+	}
+
+	es.ExperimentTimingService.EndABPhase(es.ExperimentConfig.ExperimentUUID)
+
+	fmt.Println("----Experiment simulation completed.----")
+}
+
 func (es *ExperimentSimulation) PerformActions(particpantsWithActions []model.ExperimentParticipant, durationSeconds int, totalActions int) bool {
 	interval := time.Duration(float64(time.Second) * float64(durationSeconds) / float64(len(particpantsWithActions)))
 	ticker := time.NewTicker(interval)
@@ -80,18 +150,25 @@ func (es *ExperimentSimulation) PerformActions(particpantsWithActions []model.Ex
 	totalActionsPerformed := 0
 	currentParticipant := 0
 	var mu sync.Mutex
+	var wg sync.WaitGroup
 
 	for {
 		select {
 		case <-timeout:
+			wg.Wait()
 			return true
 		case <-ticker.C:
 			if totalActionsPerformed >= totalActions {
+				wg.Wait()
 				return true
 			}
 
 			participant := particpantsWithActions[currentParticipant]
-			go participant.PerformActionsWithDelay(es.Performer)
+			wg.Add(1)
+			go func(p model.ExperimentParticipant) {
+				defer wg.Done()
+				p.PerformActionsWithDelay(es.Performer)
+			}(participant)
 			mu.Lock()
 			totalActionsPerformed += len(participant.Actions)
 			fmt.Printf("Total Actions Performed: %d/%d\r", totalActionsPerformed+1, totalActions)
@@ -111,7 +188,7 @@ func getTotalActions(particpantsWithActions []model.ExperimentParticipant) int {
 	return totalActions
 }
 
-func (es *ExperimentSimulation) GetAATestParticipantsWithActions() *[]model.ExperimentParticipant {
+func (es *ExperimentSimulation) GetParticipantsWithActions(phase model.ExperimentPhaseType) *[]model.ExperimentParticipant {
 	fmt.Println("Reading Experiment Config")
 
 	controlVariantKey, err := es.GetControlVariantKey()
@@ -124,17 +201,17 @@ func (es *ExperimentSimulation) GetAATestParticipantsWithActions() *[]model.Expe
 		log.Fatalf("Failed to complete simulation: %v \n", err)
 	}
 
-	numExposureEventsForControlVariant, err := es.GetNumberOfEventTypeToPublishForVariantAndPhase("experiment_exposure", controlVariantKey, model.ExperimentPhaseAA)
+	numExposureEventsForControlVariant, err := es.GetNumberOfEventTypeToPublishForVariantAndPhase("experiment_exposure", controlVariantKey, phase)
 	if err != nil {
 		log.Fatalf("Failed to complete simulation: %v \n", err)
 	}
 
-	numExposureEventsForTreatmentVariant, err := es.GetNumberOfEventTypeToPublishForVariantAndPhase("experiment_exposure", treatmentVariantKey, model.ExperimentPhaseAA)
+	numExposureEventsForTreatmentVariant, err := es.GetNumberOfEventTypeToPublishForVariantAndPhase("experiment_exposure", treatmentVariantKey, phase)
 	if err != nil {
 		log.Fatalf("Failed to complete simulation: %v \n", err)
 	}
 
-	variantToEventToAmountExcludingExposure := es.GetVariantToEventToAmountExcludingExposure(model.ExperimentPhaseAA)
+	variantToEventToAmountExcludingExposure := es.GetVariantToEventToAmountExcludingExposure(phase)
 
 	fmt.Println("Fetching User IDs From Grpc")
 
@@ -154,47 +231,35 @@ func (es *ExperimentSimulation) GetAATestParticipantsWithActions() *[]model.Expe
 
 	numExperimentParticipants := len(experimentParticipantsWithExposureEvents)
 
-	for eventKey, numOfEventToPublish := range variantToEventToAmountExcludingExposure[controlVariantKey] {
-		for i := 0; i < numOfEventToPublish; i++ {
-			if i >= numExperimentParticipants {
-				log.Fatalf("You defined %d experiment_exposure events but then asked for %d %s events - That's not possible! ", numExperimentParticipants, numOfEventToPublish, eventKey)
+	addActions := func(variantKey model.VariantKey, offset int) {
+		for eventKey, numOfEventToPublish := range variantToEventToAmountExcludingExposure[variantKey] {
+			for i := 0; i < numOfEventToPublish; i++ {
+				idx := offset + i
+				if idx >= numExperimentParticipants {
+					log.Fatalf("You defined %d experiment_exposure events but then asked for %d %s events - That's not possible! ", numExperimentParticipants, numOfEventToPublish, eventKey)
+				}
+
+				eventFields := es.ExperimentConfig.Events[eventKey].Fields
+				fieldValues := make(map[model.EventField]interface{})
+
+				for fieldName, fieldConfig := range eventFields {
+					fieldSeed := DeriveSeed(es.ExperimentConfig.RandomSeed, string(variantKey), string(eventKey), string(fieldName), strconv.Itoa(i))
+					randSouce := rand.New(rand.NewSource(fieldSeed))
+					var phaseFieldConfig map[model.VariantKey]model.FieldConfigMinMax
+					if phase == model.ExperimentPhaseAA {
+						phaseFieldConfig = fieldConfig.AA
+					} else {
+						phaseFieldConfig = fieldConfig.AB
+					}
+					fieldValues[fieldName] = GenerateDataForField(fieldConfig.Type, phaseFieldConfig[variantKey], randSouce)
+				}
+				experimentParticipantsWithExposureEvents[idx].AddAction(model.NewParticipantEventParameters(eventKey, fieldValues))
 			}
-
-			eventFields := es.ExperimentConfig.Events[eventKey].Fields
-
-			fieldValues := make(map[model.EventField]interface{})
-
-			for fieldName, fieldConfig := range eventFields {
-				fieldSeed := DeriveSeed(es.ExperimentConfig.RandomSeed, string(controlVariantKey), string(eventKey), string(fieldName), strconv.Itoa(i))
-				randSouce := rand.New(rand.NewSource(fieldSeed))
-				value := GenerateDataForField(fieldConfig.Type, fieldConfig.AA[controlVariantKey], randSouce)
-				fieldValues[fieldName] = value
-			}
-			experimentParticipantsWithExposureEvents[i].AddAction(model.NewParticipantEventParameters(eventKey, fieldValues))
 		}
 	}
 
-	controlOffset := len(controlUserIds)
-	for eventKey, numOfEventToPublish := range variantToEventToAmountExcludingExposure[treatmentVariantKey] {
-		for i := 0; i < numOfEventToPublish; i++ {
-			idx := controlOffset + i
-			if idx >= numExperimentParticipants {
-				log.Fatalf("You defined %d experiment_exposure events but then asked for %d %s events - That's not possible! ", numExperimentParticipants, numOfEventToPublish, eventKey)
-			}
-
-			eventFields := es.ExperimentConfig.Events[eventKey].Fields
-
-			fieldValues := make(map[model.EventField]interface{})
-
-			for fieldName, fieldConfig := range eventFields {
-				fieldSeed := DeriveSeed(es.ExperimentConfig.RandomSeed, string(treatmentVariantKey), string(eventKey), string(fieldName), strconv.Itoa(i))
-				randSouce := rand.New(rand.NewSource(fieldSeed))
-				value := GenerateDataForField(fieldConfig.Type, fieldConfig.AA[treatmentVariantKey], randSouce)
-				fieldValues[fieldName] = value
-			}
-			experimentParticipantsWithExposureEvents[idx].AddAction(model.NewParticipantEventParameters(eventKey, fieldValues))
-		}
-	}
+	addActions(controlVariantKey, 0)
+	addActions(treatmentVariantKey, len(controlUserIds))
 
 	return &experimentParticipantsWithExposureEvents
 }
@@ -254,28 +319,28 @@ func (es *ExperimentSimulation) GetVariantToEventToAmountExcludingExposure(phase
 func (es *ExperimentSimulation) GetNumberOfEventsToPublishForVariantAndPhase(variantKey model.VariantKey, phase model.ExperimentPhaseType) (map[model.EventKey]int, error) {
 	eventToAmount := make(map[model.EventKey]int)
 
-	if phase == model.ExperimentPhaseAA {
-		for eventKey, variantToAmountMap := range es.ExperimentConfig.AA.PublishAmounts {
-			if eventKey == "experiment_exposure" {
-				// Experiment Exposure events dealt with elsewhere
-				continue
-			}
-
-			amount, exists := variantToAmountMap[variantKey]
-			if !exists {
-				return nil, errors.New(fmt.Sprintf("number of %s events to publish for variant_key %s in phase %s not in yml", eventKey, variantKey, model.ExperimentPhaseAA))
-			}
-
-			eventToAmount[eventKey] = amount
-
-			return eventToAmount, nil
-		}
+	var publishAmounts map[model.EventKey]map[model.VariantKey]int
+	switch phase {
+	case model.ExperimentPhaseAA:
+		publishAmounts = es.ExperimentConfig.AA.PublishAmounts
+	case model.ExperimentPhaseAB:
+		publishAmounts = es.ExperimentConfig.AB.PublishAmounts
 	}
 
-	// TODO: implement equiv for AB
+	for eventKey, variantToAmountMap := range publishAmounts {
+		if eventKey == "experiment_exposure" {
+			continue
+		}
 
-	return nil, errors.New("it's not possible to reach here! we we are using an enum with only 2 options")
+		amount, exists := variantToAmountMap[variantKey]
+		if !exists {
+			return nil, fmt.Errorf("number of %s events to publish for variant_key %s in phase %s not in yml", eventKey, variantKey, phase)
+		}
 
+		eventToAmount[eventKey] = amount
+	}
+
+	return eventToAmount, nil
 }
 
 func (es *ExperimentSimulation) GetVariantKeys() map[model.VariantKey]model.VariantRole {
@@ -308,23 +373,27 @@ func (es *ExperimentSimulation) GetNumberOfEventTypeToPublishForVariantAndPhase(
 		return nil, errors.New("variant Key Not Found in variants section")
 	}
 
-	if phase == model.ExperimentPhaseAA {
-		_, eventKeyExistsInSection := es.ExperimentConfig.AA.PublishAmounts[event_key]
-		if !eventKeyExistsInSection {
-			return nil, errors.New("event_key not found in aa 'publish_amounts' section")
-		}
-
-		amountToPublish, amountExistsInSection := es.ExperimentConfig.AA.PublishAmounts[event_key][variant_key]
-		if !amountExistsInSection {
-			return nil, fmt.Errorf("publish_amount not found for variant, %s", variant_key)
-		}
-
-		return &amountToPublish, nil
+	var publishAmounts map[model.EventKey]map[model.VariantKey]int
+	switch phase {
+	case model.ExperimentPhaseAA:
+		publishAmounts = es.ExperimentConfig.AA.PublishAmounts
+	case model.ExperimentPhaseAB:
+		publishAmounts = es.ExperimentConfig.AB.PublishAmounts
+	default:
+		return nil, fmt.Errorf("unknown phase: %s", phase)
 	}
 
-	// TODO: AB Equivalent
+	variantAmounts, eventKeyExists := publishAmounts[event_key]
+	if !eventKeyExists {
+		return nil, fmt.Errorf("event_key %s not found in %s publish_amounts", event_key, phase)
+	}
 
-	return nil, errors.New("it's not possible to reach here! we we are using an enum with only 2 options")
+	amountToPublish, amountExists := variantAmounts[variant_key]
+	if !amountExists {
+		return nil, fmt.Errorf("publish_amount not found for variant %s in phase %s", variant_key, phase)
+	}
+
+	return &amountToPublish, nil
 
 }
 

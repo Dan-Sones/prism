@@ -39,12 +39,23 @@ class StatsEngineStub(object):
                 request_serializer=stats__engine_dot_v1_dot_stats__engine__pb2.CalculateSampleSizeRequest.SerializeToString,
                 response_deserializer=stats__engine_dot_v1_dot_stats__engine__pb2.CalculateSampleSizeResponse.FromString,
                 _registered_method=True)
+        self.PerformZTestBinaryMetric = channel.unary_unary(
+                '/stats_engine.v1.StatsEngine/PerformZTestBinaryMetric',
+                request_serializer=stats__engine_dot_v1_dot_stats__engine__pb2.PerformZTestBinaryMetricRequest.SerializeToString,
+                response_deserializer=stats__engine_dot_v1_dot_stats__engine__pb2.DecisionOutput.FromString,
+                _registered_method=True)
 
 
 class StatsEngineServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def CalculateSampleSize(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def PerformZTestBinaryMetric(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -57,6 +68,11 @@ def add_StatsEngineServicer_to_server(servicer, server):
                     servicer.CalculateSampleSize,
                     request_deserializer=stats__engine_dot_v1_dot_stats__engine__pb2.CalculateSampleSizeRequest.FromString,
                     response_serializer=stats__engine_dot_v1_dot_stats__engine__pb2.CalculateSampleSizeResponse.SerializeToString,
+            ),
+            'PerformZTestBinaryMetric': grpc.unary_unary_rpc_method_handler(
+                    servicer.PerformZTestBinaryMetric,
+                    request_deserializer=stats__engine_dot_v1_dot_stats__engine__pb2.PerformZTestBinaryMetricRequest.FromString,
+                    response_serializer=stats__engine_dot_v1_dot_stats__engine__pb2.DecisionOutput.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -86,6 +102,33 @@ class StatsEngine(object):
             '/stats_engine.v1.StatsEngine/CalculateSampleSize',
             stats__engine_dot_v1_dot_stats__engine__pb2.CalculateSampleSizeRequest.SerializeToString,
             stats__engine_dot_v1_dot_stats__engine__pb2.CalculateSampleSizeResponse.FromString,
+            options,
+            channel_credentials,
+            insecure,
+            call_credentials,
+            compression,
+            wait_for_ready,
+            timeout,
+            metadata,
+            _registered_method=True)
+
+    @staticmethod
+    def PerformZTestBinaryMetric(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(
+            request,
+            target,
+            '/stats_engine.v1.StatsEngine/PerformZTestBinaryMetric',
+            stats__engine_dot_v1_dot_stats__engine__pb2.PerformZTestBinaryMetricRequest.SerializeToString,
+            stats__engine_dot_v1_dot_stats__engine__pb2.DecisionOutput.FromString,
             options,
             channel_credentials,
             insecure,

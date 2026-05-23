@@ -133,7 +133,7 @@ func (m *MetricsCatalogRepository) GetMetricById(ctx context.Context, metricId u
 	if err != nil {
 		return nil, err
 	}
-	
+
 	return theMetric, nil
 }
 

@@ -21,6 +21,58 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type DecisionRecommendation int32
+
+const (
+	DecisionRecommendation_DECISION_RECOMMENDATION_UNSPECIFIED   DecisionRecommendation = 0
+	DecisionRecommendation_DECISION_RECOMMENDATION_RECOMMEND     DecisionRecommendation = 1
+	DecisionRecommendation_DECISION_RECOMMENDATION_NOT_RECOMMEND DecisionRecommendation = 2
+	DecisionRecommendation_DECISION_RECOMMENDATION_INCONCLUSIVE  DecisionRecommendation = 3
+)
+
+// Enum value maps for DecisionRecommendation.
+var (
+	DecisionRecommendation_name = map[int32]string{
+		0: "DECISION_RECOMMENDATION_UNSPECIFIED",
+		1: "DECISION_RECOMMENDATION_RECOMMEND",
+		2: "DECISION_RECOMMENDATION_NOT_RECOMMEND",
+		3: "DECISION_RECOMMENDATION_INCONCLUSIVE",
+	}
+	DecisionRecommendation_value = map[string]int32{
+		"DECISION_RECOMMENDATION_UNSPECIFIED":   0,
+		"DECISION_RECOMMENDATION_RECOMMEND":     1,
+		"DECISION_RECOMMENDATION_NOT_RECOMMEND": 2,
+		"DECISION_RECOMMENDATION_INCONCLUSIVE":  3,
+	}
+)
+
+func (x DecisionRecommendation) Enum() *DecisionRecommendation {
+	p := new(DecisionRecommendation)
+	*p = x
+	return p
+}
+
+func (x DecisionRecommendation) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (DecisionRecommendation) Descriptor() protoreflect.EnumDescriptor {
+	return file_stats_engine_v1_stats_engine_proto_enumTypes[0].Descriptor()
+}
+
+func (DecisionRecommendation) Type() protoreflect.EnumType {
+	return &file_stats_engine_v1_stats_engine_proto_enumTypes[0]
+}
+
+func (x DecisionRecommendation) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use DecisionRecommendation.Descriptor instead.
+func (DecisionRecommendation) EnumDescriptor() ([]byte, []int) {
+	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{0}
+}
+
 type MetricDirection int32
 
 const (
@@ -48,11 +100,11 @@ func (x MetricDirection) String() string {
 }
 
 func (MetricDirection) Descriptor() protoreflect.EnumDescriptor {
-	return file_stats_engine_v1_stats_engine_proto_enumTypes[0].Descriptor()
+	return file_stats_engine_v1_stats_engine_proto_enumTypes[1].Descriptor()
 }
 
 func (MetricDirection) Type() protoreflect.EnumType {
-	return &file_stats_engine_v1_stats_engine_proto_enumTypes[0]
+	return &file_stats_engine_v1_stats_engine_proto_enumTypes[1]
 }
 
 func (x MetricDirection) Number() protoreflect.EnumNumber {
@@ -61,7 +113,343 @@ func (x MetricDirection) Number() protoreflect.EnumNumber {
 
 // Deprecated: Use MetricDirection.Descriptor instead.
 func (MetricDirection) EnumDescriptor() ([]byte, []int) {
+	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{1}
+}
+
+type BinaryObservation struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Numerator     int32                  `protobuf:"varint,1,opt,name=numerator,proto3" json:"numerator,omitempty"`
+	Denominator   int32                  `protobuf:"varint,2,opt,name=denominator,proto3" json:"denominator,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *BinaryObservation) Reset() {
+	*x = BinaryObservation{}
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[0]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *BinaryObservation) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*BinaryObservation) ProtoMessage() {}
+
+func (x *BinaryObservation) ProtoReflect() protoreflect.Message {
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[0]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use BinaryObservation.ProtoReflect.Descriptor instead.
+func (*BinaryObservation) Descriptor() ([]byte, []int) {
 	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *BinaryObservation) GetNumerator() int32 {
+	if x != nil {
+		return x.Numerator
+	}
+	return 0
+}
+
+func (x *BinaryObservation) GetDenominator() int32 {
+	if x != nil {
+		return x.Denominator
+	}
+	return 0
+}
+
+type ZTestResult struct {
+	state              protoimpl.MessageState `protogen:"open.v1"`
+	AbsoluteDifference bool                   `protobuf:"varint,1,opt,name=absolute_difference,json=absoluteDifference,proto3" json:"absolute_difference,omitempty"`
+	CiLower            float64                `protobuf:"fixed64,2,opt,name=ci_lower,json=ciLower,proto3" json:"ci_lower,omitempty"`
+	CiUpper            float64                `protobuf:"fixed64,3,opt,name=ci_upper,json=ciUpper,proto3" json:"ci_upper,omitempty"`
+	PValue             float64                `protobuf:"fixed64,4,opt,name=p_value,json=pValue,proto3" json:"p_value,omitempty"`
+	AdjustedCiLower    float64                `protobuf:"fixed64,5,opt,name=adjusted_ci_lower,json=adjustedCiLower,proto3" json:"adjusted_ci_lower,omitempty"`
+	AdjustedCiUpper    float64                `protobuf:"fixed64,6,opt,name=adjusted_ci_upper,json=adjustedCiUpper,proto3" json:"adjusted_ci_upper,omitempty"`
+	AdjustedPValue     float64                `protobuf:"fixed64,7,opt,name=adjusted_p_value,json=adjustedPValue,proto3" json:"adjusted_p_value,omitempty"`
+	IsSignificant      bool                   `protobuf:"varint,8,opt,name=is_significant,json=isSignificant,proto3" json:"is_significant,omitempty"`
+	PoweredEffect      float64                `protobuf:"fixed64,9,opt,name=powered_effect,json=poweredEffect,proto3" json:"powered_effect,omitempty"`
+	unknownFields      protoimpl.UnknownFields
+	sizeCache          protoimpl.SizeCache
+}
+
+func (x *ZTestResult) Reset() {
+	*x = ZTestResult{}
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ZTestResult) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ZTestResult) ProtoMessage() {}
+
+func (x *ZTestResult) ProtoReflect() protoreflect.Message {
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ZTestResult.ProtoReflect.Descriptor instead.
+func (*ZTestResult) Descriptor() ([]byte, []int) {
+	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ZTestResult) GetAbsoluteDifference() bool {
+	if x != nil {
+		return x.AbsoluteDifference
+	}
+	return false
+}
+
+func (x *ZTestResult) GetCiLower() float64 {
+	if x != nil {
+		return x.CiLower
+	}
+	return 0
+}
+
+func (x *ZTestResult) GetCiUpper() float64 {
+	if x != nil {
+		return x.CiUpper
+	}
+	return 0
+}
+
+func (x *ZTestResult) GetPValue() float64 {
+	if x != nil {
+		return x.PValue
+	}
+	return 0
+}
+
+func (x *ZTestResult) GetAdjustedCiLower() float64 {
+	if x != nil {
+		return x.AdjustedCiLower
+	}
+	return 0
+}
+
+func (x *ZTestResult) GetAdjustedCiUpper() float64 {
+	if x != nil {
+		return x.AdjustedCiUpper
+	}
+	return 0
+}
+
+func (x *ZTestResult) GetAdjustedPValue() float64 {
+	if x != nil {
+		return x.AdjustedPValue
+	}
+	return 0
+}
+
+func (x *ZTestResult) GetIsSignificant() bool {
+	if x != nil {
+		return x.IsSignificant
+	}
+	return false
+}
+
+func (x *ZTestResult) GetPoweredEffect() float64 {
+	if x != nil {
+		return x.PoweredEffect
+	}
+	return 0
+}
+
+type PerformZTestBinaryMetricRequest struct {
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	ControlName           string                 `protobuf:"bytes,1,opt,name=control_name,json=controlName,proto3" json:"control_name,omitempty"`
+	TreatmentName         string                 `protobuf:"bytes,2,opt,name=treatment_name,json=treatmentName,proto3" json:"treatment_name,omitempty"`
+	ControlObservation    *BinaryObservation     `protobuf:"bytes,3,opt,name=control_observation,json=controlObservation,proto3" json:"control_observation,omitempty"`
+	TreatmentObservation  *BinaryObservation     `protobuf:"bytes,4,opt,name=treatment_observation,json=treatmentObservation,proto3" json:"treatment_observation,omitempty"`
+	AbsolutePercentageMde float64                `protobuf:"fixed64,5,opt,name=absolute_percentage_mde,json=absolutePercentageMde,proto3" json:"absolute_percentage_mde,omitempty"`
+	Alpha                 float64                `protobuf:"fixed64,6,opt,name=alpha,proto3" json:"alpha,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
+}
+
+func (x *PerformZTestBinaryMetricRequest) Reset() {
+	*x = PerformZTestBinaryMetricRequest{}
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PerformZTestBinaryMetricRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PerformZTestBinaryMetricRequest) ProtoMessage() {}
+
+func (x *PerformZTestBinaryMetricRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PerformZTestBinaryMetricRequest.ProtoReflect.Descriptor instead.
+func (*PerformZTestBinaryMetricRequest) Descriptor() ([]byte, []int) {
+	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *PerformZTestBinaryMetricRequest) GetControlName() string {
+	if x != nil {
+		return x.ControlName
+	}
+	return ""
+}
+
+func (x *PerformZTestBinaryMetricRequest) GetTreatmentName() string {
+	if x != nil {
+		return x.TreatmentName
+	}
+	return ""
+}
+
+func (x *PerformZTestBinaryMetricRequest) GetControlObservation() *BinaryObservation {
+	if x != nil {
+		return x.ControlObservation
+	}
+	return nil
+}
+
+func (x *PerformZTestBinaryMetricRequest) GetTreatmentObservation() *BinaryObservation {
+	if x != nil {
+		return x.TreatmentObservation
+	}
+	return nil
+}
+
+func (x *PerformZTestBinaryMetricRequest) GetAbsolutePercentageMde() float64 {
+	if x != nil {
+		return x.AbsolutePercentageMde
+	}
+	return 0
+}
+
+func (x *PerformZTestBinaryMetricRequest) GetAlpha() float64 {
+	if x != nil {
+		return x.Alpha
+	}
+	return 0
+}
+
+type DecisionOutput struct {
+	state                    protoimpl.MessageState `protogen:"open.v1"`
+	Recommendation           DecisionRecommendation `protobuf:"varint,1,opt,name=recommendation,proto3,enum=stats_engine.v1.DecisionRecommendation" json:"recommendation,omitempty"`
+	RecommendationReason     string                 `protobuf:"bytes,2,opt,name=recommendation_reason,json=recommendationReason,proto3" json:"recommendation_reason,omitempty"`
+	PracticallySignificant   bool                   `protobuf:"varint,3,opt,name=practically_significant,json=practicallySignificant,proto3" json:"practically_significant,omitempty"`
+	StatisticallySignificant bool                   `protobuf:"varint,4,opt,name=statistically_significant,json=statisticallySignificant,proto3" json:"statistically_significant,omitempty"`
+	ZTestResult              *ZTestResult           `protobuf:"bytes,5,opt,name=z_test_result,json=zTestResult,proto3" json:"z_test_result,omitempty"`
+	ControlObservation       *BinaryObservation     `protobuf:"bytes,6,opt,name=control_observation,json=controlObservation,proto3" json:"control_observation,omitempty"`
+	TreatmentObservation     *BinaryObservation     `protobuf:"bytes,7,opt,name=treatment_observation,json=treatmentObservation,proto3" json:"treatment_observation,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
+}
+
+func (x *DecisionOutput) Reset() {
+	*x = DecisionOutput{}
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DecisionOutput) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DecisionOutput) ProtoMessage() {}
+
+func (x *DecisionOutput) ProtoReflect() protoreflect.Message {
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DecisionOutput.ProtoReflect.Descriptor instead.
+func (*DecisionOutput) Descriptor() ([]byte, []int) {
+	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *DecisionOutput) GetRecommendation() DecisionRecommendation {
+	if x != nil {
+		return x.Recommendation
+	}
+	return DecisionRecommendation_DECISION_RECOMMENDATION_UNSPECIFIED
+}
+
+func (x *DecisionOutput) GetRecommendationReason() string {
+	if x != nil {
+		return x.RecommendationReason
+	}
+	return ""
+}
+
+func (x *DecisionOutput) GetPracticallySignificant() bool {
+	if x != nil {
+		return x.PracticallySignificant
+	}
+	return false
+}
+
+func (x *DecisionOutput) GetStatisticallySignificant() bool {
+	if x != nil {
+		return x.StatisticallySignificant
+	}
+	return false
+}
+
+func (x *DecisionOutput) GetZTestResult() *ZTestResult {
+	if x != nil {
+		return x.ZTestResult
+	}
+	return nil
+}
+
+func (x *DecisionOutput) GetControlObservation() *BinaryObservation {
+	if x != nil {
+		return x.ControlObservation
+	}
+	return nil
+}
+
+func (x *DecisionOutput) GetTreatmentObservation() *BinaryObservation {
+	if x != nil {
+		return x.TreatmentObservation
+	}
+	return nil
 }
 
 type CalculateSampleSizeRequest struct {
@@ -75,7 +463,7 @@ type CalculateSampleSizeRequest struct {
 
 func (x *CalculateSampleSizeRequest) Reset() {
 	*x = CalculateSampleSizeRequest{}
-	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[0]
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -87,7 +475,7 @@ func (x *CalculateSampleSizeRequest) String() string {
 func (*CalculateSampleSizeRequest) ProtoMessage() {}
 
 func (x *CalculateSampleSizeRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[0]
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -100,7 +488,7 @@ func (x *CalculateSampleSizeRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CalculateSampleSizeRequest.ProtoReflect.Descriptor instead.
 func (*CalculateSampleSizeRequest) Descriptor() ([]byte, []int) {
-	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{0}
+	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *CalculateSampleSizeRequest) GetMetrics() []*MetricDetails {
@@ -137,7 +525,7 @@ type MetricDetails struct {
 
 func (x *MetricDetails) Reset() {
 	*x = MetricDetails{}
-	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[1]
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -149,7 +537,7 @@ func (x *MetricDetails) String() string {
 func (*MetricDetails) ProtoMessage() {}
 
 func (x *MetricDetails) ProtoReflect() protoreflect.Message {
-	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[1]
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -162,7 +550,7 @@ func (x *MetricDetails) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use MetricDetails.ProtoReflect.Descriptor instead.
 func (*MetricDetails) Descriptor() ([]byte, []int) {
-	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{1}
+	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *MetricDetails) GetMetricKey() string {
@@ -211,7 +599,7 @@ type CalculateSampleSizeResponse struct {
 
 func (x *CalculateSampleSizeResponse) Reset() {
 	*x = CalculateSampleSizeResponse{}
-	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[2]
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -223,7 +611,7 @@ func (x *CalculateSampleSizeResponse) String() string {
 func (*CalculateSampleSizeResponse) ProtoMessage() {}
 
 func (x *CalculateSampleSizeResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[2]
+	mi := &file_stats_engine_v1_stats_engine_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -236,7 +624,7 @@ func (x *CalculateSampleSizeResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CalculateSampleSizeResponse.ProtoReflect.Descriptor instead.
 func (*CalculateSampleSizeResponse) Descriptor() ([]byte, []int) {
-	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{2}
+	return file_stats_engine_v1_stats_engine_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *CalculateSampleSizeResponse) GetTotalSampleSize() int32 {
@@ -264,7 +652,35 @@ var File_stats_engine_v1_stats_engine_proto protoreflect.FileDescriptor
 
 const file_stats_engine_v1_stats_engine_proto_rawDesc = "" +
 	"\n" +
-	"\"stats_engine/v1/stats_engine.proto\x12\x0fstats_engine.v1\"\x82\x01\n" +
+	"\"stats_engine/v1/stats_engine.proto\x12\x0fstats_engine.v1\"S\n" +
+	"\x11BinaryObservation\x12\x1c\n" +
+	"\tnumerator\x18\x01 \x01(\x05R\tnumerator\x12 \n" +
+	"\vdenominator\x18\x02 \x01(\x05R\vdenominator\"\xdd\x02\n" +
+	"\vZTestResult\x12/\n" +
+	"\x13absolute_difference\x18\x01 \x01(\bR\x12absoluteDifference\x12\x19\n" +
+	"\bci_lower\x18\x02 \x01(\x01R\aciLower\x12\x19\n" +
+	"\bci_upper\x18\x03 \x01(\x01R\aciUpper\x12\x17\n" +
+	"\ap_value\x18\x04 \x01(\x01R\x06pValue\x12*\n" +
+	"\x11adjusted_ci_lower\x18\x05 \x01(\x01R\x0fadjustedCiLower\x12*\n" +
+	"\x11adjusted_ci_upper\x18\x06 \x01(\x01R\x0fadjustedCiUpper\x12(\n" +
+	"\x10adjusted_p_value\x18\a \x01(\x01R\x0eadjustedPValue\x12%\n" +
+	"\x0eis_significant\x18\b \x01(\bR\risSignificant\x12%\n" +
+	"\x0epowered_effect\x18\t \x01(\x01R\rpoweredEffect\"\xe7\x02\n" +
+	"\x1fPerformZTestBinaryMetricRequest\x12!\n" +
+	"\fcontrol_name\x18\x01 \x01(\tR\vcontrolName\x12%\n" +
+	"\x0etreatment_name\x18\x02 \x01(\tR\rtreatmentName\x12S\n" +
+	"\x13control_observation\x18\x03 \x01(\v2\".stats_engine.v1.BinaryObservationR\x12controlObservation\x12W\n" +
+	"\x15treatment_observation\x18\x04 \x01(\v2\".stats_engine.v1.BinaryObservationR\x14treatmentObservation\x126\n" +
+	"\x17absolute_percentage_mde\x18\x05 \x01(\x01R\x15absolutePercentageMde\x12\x14\n" +
+	"\x05alpha\x18\x06 \x01(\x01R\x05alpha\"\xfc\x03\n" +
+	"\x0eDecisionOutput\x12O\n" +
+	"\x0erecommendation\x18\x01 \x01(\x0e2'.stats_engine.v1.DecisionRecommendationR\x0erecommendation\x123\n" +
+	"\x15recommendation_reason\x18\x02 \x01(\tR\x14recommendationReason\x127\n" +
+	"\x17practically_significant\x18\x03 \x01(\bR\x16practicallySignificant\x12;\n" +
+	"\x19statistically_significant\x18\x04 \x01(\bR\x18statisticallySignificant\x12@\n" +
+	"\rz_test_result\x18\x05 \x01(\v2\x1c.stats_engine.v1.ZTestResultR\vzTestResult\x12S\n" +
+	"\x13control_observation\x18\x06 \x01(\v2\".stats_engine.v1.BinaryObservationR\x12controlObservation\x12W\n" +
+	"\x15treatment_observation\x18\a \x01(\v2\".stats_engine.v1.BinaryObservationR\x14treatmentObservation\"\x82\x01\n" +
 	"\x1aCalculateSampleSizeRequest\x128\n" +
 	"\ametrics\x18\x01 \x03(\v2\x1e.stats_engine.v1.MetricDetailsR\ametrics\x12\x14\n" +
 	"\x05alpha\x18\x02 \x01(\x01R\x05alpha\x12\x14\n" +
@@ -279,11 +695,17 @@ const file_stats_engine_v1_stats_engine_proto_rawDesc = "" +
 	"\x1bCalculateSampleSizeResponse\x12*\n" +
 	"\x11total_sample_size\x18\x01 \x01(\x05R\x0ftotalSampleSize\x125\n" +
 	"\x17sample_size_per_variant\x18\x02 \x03(\x05R\x14sampleSizePerVariant\x12\x14\n" +
-	"\x05split\x18\x03 \x03(\x01R\x05split*\x1f\n" +
+	"\x05split\x18\x03 \x03(\x01R\x05split*\xbd\x01\n" +
+	"\x16DecisionRecommendation\x12'\n" +
+	"#DECISION_RECOMMENDATION_UNSPECIFIED\x10\x00\x12%\n" +
+	"!DECISION_RECOMMENDATION_RECOMMEND\x10\x01\x12)\n" +
+	"%DECISION_RECOMMENDATION_NOT_RECOMMEND\x10\x02\x12(\n" +
+	"$DECISION_RECOMMENDATION_INCONCLUSIVE\x10\x03*\x1f\n" +
 	"\x0fMetricDirection\x12\f\n" +
-	"\bINCREASE\x10\x002\x7f\n" +
+	"\bINCREASE\x10\x002\xee\x01\n" +
 	"\vStatsEngine\x12p\n" +
-	"\x13CalculateSampleSize\x12+.stats_engine.v1.CalculateSampleSizeRequest\x1a,.stats_engine.v1.CalculateSampleSizeResponseBAZ?experimentation-service/internal/grpc/generated/v1;stats_engineb\x06proto3"
+	"\x13CalculateSampleSize\x12+.stats_engine.v1.CalculateSampleSizeRequest\x1a,.stats_engine.v1.CalculateSampleSizeResponse\x12m\n" +
+	"\x18PerformZTestBinaryMetric\x120.stats_engine.v1.PerformZTestBinaryMetricRequest\x1a\x1f.stats_engine.v1.DecisionOutputBAZ?experimentation-service/internal/grpc/generated/v1;stats_engineb\x06proto3"
 
 var (
 	file_stats_engine_v1_stats_engine_proto_rawDescOnce sync.Once
@@ -297,24 +719,37 @@ func file_stats_engine_v1_stats_engine_proto_rawDescGZIP() []byte {
 	return file_stats_engine_v1_stats_engine_proto_rawDescData
 }
 
-var file_stats_engine_v1_stats_engine_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_stats_engine_v1_stats_engine_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_stats_engine_v1_stats_engine_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_stats_engine_v1_stats_engine_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_stats_engine_v1_stats_engine_proto_goTypes = []any{
-	(MetricDirection)(0),                // 0: stats_engine.v1.MetricDirection
-	(*CalculateSampleSizeRequest)(nil),  // 1: stats_engine.v1.CalculateSampleSizeRequest
-	(*MetricDetails)(nil),               // 2: stats_engine.v1.MetricDetails
-	(*CalculateSampleSizeResponse)(nil), // 3: stats_engine.v1.CalculateSampleSizeResponse
+	(DecisionRecommendation)(0),             // 0: stats_engine.v1.DecisionRecommendation
+	(MetricDirection)(0),                    // 1: stats_engine.v1.MetricDirection
+	(*BinaryObservation)(nil),               // 2: stats_engine.v1.BinaryObservation
+	(*ZTestResult)(nil),                     // 3: stats_engine.v1.ZTestResult
+	(*PerformZTestBinaryMetricRequest)(nil), // 4: stats_engine.v1.PerformZTestBinaryMetricRequest
+	(*DecisionOutput)(nil),                  // 5: stats_engine.v1.DecisionOutput
+	(*CalculateSampleSizeRequest)(nil),      // 6: stats_engine.v1.CalculateSampleSizeRequest
+	(*MetricDetails)(nil),                   // 7: stats_engine.v1.MetricDetails
+	(*CalculateSampleSizeResponse)(nil),     // 8: stats_engine.v1.CalculateSampleSizeResponse
 }
 var file_stats_engine_v1_stats_engine_proto_depIdxs = []int32{
-	2, // 0: stats_engine.v1.CalculateSampleSizeRequest.metrics:type_name -> stats_engine.v1.MetricDetails
-	0, // 1: stats_engine.v1.MetricDetails.direction:type_name -> stats_engine.v1.MetricDirection
-	1, // 2: stats_engine.v1.StatsEngine.CalculateSampleSize:input_type -> stats_engine.v1.CalculateSampleSizeRequest
-	3, // 3: stats_engine.v1.StatsEngine.CalculateSampleSize:output_type -> stats_engine.v1.CalculateSampleSizeResponse
-	3, // [3:4] is the sub-list for method output_type
-	2, // [2:3] is the sub-list for method input_type
-	2, // [2:2] is the sub-list for extension type_name
-	2, // [2:2] is the sub-list for extension extendee
-	0, // [0:2] is the sub-list for field type_name
+	2,  // 0: stats_engine.v1.PerformZTestBinaryMetricRequest.control_observation:type_name -> stats_engine.v1.BinaryObservation
+	2,  // 1: stats_engine.v1.PerformZTestBinaryMetricRequest.treatment_observation:type_name -> stats_engine.v1.BinaryObservation
+	0,  // 2: stats_engine.v1.DecisionOutput.recommendation:type_name -> stats_engine.v1.DecisionRecommendation
+	3,  // 3: stats_engine.v1.DecisionOutput.z_test_result:type_name -> stats_engine.v1.ZTestResult
+	2,  // 4: stats_engine.v1.DecisionOutput.control_observation:type_name -> stats_engine.v1.BinaryObservation
+	2,  // 5: stats_engine.v1.DecisionOutput.treatment_observation:type_name -> stats_engine.v1.BinaryObservation
+	7,  // 6: stats_engine.v1.CalculateSampleSizeRequest.metrics:type_name -> stats_engine.v1.MetricDetails
+	1,  // 7: stats_engine.v1.MetricDetails.direction:type_name -> stats_engine.v1.MetricDirection
+	6,  // 8: stats_engine.v1.StatsEngine.CalculateSampleSize:input_type -> stats_engine.v1.CalculateSampleSizeRequest
+	4,  // 9: stats_engine.v1.StatsEngine.PerformZTestBinaryMetric:input_type -> stats_engine.v1.PerformZTestBinaryMetricRequest
+	8,  // 10: stats_engine.v1.StatsEngine.CalculateSampleSize:output_type -> stats_engine.v1.CalculateSampleSizeResponse
+	5,  // 11: stats_engine.v1.StatsEngine.PerformZTestBinaryMetric:output_type -> stats_engine.v1.DecisionOutput
+	10, // [10:12] is the sub-list for method output_type
+	8,  // [8:10] is the sub-list for method input_type
+	8,  // [8:8] is the sub-list for extension type_name
+	8,  // [8:8] is the sub-list for extension extendee
+	0,  // [0:8] is the sub-list for field type_name
 }
 
 func init() { file_stats_engine_v1_stats_engine_proto_init() }
@@ -327,8 +762,8 @@ func file_stats_engine_v1_stats_engine_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_stats_engine_v1_stats_engine_proto_rawDesc), len(file_stats_engine_v1_stats_engine_proto_rawDesc)),
-			NumEnums:      1,
-			NumMessages:   3,
+			NumEnums:      2,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

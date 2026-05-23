@@ -6,6 +6,50 @@ package stats_engine.v1;
 
 service StatsEngine {
   rpc CalculateSampleSize(CalculateSampleSizeRequest) returns (CalculateSampleSizeResponse);
+  rpc PerformZTestBinaryMetric(PerformZTestBinaryMetricRequest) returns (DecisionOutput);
+}
+
+message BinaryObservation {
+  int32 numerator = 1;
+  int32 denominator = 2;
+}
+
+enum DecisionRecommendation {
+  DECISION_RECOMMENDATION_UNSPECIFIED = 0;
+  DECISION_RECOMMENDATION_RECOMMEND = 1;
+  DECISION_RECOMMENDATION_NOT_RECOMMEND = 2;
+  DECISION_RECOMMENDATION_INCONCLUSIVE = 3;
+}
+
+message ZTestResult {
+  bool absolute_difference = 1;
+  double ci_lower = 2;
+  double ci_upper = 3;
+  double p_value = 4;
+  double adjusted_ci_lower = 5;
+  double adjusted_ci_upper = 6;
+  double adjusted_p_value = 7;
+  bool is_significant = 8;
+  double powered_effect = 9;
+}
+
+message PerformZTestBinaryMetricRequest {
+  string control_name = 1;
+  string treatment_name = 2;
+  BinaryObservation control_observation = 3;
+  BinaryObservation treatment_observation = 4;
+  double absolute_percentage_mde = 5;
+  double alpha = 6;
+}
+
+message DecisionOutput {
+  DecisionRecommendation recommendation = 1;
+  string recommendation_reason = 2;
+  bool practically_significant = 3;
+  bool statistically_significant = 4;
+  ZTestResult z_test_result = 5;
+  BinaryObservation control_observation = 6;
+  BinaryObservation treatment_observation = 7;
 }
 
 message CalculateSampleSizeRequest {

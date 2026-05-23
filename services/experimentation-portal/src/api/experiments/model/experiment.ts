@@ -73,10 +73,10 @@ export type ExperimentMetricResponse = {
 };
 
 export type ExperimentVariantResponse = {
-  variant_key: string;
+  key: string;
   upper_bound: number;
   lower_bound: number;
-  variantType: VariantType;
+  type: VariantType;
 };
 export type RequiredSampleSizeResponse = {
   total_required_sample_size: number;

@@ -8,10 +8,11 @@ import (
 )
 
 type Controllers struct {
-	ExperimentController     *controller.ExperimentController
-	EventsCatalogController  *controller.EventsCatalogController
-	EventController          *controller.EventController
-	MetricsCatalogController *controller.MetricsCatalogController
+	ExperimentController        *controller.ExperimentController
+	ExperimentResultsController *controller.ExperimentResultsController
+	EventsCatalogController     *controller.EventsCatalogController
+	EventController             *controller.EventController
+	MetricsCatalogController    *controller.MetricsCatalogController
 }
 
 func RegisterRoutes(router *chi.Mux, c Controllers) {
@@ -26,6 +27,7 @@ func RegisterRoutes(router *chi.Mux, c Controllers) {
 			r.Get("/", c.ExperimentController.GetExperiments)
 			r.Route("/{experimentId}", func(r chi.Router) {
 				r.Get("/", c.ExperimentController.GetExperimentByUUID)
+				r.Get("/results", c.ExperimentResultsController.GetExperimentResults)
 				r.Get("/calculate-sample-size", c.ExperimentController.CalculateRequiredSampleSizeForMetrics)
 				r.Put("/begin-ab", c.ExperimentController.UpdateExperimentForABPhase)
 			})

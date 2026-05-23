@@ -19,7 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	StatsEngine_CalculateSampleSize_FullMethodName = "/stats_engine.v1.StatsEngine/CalculateSampleSize"
+	StatsEngine_CalculateSampleSize_FullMethodName      = "/stats_engine.v1.StatsEngine/CalculateSampleSize"
+	StatsEngine_PerformZTestBinaryMetric_FullMethodName = "/stats_engine.v1.StatsEngine/PerformZTestBinaryMetric"
 )
 
 // StatsEngineClient is the client API for StatsEngine service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type StatsEngineClient interface {
 	CalculateSampleSize(ctx context.Context, in *CalculateSampleSizeRequest, opts ...grpc.CallOption) (*CalculateSampleSizeResponse, error)
+	PerformZTestBinaryMetric(ctx context.Context, in *PerformZTestBinaryMetricRequest, opts ...grpc.CallOption) (*DecisionOutput, error)
 }
 
 type statsEngineClient struct {
@@ -47,11 +49,22 @@ func (c *statsEngineClient) CalculateSampleSize(ctx context.Context, in *Calcula
 	return out, nil
 }
 
+func (c *statsEngineClient) PerformZTestBinaryMetric(ctx context.Context, in *PerformZTestBinaryMetricRequest, opts ...grpc.CallOption) (*DecisionOutput, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DecisionOutput)
+	err := c.cc.Invoke(ctx, StatsEngine_PerformZTestBinaryMetric_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // StatsEngineServer is the server API for StatsEngine service.
 // All implementations must embed UnimplementedStatsEngineServer
 // for forward compatibility.
 type StatsEngineServer interface {
 	CalculateSampleSize(context.Context, *CalculateSampleSizeRequest) (*CalculateSampleSizeResponse, error)
+	PerformZTestBinaryMetric(context.Context, *PerformZTestBinaryMetricRequest) (*DecisionOutput, error)
 	mustEmbedUnimplementedStatsEngineServer()
 }
 
@@ -64,6 +77,9 @@ type UnimplementedStatsEngineServer struct{}
 
 func (UnimplementedStatsEngineServer) CalculateSampleSize(context.Context, *CalculateSampleSizeRequest) (*CalculateSampleSizeResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CalculateSampleSize not implemented")
+}
+func (UnimplementedStatsEngineServer) PerformZTestBinaryMetric(context.Context, *PerformZTestBinaryMetricRequest) (*DecisionOutput, error) {
+	return nil, status.Error(codes.Unimplemented, "method PerformZTestBinaryMetric not implemented")
 }
 func (UnimplementedStatsEngineServer) mustEmbedUnimplementedStatsEngineServer() {}
 func (UnimplementedStatsEngineServer) testEmbeddedByValue()                     {}
@@ -104,6 +120,24 @@ func _StatsEngine_CalculateSampleSize_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _StatsEngine_PerformZTestBinaryMetric_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PerformZTestBinaryMetricRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(StatsEngineServer).PerformZTestBinaryMetric(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: StatsEngine_PerformZTestBinaryMetric_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(StatsEngineServer).PerformZTestBinaryMetric(ctx, req.(*PerformZTestBinaryMetricRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // StatsEngine_ServiceDesc is the grpc.ServiceDesc for StatsEngine service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +148,10 @@ var StatsEngine_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CalculateSampleSize",
 			Handler:    _StatsEngine_CalculateSampleSize_Handler,
+		},
+		{
+			MethodName: "PerformZTestBinaryMetric",
+			Handler:    _StatsEngine_PerformZTestBinaryMetric_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

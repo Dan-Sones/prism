@@ -1,6 +1,7 @@
 export { createExperiment } from "./create-experiment";
 export { getExperiments } from "./get-experiments";
 export { getExperiment } from "./get-experiment-by-uuid";
+export { getExperimentResults } from "./get-experiment-results";
 export type {
   CreateExperimentRequestBody,
   CreateExperimentVariant,
@@ -14,3 +15,10 @@ export type {
   ExperimentStatus,
   RequiredSampleSizeResponse,
 } from "./model/experiment";
+export type {
+  DecisionRecommendation,
+  ZTestResult,
+  MetricValue,
+  EnrichedExperimentMetric,
+  ExperimentResultsResponse,
+} from "./model/experimentResults";

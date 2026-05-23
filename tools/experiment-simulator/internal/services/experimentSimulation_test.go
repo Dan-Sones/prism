@@ -191,7 +191,7 @@ func newAATestSimulation() (*ExperimentSimulation, func() *[]model.ExperimentPar
 		},
 	}
 
-	return es, es.GetAATestParticipantsWithActions
+	return es, func() *[]model.ExperimentParticipant { return es.GetParticipantsWithActions(model.ExperimentPhaseAA) }
 }
 
 func TestExperimentSimulation_GetAATestParticipantsWithActions_TotalParticipantsMatchExposureEvents(t *testing.T) {

@@ -1,7 +1,10 @@
-from services.sample_size import get_sample_size, get_sample_size_for_binomial_metric
+from services.sample_size import get_sample_size
 import stats_engine.v1.stats_engine_pb2_grpc as ses_grpc
 import stats_engine.v1.stats_engine_pb2 as ses_pb
 import pandas as pd
+from services.z_test import perform_z_test_for_binary_metric
+from services.decision import make_decision_for_z_test
+from models.binary_observation import BinaryObservation
 
 DIRECTION_MAP = {
       0: "increase",
@@ -42,3 +45,26 @@ class StatsEngineServer(ses_grpc.StatsEngineServicer):
         }
 
         return ses_pb.CalculateSampleSizeResponse(**res)
+
+    def PerformZTestBinaryMetric(self, request, context):
+        df = pd.DataFrame([], columns=["variation_name", "success", "total"])
+
+        df.loc[0] = {
+            "variation_name": request.control_name,
+            "success": request.control_observation.numerator,
+            "total": request.control_observation.denominator,
+        }
+
+        df.loc[1] = {
+            "variation_name": request.treatment_name,
+            "success": request.treatment_observation.numerator,
+            "total": request.treatment_observation.denominator,
+        }
+
+        control_obs = BinaryObservation(numerator=request.control_observation.numerator, denominator=request.control_observation.denominator)
+        treatment_obs = BinaryObservation(numerator=request.treatment_observation.numerator, denominator=request.treatment_observation.denominator)
+
+        z_test_result = perform_z_test_for_binary_metric(df, request.alpha, request.control_name, request.treatment_name)
+        decision = make_decision_for_z_test(z_test_result, request.absolute_percentage_mde, control_obs, treatment_obs)
+
+        return decision.to_proto()
