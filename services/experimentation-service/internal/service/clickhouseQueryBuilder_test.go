@@ -188,7 +188,7 @@ func TestClickhouseQueryBuilder_BuildQueryForExperimentMetric_Ratio(t *testing.T
 					},
 				},
 			},
-			expectedQuery: `SELECT variant_key, uniqExactIf(user_id, event_key = 'purchase') AS numerator, uniqExactIf(user_id, event_key = 'experiment_exposure') AS denominator FROM cooked_events WHERE experiment_key = 'button_color_v1' AND event_key IN ('purchase', 'experiment_exposure') AND sent_at >= '2026-04-23 14:30:00' AND sent_at <= '2026-04-23 15:30:00' AND is_aa = true GROUP BY variant_key;`,
+			expectedQuery: `SELECT variant_key, uniqExactIf(user_id, event_key = 'purchase') AS numerator, uniqExactIf(user_id, event_key = 'experiment_exposure') AS denominator FROM cooked_events WHERE experiment_key = 'button_color_v1' AND event_key IN ('purchase', 'experiment_exposure') AND is_aa = true GROUP BY variant_key;`,
 		},
 		{
 			name:          "BINARY Ratio Metric System Column Name, NOT AA: purchase conversion rate",
@@ -217,7 +217,7 @@ func TestClickhouseQueryBuilder_BuildQueryForExperimentMetric_Ratio(t *testing.T
 					},
 				},
 			},
-			expectedQuery: `SELECT variant_key, uniqExactIf(user_id, event_key = 'purchase') AS numerator, uniqExactIf(user_id, event_key = 'experiment_exposure') AS denominator FROM cooked_events WHERE experiment_key = 'button_color_v1' AND event_key IN ('purchase', 'experiment_exposure') AND sent_at >= '2026-04-23 14:30:00' AND sent_at <= '2026-04-23 15:30:00' AND is_aa = false GROUP BY variant_key;`,
+			expectedQuery: `SELECT variant_key, uniqExactIf(user_id, event_key = 'purchase') AS numerator, uniqExactIf(user_id, event_key = 'experiment_exposure') AS denominator FROM cooked_events WHERE experiment_key = 'button_color_v1' AND event_key IN ('purchase', 'experiment_exposure') AND is_aa = false GROUP BY variant_key;`,
 		},
 	}
 
