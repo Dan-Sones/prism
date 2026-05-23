@@ -7,7 +7,6 @@ import type {
 } from "../../../../../api/experiments";
 import Card from "../../../../../components/card/Card";
 import CheckCircleIcon from "../../../../../components/icons/CheckCircleIcon";
-import ExclamationTriangleIcon from "../../../../../components/icons/ExclamationTriangleIcon";
 import MetricIndicator from "./MetricIndicator";
 import XCircleIcon from "../../../../../components/icons/XCircleIcon";
 
@@ -120,11 +119,30 @@ const MetricResultCard = (props: MetricResultCardProps) => {
   );
 
   const getPoweredEffectColor = useCallback(
-    (poweredEffect: number, mde: number) => {
-      return poweredEffect < mde ? "text-red-500" : "text-green-500";
+    (poweredEffect: number, mde?: number) => {
+      if (mde === undefined) return "text-gray-500";
+      return poweredEffect >= mde ? "text-red-500" : "text-green-500";
     },
     [],
   );
+
+  const getIncreaseOrDecreaseText = useCallback(() => {
+    const ppChange = calculatePPChange(
+      controlNumerator,
+      treatmentNumerator,
+      controlDenominator,
+      treatmentDenominator,
+    );
+    if (ppChange > 0) return "Increase";
+    if (ppChange < 0) return "Decrease";
+    return "No change";
+  }, [
+    controlNumerator,
+    treatmentNumerator,
+    controlDenominator,
+    treatmentDenominator,
+    calculatePPChange,
+  ]);
 
   return (
     <Card className="!gap-0 pb-0">
@@ -196,7 +214,9 @@ const MetricResultCard = (props: MetricResultCardProps) => {
               ),
             )}
           </p>
-          <p className="font-mono text-xs text-gray-500">Increase</p>
+          <p className="font-mono text-xs text-gray-500">
+            {getIncreaseOrDecreaseText()}
+          </p>
         </div>
       </div>
       <div className="-mx-4 flex flex-col divide-y divide-gray-300 text-xs">
@@ -220,7 +240,9 @@ const MetricResultCard = (props: MetricResultCardProps) => {
         </div>
         <div className="flex flex-row items-center justify-between px-4 py-3">
           <p className="text-gray-500">Powered Effect</p>
-          <p className={`${getPoweredEffectColor(zTestResult.powered_effect)}`}>
+          <p
+            className={`${getPoweredEffectColor(zTestResult.powered_effect, metricDetails.mde)}`}
+          >
             {formattedPoweredEffect(zTestResult.powered_effect)}
           </p>
         </div>
