@@ -76,7 +76,7 @@ func main() {
 
 	// service
 	microBatchProcessor := services.NewMicroBatchProcessorImp(cookedEventsRepository, assignmentGrpcClient, experimentationExperimentGrpcClient, experimentationAssignmentGrpcClient, logger)
-	eventReader := microbatcher.NewEventReaderImp(kafkaClient, logger)
+	eventReader := microbatcher.NewKafkaEventReader(kafkaClient, logger)
 	microBatchService := microbatcher.NewMicroBatchingService(microBatchSizeInt, utils.GetFlushTimeoutDuration(), eventReader, microBatchProcessor, logger)
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)

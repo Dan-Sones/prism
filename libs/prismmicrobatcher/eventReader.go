@@ -11,23 +11,19 @@ type KafkaMessage struct {
 	Value []byte
 }
 
-type EventReader interface {
-	PollEvents(ctx context.Context) ([][]byte, error)
-}
-
-type EventReaderImp struct {
+type KafkaEventReader struct {
 	client *kgo.Client
 	logger *slog.Logger
 }
 
-func NewEventReaderImp(client *kgo.Client, logger *slog.Logger) *EventReaderImp {
-	return &EventReaderImp{
+func NewKafkaEventReader(client *kgo.Client, logger *slog.Logger) *KafkaEventReader {
+	return &KafkaEventReader{
 		client: client,
 		logger: logger,
 	}
 }
 
-func (e *EventReaderImp) PollEvents(ctx context.Context) ([][]byte, error) {
+func (e *KafkaEventReader) PollEvents(ctx context.Context) ([]*kgo.Record, error) {
 	fetches := e.client.PollFetches(ctx)
 
 	if errs := fetches.Errors(); len(errs) > 0 {
@@ -36,10 +32,13 @@ func (e *EventReaderImp) PollEvents(ctx context.Context) ([][]byte, error) {
 		}
 	}
 
-	var messages [][]byte
-	fetches.EachRecord(func(record *kgo.Record) {
-		messages = append(messages, record.Value)
+	var records []*kgo.Record
+	fetches.EachRecord(func(r *kgo.Record) {
+		records = append(records, r)
 	})
+	return records, nil
+}
 
-	return messages, nil
+func (e *KafkaEventReader) CommitEvents(ctx context.Context, records []*kgo.Record) error {
+	return e.client.CommitRecords(ctx, records...)
 }
