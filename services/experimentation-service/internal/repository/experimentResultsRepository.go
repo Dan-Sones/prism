@@ -28,6 +28,8 @@ func (r *ExperimentResultsRepository) GetMostRecentZTestResultForExperimentMetri
 ) (results *experimentResults.ZTestResult,
 	controlObs *experimentResults.MetricValue,
 	treatementObs *experimentResults.MetricValue,
+	practicallySignificant bool,
+	statisticallySignificant bool,
 	err error) {
 
 	sql := `
@@ -51,11 +53,9 @@ func (r *ExperimentResultsRepository) GetMostRecentZTestResultForExperimentMetri
 	}
 
 	var (
-		res                      = new(experimentResults.ZTestResult)
-		controlObservations      = new(experimentResults.MetricValue)
-		treatmentObservations    = new(experimentResults.MetricValue)
-		practicallySignificant   bool
-		statisticallySignificant bool
+		res                   = new(experimentResults.ZTestResult)
+		controlObservations   = new(experimentResults.MetricValue)
+		treatmentObservations = new(experimentResults.MetricValue)
 	)
 
 	err = r.pgxPool.QueryRow(context.Background(), sql, args).Scan(
@@ -72,18 +72,18 @@ func (r *ExperimentResultsRepository) GetMostRecentZTestResultForExperimentMetri
 		&controlObservations.Denominator,
 		&treatmentObservations.Numerator,
 		&treatmentObservations.Denominator,
-		&statisticallySignificant,
 		&practicallySignificant,
+		&statisticallySignificant,
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			// no results is a valid case
-			return nil, nil, nil, nil
+			return nil, nil, nil, false, false, nil
 		}
-		return nil, nil, nil, err
+		return nil, nil, nil, false, false, err
 	}
 
-	return res, controlObservations, treatmentObservations, nil
+	return res, controlObservations, treatmentObservations, practicallySignificant, statisticallySignificant, nil
 }
 
 func (r *ExperimentResultsRepository) StoreZTestResult(experimentId,

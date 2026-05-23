@@ -139,7 +139,9 @@ func (s *ExperimentResultsService) GetZTestResultForExperimentMetric(
 	controlKey, treatmentKey string,
 ) (*ZTestAnalysisResult, error) {
 
-	existingZRes, controlObs, treatmentObs, err := s.experimentResultsRepository.GetMostRecentZTestResultForExperimentMetric(expId, metricId)
+	existingZRes, controlObs,
+		treatmentObs, practicallySignificant,
+		statisticallySignificant, err := s.experimentResultsRepository.GetMostRecentZTestResultForExperimentMetric(expId, metricId)
 	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		s.logger.Error("Error fetching existingZRes results for experiment metric", "experimentId", expId, "metricId", metricId, "error", err)
 		return nil, err
@@ -154,11 +156,13 @@ func (s *ExperimentResultsService) GetZTestResultForExperimentMetric(
 	if existingZRes != nil && existingRec != "" && existingRecReason != "" {
 		s.logger.Info("Existing results found for experiment metric, returning cached results", "experimentId", expId, "metricId", metricId)
 		return &ZTestAnalysisResult{
-			ZTestResult:           existingZRes,
-			ControlObservations:   controlObs,
-			TreatmentObservations: treatmentObs,
-			Recommendation:        existingRec,
-			RecommendationReason:  existingRecReason,
+			ZTestResult:              existingZRes,
+			ControlObservations:      controlObs,
+			TreatmentObservations:    treatmentObs,
+			Recommendation:           existingRec,
+			RecommendationReason:     existingRecReason,
+			StatisticallySignificant: statisticallySignificant,
+			PracticallySignificant:   practicallySignificant,
 		}, nil
 	}
 
