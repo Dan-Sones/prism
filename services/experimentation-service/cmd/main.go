@@ -89,7 +89,7 @@ func main() {
 	metricsCatalogService := service.NewMetricsCatalogService(metricsCatalogRepository, eventsCatalogRepository, logger)
 	clickhouseQueryBuilder := service.NewClickhouseQueryBuilder()
 	experimentService := service.NewExperimentService(experimentRepository, bucketAllocationService, clickhouseQueryBuilder, eventService, metricsCatalogService, statsEngineClient, experimentPhaseRepository, logger)
-	experimentResultsRepository := repository.NewExperimentResultsRepository(pgPool, metricsCatalogService)
+	experimentResultsRepository := repository.NewExperimentResultsRepository(pgPool)
 	experimentResultsService := service.NewExperimentResultsService(experimentPhaseRepository, experimentResultsRepository, statsEngineClient, experimentService, metricsCatalogService, eventsRepository, clickhouseQueryBuilder, logger)
 	assignmentService := service.NewAssignmentService(experimentRepository, bucketCount, logger)
 	eventsCatalogService := service.NewEventsCatalogService(eventsCatalogRepository, logger)

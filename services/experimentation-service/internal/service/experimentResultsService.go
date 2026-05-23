@@ -4,12 +4,15 @@ import (
 	"context"
 	"errors"
 	"experimentation-service/internal/clients"
+	experiment2 "experimentation-service/internal/model/experiment"
 	"experimentation-service/internal/repository"
 	"log/slog"
+	"time"
 
 	"github.com/Dan-Sones/prismdbmodels/model/experiment"
 	"github.com/Dan-Sones/prismdbmodels/model/experimentResults"
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 )
 
 type ExperimentResultsService struct {
@@ -70,17 +73,6 @@ func (s *ExperimentResultsService) GetExperimentResults(ctx context.Context, exp
 		return nil, errors.New("no treatment variant found for experiment")
 	}
 
-	// first check if results are in db
-	results, err := s.experimentResultsRepository.GetEnrichedResults(ctx, expId)
-	if err != nil {
-		s.logger.Error("Error fetching experiment results from repository", "experimentId", expId, "error", err)
-		return nil, err
-	}
-
-	if results != nil {
-		return results, nil
-	}
-
 	experimentResultsToSave := &experimentResults.EnrichedExperimentResults{
 		TestResults:  make(map[uuid.UUID]experimentResults.ZTestResult),
 		Metrics:      make(map[uuid.UUID]experiment.EnrichedExperimentMetric),
@@ -97,74 +89,149 @@ func (s *ExperimentResultsService) GetExperimentResults(ctx context.Context, exp
 			NIM:       metric.NIM,
 		}
 
-		query, err := s.queryBuilder.BuildQueryFor(expDetails.FeatureFlagID, metric.MetricDetails, *expDetails.StartTime, *expDetails.EndTime, false)
+		result, err := s.GetZTestResultForExperimentMetric(ctx, expId, metric.MetricDetails.ID, expDetails, metric, controlKey, treatmentKey)
 		if err != nil {
-			s.logger.Error("Error building query for metric", "experimentId", expId, "metricKey", metric.MetricDetails.MetricKey, "error", err)
+			s.logger.Error("Error getting z-test result for experiment metric", "experimentId", expId, "metricId", metric.MetricDetails.ID, "error", err)
 			return nil, err
-		}
-
-		res, err := s.eventsRepository.PerformBinaryMetricQuery(ctx, query)
-		if err != nil {
-			s.logger.Error("Error performing binary metric query", "experimentId", expId, "query", query, "error", err)
-			return nil, err
-		}
-
-		controlVariant, ok := res[controlKey]
-		if !ok {
-			s.logger.Error("No results found for control variant in metric query results", "experimentId", expId, "controlKey", controlKey)
-			return nil, errors.New("no results found for control variant in metric query results")
-		}
-
-		treatmentVariant, ok := res[treatmentKey]
-		if !ok {
-			s.logger.Error("No results found for treatment variant in metric query results", "experimentId", expId, "treatmentKey", treatmentKey)
-			return nil, errors.New("no results found for treatment variant in metric query results")
 		}
 
 		experimentResultsToSave.MetricValues[metric.MetricDetails.ID] = map[string]experimentResults.MetricValue{
 			"control": {
-				Numerator:   controlVariant.Numerator,
-				Denominator: controlVariant.Denominator,
+				Numerator:   result.ControlObservations.Numerator,
+				Denominator: result.ControlObservations.Denominator,
 			},
 			"treatment": {
-				Numerator:   treatmentVariant.Numerator,
-				Denominator: treatmentVariant.Denominator,
+				Numerator:   result.TreatmentObservations.Numerator,
+				Denominator: result.TreatmentObservations.Denominator,
 			},
 		}
 
-		rec, recReason,
-			zTestResult,
-			practicallySignificant,
-			statisticallySignificant,
-			err := s.statsEngineClient.PerformZTestBinaryMetric(
-			ctx,
-			controlKey,
-			treatmentKey,
-			int64(controlVariant.Numerator),
-			int64(controlVariant.Denominator),
-			int64(treatmentVariant.Numerator),
-			int64(treatmentVariant.Denominator),
-			*metric.MDE)
+		experimentResultsToSave.TestResults[metric.MetricDetails.ID] = *result.ZTestResult
+		experimentResultsToSave.DecisionRecommendation = result.Recommendation
+		experimentResultsToSave.RecommendationReason = result.RecommendationReason
+		experimentResultsToSave.StatisticallySignificant = result.StatisticallySignificant
+		experimentResultsToSave.PracticallySignificant = result.PracticallySignificant
 
-		if err != nil {
-			s.logger.Error("Error performing z-test for binary metric", "experimentId", expId, "metricKey", metric.MetricDetails.MetricKey, "error", err)
-			return nil, err
-		}
-
-		experimentResultsToSave.TestResults[metric.MetricDetails.ID] = *zTestResult
-		experimentResultsToSave.DecisionRecommendation = rec
-		experimentResultsToSave.RecommendationReason = recReason
-		experimentResultsToSave.StatisticallySignificant = statisticallySignificant
-		experimentResultsToSave.PracticallySignificant = practicallySignificant
 		return experimentResultsToSave, nil
 	}
-
-	// todo - save results
-	// todo - overall decision rule
-
-	// shouldn;t be possible to get here right now
+	// shouldn't be possible to get here right now
 	s.logger.Error("No metrics found for experiment, cannot compute results", "experimentId", expId)
 
 	return nil, errors.New("no metrics found for experiment")
 
+}
+
+type ZTestAnalysisResult struct {
+	ZTestResult              *experimentResults.ZTestResult
+	ControlObservations      *experimentResults.MetricValue
+	TreatmentObservations    *experimentResults.MetricValue
+	Recommendation           experimentResults.DecisionRecommendation
+	RecommendationReason     string
+	StatisticallySignificant bool
+	PracticallySignificant   bool
+}
+
+func (s *ExperimentResultsService) GetZTestResultForExperimentMetric(
+	ctx context.Context,
+	expId, metricId uuid.UUID,
+	expDetails experiment2.ExperimentResponse,
+	metric experiment2.ExperimentMetricResponse,
+	controlKey, treatmentKey string,
+) (*ZTestAnalysisResult, error) {
+
+	existingZRes, controlObs, treatmentObs, err := s.experimentResultsRepository.GetMostRecentZTestResultForExperimentMetric(expId, metricId)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		s.logger.Error("Error fetching existingZRes results for experiment metric", "experimentId", expId, "metricId", metricId, "error", err)
+		return nil, err
+	}
+
+	existingRec, existingRecReason, err := s.experimentResultsRepository.GetExperimentResults(expId)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		s.logger.Error("Error fetching existing recommendation for experiment", "experimentId", expId, "error", err)
+		return nil, err
+	}
+
+	if existingZRes != nil && existingRec != "" && existingRecReason != "" {
+		s.logger.Info("Existing results found for experiment metric, returning cached results", "experimentId", expId, "metricId", metricId)
+		return &ZTestAnalysisResult{
+			ZTestResult:           existingZRes,
+			ControlObservations:   controlObs,
+			TreatmentObservations: treatmentObs,
+			Recommendation:        existingRec,
+			RecommendationReason:  existingRecReason,
+		}, nil
+	}
+
+	query, err := s.queryBuilder.BuildQueryFor(expDetails.FeatureFlagID, metric.MetricDetails, *expDetails.StartTime, *expDetails.EndTime, false)
+	if err != nil {
+		s.logger.Error("Error building query for metric", "experimentId", expId, "metricKey", metric.MetricDetails.MetricKey, "error", err)
+		return nil, err
+	}
+
+	res, err := s.eventsRepository.PerformBinaryMetricQuery(ctx, query)
+	if err != nil {
+		s.logger.Error("Error performing binary metric query", "experimentId", expId, "query", query, "error", err)
+		return nil, err
+	}
+
+	controlVariant, ok := res[controlKey]
+	if !ok {
+		s.logger.Error("No results found for control variant", "experimentId", expId, "controlKey", controlKey)
+		return nil, errors.New("no results found for control variant in metric query results")
+	}
+
+	treatmentVariant, ok := res[treatmentKey]
+	if !ok {
+		s.logger.Error("No results found for treatment variant", "experimentId", expId, "treatmentKey", treatmentKey)
+		return nil, errors.New("no results found for treatment variant in metric query results")
+	}
+
+	rec, recReason, zTestResult, practicallySignificant, statisticallySignificant, err := s.statsEngineClient.PerformZTestBinaryMetric(
+		ctx,
+		controlKey,
+		treatmentKey,
+		int64(controlVariant.Numerator),
+		int64(controlVariant.Denominator),
+		int64(treatmentVariant.Numerator),
+		int64(treatmentVariant.Denominator),
+		*metric.MDE,
+	)
+	if err != nil {
+		s.logger.Error("Error performing z-test for binary metric", "experimentId", expId, "metricKey", metric.MetricDetails.MetricKey, "error", err)
+		return nil, err
+	}
+
+	err = s.experimentResultsRepository.StoreZTestResult(expId, metric.MetricDetails.ID, zTestResult,
+		&experimentResults.MetricValue{Numerator: controlVariant.Numerator, Denominator: controlVariant.Denominator},
+		&experimentResults.MetricValue{Numerator: treatmentVariant.Numerator, Denominator: treatmentVariant.Denominator},
+		practicallySignificant,
+		statisticallySignificant,
+		metric.Role,
+	)
+	if err != nil {
+		s.logger.Error("Error storing z-test result", "experimentId", expId, "metricKey", metric.MetricDetails.MetricKey, "error", err)
+		return nil, err
+	}
+
+	err = s.experimentResultsRepository.StoreExperimentResults(expId, rec, recReason, time.Now().UTC())
+	if err != nil {
+		s.logger.Error("Error storing experiment results recommendation", "experimentId", expId, "error", err)
+		return nil, err
+	}
+
+	return &ZTestAnalysisResult{
+		ZTestResult: zTestResult,
+		ControlObservations: &experimentResults.MetricValue{
+			Numerator:   controlVariant.Numerator,
+			Denominator: controlVariant.Denominator,
+		},
+		TreatmentObservations: &experimentResults.MetricValue{
+			Numerator:   treatmentVariant.Numerator,
+			Denominator: treatmentVariant.Denominator,
+		},
+		Recommendation:           rec,
+		RecommendationReason:     recReason,
+		StatisticallySignificant: statisticallySignificant,
+		PracticallySignificant:   practicallySignificant,
+	}, nil
 }
