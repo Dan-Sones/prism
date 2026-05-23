@@ -23,6 +23,8 @@ type StatsEngineClient interface {
 	) (recommendation experimentResults.DecisionRecommendation,
 		reason string,
 		ztestResult *experimentResults.ZTestResult,
+		practicallySignificant bool,
+		statisticallySignificant bool,
 		err error)
 	Close() error
 }
@@ -99,7 +101,12 @@ func (g *GrpcStatsEngineClient) PerformZTestBinaryMetric(ctx context.Context,
 	treatmentSuccesses,
 	treatmentTrials int64,
 	absolutePercentageMde float64,
-) (reccommendation experimentResults.DecisionRecommendation, reason string, zTestResult *experimentResults.ZTestResult, err error) {
+) (reccommendation experimentResults.DecisionRecommendation,
+	reason string,
+	zTestResult *experimentResults.ZTestResult,
+	practicallySignificant bool,
+	statisticallySignificant bool,
+	err error) {
 
 	resp, err := g.client.PerformZTestBinaryMetric(ctx, &pb.PerformZTestBinaryMetricRequest{
 		ControlName:   controlName,
@@ -116,7 +123,7 @@ func (g *GrpcStatsEngineClient) PerformZTestBinaryMetric(ctx context.Context,
 		Alpha:                 0.05,
 	})
 	if err != nil {
-		return experimentResults.DecisionRecommendationUnspecified, "", nil, err
+		return experimentResults.DecisionRecommendationUnspecified, "", nil, false, false, err
 	}
 
 	recommendationMap := map[pb.DecisionRecommendation]experimentResults.DecisionRecommendation{
@@ -126,7 +133,7 @@ func (g *GrpcStatsEngineClient) PerformZTestBinaryMetric(ctx context.Context,
 		pb.DecisionRecommendation_DECISION_RECOMMENDATION_INCONCLUSIVE:  experimentResults.DecisionRecommendationInconclusive,
 	}
 
-	return recommendationMap[resp.GetRecommendation()], resp.GetRecommendationReason(), TransformZTestResult(resp.GetZTestResult()), nil
+	return recommendationMap[resp.GetRecommendation()], resp.GetRecommendationReason(), TransformZTestResult(resp.GetZTestResult()), resp.GetPracticallySignificant(), resp.GetStatisticallySignificant(), nil
 }
 
 func TransformZTestResult(grpcResult *pb.ZTestResult) *experimentResults.ZTestResult {

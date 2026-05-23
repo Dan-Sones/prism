@@ -132,7 +132,11 @@ func (s *ExperimentResultsService) GetExperimentResults(ctx context.Context, exp
 			},
 		}
 
-		rec, recReason, zTestResult, err := s.statsEngineClient.PerformZTestBinaryMetric(
+		rec, recReason,
+			zTestResult,
+			practicallySignificant,
+			statisticallySignificant,
+			err := s.statsEngineClient.PerformZTestBinaryMetric(
 			ctx,
 			controlKey,
 			treatmentKey,
@@ -150,6 +154,8 @@ func (s *ExperimentResultsService) GetExperimentResults(ctx context.Context, exp
 		experimentResultsToSave.TestResults[metric.MetricDetails.ID] = *zTestResult
 		experimentResultsToSave.DecisionRecommendation = rec
 		experimentResultsToSave.RecommendationReason = recReason
+		experimentResultsToSave.StatisticallySignificant = statisticallySignificant
+		experimentResultsToSave.PracticallySignificant = practicallySignificant
 		return experimentResultsToSave, nil
 	}
 

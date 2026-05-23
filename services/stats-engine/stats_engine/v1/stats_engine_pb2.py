@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"stats_engine/v1/stats_engine.proto\x12\x0fstats_engine.v1\";\n\x11\x42inaryObservation\x12\x11\n\tnumerator\x18\x01 \x01(\x05\x12\x13\n\x0b\x64\x65nominator\x18\x02 \x01(\x05\"\xdf\x01\n\x0bZTestResult\x12\x1b\n\x13\x61\x62solute_difference\x18\x01 \x01(\x08\x12\x10\n\x08\x63i_lower\x18\x02 \x01(\x01\x12\x10\n\x08\x63i_upper\x18\x03 \x01(\x01\x12\x0f\n\x07p_value\x18\x04 \x01(\x01\x12\x19\n\x11\x61\x64justed_ci_lower\x18\x05 \x01(\x01\x12\x19\n\x11\x61\x64justed_ci_upper\x18\x06 \x01(\x01\x12\x18\n\x10\x61\x64justed_p_value\x18\x07 \x01(\x01\x12\x16\n\x0eis_significant\x18\x08 \x01(\x08\x12\x16\n\x0epowered_effect\x18\t \x01(\x01\"\x83\x02\n\x1fPerformZTestBinaryMetricRequest\x12\x14\n\x0c\x63ontrol_name\x18\x01 \x01(\t\x12\x16\n\x0etreatment_name\x18\x02 \x01(\t\x12?\n\x13\x63ontrol_observation\x18\x03 \x01(\x0b\x32\".stats_engine.v1.BinaryObservation\x12\x41\n\x15treatment_observation\x18\x04 \x01(\x0b\x32\".stats_engine.v1.BinaryObservation\x12\x1f\n\x17\x61\x62solute_percentage_mde\x18\x05 \x01(\x01\x12\r\n\x05\x61lpha\x18\x06 \x01(\x01\"\xa9\x02\n\x0e\x44\x65\x63isionOutput\x12?\n\x0erecommendation\x18\x01 \x01(\x0e\x32\'.stats_engine.v1.DecisionRecommendation\x12\x1d\n\x15recommendation_reason\x18\x02 \x01(\t\x12\x33\n\rz_test_result\x18\x03 \x01(\x0b\x32\x1c.stats_engine.v1.ZTestResult\x12?\n\x13\x63ontrol_observation\x18\x04 \x01(\x0b\x32\".stats_engine.v1.BinaryObservation\x12\x41\n\x15treatment_observation\x18\x05 \x01(\x0b\x32\".stats_engine.v1.BinaryObservation\"k\n\x1a\x43\x61lculateSampleSizeRequest\x12/\n\x07metrics\x18\x01 \x03(\x0b\x32\x1e.stats_engine.v1.MetricDetails\x12\r\n\x05\x61lpha\x18\x02 \x01(\x01\x12\r\n\x05power\x18\x03 \x01(\x01\"\x9e\x01\n\rMetricDetails\x12\x12\n\nmetric_key\x18\x01 \x01(\t\x12\x10\n\x08\x62\x61seline\x18\x02 \x01(\x01\x12\x11\n\tis_binary\x18\x03 \x01(\x08\x12\x1f\n\x17\x61\x62solute_percentage_mde\x18\x04 \x01(\x01\x12\x33\n\tdirection\x18\x05 \x01(\x0e\x32 .stats_engine.v1.MetricDirection\"h\n\x1b\x43\x61lculateSampleSizeResponse\x12\x19\n\x11total_sample_size\x18\x01 \x01(\x05\x12\x1f\n\x17sample_size_per_variant\x18\x02 \x03(\x05\x12\r\n\x05split\x18\x03 \x03(\x01*\xbd\x01\n\x16\x44\x65\x63isionRecommendation\x12\'\n#DECISION_RECOMMENDATION_UNSPECIFIED\x10\x00\x12%\n!DECISION_RECOMMENDATION_RECOMMEND\x10\x01\x12)\n%DECISION_RECOMMENDATION_NOT_RECOMMEND\x10\x02\x12(\n$DECISION_RECOMMENDATION_INCONCLUSIVE\x10\x03*\x1f\n\x0fMetricDirection\x12\x0c\n\x08INCREASE\x10\x00\x32\xee\x01\n\x0bStatsEngine\x12p\n\x13\x43\x61lculateSampleSize\x12+.stats_engine.v1.CalculateSampleSizeRequest\x1a,.stats_engine.v1.CalculateSampleSizeResponse\x12m\n\x18PerformZTestBinaryMetric\x12\x30.stats_engine.v1.PerformZTestBinaryMetricRequest\x1a\x1f.stats_engine.v1.DecisionOutputBAZ?experimentation-service/internal/grpc/generated/v1;stats_engineb\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\"stats_engine/v1/stats_engine.proto\x12\x0fstats_engine.v1\";\n\x11\x42inaryObservation\x12\x11\n\tnumerator\x18\x01 \x01(\x05\x12\x13\n\x0b\x64\x65nominator\x18\x02 \x01(\x05\"\xdf\x01\n\x0bZTestResult\x12\x1b\n\x13\x61\x62solute_difference\x18\x01 \x01(\x08\x12\x10\n\x08\x63i_lower\x18\x02 \x01(\x01\x12\x10\n\x08\x63i_upper\x18\x03 \x01(\x01\x12\x0f\n\x07p_value\x18\x04 \x01(\x01\x12\x19\n\x11\x61\x64justed_ci_lower\x18\x05 \x01(\x01\x12\x19\n\x11\x61\x64justed_ci_upper\x18\x06 \x01(\x01\x12\x18\n\x10\x61\x64justed_p_value\x18\x07 \x01(\x01\x12\x16\n\x0eis_significant\x18\x08 \x01(\x08\x12\x16\n\x0epowered_effect\x18\t \x01(\x01\"\x83\x02\n\x1fPerformZTestBinaryMetricRequest\x12\x14\n\x0c\x63ontrol_name\x18\x01 \x01(\t\x12\x16\n\x0etreatment_name\x18\x02 \x01(\t\x12?\n\x13\x63ontrol_observation\x18\x03 \x01(\x0b\x32\".stats_engine.v1.BinaryObservation\x12\x41\n\x15treatment_observation\x18\x04 \x01(\x0b\x32\".stats_engine.v1.BinaryObservation\x12\x1f\n\x17\x61\x62solute_percentage_mde\x18\x05 \x01(\x01\x12\r\n\x05\x61lpha\x18\x06 \x01(\x01\"\xed\x02\n\x0e\x44\x65\x63isionOutput\x12?\n\x0erecommendation\x18\x01 \x01(\x0e\x32\'.stats_engine.v1.DecisionRecommendation\x12\x1d\n\x15recommendation_reason\x18\x02 \x01(\t\x12\x1f\n\x17practically_significant\x18\x03 \x01(\x08\x12!\n\x19statistically_significant\x18\x04 \x01(\x08\x12\x33\n\rz_test_result\x18\x05 \x01(\x0b\x32\x1c.stats_engine.v1.ZTestResult\x12?\n\x13\x63ontrol_observation\x18\x06 \x01(\x0b\x32\".stats_engine.v1.BinaryObservation\x12\x41\n\x15treatment_observation\x18\x07 \x01(\x0b\x32\".stats_engine.v1.BinaryObservation\"k\n\x1a\x43\x61lculateSampleSizeRequest\x12/\n\x07metrics\x18\x01 \x03(\x0b\x32\x1e.stats_engine.v1.MetricDetails\x12\r\n\x05\x61lpha\x18\x02 \x01(\x01\x12\r\n\x05power\x18\x03 \x01(\x01\"\x9e\x01\n\rMetricDetails\x12\x12\n\nmetric_key\x18\x01 \x01(\t\x12\x10\n\x08\x62\x61seline\x18\x02 \x01(\x01\x12\x11\n\tis_binary\x18\x03 \x01(\x08\x12\x1f\n\x17\x61\x62solute_percentage_mde\x18\x04 \x01(\x01\x12\x33\n\tdirection\x18\x05 \x01(\x0e\x32 .stats_engine.v1.MetricDirection\"h\n\x1b\x43\x61lculateSampleSizeResponse\x12\x19\n\x11total_sample_size\x18\x01 \x01(\x05\x12\x1f\n\x17sample_size_per_variant\x18\x02 \x03(\x05\x12\r\n\x05split\x18\x03 \x03(\x01*\xbd\x01\n\x16\x44\x65\x63isionRecommendation\x12\'\n#DECISION_RECOMMENDATION_UNSPECIFIED\x10\x00\x12%\n!DECISION_RECOMMENDATION_RECOMMEND\x10\x01\x12)\n%DECISION_RECOMMENDATION_NOT_RECOMMEND\x10\x02\x12(\n$DECISION_RECOMMENDATION_INCONCLUSIVE\x10\x03*\x1f\n\x0fMetricDirection\x12\x0c\n\x08INCREASE\x10\x00\x32\xee\x01\n\x0bStatsEngine\x12p\n\x13\x43\x61lculateSampleSize\x12+.stats_engine.v1.CalculateSampleSizeRequest\x1a,.stats_engine.v1.CalculateSampleSizeResponse\x12m\n\x18PerformZTestBinaryMetric\x12\x30.stats_engine.v1.PerformZTestBinaryMetricRequest\x1a\x1f.stats_engine.v1.DecisionOutputBAZ?experimentation-service/internal/grpc/generated/v1;stats_engineb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,10 +32,10 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'stats_engine.v1.stats_engin
 if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'Z?experimentation-service/internal/grpc/generated/v1;stats_engine'
-  _globals['_DECISIONRECOMMENDATION']._serialized_start=1281
-  _globals['_DECISIONRECOMMENDATION']._serialized_end=1470
-  _globals['_METRICDIRECTION']._serialized_start=1472
-  _globals['_METRICDIRECTION']._serialized_end=1503
+  _globals['_DECISIONRECOMMENDATION']._serialized_start=1349
+  _globals['_DECISIONRECOMMENDATION']._serialized_end=1538
+  _globals['_METRICDIRECTION']._serialized_start=1540
+  _globals['_METRICDIRECTION']._serialized_end=1571
   _globals['_BINARYOBSERVATION']._serialized_start=55
   _globals['_BINARYOBSERVATION']._serialized_end=114
   _globals['_ZTESTRESULT']._serialized_start=117
@@ -43,13 +43,13 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['_PERFORMZTESTBINARYMETRICREQUEST']._serialized_start=343
   _globals['_PERFORMZTESTBINARYMETRICREQUEST']._serialized_end=602
   _globals['_DECISIONOUTPUT']._serialized_start=605
-  _globals['_DECISIONOUTPUT']._serialized_end=902
-  _globals['_CALCULATESAMPLESIZEREQUEST']._serialized_start=904
-  _globals['_CALCULATESAMPLESIZEREQUEST']._serialized_end=1011
-  _globals['_METRICDETAILS']._serialized_start=1014
-  _globals['_METRICDETAILS']._serialized_end=1172
-  _globals['_CALCULATESAMPLESIZERESPONSE']._serialized_start=1174
-  _globals['_CALCULATESAMPLESIZERESPONSE']._serialized_end=1278
-  _globals['_STATSENGINE']._serialized_start=1506
-  _globals['_STATSENGINE']._serialized_end=1744
+  _globals['_DECISIONOUTPUT']._serialized_end=970
+  _globals['_CALCULATESAMPLESIZEREQUEST']._serialized_start=972
+  _globals['_CALCULATESAMPLESIZEREQUEST']._serialized_end=1079
+  _globals['_METRICDETAILS']._serialized_start=1082
+  _globals['_METRICDETAILS']._serialized_end=1240
+  _globals['_CALCULATESAMPLESIZERESPONSE']._serialized_start=1242
+  _globals['_CALCULATESAMPLESIZERESPONSE']._serialized_end=1346
+  _globals['_STATSENGINE']._serialized_start=1574
+  _globals['_STATSENGINE']._serialized_end=1812
 # @@protoc_insertion_point(module_scope)

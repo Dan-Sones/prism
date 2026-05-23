@@ -45,9 +45,11 @@ message PerformZTestBinaryMetricRequest {
 message DecisionOutput {
   DecisionRecommendation recommendation = 1;
   string recommendation_reason = 2;
-  ZTestResult z_test_result = 3;
-  BinaryObservation control_observation = 4;
-  BinaryObservation treatment_observation = 5;
+  bool practically_significant = 3;
+  bool statistically_significant = 4;
+  ZTestResult z_test_result = 5;
+  BinaryObservation control_observation = 6;
+  BinaryObservation treatment_observation = 7;
 }
 
 message CalculateSampleSizeRequest {

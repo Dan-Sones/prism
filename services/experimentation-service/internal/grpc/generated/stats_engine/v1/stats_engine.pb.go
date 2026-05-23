@@ -361,14 +361,16 @@ func (x *PerformZTestBinaryMetricRequest) GetAlpha() float64 {
 }
 
 type DecisionOutput struct {
-	state                protoimpl.MessageState `protogen:"open.v1"`
-	Recommendation       DecisionRecommendation `protobuf:"varint,1,opt,name=recommendation,proto3,enum=stats_engine.v1.DecisionRecommendation" json:"recommendation,omitempty"`
-	RecommendationReason string                 `protobuf:"bytes,2,opt,name=recommendation_reason,json=recommendationReason,proto3" json:"recommendation_reason,omitempty"`
-	ZTestResult          *ZTestResult           `protobuf:"bytes,3,opt,name=z_test_result,json=zTestResult,proto3" json:"z_test_result,omitempty"`
-	ControlObservation   *BinaryObservation     `protobuf:"bytes,4,opt,name=control_observation,json=controlObservation,proto3" json:"control_observation,omitempty"`
-	TreatmentObservation *BinaryObservation     `protobuf:"bytes,5,opt,name=treatment_observation,json=treatmentObservation,proto3" json:"treatment_observation,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	state                    protoimpl.MessageState `protogen:"open.v1"`
+	Recommendation           DecisionRecommendation `protobuf:"varint,1,opt,name=recommendation,proto3,enum=stats_engine.v1.DecisionRecommendation" json:"recommendation,omitempty"`
+	RecommendationReason     string                 `protobuf:"bytes,2,opt,name=recommendation_reason,json=recommendationReason,proto3" json:"recommendation_reason,omitempty"`
+	PracticallySignificant   bool                   `protobuf:"varint,3,opt,name=practically_significant,json=practicallySignificant,proto3" json:"practically_significant,omitempty"`
+	StatisticallySignificant bool                   `protobuf:"varint,4,opt,name=statistically_significant,json=statisticallySignificant,proto3" json:"statistically_significant,omitempty"`
+	ZTestResult              *ZTestResult           `protobuf:"bytes,5,opt,name=z_test_result,json=zTestResult,proto3" json:"z_test_result,omitempty"`
+	ControlObservation       *BinaryObservation     `protobuf:"bytes,6,opt,name=control_observation,json=controlObservation,proto3" json:"control_observation,omitempty"`
+	TreatmentObservation     *BinaryObservation     `protobuf:"bytes,7,opt,name=treatment_observation,json=treatmentObservation,proto3" json:"treatment_observation,omitempty"`
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
 }
 
 func (x *DecisionOutput) Reset() {
@@ -413,6 +415,20 @@ func (x *DecisionOutput) GetRecommendationReason() string {
 		return x.RecommendationReason
 	}
 	return ""
+}
+
+func (x *DecisionOutput) GetPracticallySignificant() bool {
+	if x != nil {
+		return x.PracticallySignificant
+	}
+	return false
+}
+
+func (x *DecisionOutput) GetStatisticallySignificant() bool {
+	if x != nil {
+		return x.StatisticallySignificant
+	}
+	return false
 }
 
 func (x *DecisionOutput) GetZTestResult() *ZTestResult {
@@ -656,13 +672,15 @@ const file_stats_engine_v1_stats_engine_proto_rawDesc = "" +
 	"\x13control_observation\x18\x03 \x01(\v2\".stats_engine.v1.BinaryObservationR\x12controlObservation\x12W\n" +
 	"\x15treatment_observation\x18\x04 \x01(\v2\".stats_engine.v1.BinaryObservationR\x14treatmentObservation\x126\n" +
 	"\x17absolute_percentage_mde\x18\x05 \x01(\x01R\x15absolutePercentageMde\x12\x14\n" +
-	"\x05alpha\x18\x06 \x01(\x01R\x05alpha\"\x86\x03\n" +
+	"\x05alpha\x18\x06 \x01(\x01R\x05alpha\"\xfc\x03\n" +
 	"\x0eDecisionOutput\x12O\n" +
 	"\x0erecommendation\x18\x01 \x01(\x0e2'.stats_engine.v1.DecisionRecommendationR\x0erecommendation\x123\n" +
-	"\x15recommendation_reason\x18\x02 \x01(\tR\x14recommendationReason\x12@\n" +
-	"\rz_test_result\x18\x03 \x01(\v2\x1c.stats_engine.v1.ZTestResultR\vzTestResult\x12S\n" +
-	"\x13control_observation\x18\x04 \x01(\v2\".stats_engine.v1.BinaryObservationR\x12controlObservation\x12W\n" +
-	"\x15treatment_observation\x18\x05 \x01(\v2\".stats_engine.v1.BinaryObservationR\x14treatmentObservation\"\x82\x01\n" +
+	"\x15recommendation_reason\x18\x02 \x01(\tR\x14recommendationReason\x127\n" +
+	"\x17practically_significant\x18\x03 \x01(\bR\x16practicallySignificant\x12;\n" +
+	"\x19statistically_significant\x18\x04 \x01(\bR\x18statisticallySignificant\x12@\n" +
+	"\rz_test_result\x18\x05 \x01(\v2\x1c.stats_engine.v1.ZTestResultR\vzTestResult\x12S\n" +
+	"\x13control_observation\x18\x06 \x01(\v2\".stats_engine.v1.BinaryObservationR\x12controlObservation\x12W\n" +
+	"\x15treatment_observation\x18\a \x01(\v2\".stats_engine.v1.BinaryObservationR\x14treatmentObservation\"\x82\x01\n" +
 	"\x1aCalculateSampleSizeRequest\x128\n" +
 	"\ametrics\x18\x01 \x03(\v2\x1e.stats_engine.v1.MetricDetailsR\ametrics\x12\x14\n" +
 	"\x05alpha\x18\x02 \x01(\x01R\x05alpha\x12\x14\n" +
