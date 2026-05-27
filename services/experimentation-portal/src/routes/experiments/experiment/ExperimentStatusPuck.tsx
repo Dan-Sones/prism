@@ -13,6 +13,7 @@ const ExperimentStatusPill = ({ status }: ExperimentStatusPuckProps) => {
     ab: "bg-blue-500 text-white",
     "aa-complete": "bg-green-500 text-white",
     "ab-complete": "bg-green-500 text-white",
+    cancelled: "bg-red-500 text-white",
   };
 
   const statusToDisplay: Record<string, string> = {
@@ -22,6 +23,7 @@ const ExperimentStatusPill = ({ status }: ExperimentStatusPuckProps) => {
     ab: "A/B Test In Progress",
     "aa-complete": "A/A Test Complete",
     "ab-complete": "A/B Test Complete",
+    cancelled: "Cancelled",
   };
 
   return (

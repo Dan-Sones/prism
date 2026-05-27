@@ -3,6 +3,7 @@ package experiment
 type ExperimentStatus string
 
 const (
+	ExperimentStatusCancelled  ExperimentStatus = "cancelled"
 	ExperimentStatusAAPlanned  ExperimentStatus = "aa-planned"
 	ExperimentStatusAA         ExperimentStatus = "aa"
 	ExperimentStatusAAComplete ExperimentStatus = "aa-complete"

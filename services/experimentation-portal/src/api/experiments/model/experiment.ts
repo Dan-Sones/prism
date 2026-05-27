@@ -39,6 +39,7 @@ export type CreateExperimentMetricDirection =
   | "neutral";
 
 export type ExperimentStatus =
+  | "cancelled"
   | "aa-planned"
   | "aa"
   | "aa-complete"
