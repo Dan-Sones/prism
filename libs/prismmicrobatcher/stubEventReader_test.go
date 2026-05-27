@@ -7,12 +7,15 @@ import (
 )
 
 type MockEventReader struct {
-	polls    [][]*kgo.Record
-	pollHead int
+	polls            [][]*kgo.Record
+	pollHead         int
+	CommittedToIndex int
 }
 
 func NewMockEventReader() *MockEventReader {
-	return &MockEventReader{}
+	return &MockEventReader{
+		CommittedToIndex: 0,
+	}
 }
 
 func (m *MockEventReader) PollEvents(ctx context.Context) ([]*kgo.Record, error) {
@@ -27,4 +30,11 @@ func (m *MockEventReader) PollEvents(ctx context.Context) ([]*kgo.Record, error)
 
 func (m *MockEventReader) AddPoll(records []*kgo.Record) {
 	m.polls = append(m.polls, records)
+}
+
+func (m *MockEventReader) CommitEvents(ctx context.Context, records []*kgo.Record) error {
+	m.CommittedToIndex = m.CommittedToIndex + len(records)
+
+	// no failure condition so just return nil
+	return nil
 }

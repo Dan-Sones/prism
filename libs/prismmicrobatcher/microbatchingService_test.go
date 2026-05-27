@@ -79,6 +79,10 @@ func TestMicrobatchProcessor_ProcessMicrobatch(t *testing.T) {
 				}
 			}
 
+			if eventReader.CommittedToIndex != sum(tt.pollSizes) {
+				t.Errorf("expected committed index to be %d, got %d", sum(tt.pollSizes), eventReader.CommittedToIndex)
+			}
+
 		})
 
 	}
@@ -99,4 +103,12 @@ func programPolls(t *testing.T, eventReader *MockEventReader, pollSizes []int) {
 		}
 		eventReader.AddPoll(records)
 	}
+}
+
+func sum(nums []int) int {
+	total := 0
+	for _, num := range nums {
+		total += num
+	}
+	return total
 }
