@@ -9,6 +9,7 @@ import (
 	"os"
 	"time"
 
+	prismmodel "github.com/Dan-Sones/prismdbmodels/model"
 	"github.com/twmb/franz-go/pkg/kgo"
 )
 
@@ -93,7 +94,7 @@ func (c *CacheInvalidationServiceKafka) processBatch(ctx context.Context) error 
 	}
 
 	for _, msg := range messages {
-		var invalidationMessage model.InvalidationMessage
+		var invalidationMessage prismmodel.InvalidationMessage
 		err := json.Unmarshal(msg.Value, &invalidationMessage)
 		if err != nil {
 			c.logger.Error("Failed to unmarshal cache invalidation message", "error", err)
@@ -101,8 +102,8 @@ func (c *CacheInvalidationServiceKafka) processBatch(ctx context.Context) error 
 		}
 
 		switch invalidationMessage.Action {
-		case model.ActionRemove:
-			var removeMsg model.ExperimentRemoveMessage
+		case prismmodel.ActionRemove:
+			var removeMsg prismmodel.ExperimentRemoveMessage
 			if err := json.Unmarshal(invalidationMessage.Data, &removeMsg); err != nil {
 				c.logger.Error("Failed to unmarshal remove message", "error", err)
 				continue
@@ -110,8 +111,8 @@ func (c *CacheInvalidationServiceKafka) processBatch(ctx context.Context) error 
 			if err := c.processActionRemove(removeMsg); err != nil {
 				c.logger.Error("Failed to process remove action", "error", err)
 			}
-		case model.ActionUpdate:
-			var updateMsg model.ExperimentUpdateMessage
+		case prismmodel.ActionUpdate:
+			var updateMsg prismmodel.ExperimentUpdateMessage
 			if err := json.Unmarshal(invalidationMessage.Data, &updateMsg); err != nil {
 				c.logger.Error("Failed to unmarshal update message", "error", err)
 				continue
@@ -128,7 +129,7 @@ func (c *CacheInvalidationServiceKafka) processBatch(ctx context.Context) error 
 	return nil
 }
 
-func (c *CacheInvalidationServiceKafka) processActionRemove(removeMessage model.ExperimentRemoveMessage) error {
+func (c *CacheInvalidationServiceKafka) processActionRemove(removeMessage prismmodel.ExperimentRemoveMessage) error {
 	ctx := context.Background()
 
 	err := c.withRetry("invalidate_experiment", func() error {
@@ -155,11 +156,23 @@ func (c *CacheInvalidationServiceKafka) processActionRemove(removeMessage model.
 }
 
 // I don't think there is many reasons that this would ever be called - it would probably be used quite heavily in MAB where bounds change (if my understanding of MAB outputs is correct)
-func (c *CacheInvalidationServiceKafka) processActionUpdate(updateMessage model.ExperimentUpdateMessage) error {
+func (c *CacheInvalidationServiceKafka) processActionUpdate(updateMessage prismmodel.ExperimentUpdateMessage) error {
 	ctx := context.Background()
 
+	localExperiment := model.ExperimentWithVariants{
+		ExperimentKey: updateMessage.NewExperiment.ExperimentKey,
+		UniqueSalt:    updateMessage.NewExperiment.UniqueSalt,
+	}
+	for _, v := range updateMessage.NewExperiment.Variants {
+		localExperiment.Variants = append(localExperiment.Variants, model.Variant{
+			VariantKey: v.VariantKey,
+			UpperBound: v.UpperBound,
+			LowerBound: v.LowerBound,
+		})
+	}
+
 	err := c.withRetry("update_experiment", func() error {
-		return c.cache.UpdateExperiment(ctx, updateMessage.ExperimentKey, &updateMessage.NewExperiment)
+		return c.cache.UpdateExperiment(ctx, updateMessage.ExperimentKey, &localExperiment)
 	})
 	if err != nil {
 		c.logger.Error("Failed to update experiment", "experimentKey", updateMessage.ExperimentKey, "error", err)

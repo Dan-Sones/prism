@@ -68,6 +68,12 @@ func main() {
 	}
 	defer statsEngineClient.Close()
 
+	kafkaProducerClient, err := clients.GetKafkaProducerClient()
+	if err != nil {
+		logger.Error("Failed to create Kafka producer client", "error", err)
+		os.Exit(1)
+	}
+
 	// Global Values
 	bucketCount, err := utils.GetBucketCount()
 	if err != nil {
@@ -84,11 +90,12 @@ func main() {
 	experimentPhaseRepository := repository.NewExperimentPhaseRepository(pgPool)
 
 	// Services
+	cacheInvalidationProducer := service.NewCacheInvalidationProducer(kafkaProducerClient)
 	bucketAllocationService := service.NewBucketAllocationService(bucketAllocationRepository, logger)
 	eventService := service.NewEventsService(eventsRepository, eventsCatalogRepository, logger)
 	metricsCatalogService := service.NewMetricsCatalogService(metricsCatalogRepository, eventsCatalogRepository, logger)
 	clickhouseQueryBuilder := service.NewClickhouseQueryBuilder()
-	experimentService := service.NewExperimentService(experimentRepository, bucketAllocationService, clickhouseQueryBuilder, eventService, metricsCatalogService, statsEngineClient, experimentPhaseRepository, logger)
+	experimentService := service.NewExperimentService(experimentRepository, bucketAllocationService, clickhouseQueryBuilder, eventService, metricsCatalogService, statsEngineClient, experimentPhaseRepository, cacheInvalidationProducer, logger)
 	experimentResultsRepository := repository.NewExperimentResultsRepository(pgPool)
 	experimentResultsService := service.NewExperimentResultsService(experimentPhaseRepository, experimentResultsRepository, statsEngineClient, experimentService, metricsCatalogService, eventsRepository, clickhouseQueryBuilder, logger)
 	assignmentService := service.NewAssignmentService(experimentRepository, bucketCount, logger)

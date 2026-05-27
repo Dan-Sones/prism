@@ -65,16 +65,9 @@ func (c *ExperimentController) GetExperiments(w http.ResponseWriter, r *http.Req
 func (c *ExperimentController) GetExperimentByUUID(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	expId := chi.URLParam(r, "experimentId")
-
-	if expId == "" {
-		problems.NewBadRequestError("experimentId is required")
-		return
-	}
-
-	expUuid, err := uuid.Parse(expId)
+	expUuid, err := extractExpUUID(r)
 	if err != nil {
-		problems.NewBadRequestError("experimentId must be a valid uuid")
+		problems.NewBadRequestError("Invalid experimentId").Write(w)
 		return
 	}
 
@@ -90,16 +83,9 @@ func (c *ExperimentController) GetExperimentByUUID(w http.ResponseWriter, r *htt
 func (c *ExperimentController) UpdateExperimentForABPhase(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	expId := chi.URLParam(r, "experimentId")
-
-	if expId == "" {
-		problems.NewBadRequestError("experimentId is required")
-		return
-	}
-
-	expUuid, err := uuid.Parse(expId)
+	expUuid, err := extractExpUUID(r)
 	if err != nil {
-		problems.NewBadRequestError("experimentId must be a valid uuid")
+		problems.NewBadRequestError("Invalid experimentId").Write(w)
 		return
 	}
 
@@ -131,16 +117,9 @@ func (c *ExperimentController) UpdateExperimentForABPhase(w http.ResponseWriter,
 func (c *ExperimentController) CalculateRequiredSampleSizeForMetrics(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
-	expId := chi.URLParam(r, "experimentId")
-
-	if expId == "" {
-		problems.NewBadRequestError("experimentId is required")
-		return
-	}
-
-	expUuid, err := uuid.Parse(expId)
+	expUuid, err := extractExpUUID(r)
 	if err != nil {
-		problems.NewBadRequestError("experimentId must be a valid uuid")
+		problems.NewBadRequestError("Invalid experimentId").Write(w)
 		return
 	}
 
@@ -150,4 +129,37 @@ func (c *ExperimentController) CalculateRequiredSampleSizeForMetrics(w http.Resp
 		return
 	}
 	WriteResponse(w, http.StatusOK, res)
+}
+
+func (c *ExperimentController) CancelExperiment(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	expUuid, err := extractExpUUID(r)
+	if err != nil {
+		problems.NewBadRequestError("Invalid experimentId").Write(w)
+		return
+	}
+
+	err = c.experimentService.CancelExperiment(ctx, expUuid)
+	if err != nil {
+		problems.NewInternalServerError().Write(w)
+		return
+	}
+	WriteResponse(w, http.StatusNoContent, nil)
+}
+
+func extractExpUUID(r *http.Request) (uuid.UUID, error) {
+	expId := chi.URLParam(r, "experimentId")
+
+	if expId == "" {
+		problems.NewBadRequestError("experimentId is required")
+		return uuid.UUID{}, nil
+	}
+
+	expUuid, err := uuid.Parse(expId)
+	if err != nil {
+		problems.NewBadRequestError("experimentId must be a valid uuid")
+		return uuid.UUID{}, nil
+	}
+	return expUuid, err
 }

@@ -205,7 +205,7 @@ func (r *ExperimentRepository) GetExperimentsAndVariantsForBucketAtTime(ctx cont
       OR
       (e.start_time IS NOT NULL AND e.end_time IS NOT NULL
        AND e.start_time <= $2 AND e.end_time >= $2 AND ba.phase = 'AB')
-    )
+    ) AND e.cancelled = false
 	`
 
 	rows, err := r.pgxPool.Query(ctx, sql, bucketId, atTime)
@@ -263,6 +263,14 @@ func (r *ExperimentRepository) SetTotalRequiredSampleSizeForExperiment(ctx conte
 		SET total_required_sample_size = $1
 		WHERE id = $2`,
 		totalRequiredSampleSize, experimentId)
+
+	return err
+}
+
+func (r *ExperimentRepository) CancelExperiment(ctx context.Context, experimentId uuid.UUID) error {
+	_, err := r.pgxPool.Exec(ctx, `UPDATE prism.experiments	
+		SET cancelled = true
+		WHERE id = $1`, experimentId)
 
 	return err
 }

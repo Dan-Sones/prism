@@ -30,6 +30,7 @@ func RegisterRoutes(router *chi.Mux, c Controllers) {
 				r.Get("/results", c.ExperimentResultsController.GetExperimentResults)
 				r.Get("/calculate-sample-size", c.ExperimentController.CalculateRequiredSampleSizeForMetrics)
 				r.Put("/begin-ab", c.ExperimentController.UpdateExperimentForABPhase)
+				r.Put("/cancel", c.ExperimentController.CancelExperiment)
 			})
 		})
 

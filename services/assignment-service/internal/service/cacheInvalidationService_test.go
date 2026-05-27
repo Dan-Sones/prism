@@ -8,6 +8,8 @@ import (
 	"os"
 	"testing"
 	"time"
+
+	prismmodel "github.com/Dan-Sones/prismdbmodels/model"
 )
 
 func TestCacheInvalidationServiceKafka_ListenForInvalidations_shouldRemoveExperimentAndBucket(t *testing.T) {
@@ -47,7 +49,7 @@ func TestCacheInvalidationServiceKafka_ListenForInvalidations_shouldRemoveExperi
 		t.Fatalf("Failed to add experiment in cache: %v", err)
 	}
 
-	removeMessage := model.ExperimentRemoveMessage{
+	removeMessage := prismmodel.ExperimentRemoveMessage{
 		ExperimentKey: "checkout_experiment",
 		Buckets:       []int32{1001, 1002},
 	}
@@ -57,7 +59,7 @@ func TestCacheInvalidationServiceKafka_ListenForInvalidations_shouldRemoveExperi
 		t.Fatalf("Failed to marshal remove message: %v", err)
 	}
 
-	invalidationMessage := model.InvalidationMessage{
+	invalidationMessage := prismmodel.InvalidationMessage{
 		Action: "REMOVE",
 		Data:   removeMessageBytes,
 	}
@@ -127,12 +129,12 @@ func TestCacheInvalidationServiceKafka_ListenForInvalidations_shouldHandleAction
 		t.Fatalf("Failed to add experiment in cache: %v", err)
 	}
 
-	updateMessage := model.ExperimentUpdateMessage{
+	updateMessage := prismmodel.ExperimentUpdateMessage{
 		ExperimentKey: "checkout_experiment",
-		NewExperiment: model.ExperimentWithVariants{
+		NewExperiment: prismmodel.ExperimentWithVariants{
 			ExperimentKey: "checkout_experiment",
 			UniqueSalt:    "some_salt",
-			Variants: []model.Variant{
+			Variants: []prismmodel.Variant{
 				{
 					VariantKey: "variant_a",
 					LowerBound: 0,
@@ -152,7 +154,7 @@ func TestCacheInvalidationServiceKafka_ListenForInvalidations_shouldHandleAction
 		t.Fatalf("Failed to marshal update message: %v", err)
 	}
 
-	invalidationMessage := model.InvalidationMessage{
+	invalidationMessage := prismmodel.InvalidationMessage{
 		Action: "UPDATE",
 		Data:   updateMessageBytes,
 	}

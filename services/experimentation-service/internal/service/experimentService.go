@@ -24,6 +24,7 @@ type ExperimentService struct {
 	queryBuilder              QueryBuilder
 	eventsService             *EventService
 	statsEngineClient         clients.StatsEngineClient
+	cacheInvalidationProducer *CacheInvalidationProducer
 	logger                    *slog.Logger
 }
 
@@ -34,6 +35,7 @@ func NewExperimentService(experimentRepository *repository.ExperimentRepository,
 	metricCatalogService *MetricsCatalogService,
 	statsEngineClient clients.StatsEngineClient,
 	experimentPhaseRepository *repository.ExperimentPhaseRepository,
+	cacheInvalidationProducer *CacheInvalidationProducer,
 	logger *slog.Logger,
 ) *ExperimentService {
 	return &ExperimentService{
@@ -44,6 +46,7 @@ func NewExperimentService(experimentRepository *repository.ExperimentRepository,
 		eventsService:             eventsService,
 		metricsCatalogService:     metricCatalogService,
 		statsEngineClient:         statsEngineClient,
+		cacheInvalidationProducer: cacheInvalidationProducer,
 		logger:                    logger,
 	}
 }
@@ -317,6 +320,40 @@ func (s *ExperimentService) UpdateExperimentForABPhase(ctx context.Context,
 
 	resp := experiment.NewExperimentResponse(expById, metricsForExperiment)
 	return &resp, nil, nil
+}
+
+func (s *ExperimentService) CancelExperiment(ctx context.Context, expId uuid.UUID) error {
+	expDetails, err := s.GetExperimentByUUID(ctx, expId)
+	if err != nil {
+		s.logger.Error("Failed to retrieve experiment by id from repository", "error", err)
+		return err
+	}
+
+	bucketsToInvalidate := make([]int, 0)
+	if expDetails.Status == experiment2.ExperimentStatusAA {
+		bucketsToInvalidate, err = s.bucketAllocationService.GetListOfBucketsInPhase(ctx, expId, repository.PhaseAA)
+	}
+	if expDetails.Status == experiment2.ExperimentStatusAB {
+		bucketsToInvalidate, err = s.bucketAllocationService.GetListOfBucketsInPhase(ctx, expId, repository.PhaseAB)
+	} else {
+		s.logger.Warn("The experiment is not in any active phase so there is nothing to invalidate", "experimentId", expId, "experimentStatus", expDetails.Status)
+	}
+
+	err = s.experimentRepository.CancelExperiment(ctx, expId)
+	if err != nil {
+		s.logger.Error("Failed to cancel experiment in repository", "error", err)
+		return err
+	}
+
+	if len(bucketsToInvalidate) > 0 {
+		err = s.cacheInvalidationProducer.InvalidateExperiment(ctx, expDetails.FeatureFlagID, bucketsToInvalidate)
+		if err != nil {
+			s.logger.Error("Failed to produce cache invalidation message for cancelled experiment", "error", err)
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (s *ExperimentService) enrichWithAATestDates(exp *experiment2.Experiment, fromTime time.Time) {

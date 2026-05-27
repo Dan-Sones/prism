@@ -1,13 +1,12 @@
-package services
+package service
 
 import (
 	"context"
 	"encoding/json"
 	"fmt"
-
-	"github.com/Dan-Sones/prismdbmodels/model"
 	"os"
 
+	"github.com/Dan-Sones/prismdbmodels/model"
 	"github.com/twmb/franz-go/pkg/kgo"
 )
 
@@ -19,12 +18,15 @@ func NewCacheInvalidationProducer(client *kgo.Client) *CacheInvalidationProducer
 	return &CacheInvalidationProducer{client: client}
 }
 
-func (p *CacheInvalidationProducer) InvalidateExperiment(ctx context.Context, experimentKey string) error {
+func (p *CacheInvalidationProducer) InvalidateExperiment(ctx context.Context, experimentKey string, buckets []int) error {
+	buckets32 := make([]int32, len(buckets))
+	for i, v := range buckets {
+		buckets32[i] = int32(v)
+	}
+
 	removeData, err := json.Marshal(model.ExperimentRemoveMessage{
 		ExperimentKey: experimentKey,
-		// exclude the buckets
-		// experiment sim doesn't have that info, but I think the cache should self-heal in that if there is a miss on the exp key, buckets will be refreshed
-		Buckets: []int32{},
+		Buckets:       buckets32,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to marshal remove message: %w", err)

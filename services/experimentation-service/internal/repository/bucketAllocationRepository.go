@@ -49,3 +49,11 @@ func (r *BucketAllocationRepository) AssignListOfBucketsToExperiment(ctx context
 	}
 	return br.Close()
 }
+
+func (r *BucketAllocationRepository) GetListOfBucketsInPhase(ctx context.Context, experimentId uuid.UUID, phase ExperimentPhase) ([]int, error) {
+	rows, err := r.pgxPool.Query(ctx, `SELECT bucket_number FROM prism.bucket_allocations WHERE experiment_id = $1 AND phase = $2`, experimentId, phase)
+	if err != nil {
+		return nil, err
+	}
+	return pgx.CollectRows(rows, pgx.RowTo[int])
+}
