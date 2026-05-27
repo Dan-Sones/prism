@@ -7,6 +7,8 @@ import (
 	"os"
 	"testing"
 	"time"
+
+	"github.com/twmb/franz-go/pkg/kgo"
 )
 
 func TestMicrobatchProcessor_ProcessMicrobatch(t *testing.T) {
@@ -88,11 +90,13 @@ func programPolls(t *testing.T, eventReader *MockEventReader, pollSizes []int) {
 
 	msgIndex := 0
 	for _, size := range pollSizes {
-		messages := make([][]byte, size)
+		records := make([]*kgo.Record, size)
 		for i := 0; i < size; i++ {
-			messages[i] = []byte(fmt.Sprintf("message_%d", msgIndex))
+			records[i] = &kgo.Record{
+				Value: []byte(fmt.Sprintf("message_%d", msgIndex)),
+			}
 			msgIndex++
 		}
-		eventReader.AddPoll(messages)
+		eventReader.AddPoll(records)
 	}
 }

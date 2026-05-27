@@ -8,15 +8,19 @@ import (
 	"github.com/twmb/franz-go/pkg/kgo"
 )
 
+type EventReader interface {
+	PollEvents(ctx context.Context) ([]*kgo.Record, error)
+	CommitEvents(ctx context.Context, records []*kgo.Record) error
+}
 type MicroBatchingService struct {
 	microBatchSize      int
 	flushTimeout        time.Duration
-	kafkaEventReader    *KafkaEventReader
+	kafkaEventReader    EventReader
 	microBatchProcessor MicrobatchProcessor
 	logger              *slog.Logger
 }
 
-func NewMicroBatchingService(microBatchSize int, flushTimeout time.Duration, kafkaEventReader *KafkaEventReader, microbatchProcessor MicrobatchProcessor, logger *slog.Logger) *MicroBatchingService {
+func NewMicroBatchingService(microBatchSize int, flushTimeout time.Duration, kafkaEventReader EventReader, microbatchProcessor MicrobatchProcessor, logger *slog.Logger) *MicroBatchingService {
 	return &MicroBatchingService{
 		microBatchSize:      microBatchSize,
 		flushTimeout:        flushTimeout,
@@ -88,6 +92,10 @@ func (m *MicroBatchingService) processAndCommit(ctx context.Context, records []*
 	// I need to read through the code again and make sure that one error will then prevent every single other item within that batch from being committed.
 	// Otherwise, we might get to the point where we have operated on 9,999 of them and the last fails, but we do not commit the offset.
 	// However, 9,999 of them are still written to the database, which will then mean that on the second intake we duplicate data.
+
+	// So using this approach we are assuming if one fails we want to fail all
+	// I think this is a reaosonable approach as if one fails all others are likely to fail
+	// Validation should be upstream of this so any issues are likely to be connectivity, not issues with the data itself.
 	if err := m.microBatchProcessor.ProcessMicrobatch(ctx, values); err != nil {
 		return err
 	}
