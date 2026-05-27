@@ -7,6 +7,8 @@ import (
 	"os"
 	"testing"
 	"time"
+
+	"github.com/twmb/franz-go/pkg/kgo"
 )
 
 func TestMicrobatchProcessor_ProcessMicrobatch(t *testing.T) {
@@ -77,6 +79,10 @@ func TestMicrobatchProcessor_ProcessMicrobatch(t *testing.T) {
 				}
 			}
 
+			if eventReader.CommittedToIndex != sum(tt.pollSizes) {
+				t.Errorf("expected committed index to be %d, got %d", sum(tt.pollSizes), eventReader.CommittedToIndex)
+			}
+
 		})
 
 	}
@@ -88,11 +94,21 @@ func programPolls(t *testing.T, eventReader *MockEventReader, pollSizes []int) {
 
 	msgIndex := 0
 	for _, size := range pollSizes {
-		messages := make([][]byte, size)
+		records := make([]*kgo.Record, size)
 		for i := 0; i < size; i++ {
-			messages[i] = []byte(fmt.Sprintf("message_%d", msgIndex))
+			records[i] = &kgo.Record{
+				Value: []byte(fmt.Sprintf("message_%d", msgIndex)),
+			}
 			msgIndex++
 		}
-		eventReader.AddPoll(messages)
+		eventReader.AddPoll(records)
 	}
+}
+
+func sum(nums []int) int {
+	total := 0
+	for _, num := range nums {
+		total += num
+	}
+	return total
 }

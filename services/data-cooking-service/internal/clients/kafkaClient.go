@@ -19,6 +19,7 @@ func GetKafkaClient() (*kgo.Client, error) {
 		kgo.FetchMaxWait(2*time.Second),
 		kgo.SessionTimeout(6*time.Second),
 		kgo.HeartbeatInterval(2*time.Second),
+		kgo.DisableAutoCommit(),
 	)
 	if err != nil {
 		return nil, err
