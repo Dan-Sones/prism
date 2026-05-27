@@ -17,6 +17,7 @@ type Experiment struct {
 	EndTime                 pgtype.Timestamp    `json:"end_time"`
 	AAStartTime             time.Time           `json:"aa_start_time"`
 	AAEndTime               time.Time           `json:"aa_end_time"`
+	Cancelled               bool                `json:"cancelled"`
 	UniqueSalt              string              `json:"unique_salt"`
 	Hypothesis              string              `json:"hypothesis"`
 	Description             string              `json:"description"`
