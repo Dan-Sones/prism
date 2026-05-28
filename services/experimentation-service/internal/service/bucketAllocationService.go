@@ -70,3 +70,12 @@ func (s *BucketAllocationService) GetPercentageOfBuckets(percentage int) ([]int,
 
 	return bucketIds[:bucketsToAssign], nil
 }
+
+func (s *BucketAllocationService) GetListOfBucketsInPhase(ctx context.Context, experimentId uuid.UUID, phase repository.ExperimentPhase) ([]int, error) {
+	buckets, err := s.bucketAllocationRepository.GetListOfBucketsInPhase(ctx, experimentId, phase)
+	if err != nil {
+		s.logger.Error("Failed to get list of buckets in phase from repository", "experimentId", experimentId, "phase", phase, "error", err)
+		return nil, err
+	}
+	return buckets, nil
+}

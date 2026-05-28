@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useParams } from "react-router";
 import { getExperiment, getExperimentResults } from "../../../api/experiments";
 import { useErrorBanner } from "../../../context/ErrorBannerContext";
@@ -8,6 +8,11 @@ import type { ExperimentStatus } from "../../../api/experiments/model/experiment
 import AATestComplete from "./experiment-states/aa/AATestComplete";
 import ABDetails from "./experiment-states/ab/ABDetails";
 import ABComplete from "./experiment-states/ab/ABComplete";
+import PrimaryButton from "../../../components/button/PrimaryButton";
+import type { ProblemDetail } from "../../../api/base/problem";
+import type { AxiosError } from "axios";
+import { toast } from "sonner";
+import { cancelExperiment } from "../../../api/experiments/cancel-experiment";
 
 const Experiment = () => {
   const params = useParams();
@@ -49,9 +54,49 @@ const Experiment = () => {
     ),
   };
 
+  const { mutate: cancelExperimentMutation } = useMutation<
+    void,
+    AxiosError<ProblemDetail>,
+    string
+  >({
+    mutationFn: cancelExperiment,
+    onSuccess: () => {
+      toast.success("Experiment cancelled successfully");
+    },
+    onError: (error) => {
+      const baseErrorMessage = "Failed to cancel experiment:";
+
+      if (error.response?.data.detail) {
+        setErrorMessage(baseErrorMessage + " " + error.response.data.detail);
+        return;
+      }
+
+      setErrorMessage(baseErrorMessage);
+    },
+  });
+
+  const onCancelExperiment = () => {
+    if (!params.id) {
+      setErrorMessage("Experiment ID is missing");
+      return;
+    }
+    cancelExperimentMutation(params.id);
+  };
+
   return (
     <>
-      <PageTitle>{expDetails?.name}</PageTitle>
+      <div className="flex flex-row items-center justify-between">
+        <PageTitle>{expDetails?.name}</PageTitle>
+        {expDetails?.status !== "ab-complete" &&
+          expDetails?.status !== "cancelled" && (
+            <PrimaryButton
+              className="bg-red-500 text-sm text-white hover:bg-red-600"
+              onClick={onCancelExperiment}
+            >
+              Cancel Experiment
+            </PrimaryButton>
+          )}
+      </div>
       <div className="flex flex-col gap-4">
         <ExperimentDetails
           experimentDetails={expDetails}
