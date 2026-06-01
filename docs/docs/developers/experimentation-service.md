@@ -26,10 +26,7 @@ Please see `prism/services/proto/assignment` for the GRPC specification for this
 
 Prism allows you to define a catalog of events to allow the architecture to store and consume them.
 
-Events can be ingested in one of two ways:
-
-1. Through [Open Feature](./open-feature.md)'s `.track()` functionality, allowing events to be tracked on the client-side.
-2. Through manual event delivery to the Events service (Useful for backend events, e.g. payment completed, email sent etc).
+Events can be ingested through an api call to the events service.
 
 Events defined in the event catalog can then be used in metric definitions, allowing prism to calculate results on variables more complex than simple click counts.
 
@@ -37,23 +34,41 @@ Events exist in the following format:
 
 ```json
 {
-  "id": "4522d155-df00-4877-b77a-9ce999c99446",
-  "name": "Purchase Completed",
-  "eventKey": "purchase_completed",
-  "description": "Fired when a user completes a purchase",
-  "createdAt": "2026-02-18T21:53:44.867961Z",
+  "id": "04d83743-3a17-40d1-bccb-76b56f8987bb",
+  "name": "Purchase Successful",
+  "event_key": "purchase_successful",
+  "description": "The purchase event is triggered when a user successfully uses their method of payment to complete an order. The event contains a number of properties about the purchase.",
+  "created_at": "2026-06-01T19:53:58.172026+01:00",
   "fields": [
     {
-      "id": "ad8644e5-9b11-4d95-9b76-e46b22458f94",
-      "name": "Currency",
-      "fieldKey": "currency",
-      "dataType": "string"
+      "id": "e7484700-c861-449c-ac96-f06ef2ebc326",
+      "name": "Basket Item Count",
+      "field_key": "basket_item_count",
+      "data_type": "int"
     },
     {
-      "id": "a56852d8-1c84-450b-b409-41a2a8ecf823",
+      "id": "e5282870-737f-499a-b14f-88791342d933",
+      "name": "Currency",
+      "field_key": "currency",
+      "data_type": "string"
+    },
+    {
+      "id": "1f4b5354-985c-4a7b-8fce-6e7b1cd83135",
+      "name": "Is Loyalty Member",
+      "field_key": "is_loyalty_member",
+      "data_type": "string"
+    },
+    {
+      "id": "d0b980ea-7563-461a-9879-bc6cf3c4e4e4",
+      "name": "Order Time",
+      "field_key": "order_time",
+      "data_type": "timestamp"
+    },
+    {
+      "id": "05628ab6-9dec-459a-b661-180a11de83dc",
       "name": "Order Total",
-      "fieldKey": "order_total",
-      "dataType": "float"
+      "field_key": "order_total",
+      "data_type": "float"
     }
   ]
 }
@@ -72,28 +87,14 @@ Events exist in the following format:
 
 ### Event Field Properties
 
+Event Field Properties represent one of the values in your Event. The context provided here determines how your item is stored in the database and therefore it's use in metric's, so it is important that event fields are correctly typed.
+
 | Field      | Type          | Description                                                                |
 | ---------- | ------------- | -------------------------------------------------------------------------- |
 | `id`       | string (UUID) | Unique identifier for the field                                            |
 | `name`     | string        | Display name of the field (to be used in the ui)                           |
 | `fieldKey` | string        | The key used when sending this field in events                             |
 | `dataType` | string        | The data type of the field (e.g., `string`, `float`, `integer`, `boolean`) |
-
-Think of event fields as the keys in the event payload. See the below JSON. As a user you may want to track payment events and extract the `order_total` field from those events to use in your metrics. When creating an event in the event catalog, you would define an event with the name `purchase_completed` and a field with the field_key of `order_total` and a data type of `float`.
-
-```json
-{
-  "eventKey": "purchase_completed",
-  "user_details": {
-    "id": "123",
-    "loyalty_member": true
-  },
-  "properties": {
-    "order_total": 100.0,
-    "currency": "USD"
-  }
-}
-```
 
 ## Metric Catalog Management
 
