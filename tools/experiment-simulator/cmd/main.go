@@ -10,6 +10,7 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/Dan-Sones/prismhash"
 	"github.com/joho/godotenv"
 )
 
@@ -35,19 +36,16 @@ func main() {
 		return
 	}
 
-	address := fmt.Sprintf("%s:%s", os.Getenv("ASSIGNMENT_SERVICE_GRPC_SERVER_ADDRESS"), os.Getenv("ASSIGNMENT_SERVICE_GRPC_SERVER_PORT"))
-	assignmentClient, err := clients.NewGrpcAssignmentClient(address)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	experimentationAddress := fmt.Sprintf("%s:%s", os.Getenv("EXPERIMENTATION_SERVICE_GRPC_SERVER_ADDRESS"), os.Getenv("EXPERIMENTATION_SERVICE_GRPC_SERVER_PORT"))
 	experimentationAssignmentClient, err := clients.NewGrpcExperimentationAssignmentClient(experimentationAddress)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	userIdService := services.NewUserIdService(assignmentClient, experimentationAssignmentClient)
+	salt, bucketCount := prismhash.GetBucketConfig()
+	bucketService := prismhash.NewBucketService(salt, bucketCount)
+
+	userIdService := services.NewUserIdService(bucketService, experimentationAssignmentClient)
 
 	clickhouse, err := clients.NewClickhouseConnection()
 	if err != nil {
