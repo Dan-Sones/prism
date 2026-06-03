@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/Dan-Sones/prismhash/model"
 	"log/slog"
 	"time"
+
+	"github.com/Dan-Sones/prismhash/model"
 
 	"github.com/redis/go-redis/v9"
 )

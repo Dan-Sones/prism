@@ -6,13 +6,18 @@ import (
 	"data-cooking-service/internal/repository"
 	"encoding/json"
 	"log/slog"
+	"time"
 
 	"github.com/Dan-Sones/prismdbmodels/model"
 	"github.com/Dan-Sones/prismdbmodels/model/experiment"
 	"github.com/Dan-Sones/prismhash"
+	model2 "github.com/Dan-Sones/prismhash/model"
 )
 
-type Assignments map[string]map[string]string
+type bucketDayKey struct {
+	bucket int
+	day    time.Time
+}
 
 type MicroBatchProcessorImp struct {
 	cookedEventsRepository          repository.CookedEventsRepository
@@ -68,6 +73,9 @@ func (p *MicroBatchProcessorImp) cookEvents(events []model.DownstreamEvent) ([]*
 	uniqueUserIds := p.deduplicateUserIds(events)
 	userIdToBucket := make(map[string]int, len(uniqueUserIds))
 
+	// We can cache these per day as experiments must run from utc midnight to utc midnight.
+	experimentAssignmentCache := make(map[bucketDayKey][]model2.ExperimentWithVariants)
+
 	//ExpKey -> ExpDetails
 	enrichedExperimentDetails := make(map[string]experiment.EnrichedExperiment)
 
@@ -79,10 +87,20 @@ func (p *MicroBatchProcessorImp) cookEvents(events []model.DownstreamEvent) ([]*
 			userIdToBucket[event.UserDetails.ID] = bucket
 		}
 
-		assigmentForBucketAtEventTime, err := p.experimentationAssignmentClient.GetExperimentsAndVariantsForBucketAtTime(eventCtx, bucket, "data-cooking-service", event.SentAt)
-		if err != nil {
-			p.logger.Error("failed to get experiments for bucket at time", "bucket", bucket, "sent_at", event.SentAt, "error", err)
-			return nil, err
+		bDKey := bucketDayKey{
+			bucket: bucket,
+			day:    event.SentAt.UTC().Truncate(24 * time.Hour),
+		}
+
+		assigmentForBucketAtEventTime, ok := experimentAssignmentCache[bDKey]
+		if !ok {
+			fetched, err := p.experimentationAssignmentClient.GetExperimentsAndVariantsForBucketAtTime(eventCtx, bucket, "data-cooking-service", event.SentAt)
+			if err != nil {
+				p.logger.Error("failed to get experiments for bucket at time", "bucket", bucket, "sent_at", event.SentAt, "error", err)
+				return nil, err
+			}
+			experimentAssignmentCache[bDKey] = fetched
+			assigmentForBucketAtEventTime = fetched
 		}
 
 		for _, exp := range assigmentForBucketAtEventTime {
