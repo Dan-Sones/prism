@@ -1,7 +1,6 @@
 package service
 
 import (
-	"assignment-service/internal/model"
 	"context"
 	"io"
 	"log"
@@ -9,6 +8,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/Dan-Sones/prismhash/model"
 	"github.com/redis/go-redis/v9"
 	"github.com/stretchr/testify/require"
 	"github.com/testcontainers/testcontainers-go"

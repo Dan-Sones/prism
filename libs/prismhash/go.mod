@@ -1,4 +1,4 @@
-module prismhash
+module github.com/Dan-Sones/prismhash
 
 go 1.25.0
 

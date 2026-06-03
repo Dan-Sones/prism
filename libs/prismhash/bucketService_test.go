@@ -1,12 +1,11 @@
 package prismhash
 
 import (
-	"assignment-service/internal/service"
 	"testing"
 )
 
 func TestGetBucketForDeterminism(t *testing.T) {
-	svc := service.NewBucketService("test_salt", 4)
+	svc := NewBucketService("test_salt", 4)
 
 	bucket1 := svc.GetBucketFor("user_123")
 	bucket2 := svc.GetBucketFor("user_123")
@@ -18,8 +17,8 @@ func TestGetBucketForDeterminism(t *testing.T) {
 }
 
 func TestSaltAffectsOutput(t *testing.T) {
-	svc1 := service.NewBucketService("salt_one", 4)
-	svc2 := service.NewBucketService("salt_two", 4)
+	svc1 := NewBucketService("salt_one", 4)
+	svc2 := NewBucketService("salt_two", 4)
 
 	bucket1 := svc1.GetBucketFor("user_123")
 	bucket2 := svc2.GetBucketFor("user_123")
@@ -36,7 +35,7 @@ func TestStability(t *testing.T) {
 		"user_789": 114,
 	}
 
-	svc := service.NewBucketService("stable_salt", 10000)
+	svc := NewBucketService("stable_salt", 10000)
 
 	for userID, expectedBucket := range expected {
 		actual := svc.GetBucketFor(userID)

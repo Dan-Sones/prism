@@ -1,11 +1,11 @@
 package service
 
 import (
-	"assignment-service/internal/model"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/Dan-Sones/prismhash/model"
 	"log/slog"
 	"time"
 

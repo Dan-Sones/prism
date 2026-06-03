@@ -2,24 +2,22 @@ package service
 
 import (
 	"assignment-service/internal/clients"
-	"assignment-service/internal/model"
 	"context"
-	"crypto/md5"
-	"encoding/hex"
 	"fmt"
 	"log/slog"
-	"math/big"
 	"time"
+
+	"github.com/Dan-Sones/prismhash"
 )
 
 type AssignmentService struct {
 	logger           *slog.Logger
-	bucketService    *BucketService
+	bucketService    *prismhash.BucketService
 	experimentClient clients.ExperimentClient
 	experimentCache  ExperimentConfigCache
 }
 
-func NewAssignmentService(logger *slog.Logger, bService *BucketService, experimentClient clients.ExperimentClient, experimentCache ExperimentConfigCache) *AssignmentService {
+func NewAssignmentService(logger *slog.Logger, bService *prismhash.BucketService, experimentClient clients.ExperimentClient, experimentCache ExperimentConfigCache) *AssignmentService {
 	return &AssignmentService{
 		logger:           logger.With(slog.String("component", "AssignmentService")),
 		bucketService:    bService,
@@ -58,7 +56,7 @@ func (e *AssignmentService) GetAssignmentsForUserId(ctx context.Context, userId 
 
 	assignments := make(map[string]string)
 	for _, experiment := range experiments {
-		variant, err := e.GetVariantForExperiment(experiment, userId)
+		variant, err := prismhash.GetVariantForExperiment(experiment, userId)
 		if err != nil {
 			e.logger.Error("Failed to get variant for experiment", "experiment", experiment.ExperimentKey, "user_id", userId, "error", err)
 			continue
@@ -67,28 +65,4 @@ func (e *AssignmentService) GetAssignmentsForUserId(ctx context.Context, userId 
 	}
 
 	return assignments, nil
-}
-
-func (e *AssignmentService) GetVariantForExperiment(experiments model.ExperimentWithVariants, userId string) (string, error) {
-	numberLinePosition := e.getNumberLinePositionForUserAndExperiment(userId, experiments.ExperimentKey, experiments.UniqueSalt)
-
-	for _, variant := range experiments.Variants {
-		if numberLinePosition >= variant.LowerBound && numberLinePosition <= variant.UpperBound {
-			return variant.VariantKey, nil
-		}
-	}
-	return "", fmt.Errorf("no variant found for user %s in experiment %s with number line position %d", userId, experiments.ExperimentKey, numberLinePosition)
-}
-
-func (e *AssignmentService) getNumberLinePositionForUserAndExperiment(userId, experimentKey, uniqueSalt string) int32 {
-	toHash := fmt.Sprintf("%s:%s:%s", userId, experimentKey, uniqueSalt)
-	hash := md5.Sum([]byte(toHash))
-
-	hashHex := hex.EncodeToString(hash[:])
-
-	hashInt := new(big.Int)
-	hashInt.SetString(hashHex, 16)
-
-	numberLinePosition := new(big.Int)
-	return int32(numberLinePosition.Mod(hashInt, big.NewInt(100)).Int64())
 }

@@ -6,13 +6,10 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/Dan-Sones/prismdbmodels/model"
+	"github.com/Dan-Sones/prismhash/model"
 )
 
-type VariantService struct {
-}
-
-func (e *VariantService) GetVariantForExperiment(experiments model.ExperimentWithVariants, userId string) (string, error) {
+func GetVariantForExperiment(experiments model.ExperimentWithVariants, userId string) (string, error) {
 	numberLinePosition := GetNumberLinePositionForUserAndExperiment(userId, experiments.ExperimentKey, experiments.UniqueSalt)
 
 	for _, variant := range experiments.Variants {

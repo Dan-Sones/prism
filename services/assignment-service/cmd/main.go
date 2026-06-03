@@ -17,6 +17,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/Dan-Sones/prismhash"
 	prismLog "github.com/Dan-Sones/prismlogger"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
@@ -59,7 +60,7 @@ func main() {
 	salt, bucketCount := utils.GetBucketConfig()
 
 	// Services
-	bucketService := service.NewBucketService(salt, bucketCount)
+	bucketService := prismhash.NewBucketService(salt, bucketCount)
 	experimentCache := service.NewExperimentConfigCache(redisClient, logger)
 	assignmentService := service.NewAssignmentService(logger, bucketService, grpcClient, experimentCache)
 	kafkaConsumer := service.NewKafkaConsumerImp(kafkaClient, logger)
@@ -105,7 +106,7 @@ func getGrpcExperimentClient() clients.ExperimentClient {
 	return client
 }
 
-func startGrpcServer(logger *slog.Logger, assignmentService *service.AssignmentService, bucketService *service.BucketService) {
+func startGrpcServer(logger *slog.Logger, assignmentService *service.AssignmentService, bucketService *prismhash.BucketService) {
 	grpcServer := grpc.NewServer()
 
 	assignmentServer := pb.NewAssignmentServer(assignmentService, bucketService, logger)

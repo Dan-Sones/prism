@@ -1,9 +1,10 @@
 package service
 
 import (
-	"assignment-service/internal/model"
 	"context"
 	"time"
+
+	"github.com/Dan-Sones/prismhash/model"
 )
 
 type StubExperimentClient struct {
