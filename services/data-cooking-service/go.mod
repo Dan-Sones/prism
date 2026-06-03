@@ -5,6 +5,7 @@ go 1.25.0
 require github.com/twmb/franz-go v1.20.7
 
 require (
+	github.com/Dan-Sones/prismhash v0.0.0-00010101000000-000000000000
 	github.com/joho/godotenv v1.5.1
 	google.golang.org/grpc v1.79.2
 	google.golang.org/protobuf v1.36.11
@@ -12,6 +13,7 @@ require (
 
 require (
 	github.com/jackc/pgx/v5 v5.9.2 // indirect
+	github.com/rogpeppe/go-internal v1.15.0 // indirect
 	golang.org/x/net v0.49.0 // indirect
 	golang.org/x/text v0.33.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20251202230838-ff82c1b0f217 // indirect
@@ -27,7 +29,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/go-faster/city v1.0.1 // indirect
 	github.com/go-faster/errors v0.7.1 // indirect
-	github.com/google/uuid v1.6.0 // indirect
+	github.com/google/uuid v1.6.0
 	github.com/klauspost/compress v1.18.4 // indirect
 	github.com/paulmach/orb v0.12.0 // indirect
 	github.com/pierrec/lz4/v4 v4.1.26 // indirect
@@ -45,3 +47,5 @@ replace github.com/Dan-Sones/prismlogger => ../../libs/prismlogger
 replace github.com/Dan-Sones/prismmicrobatcher => ../../libs/prismmicrobatcher
 
 replace github.com/Dan-Sones/prismdbmodels => ../../libs/prismdbmodels
+
+replace github.com/Dan-Sones/prismhash => ../../libs/prismhash

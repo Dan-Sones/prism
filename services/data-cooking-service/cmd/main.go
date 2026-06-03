@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"syscall"
 
+	"github.com/Dan-Sones/prismhash"
 	prismLog "github.com/Dan-Sones/prismlogger"
 	microbatcher "github.com/Dan-Sones/prismmicrobatcher"
 	"github.com/joho/godotenv"
@@ -37,14 +38,11 @@ func main() {
 		"CLICKHOUSE_NATIVE_PORT",
 		"DATA_COOKING_SERVICE_MICROBATCH_SIZE",
 		"DATA_COOKING_SERVICE_MICROBATCH_FLUSH_TIMEOUT_SECONDS",
-		"ASSIGNMENT_SERVICE_GRPC_SERVER_ADDRESS",
-		"ASSIGNMENT_SERVICE_GRPC_SERVER_PORT",
 		"EXPERIMENTATION_SERVICE_GRPC_SERVER_ADDRESS",
 		"EXPERIMENTATION_SERVICE_GRPC_SERVER_PORT",
+		"SALT_VALUE",
+		"BUCKET_COUNT",
 	)
-
-	assignmentGrpcClient := getGrpcAssignmentClient()
-	defer assignmentGrpcClient.Close()
 
 	experimentationAssignmentGrpcClient := getGrpcExperimentationAssignmentClient()
 	defer experimentationAssignmentGrpcClient.Close()
@@ -75,7 +73,9 @@ func main() {
 	cookedEventsRepository := repository.NewCookedEventsRepositoryClickhouse(clickhouseConn)
 
 	// service
-	microBatchProcessor := services.NewMicroBatchProcessorImp(cookedEventsRepository, assignmentGrpcClient, experimentationExperimentGrpcClient, experimentationAssignmentGrpcClient, logger)
+	salt, bucketCount := prismhash.GetBucketConfig()
+	bucketService := prismhash.NewBucketService(salt, bucketCount)
+	microBatchProcessor := services.NewMicroBatchProcessorImp(cookedEventsRepository, experimentationExperimentGrpcClient, experimentationAssignmentGrpcClient, bucketService, logger)
 	eventReader := microbatcher.NewKafkaEventReader(kafkaClient, logger)
 	microBatchService := microbatcher.NewMicroBatchingService(microBatchSizeInt, utils.GetFlushTimeoutDuration(), eventReader, microBatchProcessor, logger)
 
@@ -98,16 +98,6 @@ func initLogger() *slog.Logger {
 
 func loadEnv() {
 	_ = godotenv.Load("../../infrastructure/.env")
-}
-
-func getGrpcAssignmentClient() clients.AssignmentClient {
-	address := fmt.Sprintf("%s:%s", os.Getenv("ASSIGNMENT_SERVICE_GRPC_SERVER_ADDRESS"), os.Getenv("ASSIGNMENT_SERVICE_GRPC_SERVER_PORT"))
-	client, err := clients.NewGrpcAssignmentClient(address)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return client
 }
 
 func getGrpcExperimentationAssignmentClient() clients.ExperimentationAssignmentClient {

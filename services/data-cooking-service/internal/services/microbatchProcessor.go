@@ -9,26 +9,29 @@ import (
 
 	"github.com/Dan-Sones/prismdbmodels/model"
 	"github.com/Dan-Sones/prismdbmodels/model/experiment"
+	"github.com/Dan-Sones/prismhash"
 )
 
 type Assignments map[string]map[string]string
 
 type MicroBatchProcessorImp struct {
 	cookedEventsRepository          repository.CookedEventsRepository
-	assignmentClient                clients.AssignmentClient
 	experimentClient                clients.ExperimentationExperimentClient
 	experimentationAssignmentClient clients.ExperimentationAssignmentClient
+	bucketService                   *prismhash.BucketService
 	logger                          *slog.Logger
 }
 
-func NewMicroBatchProcessorImp(repository repository.CookedEventsRepository, assignmentClient clients.AssignmentClient,
+func NewMicroBatchProcessorImp(repository repository.CookedEventsRepository,
 	experimentClient clients.ExperimentationExperimentClient,
-	experimentationAssignmentClient clients.ExperimentationAssignmentClient, logger *slog.Logger) *MicroBatchProcessorImp {
+	experimentationAssignmentClient clients.ExperimentationAssignmentClient,
+	bucketService *prismhash.BucketService,
+	logger *slog.Logger) *MicroBatchProcessorImp {
 	return &MicroBatchProcessorImp{
 		cookedEventsRepository:          repository,
-		assignmentClient:                assignmentClient,
 		experimentClient:                experimentClient,
 		experimentationAssignmentClient: experimentationAssignmentClient,
+		bucketService:                   bucketService,
 		logger:                          logger,
 	}
 }
@@ -72,12 +75,7 @@ func (p *MicroBatchProcessorImp) cookEvents(events []model.DownstreamEvent) ([]*
 		eventCtx := context.Background()
 		bucket, ok := userIdToBucket[event.UserDetails.ID]
 		if !ok {
-			var err error
-			bucket, err = p.assignmentClient.GetBucketForUserId(eventCtx, event.UserDetails.ID)
-			if err != nil {
-				p.logger.Error("failed to get bucket for user", "user_id", event.UserDetails.ID, "error", err)
-				return nil, err
-			}
+			bucket = int(p.bucketService.GetBucketFor(event.UserDetails.ID))
 			userIdToBucket[event.UserDetails.ID] = bucket
 		}
 
@@ -88,7 +86,7 @@ func (p *MicroBatchProcessorImp) cookEvents(events []model.DownstreamEvent) ([]*
 		}
 
 		for _, exp := range assigmentForBucketAtEventTime {
-			variantKeyWithinExperiment, err := p.assignmentClient.GetVariantForUserFromExperimentDetails(eventCtx, event.UserDetails.ID, exp)
+			variantKeyWithinExperiment, err := prismhash.GetVariantForExperiment(exp, event.UserDetails.ID)
 			if err != nil {
 				p.logger.Error("failed to get variant for user from experiment details", "user_id", event.UserDetails.ID, "experiment_key", exp.ExperimentKey, "error", err)
 				return nil, err

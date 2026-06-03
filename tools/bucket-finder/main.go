@@ -12,6 +12,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/Dan-Sones/prismhash"
 	"github.com/briandowns/spinner"
 	"github.com/goccy/go-yaml"
 	"github.com/joho/godotenv"
@@ -26,11 +27,10 @@ func main() {
 		panic(err)
 	}
 
-	bucketCountEnv, err := strconv.Atoi(os.Getenv("BUCKET_COUNT"))
-	if err != nil || bucketCountEnv <= 0 {
+	_, bucketCount := prismhash.GetBucketConfig()
+	if bucketCount <= 0 {
 		log.Fatal("BUCKET_COUNT must be a positive integer")
 	}
-	bucketCount := int32(bucketCountEnv)
 
 	address := fmt.Sprintf("%s:%s", os.Getenv("ASSIGNMENT_SERVICE_GRPC_SERVER_ADDRESS"), os.Getenv("ASSIGNMENT_SERVICE_GRPC_SERVER_PORT"))
 	client, err := clients.NewGrpcAssignmentClient(address)

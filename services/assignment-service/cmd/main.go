@@ -57,7 +57,7 @@ func main() {
 	}
 	defer kafkaClient.Close()
 
-	salt, bucketCount := utils.GetBucketConfig()
+	salt, bucketCount := prismhash.GetBucketConfig()
 
 	// Services
 	bucketService := prismhash.NewBucketService(salt, bucketCount)
