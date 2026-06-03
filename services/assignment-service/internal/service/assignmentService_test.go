@@ -1,13 +1,15 @@
 package service
 
 import (
-	"assignment-service/internal/model"
 	"context"
 	"fmt"
 	"io"
 	"log/slog"
 	"testing"
 	"time"
+
+	"github.com/Dan-Sones/prismhash"
+	"github.com/Dan-Sones/prismhash/model"
 )
 
 const salt = "ULTRA_SECRET_SALT"
@@ -17,7 +19,7 @@ func TestAssignmentService_GetAssignmentsForUserId_shouldAttemptToReadFromCacheF
 	experimentClient := NewStubExperimentClient()
 	experimentCache := NewStubExperimentCache()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	assignmentService := NewAssignmentService(logger, NewBucketService(salt, bucketCount), experimentClient, experimentCache)
+	assignmentService := NewAssignmentService(logger, prismhash.NewBucketService(salt, bucketCount), experimentClient, experimentCache)
 
 	bucketId := int32(3930)
 
@@ -65,7 +67,7 @@ func TestAssignmentService_GetAssignmentsForUserId_shouldCallGrpcOnCacheMiss(t *
 	experimentClient := NewStubExperimentClient()
 	experimentCache := NewStubExperimentCache()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	assignmentService := NewAssignmentService(logger, NewBucketService(salt, bucketCount), experimentClient, experimentCache)
+	assignmentService := NewAssignmentService(logger, prismhash.NewBucketService(salt, bucketCount), experimentClient, experimentCache)
 
 	bucketId := int32(3930)
 
@@ -104,7 +106,7 @@ func TestAssignmentService_GetAssignmentsForUserId_shouldUpdateCacheOnMissAndGrp
 	experimentClient := NewStubExperimentClient()
 	experimentCache := NewStubExperimentCache()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	assignmentService := NewAssignmentService(logger, NewBucketService(salt, bucketCount), experimentClient, experimentCache)
+	assignmentService := NewAssignmentService(logger, prismhash.NewBucketService(salt, bucketCount), experimentClient, experimentCache)
 
 	bucketId := int32(3930)
 

@@ -2,12 +2,13 @@ package pb
 
 import (
 	"assignment-service/internal/grpc/generated/assignment_service/v1"
-	model2 "assignment-service/internal/model"
 	"assignment-service/internal/service"
 	"context"
 	"log/slog"
 	"sync"
 
+	"github.com/Dan-Sones/prismhash"
+	"github.com/Dan-Sones/prismhash/model"
 	"golang.org/x/sync/errgroup"
 	"google.golang.org/grpc"
 )
@@ -15,11 +16,11 @@ import (
 type AssignmentServer struct {
 	assignment_service.UnimplementedAssignmentServiceServer
 	assignmentService *service.AssignmentService
-	bucketService     *service.BucketService
+	bucketService     *prismhash.BucketService
 	logger            *slog.Logger
 }
 
-func NewAssignmentServer(assignmentService *service.AssignmentService, bucketService *service.BucketService, logger *slog.Logger) *AssignmentServer {
+func NewAssignmentServer(assignmentService *service.AssignmentService, bucketService *prismhash.BucketService, logger *slog.Logger) *AssignmentServer {
 	return &AssignmentServer{
 		assignmentService: assignmentService,
 		bucketService:     bucketService,
@@ -87,7 +88,7 @@ func (s *AssignmentServer) GetVariantForUserFromExperimentDetails(ctx context.Co
 		return nil, nil
 	}
 
-	variant, err := s.assignmentService.GetVariantForExperiment(convertRequestExperimentDetailsToModel(req.GetExperimentDetails()), req.GetUserId())
+	variant, err := prismhash.GetVariantForExperiment(convertRequestExperimentDetailsToModel(req.GetExperimentDetails()), req.GetUserId())
 	if err != nil {
 		s.logger.Error("Error getting variant for user from experiment details", "userId", req.GetUserId(), "experimentDetails", req.GetExperimentDetails(), "error", err)
 		return nil, err
@@ -98,18 +99,18 @@ func (s *AssignmentServer) GetVariantForUserFromExperimentDetails(ctx context.Co
 	}, nil
 }
 
-func convertRequestExperimentDetailsToModel(details *assignment_service.ExperimentDetails) model2.ExperimentWithVariants {
-	return model2.ExperimentWithVariants{
+func convertRequestExperimentDetailsToModel(details *assignment_service.ExperimentDetails) model.ExperimentWithVariants {
+	return model.ExperimentWithVariants{
 		ExperimentKey: details.GetExperimentKey(),
 		UniqueSalt:    details.GetUniqueSalt(),
 		Variants:      convertRequestVariantsToModel(details.GetVariants()),
 	}
 }
 
-func convertRequestVariantsToModel(variants []*assignment_service.VariantDetails) []model2.Variant {
-	var result []model2.Variant
+func convertRequestVariantsToModel(variants []*assignment_service.VariantDetails) []model.Variant {
+	var result []model.Variant
 	for _, variant := range variants {
-		result = append(result, model2.Variant{
+		result = append(result, model.Variant{
 			VariantKey: variant.GetVariantKey(),
 			UpperBound: variant.GetUpperBound(),
 			LowerBound: variant.GetLowerBound(),

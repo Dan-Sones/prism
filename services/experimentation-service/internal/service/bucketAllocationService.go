@@ -5,10 +5,9 @@ import (
 	"experimentation-service/internal/repository"
 	"log/slog"
 	"math/rand"
-	"os"
-	"strconv"
 	"time"
 
+	"github.com/Dan-Sones/prismhash"
 	"github.com/google/uuid"
 )
 
@@ -25,19 +24,14 @@ func NewBucketAllocationService(bucketAllocationRepository *repository.BucketAll
 }
 
 func (s *BucketAllocationService) AssignAllBucketsToExperiment(ctx context.Context, experimentId uuid.UUID) error {
-	bucketCount := os.Getenv("BUCKET_COUNT")
-	bCount, err := strconv.Atoi(bucketCount)
-	if err != nil {
-		s.logger.Error("Failed to convert bucket count to int", "error", err)
-		return err
-	}
+	_, bCount := prismhash.GetBucketConfig()
 
 	bucketIds := make([]int, bCount)
 	for i := range bucketIds {
 		bucketIds[i] = i
 	}
 
-	err = s.bucketAllocationRepository.AssignListOfBucketsToExperiment(ctx, experimentId, bucketIds, repository.PhaseAA)
+	err := s.bucketAllocationRepository.AssignListOfBucketsToExperiment(ctx, experimentId, bucketIds, repository.PhaseAA)
 	if err != nil {
 		s.logger.Error("Failed to assign buckets to experiment", "error", err)
 		return err
@@ -47,15 +41,9 @@ func (s *BucketAllocationService) AssignAllBucketsToExperiment(ctx context.Conte
 }
 
 func (s *BucketAllocationService) GetPercentageOfBuckets(percentage int) ([]int, error) {
+	_, bCount := prismhash.GetBucketConfig()
 
-	bucketCount := os.Getenv("BUCKET_COUNT")
-	bCount, err := strconv.Atoi(bucketCount)
-	if err != nil {
-		s.logger.Error("Failed to convert bucket count to int", "error", err)
-		return nil, err
-	}
-
-	bucketsToAssign := (bCount * percentage) / 100
+	bucketsToAssign := (int(bCount) * percentage) / 100
 
 	bucketIds := make([]int, bCount)
 	for i := range bucketIds {

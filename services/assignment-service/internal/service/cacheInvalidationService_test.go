@@ -1,7 +1,6 @@
 package service
 
 import (
-	"assignment-service/internal/model"
 	"context"
 	"encoding/json"
 	"log/slog"
@@ -10,6 +9,7 @@ import (
 	"time"
 
 	prismmodel "github.com/Dan-Sones/prismdbmodels/model"
+	"github.com/Dan-Sones/prismhash/model"
 )
 
 func TestCacheInvalidationServiceKafka_ListenForInvalidations_shouldRemoveExperimentAndBucket(t *testing.T) {

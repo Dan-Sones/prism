@@ -17,6 +17,7 @@ import (
 	"log"
 	http2 "net/http"
 
+	"github.com/Dan-Sones/prismhash"
 	"github.com/Dan-Sones/prismlogger"
 	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
@@ -75,11 +76,7 @@ func main() {
 	}
 
 	// Global Values
-	bucketCount, err := utils.GetBucketCount()
-	if err != nil {
-		logger.Error("Failed to get bucket count", "error", err)
-		os.Exit(1)
-	}
+	_, bucketCount := prismhash.GetBucketConfig()
 
 	// Repositories
 	experimentRepository := repository.NewExperimentRepository(pgPool)

@@ -1,9 +1,10 @@
 package service
 
 import (
-	"assignment-service/internal/model"
 	"context"
 	"fmt"
+
+	"github.com/Dan-Sones/prismhash/model"
 )
 
 type StubExperimentCache struct {

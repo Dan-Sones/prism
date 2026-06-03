@@ -1,13 +1,14 @@
 package service
 
 import (
-	"assignment-service/internal/model"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"log/slog"
 	"time"
+
+	"github.com/Dan-Sones/prismhash/model"
 
 	"github.com/redis/go-redis/v9"
 )

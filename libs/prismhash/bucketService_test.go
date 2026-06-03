@@ -1,6 +1,8 @@
-package service
+package prismhash
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestGetBucketForDeterminism(t *testing.T) {
 	svc := NewBucketService("test_salt", 4)

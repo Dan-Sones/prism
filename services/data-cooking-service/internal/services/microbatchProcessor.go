@@ -6,29 +6,37 @@ import (
 	"data-cooking-service/internal/repository"
 	"encoding/json"
 	"log/slog"
+	"time"
 
 	"github.com/Dan-Sones/prismdbmodels/model"
 	"github.com/Dan-Sones/prismdbmodels/model/experiment"
+	"github.com/Dan-Sones/prismhash"
+	model2 "github.com/Dan-Sones/prismhash/model"
 )
 
-type Assignments map[string]map[string]string
+type bucketDayKey struct {
+	bucket int
+	day    time.Time
+}
 
 type MicroBatchProcessorImp struct {
 	cookedEventsRepository          repository.CookedEventsRepository
-	assignmentClient                clients.AssignmentClient
 	experimentClient                clients.ExperimentationExperimentClient
 	experimentationAssignmentClient clients.ExperimentationAssignmentClient
+	bucketService                   *prismhash.BucketService
 	logger                          *slog.Logger
 }
 
-func NewMicroBatchProcessorImp(repository repository.CookedEventsRepository, assignmentClient clients.AssignmentClient,
+func NewMicroBatchProcessorImp(repository repository.CookedEventsRepository,
 	experimentClient clients.ExperimentationExperimentClient,
-	experimentationAssignmentClient clients.ExperimentationAssignmentClient, logger *slog.Logger) *MicroBatchProcessorImp {
+	experimentationAssignmentClient clients.ExperimentationAssignmentClient,
+	bucketService *prismhash.BucketService,
+	logger *slog.Logger) *MicroBatchProcessorImp {
 	return &MicroBatchProcessorImp{
 		cookedEventsRepository:          repository,
-		assignmentClient:                assignmentClient,
 		experimentClient:                experimentClient,
 		experimentationAssignmentClient: experimentationAssignmentClient,
+		bucketService:                   bucketService,
 		logger:                          logger,
 	}
 }
@@ -65,6 +73,9 @@ func (p *MicroBatchProcessorImp) cookEvents(events []model.DownstreamEvent) ([]*
 	uniqueUserIds := p.deduplicateUserIds(events)
 	userIdToBucket := make(map[string]int, len(uniqueUserIds))
 
+	// We can cache these per day as experiments must run from utc midnight to utc midnight.
+	experimentAssignmentCache := make(map[bucketDayKey][]model2.ExperimentWithVariants)
+
 	//ExpKey -> ExpDetails
 	enrichedExperimentDetails := make(map[string]experiment.EnrichedExperiment)
 
@@ -72,23 +83,28 @@ func (p *MicroBatchProcessorImp) cookEvents(events []model.DownstreamEvent) ([]*
 		eventCtx := context.Background()
 		bucket, ok := userIdToBucket[event.UserDetails.ID]
 		if !ok {
-			var err error
-			bucket, err = p.assignmentClient.GetBucketForUserId(eventCtx, event.UserDetails.ID)
-			if err != nil {
-				p.logger.Error("failed to get bucket for user", "user_id", event.UserDetails.ID, "error", err)
-				return nil, err
-			}
+			bucket = int(p.bucketService.GetBucketFor(event.UserDetails.ID))
 			userIdToBucket[event.UserDetails.ID] = bucket
 		}
 
-		assigmentForBucketAtEventTime, err := p.experimentationAssignmentClient.GetExperimentsAndVariantsForBucketAtTime(eventCtx, bucket, "data-cooking-service", event.SentAt)
-		if err != nil {
-			p.logger.Error("failed to get experiments for bucket at time", "bucket", bucket, "sent_at", event.SentAt, "error", err)
-			return nil, err
+		bDKey := bucketDayKey{
+			bucket: bucket,
+			day:    event.SentAt.UTC().Truncate(24 * time.Hour),
+		}
+
+		assigmentForBucketAtEventTime, ok := experimentAssignmentCache[bDKey]
+		if !ok {
+			fetched, err := p.experimentationAssignmentClient.GetExperimentsAndVariantsForBucketAtTime(eventCtx, bucket, "data-cooking-service", event.SentAt)
+			if err != nil {
+				p.logger.Error("failed to get experiments for bucket at time", "bucket", bucket, "sent_at", event.SentAt, "error", err)
+				return nil, err
+			}
+			experimentAssignmentCache[bDKey] = fetched
+			assigmentForBucketAtEventTime = fetched
 		}
 
 		for _, exp := range assigmentForBucketAtEventTime {
-			variantKeyWithinExperiment, err := p.assignmentClient.GetVariantForUserFromExperimentDetails(eventCtx, event.UserDetails.ID, exp)
+			variantKeyWithinExperiment, err := prismhash.GetVariantForExperiment(exp, event.UserDetails.ID)
 			if err != nil {
 				p.logger.Error("failed to get variant for user from experiment details", "user_id", event.UserDetails.ID, "experiment_key", exp.ExperimentKey, "error", err)
 				return nil, err

@@ -3,9 +3,9 @@ package clients
 import (
 	"context"
 	"data-cooking-service/internal/grpc/generated/experimentation_service_assignment/v1"
-	"data-cooking-service/internal/model"
 	"time"
 
+	"github.com/Dan-Sones/prismhash/model"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -51,8 +51,8 @@ func (c *GrpcExperimentationAssignmentClient) GetExperimentsAndVariantsForBucket
 		for j, variant := range exp.Variants {
 			variants[j] = model.Variant{
 				VariantKey: variant.VariantKey,
-				UpperBound: int(variant.UpperBound),
-				LowerBound: int(*variant.LowerBound),
+				UpperBound: variant.UpperBound,
+				LowerBound: *variant.LowerBound,
 			}
 		}
 		experimentsWithVariants[i] = model.ExperimentWithVariants{

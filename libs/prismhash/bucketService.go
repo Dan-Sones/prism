@@ -1,4 +1,4 @@
-package service
+package prismhash
 
 import (
 	"crypto/md5"
