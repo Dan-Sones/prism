@@ -4,6 +4,7 @@ WORKDIR /src
 COPY services/assignment-service/go.mod services/assignment-service/go.sum ./services/assignment-service/
 COPY libs/prismdbmodels ./libs/prismdbmodels
 COPY libs/prismlogger ./libs/prismlogger
+COPY libs/prismhash ./libs/prismhash
 
 WORKDIR /src/services/assignment-service
 RUN go mod download
