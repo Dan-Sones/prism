@@ -58,7 +58,7 @@ const ExperimentDetails = () => {
           </Label>
           <LargeTextInput
             id="hypothesis"
-            placeholder="e.g. Changing the buy button color to red will increase total revenue."
+            placeholder="Based on [prior knowledge], we believe that [theory about user need]. We think that [doing this/building this feature/creating this experience] for [these people/personas] will achieve [these outcomes]. We will know this is true when we see [metric results]."
             {...register("hypothesis", {
               required: "Hypothesis is required",
             })}
