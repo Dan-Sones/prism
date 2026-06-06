@@ -18,12 +18,12 @@ public class AssignmentRampSimulation extends Simulation {
 
     {
         setUp(scn.injectOpen(
-                        incrementUsersPerSec(200)
-                                .times(10)
-                                .eachLevelLasting(Duration.ofSeconds(90))
-                                .separatedByRampsLasting(Duration.ofSeconds(10))
-                                .startingFrom(200)
-                        ))
+                incrementUsersPerSec(50)
+                        .times(10)
+                        .eachLevelLasting(Duration.ofSeconds(90))
+                        .separatedByRampsLasting(Duration.ofSeconds(10))
+                        .startingFrom(200)
+        ))
                 .protocols(httpProtocol);
     }
 }
