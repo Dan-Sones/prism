@@ -130,6 +130,16 @@ func (s *ExperimentService) GetExperimentByUUID(ctx context.Context, expId uuid.
 	}
 
 	s.enrichWithExperimentStatus(&expById)
+
+	if expById.Status == experiment2.ExperimentStatusAAComplete && expById.TotalRequiredSampleSize == nil {
+		sampleSizeResp, sampleSizeErr := s.GetRequiredSampleSizeForMetrics(ctx, expId)
+		if sampleSizeErr != nil {
+			s.logger.Warn("Failed to calculate required sample size for aa-complete experiment", "error", sampleSizeErr, "experimentId", expId)
+		} else {
+			expById.TotalRequiredSampleSize = &sampleSizeResp.TotalRequiredSampleSize
+		}
+	}
+
 	return experiment.NewExperimentResponse(expById, metricsForExperiment), nil
 }
 
