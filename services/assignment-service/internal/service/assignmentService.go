@@ -35,14 +35,17 @@ func (e *AssignmentService) GetAssignmentsForUserId(ctx context.Context, userId 
 
 	var experiments []model.ExperimentWithVariants
 	var err error
+	cacheHit := false
 	if cacheEnabled {
 		experiments, err = e.experimentCache.GetExperimentsForBucket(ctx, bucket)
 		if err != nil {
 			e.logger.Error("Failed to get experiments for bucket from cache, falling back to gRPC", "bucket", bucket, "error", err)
+		} else if experiments != nil {
+			cacheHit = true
 		}
 	}
 
-	if len(experiments) > 0 {
+	if cacheHit {
 		e.logger.Info("Fetched assignments from cache", "bucket", bucket)
 	} else {
 		experiments, err = e.experimentClient.GetExperimentsAndVariantsForBucketAtTime(ctx, bucket, time.Now())

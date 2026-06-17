@@ -63,6 +63,38 @@ func TestAssignmentService_GetAssignmentsForUserId_shouldAttemptToReadFromCacheF
 
 }
 
+func TestAssignmentService_GetAssignmentsForUserId_shouldRespectNoAssignmentsSentinel(t *testing.T) {
+	experimentClient := NewStubExperimentClient()
+	experimentCache := NewStubExperimentCache()
+	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
+	assignmentService := NewAssignmentService(logger, prismhash.NewBucketService(salt, bucketCount), experimentClient, experimentCache)
+
+	bucketId := int32(3930)
+
+	err := experimentCache.SetExperimentsForBucket(context.Background(), bucketId, nil)
+	if err != nil {
+		t.Fatalf("failed to seed negative cache entry: %v", err)
+	}
+
+	experimentClient.SetExperimentsForBucket(bucketId, []model.ExperimentWithVariants{{
+		ExperimentKey: "button_color_v1",
+		UniqueSalt:    "4e770d52-b2b0-42ed-8ccb-2321ff48e143",
+		Variants: []model.Variant{
+			{VariantKey: "button_blue", LowerBound: 0, UpperBound: 49},
+			{VariantKey: "button_green", LowerBound: 50, UpperBound: 99},
+		},
+	}})
+
+	assignments, err := assignmentService.GetAssignmentsForUserId(context.Background(), "21")
+	if err != nil {
+		t.Fatalf("failed to get assignments: %v", err)
+	}
+
+	if len(assignments) != 0 {
+		t.Errorf("Expected no assignments due to negative cache hit, got %v", assignments)
+	}
+}
+
 func TestAssignmentService_GetAssignmentsForUserId_shouldCallGrpcOnCacheMiss(t *testing.T) {
 	experimentClient := NewStubExperimentClient()
 	experimentCache := NewStubExperimentCache()
