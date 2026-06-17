@@ -171,7 +171,7 @@ The baseline conversion rate of a metric, and inherently it's variance determine
 
 **Security Measures**
 
-# FR-6 A/B Test
+# FR-6 A/B Test (Cumulative Metrics)
 
 **User Story / Rationale**
 
@@ -202,6 +202,26 @@ As an experiment owner, I want the system to calculate whether the treatment gro
 **Error Handling**
 
 - Clearly display when the required sample size was not met, indicating the experiment was unable to reach statistical power.
+
+**Security Measures**
+
+# FR-6.1 A/B Test (Window Based Metircs)
+
+**User Story / Rationale**
+
+As an experiment owner, I want my experiment to use window-based metrics so that I can consider time and novelty effect in my metric analysis, rather than cumulatively using all the data for a user since their exposure.
+
+**Description**
+
+**Input**
+
+**Output**
+
+**Preconditions**
+
+**Post-Conditions**
+
+**Error Handling**
 
 **Security Measures**
 
@@ -259,6 +279,33 @@ As an experiment owner, I want the system to automatically manage the state tran
 
 - The assignment service serves traffic based on the real time state of an experiment
 - The UI displays the current state of the experiment
+
+**Error Handling**
+
+**Security Measures**
+
+# FR-10 — Exclusivity Groups
+
+**User Story / Rationale**
+
+As an experiment owner, I want to be able to assign experiemnts into "exclusivity groups" so that there is a reduced risk of interaction effects.
+
+**Description**
+
+Sometimes more than one experiment might be taking on one local piece of an application at a time. Users cannot be assigned to both of these experiments at the same time, otherwise there is a risk of the experiment being simply unfeasible in that a button might need to be two colours at once as per an assignment response. Exclusivity groups exist as a mechanism to prevent buckets from being assigned to more than one experiment within an exclusivity group. For example, you may declare an exclusivity group for the home page to ensure the user is only engaged in one home page experiment. This will also prevent interaction effects.
+
+**Input**
+
+- An exclusivity group name
+
+**Output**
+
+**Preconditions**
+
+**Post-Conditions**
+
+- Another experiment within the exclusivity group cannot be assigned the same bucket/s.
+- When an experiment is complete, the bucket is automatically removed from the exclusivity group, freeing it up.
 
 **Error Handling**
 
