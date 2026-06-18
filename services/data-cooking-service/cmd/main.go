@@ -92,7 +92,7 @@ func initLogger() *slog.Logger {
 		log.Fatal("APP_ENV must be set to development or production")
 	}
 
-	prismLog.InitLogger(env, "clickhouse-writer")
+	prismLog.InitLogger(env, "data-cooking-service", os.Getenv("DATA_COOKING_SERVICE_LOG_LEVEL"), os.Getenv("DATA_COOKING_SERVICE_LOG_FORMAT"))
 	return prismLog.GetLogger()
 }
 

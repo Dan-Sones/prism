@@ -38,14 +38,14 @@ const ExperimentMetrics = () => {
           canRemove={fields.length > 1}
         />
       ))}
-      <div className="flex justify-center">
+      {/* <div className="flex justify-center">
         <PrimaryButton
           className="bg-purple-500 hover:bg-purple-600"
           onClick={onAddField}
         >
           Add Additional Metric
         </PrimaryButton>
-      </div>
+      </div> */}
     </div>
   );
 };

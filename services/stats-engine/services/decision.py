@@ -27,6 +27,18 @@ def make_decision_for_z_test(result: ZTestResult, mde: float, control_observatio
                               practically_significant=True,
                               )
 
+    # Statistically significant but a regression
+    if result.is_significant and result.ci_upper < 0:
+        return DecisionOutput(recommendation=DecisionRecommendation.NOT_RECOMMEND,
+                              recommendation_reason=
+                              "Treatment caused a statistically significant regression vs control",
+                              z_test_result=result,
+                              control_observation=control_observation,
+                              treatment_observation=treatment_observation,
+                              practically_significant=False,
+                              statistically_significant=True,
+                              )
+
     # Statistically significant, but not strong enough results
     if result.is_significant and result.ci_upper >= mde:
         return DecisionOutput(recommendation=DecisionRecommendation.INCONCLUSIVE,

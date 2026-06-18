@@ -124,7 +124,7 @@ const CreateMetric = () => {
       >
         <PageTitle>Create Metric</PageTitle>
         <CreateMetricInitialDetails />
-        <SimpleMetricHelp />
+        {/* <SimpleMetricHelp /> */}
 
         {metricType === "simple" && <CreateSimpleMetric />}
         {metricType === "ratio" && <CreateRatioMetric />}

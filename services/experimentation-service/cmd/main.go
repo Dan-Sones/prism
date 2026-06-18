@@ -133,7 +133,7 @@ func initLogger() *slog.Logger {
 		log.Fatal("APP_ENV must be set to development or production")
 	}
 
-	prismLog.InitLogger(env, "experimentation-service")
+	prismLog.InitLogger(env, "experimentation-service", os.Getenv("EXPERIMENTATION_SERVICE_LOG_LEVEL"), os.Getenv("EXPERIMENTATION_SERVICE_LOG_FORMAT"))
 	return prismLog.GetLogger()
 }
 

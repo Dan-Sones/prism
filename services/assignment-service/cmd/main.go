@@ -62,7 +62,8 @@ func main() {
 	// Services
 	bucketService := prismhash.NewBucketService(salt, bucketCount)
 	experimentCache := service.NewExperimentConfigCache(redisClient, logger)
-	assignmentService := service.NewAssignmentService(logger, bucketService, grpcClient, experimentCache)
+	cacheEnabled := os.Getenv("ASSIGNMENT_SERVICE_CACHE_ENABLED") == "true"
+	assignmentService := service.NewAssignmentService(logger, bucketService, grpcClient, experimentCache, cacheEnabled)
 	kafkaConsumer := service.NewKafkaConsumerImp(kafkaClient, logger)
 	assignmentCacheInvalidationService := service.NewCacheInvalidationServiceKafka(kafkaConsumer, logger, experimentCache)
 
@@ -92,7 +93,7 @@ func initLogger() *slog.Logger {
 		log.Fatal("APP_ENV must be set to development or production")
 	}
 
-	prismLog.InitLogger(env, "assignment-service")
+	prismLog.InitLogger(env, "assignment-service", os.Getenv("ASSIGNMENT_SERVICE_LOG_LEVEL"), os.Getenv("ASSIGNMENT_SERVICE_LOG_FORMAT"))
 	return prismLog.GetLogger()
 }
 

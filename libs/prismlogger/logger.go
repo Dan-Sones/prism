@@ -3,6 +3,7 @@ package prismLog
 import (
 	"log/slog"
 	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -14,15 +15,14 @@ var (
 	environment string
 )
 
-func InitLogger(env, svcName string) {
+func InitLogger(env, svcName, level, format string) {
 	loggerOnce.Do(func() {
 		serviceName = svcName
 		environment = env
 
-		var handler slog.Handler
 		handlerOptions := &slog.HandlerOptions{
 			AddSource: true,
-			Level:     slog.LevelDebug,
+			Level:     parseLevel(level),
 			ReplaceAttr: func(groups []string, a slog.Attr) slog.Attr {
 				if a.Key == slog.TimeKey && len(groups) == 0 {
 					return slog.Attr{Key: "timestamp", Value: slog.StringValue(a.Value.Any().(time.Time).Format(time.RFC3339))}
@@ -37,22 +37,37 @@ func InitLogger(env, svcName string) {
 			},
 		}
 
-		switch env {
-		case "development":
-			handler = slog.NewTextHandler(os.Stdout, handlerOptions)
-		case "production":
+		var handler slog.Handler
+		switch strings.ToLower(format) {
+		case "json":
 			handler = slog.NewJSONHandler(os.Stderr, handlerOptions)
-			handlerOptions.Level = slog.LevelInfo
+		case "text":
+			handler = slog.NewTextHandler(os.Stdout, handlerOptions)
 		default:
-			slog.Warn("Unknown environment, defaulting to development logging level")
+			slog.Warn("Unknown log format, defaulting to text", slog.String("format", format))
 			handler = slog.NewTextHandler(os.Stdout, handlerOptions)
 		}
 
 		appLogger = slog.New(handler).With(
 			slog.String("service", serviceName),
 			slog.String("environment", environment))
-
 	})
+}
+
+func parseLevel(level string) slog.Level {
+	switch strings.ToLower(level) {
+	case "debug":
+		return slog.LevelDebug
+	case "info":
+		return slog.LevelInfo
+	case "warn", "warning":
+		return slog.LevelWarn
+	case "error":
+		return slog.LevelError
+	default:
+		slog.Warn("Unknown log level, defaulting to info", slog.String("level", level))
+		return slog.LevelInfo
+	}
 }
 
 func GetLogger() *slog.Logger {

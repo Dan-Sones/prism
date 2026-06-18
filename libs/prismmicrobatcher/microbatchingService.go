@@ -57,9 +57,11 @@ func (m *MicroBatchingService) Start(ctx context.Context) {
 	for {
 		select {
 		case <-ctx.Done():
-			remaining := m.flushFullBatches(ctx, currentBatch)
+			shutdownCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+			defer cancel()
+			remaining := m.flushFullBatches(shutdownCtx, currentBatch)
 			if len(remaining) > 0 {
-				if err := m.processAndCommit(ctx, remaining); err != nil {
+				if err := m.processAndCommit(shutdownCtx, remaining); err != nil {
 					m.logger.Error("Error processing final microbatch", "error", err)
 				}
 			}

@@ -36,10 +36,10 @@ const EventStatisticsContent = (props: EventStatisticsContentProps) => {
           <p className="text-sm">{statistics?.totalEventsPast7Days}</p>
         </EventStatistic>
       </div>
-      <div className="pt-4">
+      {/* <div className="pt-4">
         <h3 className="py-4 font-semibold">Missing Field Rates</h3>
         <MissingRatesTable missingRates={missingRatesRows} />
-      </div>
+      </div> */}
     </>
   );
 };

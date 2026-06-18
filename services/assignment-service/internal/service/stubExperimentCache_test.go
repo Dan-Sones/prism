@@ -101,8 +101,11 @@ func (s *StubExperimentCache) GetExperimentsForBucket(ctx context.Context, bucke
 	key := s.buildKeyForBucket(bucketId)
 	if keys, exists := s.cache[key]; exists {
 		experimentKeys := keys.([]string)
-		var experiments []model.ExperimentWithVariants
+		experiments := []model.ExperimentWithVariants{}
 		for _, experimentKey := range experimentKeys {
+			if experimentKey == emptyBucketSentinel {
+				continue
+			}
 			experiment, err := s.GetExperiment(ctx, experimentKey)
 			if err != nil {
 				return nil, err
@@ -115,6 +118,9 @@ func (s *StubExperimentCache) GetExperimentsForBucket(ctx context.Context, bucke
 }
 
 func (s *StubExperimentCache) SetExperimentsForBucket(ctx context.Context, bucketId int32, experiments []model.ExperimentWithVariants) error {
+	if len(experiments) == 0 {
+		return s.AddBucketExperimentKey(ctx, bucketId, emptyBucketSentinel)
+	}
 	for _, experiment := range experiments {
 		err := s.SetExperiment(ctx, experiment.ExperimentKey, &experiment)
 		if err != nil {

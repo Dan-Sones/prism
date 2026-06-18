@@ -4,6 +4,7 @@ WORKDIR /src
 COPY services/experimentation-service/go.mod services/experimentation-service/go.sum ./services/experimentation-service/
 COPY libs/prismdbmodels ./libs/prismdbmodels
 COPY libs/prismlogger ./libs/prismlogger
+COPY libs/prismhash ./libs/prismhash
 
 WORKDIR /src/services/experimentation-service
 RUN go mod download

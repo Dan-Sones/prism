@@ -99,15 +99,14 @@ const MetricResultCard = (props: MetricResultCardProps) => {
     (mde?: number) => {
       if (mde === undefined) return "text-gray-500";
 
-      return mde <
-        calculatePPChange(
-          controlNumerator,
-          treatmentNumerator,
-          controlDenominator,
-          treatmentDenominator,
-        )
-        ? "text-red-500"
-        : "text-green-500";
+      const ppChange = calculatePPChange(
+        controlNumerator,
+        treatmentNumerator,
+        controlDenominator,
+        treatmentDenominator,
+      );
+
+      return Math.abs(ppChange) >= mde ? "text-green-500" : "text-gray-500";
     },
     [
       calculatePPChange,

@@ -17,6 +17,8 @@ import (
 // bucketId -> list of experiment keys
 // experimentKey -> experiment config (including variants)
 
+const emptyBucketSentinel = "__none__"
+
 type ExperimentConfigCache interface {
 	GetBucketExperimentKeys(ctx context.Context, bucketId int32) ([]string, error)
 	AddBucketExperimentKey(ctx context.Context, bucketId int32, experimentKey string) error
@@ -54,8 +56,11 @@ func (e *ExperimentConfigCacheRedis) GetExperimentsForBucket(ctx context.Context
 		return nil, nil
 	}
 
-	var experiments []model.ExperimentWithVariants
+	experiments := []model.ExperimentWithVariants{}
 	for _, experimentKey := range experimentKeys {
+		if experimentKey == emptyBucketSentinel {
+			continue
+		}
 		experiment, err := e.GetExperiment(ctx, experimentKey)
 		if err != nil {
 			return nil, err
@@ -72,6 +77,10 @@ func (e *ExperimentConfigCacheRedis) GetExperimentsForBucket(ctx context.Context
 }
 
 func (e *ExperimentConfigCacheRedis) SetExperimentsForBucket(ctx context.Context, bucketId int32, experiments []model.ExperimentWithVariants) error {
+	if len(experiments) == 0 {
+		return e.AddBucketExperimentKey(ctx, bucketId, emptyBucketSentinel)
+	}
+
 	for _, experiment := range experiments {
 		err := e.SetExperiment(ctx, experiment.ExperimentKey, &experiment)
 		if err != nil {

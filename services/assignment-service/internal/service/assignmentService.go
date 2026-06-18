@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/Dan-Sones/prismhash"
+	"github.com/Dan-Sones/prismhash/model"
 )
 
 type AssignmentService struct {
@@ -15,26 +16,35 @@ type AssignmentService struct {
 	bucketService    *prismhash.BucketService
 	experimentClient clients.ExperimentClient
 	experimentCache  ExperimentConfigCache
+	cacheEnabled     bool
 }
 
-func NewAssignmentService(logger *slog.Logger, bService *prismhash.BucketService, experimentClient clients.ExperimentClient, experimentCache ExperimentConfigCache) *AssignmentService {
+func NewAssignmentService(logger *slog.Logger, bService *prismhash.BucketService, experimentClient clients.ExperimentClient, experimentCache ExperimentConfigCache, cacheEnabled bool) *AssignmentService {
 	return &AssignmentService{
 		logger:           logger.With(slog.String("component", "AssignmentService")),
 		bucketService:    bService,
 		experimentClient: experimentClient,
 		experimentCache:  experimentCache,
+		cacheEnabled:     cacheEnabled,
 	}
 }
 
 func (e *AssignmentService) GetAssignmentsForUserId(ctx context.Context, userId string) (map[string]string, error) {
 	bucket := e.bucketService.GetBucketFor(userId)
 
-	experiments, err := e.experimentCache.GetExperimentsForBucket(ctx, bucket)
-	if err != nil {
-		e.logger.Error("Failed to get experiments for bucket from cache, falling back to gRPC", "bucket", bucket, "error", err)
+	var experiments []model.ExperimentWithVariants
+	var err error
+	cacheHit := false
+	if e.cacheEnabled {
+		experiments, err = e.experimentCache.GetExperimentsForBucket(ctx, bucket)
+		if err != nil {
+			e.logger.Error("Failed to get experiments for bucket from cache, falling back to gRPC", "bucket", bucket, "error", err)
+		} else if experiments != nil {
+			cacheHit = true
+		}
 	}
 
-	if len(experiments) > 0 {
+	if cacheHit {
 		e.logger.Info("Fetched assignments from cache", "bucket", bucket)
 	} else {
 		experiments, err = e.experimentClient.GetExperimentsAndVariantsForBucketAtTime(ctx, bucket, time.Now())
@@ -43,15 +53,17 @@ func (e *AssignmentService) GetAssignmentsForUserId(ctx context.Context, userId 
 		}
 		e.logger.Info("Fetched assignments from gRPC", "bucket", bucket)
 
-		go func() {
-			cacheCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-			defer cancel()
+		if e.cacheEnabled {
+			go func() {
+				cacheCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+				defer cancel()
 
-			err := e.experimentCache.SetExperimentsForBucket(cacheCtx, bucket, experiments)
-			if err != nil {
-				e.logger.Error("Failed to cache experiments for bucket", "bucket", bucket, "error", err)
-			}
-		}()
+				err := e.experimentCache.SetExperimentsForBucket(cacheCtx, bucket, experiments)
+				if err != nil {
+					e.logger.Error("Failed to cache experiments for bucket", "bucket", bucket, "error", err)
+				}
+			}()
+		}
 	}
 
 	assignments := make(map[string]string)
