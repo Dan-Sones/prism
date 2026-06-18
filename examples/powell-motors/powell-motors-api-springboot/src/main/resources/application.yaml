@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: powell-motors-api-springboot
+
+server:
+  port: ${POWELL_MOTORS_API_PORT:8090}
+
+assignment-service:
+  url: ${ASSIGNMENT_SERVICE_URL:http://localhost:8082}
+
+events-service:
+  url: ${EVENTS_SERVICE_URL:http://localhost:5678}
+
+logging:
+  level:
+    root: INFO
+    org.prism.powellmotorsapispringboot: INFO

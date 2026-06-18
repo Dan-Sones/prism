@@ -1,6 +1,6 @@
-import { FeatureFlag } from "@openfeature/react-sdk";
-import PrimaryButton from "../../components/buttons/PrimaryButton";
 import SecondaryButton from "../../components/buttons/SecondaryButton";
+import { USER_ID } from "../../userContext";
+import BuyNowButton from "./BuyNowButton";
 
 interface ProductDetailsProps {
   title: string;
@@ -9,21 +9,22 @@ interface ProductDetailsProps {
 }
 
 const ProductDetails = ({ title, price, description }: ProductDetailsProps) => {
+  const handlePurchase = () => {
+    fetch(
+      `${import.meta.env.VITE_API_URL}/api/purchase?userId=${encodeURIComponent(USER_ID)}`,
+      {
+        method: "POST",
+      },
+    ).catch((err) => console.error("purchase failed", err));
+  };
+
   return (
     <div className="flex flex-1 flex-col justify-center gap-3">
       <h2 className="text-4xl font-semibold">{title}</h2>
       <p className="text-xl font-bold">{price}</p>
       <p className="text font-light italic">{description}</p>
       <div className="flex w-full flex-col gap-2">
-        <FeatureFlag
-          flagKey="button_color_v1"
-          matchValue="button_blue"
-          defaultValue="control"
-          fallback={<PrimaryButton>Buy Now</PrimaryButton>}
-        >
-          <PrimaryButton className="bg-blue-700!">Buy Now</PrimaryButton>
-        </FeatureFlag>
-
+        <BuyNowButton handlePurchase={handlePurchase} />
         <SecondaryButton>Add to bag</SecondaryButton>
       </div>
       <div className="mt-4 flex flex-row justify-center gap-8 text-gray-800">

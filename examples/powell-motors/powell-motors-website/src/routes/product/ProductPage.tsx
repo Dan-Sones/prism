@@ -1,7 +1,16 @@
+import { useEffect } from "react";
 import ProductAbout from "./ProductAbout";
 import ProductDetails from "./ProductDetails";
+import { USER_ID } from "../../userContext";
 
 const ProductPage = () => {
+  useEffect(() => {
+    fetch(
+      `${import.meta.env.VITE_API_URL}/api/view-product?userId=${encodeURIComponent(USER_ID)}`,
+      { method: "POST" },
+    ).catch((err) => console.error("view-product failed", err));
+  }, []);
+
   return (
     <main className="mx-auto my-12 flex max-w-7xl flex-col px-4 sm:px-6 lg:px-8">
       <div className="flex w-full flex-col gap-8 lg:flex-row">
