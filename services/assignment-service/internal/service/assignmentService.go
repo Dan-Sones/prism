@@ -12,7 +12,7 @@ import (
 	"github.com/Dan-Sones/prismhash/model"
 )
 
-var cacheEnabled = os.Getenv("CACHE_ENABLED") == "true"
+var cacheEnabled = os.Getenv("ASSIGNMENT_SERVICE_CACHE_ENABLED") == "true"
 
 type AssignmentService struct {
 	logger           *slog.Logger

@@ -10,7 +10,13 @@ CREATE TABLE cooked_events (
     float_properties  Map(String, Float64),
     is_aa bool
 ) ENGINE = MergeTree()
-ORDER BY (experiment_key, variant_key, event_key, received_at);
+ORDER BY (
+       experiment_key,
+       is_aa,
+       event_key,
+       variant_key,
+       received_at
+ );
 
 
 CREATE TABLE events (
@@ -22,4 +28,4 @@ CREATE TABLE events (
     int_properties    Map(String, Int64),
     float_properties  Map(String, Float64)
 ) ENGINE = MergeTree()
-      ORDER BY (received_at, event_key);
+      ORDER BY (received_at, event_key)

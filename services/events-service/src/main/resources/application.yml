@@ -14,7 +14,7 @@ server:
 grpc:
     server:
         port: ${EXPERIMENTATION_SERVICE_GRPC_SERVER_PORT:50052}
-        host: localhost
+        host: ${EXPERIMENTATION_SERVICE_GRPC_SERVER_ADDRESS:localhost}
 
 kafka:
   bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}

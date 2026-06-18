@@ -114,6 +114,10 @@ services:
     environment:
       POSTGRES_HOST: postgres
       EXPERIMENTATION_SERVICE_GRPC_SERVER_ADDRESS: 0.0.0.0
+      KAFKA_BOOTSTRAP_SERVER_HOST: kafka
+      KAFKA_BOOTSTRAP_SERVER_PORT: 29092
+      CLICKHOUSE_HOST: clickhouse
+      STATS_ENGINE_GRPC_SERVER_ADDRESS: stats-engine
     depends_on:
       flyway:
         condition: service_completed_successfully
@@ -153,7 +157,7 @@ services:
       - .env.test
     environment:
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
-      GRPC_SERVER_HOST: experimentation-service
+      EXPERIMENTATION_SERVICE_GRPC_SERVER_ADDRESS: experimentation-service
     depends_on:
       experimentation-service:
         condition: service_started
@@ -176,6 +180,29 @@ services:
       kafka:
         condition: service_started
 
+  stats-engine:
+    image: ghcr.io/dan-sones/prism-stats-engine:latest
+    platform: linux/amd64
+    container_name: prism_stats_engine
+    ports:
+      - "${STATS_ENGINE_GRPC_SERVER_PORT}:${STATS_ENGINE_GRPC_SERVER_PORT}"
+    env_file:
+      - .env.test
+
+  experimentation-portal:
+    image: ghcr.io/dan-sones/prism-experimentation-portal:latest
+    platform: linux/amd64
+    container_name: prism_experimentation_portal
+    ports:
+      - "${EXPERIMENTATION_PORTAL_PORT:-3000}:3000"
+    env_file:
+      - .env.test
+    environment:
+      API_BASE_URL: http://localhost:${EXPERIMENTATION_SERVICE_HTTP_PORT}/api
+    depends_on:
+      experimentation-service:
+        condition: service_started
+
   data-cooking-service:
     image: ghcr.io/dan-sones/prism-data-cooking-service:latest
     platform: linux/amd64
@@ -186,6 +213,7 @@ services:
       KAFKA_BOOTSTRAP_SERVER_HOST: kafka
       KAFKA_BOOTSTRAP_SERVER_PORT: 29092
       CLICKHOUSE_HOST: clickhouse
+      EXPERIMENTATION_SERVICE_GRPC_SERVER_ADDRESS: experimentation-service
     depends_on:
       experimentation-service:
         condition: service_started
