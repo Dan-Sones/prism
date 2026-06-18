@@ -19,7 +19,7 @@ func TestAssignmentService_GetAssignmentsForUserId_shouldAttemptToReadFromCacheF
 	experimentClient := NewStubExperimentClient()
 	experimentCache := NewStubExperimentCache()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	assignmentService := NewAssignmentService(logger, prismhash.NewBucketService(salt, bucketCount), experimentClient, experimentCache)
+	assignmentService := NewAssignmentService(logger, prismhash.NewBucketService(salt, bucketCount), experimentClient, experimentCache, true)
 
 	bucketId := int32(3930)
 
@@ -67,7 +67,7 @@ func TestAssignmentService_GetAssignmentsForUserId_shouldRespectNoAssignmentsSen
 	experimentClient := NewStubExperimentClient()
 	experimentCache := NewStubExperimentCache()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	assignmentService := NewAssignmentService(logger, prismhash.NewBucketService(salt, bucketCount), experimentClient, experimentCache)
+	assignmentService := NewAssignmentService(logger, prismhash.NewBucketService(salt, bucketCount), experimentClient, experimentCache, true)
 
 	bucketId := int32(3930)
 
@@ -99,7 +99,7 @@ func TestAssignmentService_GetAssignmentsForUserId_shouldCallGrpcOnCacheMiss(t *
 	experimentClient := NewStubExperimentClient()
 	experimentCache := NewStubExperimentCache()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	assignmentService := NewAssignmentService(logger, prismhash.NewBucketService(salt, bucketCount), experimentClient, experimentCache)
+	assignmentService := NewAssignmentService(logger, prismhash.NewBucketService(salt, bucketCount), experimentClient, experimentCache, true)
 
 	bucketId := int32(3930)
 
@@ -138,7 +138,7 @@ func TestAssignmentService_GetAssignmentsForUserId_shouldUpdateCacheOnMissAndGrp
 	experimentClient := NewStubExperimentClient()
 	experimentCache := NewStubExperimentCache()
 	logger := slog.New(slog.NewTextHandler(io.Discard, nil))
-	assignmentService := NewAssignmentService(logger, prismhash.NewBucketService(salt, bucketCount), experimentClient, experimentCache)
+	assignmentService := NewAssignmentService(logger, prismhash.NewBucketService(salt, bucketCount), experimentClient, experimentCache, true)
 
 	bucketId := int32(3930)
 

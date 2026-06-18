@@ -62,7 +62,8 @@ func main() {
 	// Services
 	bucketService := prismhash.NewBucketService(salt, bucketCount)
 	experimentCache := service.NewExperimentConfigCache(redisClient, logger)
-	assignmentService := service.NewAssignmentService(logger, bucketService, grpcClient, experimentCache)
+	cacheEnabled := os.Getenv("ASSIGNMENT_SERVICE_CACHE_ENABLED") == "true"
+	assignmentService := service.NewAssignmentService(logger, bucketService, grpcClient, experimentCache, cacheEnabled)
 	kafkaConsumer := service.NewKafkaConsumerImp(kafkaClient, logger)
 	assignmentCacheInvalidationService := service.NewCacheInvalidationServiceKafka(kafkaConsumer, logger, experimentCache)
 

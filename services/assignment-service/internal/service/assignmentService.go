@@ -5,28 +5,27 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"os"
 	"time"
 
 	"github.com/Dan-Sones/prismhash"
 	"github.com/Dan-Sones/prismhash/model"
 )
 
-var cacheEnabled = os.Getenv("ASSIGNMENT_SERVICE_CACHE_ENABLED") == "true"
-
 type AssignmentService struct {
 	logger           *slog.Logger
 	bucketService    *prismhash.BucketService
 	experimentClient clients.ExperimentClient
 	experimentCache  ExperimentConfigCache
+	cacheEnabled     bool
 }
 
-func NewAssignmentService(logger *slog.Logger, bService *prismhash.BucketService, experimentClient clients.ExperimentClient, experimentCache ExperimentConfigCache) *AssignmentService {
+func NewAssignmentService(logger *slog.Logger, bService *prismhash.BucketService, experimentClient clients.ExperimentClient, experimentCache ExperimentConfigCache, cacheEnabled bool) *AssignmentService {
 	return &AssignmentService{
 		logger:           logger.With(slog.String("component", "AssignmentService")),
 		bucketService:    bService,
 		experimentClient: experimentClient,
 		experimentCache:  experimentCache,
+		cacheEnabled:     cacheEnabled,
 	}
 }
 
@@ -36,7 +35,7 @@ func (e *AssignmentService) GetAssignmentsForUserId(ctx context.Context, userId 
 	var experiments []model.ExperimentWithVariants
 	var err error
 	cacheHit := false
-	if cacheEnabled {
+	if e.cacheEnabled {
 		experiments, err = e.experimentCache.GetExperimentsForBucket(ctx, bucket)
 		if err != nil {
 			e.logger.Error("Failed to get experiments for bucket from cache, falling back to gRPC", "bucket", bucket, "error", err)
@@ -54,7 +53,7 @@ func (e *AssignmentService) GetAssignmentsForUserId(ctx context.Context, userId 
 		}
 		e.logger.Info("Fetched assignments from gRPC", "bucket", bucket)
 
-		if cacheEnabled {
+		if e.cacheEnabled {
 			go func() {
 				cacheCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 				defer cancel()
