@@ -92,7 +92,7 @@ func initLogger() *slog.Logger {
 		log.Fatal("APP_ENV must be set to development or production")
 	}
 
-	prismLog.InitLogger(env, "assignment-service")
+	prismLog.InitLogger(env, "assignment-service", os.Getenv("ASSIGNMENT_SERVICE_LOG_LEVEL"), os.Getenv("ASSIGNMENT_SERVICE_LOG_FORMAT"))
 	return prismLog.GetLogger()
 }
 

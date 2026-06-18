@@ -76,7 +76,7 @@ func initLogger() *slog.Logger {
 		log.Fatal("APP_ENV must be set to development or production")
 	}
 
-	prismLog.InitLogger(env, "clickhouse-writer")
+	prismLog.InitLogger(env, "clickhouse-writer", os.Getenv("CLICKHOUSE_WRITER_LOG_LEVEL"), os.Getenv("CLICKHOUSE_WRITER_LOG_FORMAT"))
 	return prismLog.GetLogger()
 }
 
