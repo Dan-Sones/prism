@@ -6,7 +6,6 @@ interface ExperimentsTableProps {
   data?: Array<ExperimentResponse>;
   isLoading: boolean;
   error: Error | null;
-  deleteTable: (id: string) => void;
 }
 
 type ExperimentTypeRow = {

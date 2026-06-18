@@ -6,7 +6,6 @@ interface MetricsCatalogTableProps {
   data?: Array<Metric>;
   isLoading: boolean;
   error: Error | null;
-  deleteTable: (id: string) => void;
 }
 
 type MetricTypeRow = {

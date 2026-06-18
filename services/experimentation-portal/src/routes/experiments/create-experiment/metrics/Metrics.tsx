@@ -1,5 +1,4 @@
 import { useFieldArray, useFormContext } from "react-hook-form";
-import PrimaryButton from "../../../../components/button/PrimaryButton";
 import MetricDetails from "./MetricDetails";
 import type { CreateExperimentRequestBody } from "../../../../api/experiments";
 import Metric from "./Metric";
@@ -7,20 +6,20 @@ import Metric from "./Metric";
 const ExperimentMetrics = () => {
   const { control } = useFormContext<CreateExperimentRequestBody>();
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, remove } = useFieldArray({
     name: "metrics",
     rules: { required: true, minLength: 1 },
     control,
   });
 
-  const onAddField = () => {
-    // TODO: how do we append without default values?
-    append({
-      metric_id: "",
-      type: "success",
-      direction: "increase",
-    });
-  };
+  // const onAddField = () => {
+  //   // TODO: how do we append without default values?
+  //   append({
+  //     metric_id: "",
+  //     type: "success",
+  //     direction: "increase",
+  //   });
+  // };
 
   const onRemoveField = (index: number) => {
     if (fields.length === 1) return;

@@ -13,7 +13,7 @@ const ExperimentsList = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState<string | undefined>(undefined);
 
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["experiments", searchQuery],
     queryFn: async () => {
       return getExperiments(searchQuery);
@@ -34,14 +34,7 @@ const ExperimentsList = () => {
           <CatalogSearch onSearch={setSearchQuery} />
           <TableFilters />
         </TableActions>
-        <ExperimentsTable
-          isLoading={isLoading}
-          error={error}
-          deleteTable={function (id: string): void {
-            throw new Error("Function not implemented.");
-          }}
-          data={data}
-        />
+        <ExperimentsTable isLoading={isLoading} data={data} error={error} />
       </section>
     </>
   );
