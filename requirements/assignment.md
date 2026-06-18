@@ -71,3 +71,31 @@ Making a request to the database for every assignment request could potentially 
 When encountering a cache miss, the system must fall back to the database and then write through the result. A decision needs to be made here on whether the cache should be written to in the event there are no assignments, or should the request continue to fall through.
 
 **Security Measures**
+
+# FR-11 — Client-Side React Assignment Evaluator
+
+**User Story / Rationale**
+
+As an experiment owner, I want a standardised way of evaluating assignments, so that users can be conditionally rendered variants in a react web app.
+
+**Description**
+
+Without this mechanism, prism would be limited to server-side experiments.
+
+**Input**
+
+- User Id
+
+**Output**
+
+- The user is conditionally rendered react components based on the assignments retrieved from a call to the assignment service
+
+**Preconditions**
+
+**Post-Conditions**
+
+**Error Handling**
+
+- In the event the api call fails, the user should be shown a control variant as a fallback.
+
+**Security Measures**
