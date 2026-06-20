@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 # Data Cooking Service
@@ -10,7 +10,6 @@ Where an uncooked events is:
 
 ```json
 {
-  "id": "evt_01HXYZABCDE1234567890",
   "event_key": "checkout_completed",
   "user_details": { "id": "user_8f3c2a91" },
   "sent_at": "2026-06-19T14:22:08.512Z",
@@ -27,7 +26,6 @@ and an uncooked `experiment_exposure` event is (Note the addition of the experim
 
 ```json
 {
-  "id": "evt_01HXYZEXPOSURE0000001",
   "event_key": "experiment_exposure",
   "experiment_key": "checkout_redesign_v2",
   "user_details": { "id": "user_8f3c2a91" },
@@ -73,7 +71,7 @@ Where the same events After the cooking process would be written to the database
 
 The data cooking service's place within the event ingestion pipeline can be seen in the below diagram of the event ingestion pipeline.
 
-![Assignment Diagram](/img/event-ingestion.png)
+![Assignment Diagram](/img/event-pipeline.png)
 
 ## Microbatching
 
@@ -85,7 +83,7 @@ The size of a micro batch is tunable via environment variables, however, it's no
 
 ## Internal Caching
 
-In an effort to reduce load on the service, the data-cooking-service implements free internal caches, which have a lifetime of the micro-batch itself.
+In an effort to reduce load on the service, the data-cooking-service implements three internal caches, which have a lifetime of the micro-batch itself.
 
 | Cache                       | Key                                                                             | Purpose                                                                                                                                                                           |
 | --------------------------- | ------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
