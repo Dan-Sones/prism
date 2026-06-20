@@ -72,6 +72,7 @@ For Binary Success metrics Prism runs a Z-Test. It's results are run through a d
 | Clear Winner      | ✅                       | ✅                     | **Recommend**        | Ship the treatment variant. It met your MDE and was statistically significant                                                              |
 | No Effect         | ❌                       | ❌                     | **Do Not Recommend** | Do not ship. Results were not Practically OR significantly significant. Rethink your hypothesis and maybe re-run with a larger sample size |
 | Negligible Effect | ✅                       | ❌                     | **Do Not Recommend** | The effect is real but does not meet you MDE so can't be recommended                                                                       |
+| Regression        | ✅                       | ❌                     | **Do Not Recommend** | Treatment caused a statistically significant regression vs control. Do not ship.                                                           |
 | Borderline        | ✅                       | ⚠️                     | **Inconclusive**     | Re-run the experiment with a larger sample size                                                                                            |
 
 [^confidence_a]: Spotify Confidence (2026) _Lesson 1: Introduction to hypothesis tests_ Available At: https://confidence.spotify.com/bootcamp/hypothesis-testing/what-is-hypothesis-testing (Accessed: 28 May 2026)
