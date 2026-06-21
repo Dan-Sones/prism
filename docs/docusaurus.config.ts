@@ -77,12 +77,12 @@ const config: Config = {
       },
       items: [
         {
-          to: '/docs/developers/getting-started',
+          to: '/docs/developers/experimentation-service',
           label: 'For Developers',
           position: 'left',
         },
         {
-          to: '/docs/experiment-owners/getting-started',
+          to: '/docs/experiment-owners/experiment-walkthrough',
           label: 'For Experiment Owners',
           position: 'left',
         },

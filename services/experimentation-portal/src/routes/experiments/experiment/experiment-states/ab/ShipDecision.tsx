@@ -1,4 +1,3 @@
-import React from "react";
 import type { DecisionRecommendation } from "../../../../../api/experiments";
 import Card from "../../../../../components/card/Card";
 import ExclamationTriangleIcon from "../../../../../components/icons/ExclamationTriangleIcon";

@@ -1,12 +1,7 @@
-import { useEffect } from "react";
-import { useHistory } from "@docusaurus/router";
+import { Redirect } from "@docusaurus/router";
+import useBaseUrl from "@docusaurus/useBaseUrl";
+import { JSX } from "react";
 
-export default function Home(): null {
-  const history = useHistory();
-
-  useEffect(() => {
-    history.replace("/docs/intro");
-  }, [history]);
-
-  return null;
+export default function Home(): JSX.Element {
+  return <Redirect to={useBaseUrl("/docs/intro")} />;
 }

@@ -9,7 +9,6 @@ import Card from "../../../../components/card/Card";
 import ErrorCard from "../../../../components/card/ErrorCard";
 import EventStatisticsContent from "./EventStatisticsContent";
 import LoadingPlaceholder from "../../../../components/spinner/LoadingPlaceholder";
-import type { MissingTableRateRow } from "./MissingRatesTable";
 
 interface EventStatisticsProps {
   event?: EventType;
@@ -21,24 +20,8 @@ interface EventStatisticsProps {
 }
 
 const EventStatistics = (props: EventStatisticsProps) => {
-  const {
-    event,
-    statistics,
-    lastUpdateTime,
-    refetchStatistics,
-    isLoading,
-    isError,
-  } = props;
-
-  const missingRatesRows: MissingTableRateRow[] | undefined = event?.fields.map(
-    (field) => {
-      return {
-        fieldKey: field.field_key,
-        missingRate: statistics?.missingRates[field.field_key] ?? 0,
-        fieldType: field.data_type,
-      };
-    },
-  );
+  const { statistics, lastUpdateTime, refetchStatistics, isLoading, isError } =
+    props;
 
   if (isError) {
     return <ErrorCard message="Failed to load event statistics." />;
@@ -57,10 +40,7 @@ const EventStatistics = (props: EventStatisticsProps) => {
       {isLoading ? (
         <LoadingPlaceholder />
       ) : (
-        <EventStatisticsContent
-          statistics={statistics}
-          missingRatesRows={missingRatesRows}
-        />
+        <EventStatisticsContent statistics={statistics} />
       )}
     </Card>
   );

@@ -30,7 +30,7 @@ The process for defining a Client-Side Event _(an event delivered to prism from 
 
 2. **Name**: Choose a name that is easily identifies your event specifically. For example the name _"Button Press"_ would be considered weak, instead choose something more specific that uniquely identifies your event such as _"Client-Side Product Page See More Button Press"_.
 
-3. **Event Key**: Choosing the Event Key is incredibly important. This **UNIQUE** key identifies your event globally across prism. If this key does not exactly match the key sent in Client-Side or Server-Side events, then Prism will have no way of ingesting the event. Make sure to collaborate with developers to choose this name.
+3. **Event Key**: Choosing the Event Key is incredibly important. This **UNIQUE** key identifies your event globally across prism. If this key does not exactly match the key sent in events, then Prism will have no way of ingesting the event. Make sure to collaborate with developers to choose this name.
 
 4. **Description**: The description field is not mandatory, but it's useful for other experiment owners to understand the what, when, and how of your event.
 
@@ -54,6 +54,13 @@ The process for defining a Client-Side Event _(an event delivered to prism from 
 
 6. Once Create Event has been pressed, the event is ready for usage across the prism architecture.
 
-
 ## Event Details
 
+When an event created you can view useful statistics on the Event Details page such as:
+
+- A time-series graph of the event usage over time.
+- The events last seen time.
+- The count of that event.
+- Event Details
+
+![Event Details](/img/event-details.png)

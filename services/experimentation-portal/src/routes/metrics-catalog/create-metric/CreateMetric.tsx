@@ -12,7 +12,6 @@ import {
 } from "../../../api/metricsCatalog";
 import CreateMetricInitialDetails from "./CreateMetricInitialDetails";
 import CreateSimpleMetric from "./CreateSimpleMetric";
-import SimpleMetricHelp from "./SimpleMetricHelp";
 import PrimaryButton from "../../../components/button/PrimaryButton";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -124,7 +123,6 @@ const CreateMetric = () => {
       >
         <PageTitle>Create Metric</PageTitle>
         <CreateMetricInitialDetails />
-        {/* <SimpleMetricHelp /> */}
 
         {metricType === "simple" && <CreateSimpleMetric />}
         {metricType === "ratio" && <CreateRatioMetric />}

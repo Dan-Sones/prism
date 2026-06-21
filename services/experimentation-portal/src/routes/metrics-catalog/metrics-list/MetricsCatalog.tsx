@@ -12,12 +12,7 @@ const MetricsCatalog = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState<string | undefined>(undefined);
 
-  const {
-    data,
-    isLoading,
-    error,
-    refetch: refreshMetrics,
-  } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["metrics", searchQuery],
     queryFn: async () => {
       return getMetrics(searchQuery);
@@ -38,14 +33,7 @@ const MetricsCatalog = () => {
           <CatalogSearch onSearch={setSearchQuery} />
           <TableFilters />
         </TableActions>
-        <MetricsCatalogTable
-          isLoading={isLoading}
-          error={error}
-          deleteTable={function (id: string): void {
-            throw new Error("Function not implemented.");
-          }}
-          data={data}
-        />
+        <MetricsCatalogTable isLoading={isLoading} error={error} data={data} />
       </section>
     </>
   );

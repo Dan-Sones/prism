@@ -13,6 +13,7 @@ import type { ProblemDetail } from "../../../api/base/problem";
 import type { AxiosError } from "axios";
 import { toast } from "sonner";
 import { cancelExperiment } from "../../../api/experiments/cancel-experiment";
+import React from "react";
 
 const Experiment = () => {
   const params = useParams();
@@ -29,11 +30,7 @@ const Experiment = () => {
     },
   });
 
-  const {
-    data: results,
-    isError: isResultsError,
-    isLoading: isResultsLoading,
-  } = useQuery({
+  const { data: results } = useQuery({
     queryKey: ["experimentResults", expDetails?.id, expDetails],
     queryFn: async () => {
       return getExperimentResults(params.id!);
@@ -52,6 +49,7 @@ const Experiment = () => {
     "ab-complete": (
       <ABComplete experimentDetails={expDetails} experimentResults={results} />
     ),
+    cancelled: <React.Fragment></React.Fragment>,
   };
 
   const { mutate: cancelExperimentMutation } = useMutation<

@@ -30,8 +30,6 @@ const MetricResultCard = (props: MetricResultCardProps) => {
     metricDetails,
     metricObservations,
     zTestResult,
-    resultsLoading,
-    resultsError,
     statisticallySignificant,
     practicallySignificant,
     variants,

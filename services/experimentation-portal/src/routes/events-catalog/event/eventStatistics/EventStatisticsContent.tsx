@@ -1,17 +1,13 @@
 import type { LiveEventStatistics } from "../../../../api/eventsCatalog";
 import HealthIndicator from "../../../../components/indicators/HealthIndicator";
 import EventStatistic from "./EventStatistic";
-import MissingRatesTable, {
-  type MissingTableRateRow,
-} from "./MissingRatesTable";
 
 interface EventStatisticsContentProps {
   statistics?: LiveEventStatistics;
-  missingRatesRows?: Array<MissingTableRateRow>;
 }
 
 const EventStatisticsContent = (props: EventStatisticsContentProps) => {
-  const { statistics, missingRatesRows } = props;
+  const { statistics } = props;
 
   return (
     <>
@@ -36,10 +32,6 @@ const EventStatisticsContent = (props: EventStatisticsContentProps) => {
           <p className="text-sm">{statistics?.totalEventsPast7Days}</p>
         </EventStatistic>
       </div>
-      {/* <div className="pt-4">
-        <h3 className="py-4 font-semibold">Missing Field Rates</h3>
-        <MissingRatesTable missingRates={missingRatesRows} />
-      </div> */}
     </>
   );
 };
