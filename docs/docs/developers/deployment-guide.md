@@ -51,4 +51,4 @@ Once you have images, the recommended model of deployment is via Docker Compose 
 
 The Docker Compose provided within the repository is pre-configured with all of the connectivity between services, And an accompanying end.example, ready to be copied, allows you to tune Prism to your needs.
 
-See [Experiment Walkthrough](experiment-walkthrough.md) for more on how to do this.
+See [Experiment Walkthrough](../experiment-owners/experiment-walkthrough.md) for more on how to do this.
