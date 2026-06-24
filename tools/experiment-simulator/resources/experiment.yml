@@ -1,36 +1,209 @@
-experiment_1:
-  random_seed: 21
-  experiment_key: dev_test
-  experiment_uuid: a4542da3-340e-4671-a683-7e159a60e79a
-  variants:
-    button_color_blue: control
-    button_color_red: treatment
-  aa:
-    duration_seconds: 60
-    publish_amounts:
-      experiment_exposure:
-        button_color_blue: 4010
-        button_color_red: 3998
-      purchase:
-        button_color_blue: 2000
-        button_color_red: 2200
-  ab:
-    duration_seconds: 120
-    publish_amounts:
-      experiment_exposure:
-        button_color_blue: 4010
-        button_color_red: 3998
-      purchase:
-        button_color_blue: 2000
-        button_color_red: 2200
-  events:
-    purchase:
-      fields:
-        order_total:
-          type: float
-          aa:
-            button_color_blue: { min: 10.0, max: 500.0 }
-            button_color_red: { min: 10.0, max: 500.0 }
-          ab:
-            button_color_blue: { min: 10.0, max: 500.0 }
-            button_color_red: { min: 10.0, max: 600.0 }
+# =============================================================================
+# Test A1: True treatment effect well above MDE.
+# EXPECT: Stat AND Prac Sig (Recommend)
+# RESULT: PASS
+# =============================================================================
+#experiment_1:
+#  random_seed: 101
+#  experiment_key: test_positive_uplift
+#  experiment_uuid: 70a6e8ff-33c1-4e63-ab87-5e427618457f
+#  variants:
+#    button_color_blue: control
+#    button_color_red: treatment
+#  aa:
+#    duration_seconds: 300
+#    publish_amounts:
+#      experiment_exposure:
+#        button_color_blue: 100000
+#        button_color_red: 100000
+#      purchase:
+#        button_color_blue: 50000
+#        button_color_red: 50000
+#  ab:
+#    duration_seconds: 600
+#    publish_amounts:
+#      experiment_exposure:
+#        button_color_blue: 200000
+#        button_color_red: 200000
+#      purchase:
+#        button_color_blue: 100000
+#        button_color_red: 110000
+#  events:
+#    purchase:
+#      fields:
+#        order_total:
+#          type: float
+#          aa:
+#            button_color_blue: { min: 10.0, max: 500.0 }
+#            button_color_red: { min: 10.0, max: 500.0 }
+#          ab:
+#            button_color_blue: { min: 10.0, max: 500.0 }
+#            button_color_red: { min: 10.0, max: 500.0 }
+
+# =============================================================================
+# Test A2: No treatment effect.
+# EXPECT: NOT_RECOMMEND - not prac or stat sig
+# res: PASS
+# =============================================================================
+#experiment_1:
+#  random_seed: 202
+#  experiment_key: test_zero_effect
+#  experiment_uuid: 027cd502-9f01-44d8-bdd6-a9063e18f7ff
+#  variants:
+#    button_color_blue: control
+#    button_color_red: treatment
+#  aa:
+#    duration_seconds: 300
+#    publish_amounts:
+#      experiment_exposure:
+#        button_color_blue: 100000
+#        button_color_red: 100000
+#      purchase:
+#        button_color_blue: 50000
+#        button_color_red: 50000
+#  ab:
+#    duration_seconds: 600
+#    publish_amounts:
+#      experiment_exposure:
+#        button_color_blue: 200000
+#        button_color_red: 200000
+#      purchase:
+#        button_color_blue: 100000
+#        button_color_red: 100000
+#  events:
+#    purchase:
+#      fields:
+#        order_total:
+#          type: float
+#          aa:
+#            button_color_blue: { min: 10.0, max: 500.0 }
+#            button_color_red: { min: 10.0, max: 500.0 }
+#          ab:
+#            button_color_blue: { min: 10.0, max: 500.0 }
+#            button_color_red: { min: 10.0, max: 500.0 }
+
+## =============================================================================
+## Test A3: Treatment is worse than control.
+## Expected decision: NOT_RECOMMEND (treatment causes regression).
+## res: PASS
+## =============================================================================
+#experiment_1:
+#  random_seed: 303
+#  experiment_key: test_negative_effect
+#  experiment_uuid: 22e4ca8b-a934-41b7-951b-8279c682486f
+#  variants:
+#    button_color_blue: control
+#    button_color_red: treatment
+#  aa:
+#    duration_seconds: 300
+#    publish_amounts:
+#      experiment_exposure:
+#        button_color_blue: 100000
+#        button_color_red: 100000
+#      purchase:
+#        button_color_blue: 50000
+#        button_color_red: 50000
+#  ab:
+#    duration_seconds: 600
+#    publish_amounts:
+#      experiment_exposure:
+#        button_color_blue: 200000
+#        button_color_red: 200000
+#      purchase:
+#        button_color_blue: 100000
+#        button_color_red: 90000
+#  events:
+#    purchase:
+#      fields:
+#        order_total:
+#          type: float
+#          aa:
+#            button_color_blue: { min: 10.0, max: 500.0 }
+#            button_color_red: { min: 10.0, max: 500.0 }
+#          ab:
+#            button_color_blue: { min: 10.0, max: 500.0 }
+#            button_color_red: { min: 10.0, max: 500.0 }
+
+## =============================================================================
+## Test A4: Effect is statistically sig but nelow mde.
+## Expected decision: NOT_RECOMMEND (statistically significant, not practically significant).
+## =============================================================================
+#experiment_1:
+#  random_seed: 404
+#  experiment_key: test_sub_mde_effect
+#  experiment_uuid: 35388798-31e6-473a-855a-2f374a88187f
+#  variants:
+#    button_color_blue: control
+#    button_color_red: treatment
+#  aa:
+#    duration_seconds: 300
+#    publish_amounts:
+#      experiment_exposure:
+#        button_color_blue: 100000
+#        button_color_red: 100000
+#      purchase:
+#        button_color_blue: 50000
+#        button_color_red: 50000
+#  ab:
+#    duration_seconds: 600
+#    publish_amounts:
+#      experiment_exposure:
+#        button_color_blue: 200000
+#        button_color_red: 200000
+#      purchase:
+#        button_color_blue: 100000
+#        button_color_red: 101000
+#  events:
+#    purchase:
+#      fields:
+#        order_total:
+#          type: float
+#          aa:
+#            button_color_blue: { min: 10.0, max: 500.0 }
+#            button_color_red: { min: 10.0, max: 500.0 }
+#          ab:
+#            button_color_blue: { min: 10.0, max: 500.0 }
+#            button_color_red: { min: 10.0, max: 500.0 }
+
+## =============================================================================
+## Test A5: Effect sits right on the MDE boundary -- CI straddles MDE.
+## Expected decision: INCONCLUSIVE ("only JUST practically significant")
+## Res: pass
+## =============================================================================
+#experiment_1:
+#  random_seed: 505
+#  experiment_key: test_boundary_effect
+#  experiment_uuid: ae571c58-ae54-4cc8-ae38-4027bd3ae146
+#  variants:
+#    button_color_blue: control
+#    button_color_red: treatment
+#  aa:
+#    duration_seconds: 300
+#    publish_amounts:
+#      experiment_exposure:
+#        button_color_blue: 100000
+#        button_color_red: 100000
+#      purchase:
+#        button_color_blue: 50000
+#        button_color_red: 50000
+#  ab:
+#    duration_seconds: 600
+#    publish_amounts:
+#      experiment_exposure:
+#        button_color_blue: 200000
+#        button_color_red: 200000
+#      purchase:
+#        button_color_blue: 100000
+#        button_color_red: 104000
+#  events:
+#    purchase:
+#      fields:
+#        order_total:
+#          type: float
+#          aa:
+#            button_color_blue: { min: 10.0, max: 500.0 }
+#            button_color_red: { min: 10.0, max: 500.0 }
+#          ab:
+#            button_color_blue: { min: 10.0, max: 500.0 }
+#            button_color_red: { min: 10.0, max: 500.0 }
+
