@@ -11,7 +11,6 @@ See the following TOC for a breakdown of the Experimentation Service's responsib
 - [Event Catalog Management](#event-catalog-management)
 - [Metric Catalog Management](#metric-catalog-management)
 - [Experiment Configuration Management](#experiment-configuration-management)
-- [API Specification](#api-specification)
 - [GRPC Specification](#grpc-specification)
 
 ## Event Catalog Management
