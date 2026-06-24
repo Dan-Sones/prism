@@ -1,59 +1,36 @@
+components:
+  schemas:
+    Problem:
+      type: object
+      description: RFC 7807 problem details object.
+      properties:
+        type:
+          type: string
+          format: uri
+          description: A URI reference that identifies the problem type.
+        title:
+          type: string
+          description: A short, human-readable summary of the problem type.
+        status:
+          type: integer
+          description: The HTTP status code.
+        detail:
+          type: string
+          description: A human-readable explanation specific to this occurrence of the problem.
+        instance:
+          type: string
+          description: A URI reference that identifies the specific occurrence of the problem.
+
 responses:
   BadRequest:
-    description: Bad request
+    description: The request was malformed or failed validation.
     content:
       application/problem+json:
         schema:
-          $ref: "#/schemas/ProblemDetail"
-        example:
-          title: "Bad Request"
-          status: 400
-          detail: "Request body is required"
-
-  ValidationError:
-    description: Validation error
-    content:
-      application/problem+json:
-        schema:
-          $ref: "#/schemas/ProblemDetail"
-        example:
-          title: "Validation Error"
-          status: 422
-          detail: "One or more fields failed validation"
-          violations:
-            - field: "name"
-              message: "Name is required"
-
+          $ref: "#/components/schemas/Problem"
   InternalServerError:
-    description: Internal server error
+    description: An unexpected error occurred while processing the request.
     content:
       application/problem+json:
         schema:
-          $ref: "#/schemas/ProblemDetail"
-        example:
-          title: "Internal Server Error"
-          status: 500
-          detail: "An unexpected error occurred"
-
-schemas:
-  ProblemDetail:
-    type: object
-    properties:
-      title:
-        type: string
-      status:
-        type: integer
-      detail:
-        type: string
-      violations:
-        type: array
-        items:
-          $ref: "#/schemas/Violation"
-
-  Violation:
-    type: object
-    properties:
-      field:
-        type: string
-      message:
-        type: string
+          $ref: "#/components/schemas/Problem"

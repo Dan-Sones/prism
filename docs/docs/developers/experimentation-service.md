@@ -214,10 +214,6 @@ Although in the final deliverable events defined in this format cannot be used, 
 
 ## Experiment Configuration Management
 
-## API Specification
-
-[View Experimentation Service API Documentation →](/api/experimentation-service)
-
 ## GRPC Specification
 
 Please see `prism/services/proto/assignment` for the GRPC specification for this service.

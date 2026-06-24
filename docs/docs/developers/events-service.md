@@ -55,3 +55,7 @@ For all incoming events, the below rules are enforced to ensure downstream consi
 | `experiment_key` must be present and non-empty                                    | events with `event_key == "experiment_exposure"` | 4xx — `EventIngestionException` returned to client                                                      |
 | `event_key` must resolve to a known event type in the events catalog              | all events                                       | 4xx - `EventIngestionException` returned to client                                                      |
 | Every property defined on the catalog `EventType` must be present in `properties` | all events                                       | 4xx - `EventIngestionException` returned to client (Eventually this will be surfaced in the portal too) |
+
+## API Specification
+
+[View Events Service API Documentation →](/api/events-service)

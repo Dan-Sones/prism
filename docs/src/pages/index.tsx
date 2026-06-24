@@ -3,5 +3,5 @@ import useBaseUrl from "@docusaurus/useBaseUrl";
 import { JSX } from "react";
 
 export default function Home(): JSX.Element {
-  return <Redirect to={useBaseUrl("/docs/intro")} />;
+  return <Redirect to={useBaseUrl("/docs/developers/experimentation-service")} />;
 }
