@@ -6,7 +6,7 @@ const CreateExperimentTile = () => {
   const navigate = useNavigate();
 
   const onClick = () => {
-    navigate("/create-experiment");
+    navigate("/experiments/create");
   };
 
   return (
