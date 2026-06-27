@@ -57,7 +57,9 @@ The A/A test runs for 7 days in order to account for the day of week effect.
 
 # Configuring The A/B Test
 
-When the A/A test is complete you will be able to allocate a percentage of the total population to the experiment. This will randomly sample from the available buckets. You must also specify the date range of the experiment.
+When the A/A test is complete you will be able to allocate a percentage of the total population to the experiment. This will randomly sample from the available buckets. You must also specify the date range of the experiment. _(Note the below screenshot is from a different experiment as I misplaced the original. The UI remains unchanged regardless.)_
+
+![Create Experiment Form #4](/img/create-experiment-form-4.png)
 
 # Evaluating the A/B test
 

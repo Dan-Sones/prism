@@ -32,6 +32,6 @@ TMUXCONF
 # Auto-launch tmux on login
 echo 'if command -v tmux &>/dev/null && [ -z "$TMUX" ]; then tmux new-session -A -s main; fi' >> /root/.bashrc
 
-git clone -b events-service https://github.com/Dan-Sones/prism.git /root/prism
+git clone https://github.com/Dan-Sones/prism.git /root/prism
 
 cd /root/prism/services
