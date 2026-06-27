@@ -45,7 +45,7 @@ Once validated, events will be transformed into the json format below, where eac
 
 ## Validation Rules
 
-For all incoming events, the below rules are enforced to ensure downstream consistency. Note the special case for Experiment key: Experiment exposure event must contain an experiment key, as we can't retrospectively join experiment exposure events As alone, they lack the required context.
+For all incoming events, the below rules are enforced to ensure downstream consistency. Note the special case for Experiment key: Experiment exposure event must contain an experiment key, as we can't retrospectively join experiment exposure events as alone, they lack the required context.
 
 | Rule                                                                              | Applies to                                       | On failure                                                                                              |
 | --------------------------------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |

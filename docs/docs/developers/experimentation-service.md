@@ -44,18 +44,6 @@ Events exist in the following format:
       "data_type": "string"
     },
     {
-      "id": "1f4b5354-985c-4a7b-8fce-6e7b1cd83135",
-      "name": "Is Loyalty Member",
-      "field_key": "is_loyalty_member",
-      "data_type": "string"
-    },
-    {
-      "id": "d0b980ea-7563-461a-9879-bc6cf3c4e4e4",
-      "name": "Order Time",
-      "field_key": "order_time",
-      "data_type": "timestamp"
-    },
-    {
       "id": "05628ab6-9dec-459a-b661-180a11de83dc",
       "name": "Order Total",
       "field_key": "order_total",

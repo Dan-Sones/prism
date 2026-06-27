@@ -101,17 +101,12 @@ const PostAAConfig = (props: PostAAConfigProps) => {
               setStartDate={setFromDate}
               start_date={start_time}
               setEndDate={setToDate}
-              end_date={end_time}
+              end_date={end_time} 
               range={range}
             />
             <p className="pt-1 text-xs text-gray-500 italic">
               Your Experiment will start and end at 00:00 UTC on the selected
               dates.
-            </p>
-            <p className="pt-1 text-xs text-gray-500 italic">
-              If the experiment fails to reach statistical significance by the
-              end date, you will be able to extend the experiment duration in
-              set increments, or cancel the experiment.
             </p>
           </div>
 
