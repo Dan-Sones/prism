@@ -1,5 +1,4 @@
 import type { LiveEventStatistics } from "../../../../api/eventsCatalog";
-import HealthIndicator from "../../../../components/indicators/HealthIndicator";
 import EventStatistic from "./EventStatistic";
 
 interface EventStatisticsContentProps {
@@ -12,10 +11,6 @@ const EventStatisticsContent = (props: EventStatisticsContentProps) => {
   return (
     <>
       <div className="grid-E a-2 grid gap-4 border-b border-gray-200 py-4">
-        <EventStatistic>
-          <p className="text-xs text-gray-400">Health</p>
-          <HealthIndicator status="healthy" reason="My Name jeff" />
-        </EventStatistic>
         <EventStatistic>
           <p className="text-xs text-gray-400">Event Last Seen</p>
           <p className="font-mono text-sm">

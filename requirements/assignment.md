@@ -99,3 +99,5 @@ Without this mechanism, prism would be limited to server-side experiments.
 - In the event the api call fails, the user should be shown a control variant as a fallback.
 
 **Security Measures**
+
+- The user Id MUST be validated to ensure the user is who they say they are by the organisations proxying service. 

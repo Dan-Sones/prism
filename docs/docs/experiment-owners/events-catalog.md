@@ -50,7 +50,7 @@ The process for defining a Client-Side Event _(an event delivered to prism from 
    | --------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
    | Name      | Display name of the field (to be used in the ui)                                                                                                                                       |
    | Field Key | The key used when sending this field in events. Again it's **Vital** this matches the exact key sent within the event itself. Collaborate with developers if required to make this so. |
-   | DataType  | The data type of the field (e.g., `string`, `float`, `integer`, `boolean`). If this data type is not inputted corretly the then metrics maybe malformed and experiment results invalid |
+   | DataType  | The data type of the field (e.g., `string`, `float`, `integer`, `boolean`). If this data type is not inputted corretly then the metrics maybe malformed and experiment results invalid |
 
 6. Once Create Event has been pressed, the event is ready for usage across the prism architecture.
 

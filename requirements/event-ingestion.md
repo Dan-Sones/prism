@@ -48,6 +48,9 @@ Some events can only be collected on the clientside. Think hover events. These e
 
 **Security Measures:**
 
+- Client-side instrumentation should NOT trust user supplied identity blindly. Events sourced directly from the browser must first be validated by the organisations backend. This will prevent forged user ids from being used to target experiment results.
+-
+
 # FR-2.2 — Server Side instrumentation.
 
 **User Story / Rationale:**  
@@ -57,8 +60,11 @@ As a data engineer, I want to be able to instrument server-side actions so that 
 Some events can only be collected Serverside. For Example payment info, financial records, integrations with other systems e.g. minutes listened.
 
 **Inputs:**
+- An event that matches the defined schema.
 
 **Outputs:**
+
+- The event is published via HTTP
 
 **Pre-Conditions:**
 

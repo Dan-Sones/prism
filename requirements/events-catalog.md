@@ -65,7 +65,7 @@ To build a metric, events need to be defined. This FR encompasses the creation o
 
 - The event key MUST be validated by a regex to ensure that it only contains letters, numbers, and underscores. This will ensure it remains interpretable across the system as well as lowering the risk of sql injection. This should be validated on the client side AND serverside
 
-## FR-1.2 — View Event Details and Usage
+## FR-1.2 - View Event Details and Usage Graphs
 
 **User Story / Rationale**
 

@@ -90,7 +90,7 @@ Continuous metrics allow us to measure things over a range e.g. minutes listened
 
 **User Story / Rationale**
 
-As an experiment owner, I want to be able to create a continuous metrics, so I can express the relationship between two values.
+As an experiment owner, I want to be able to create a ratio metrics, so I can express the relationship between two values.
 
 **Description**
 Ratio metrics allow the measurement of events relative to other types of events. This comes with considerably deeper implementation complexity.
