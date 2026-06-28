@@ -4,6 +4,11 @@ Prism is an MVP self-hostable Experimentation Platform that I have built for the
 
 **NOTE:** The GitHub language percentage is **INCORRECT** - the HTML percentage is greatly inflated by the inclusion of Gatling reports in the repository.
 
+## Documentation
+
+- Developer Docs: https://dan-sones.github.io/prism/docs/developers/data-cooking-service
+- User Docs / Guides: https://dan-sones.github.io/prism/docs/experiment-owners/metrics-catalog
+
 ## Highlights
 
 - **Deterministic Experiment and Variant Assignment** - Bucket and Variant-Level Hash functions
@@ -40,8 +45,3 @@ Prism is an MVP self-hostable Experimentation Platform that I have built for the
 CI runs on every push via GitHub Actions: unit tests, integration tests (Testcontainers). Failing actions will prevent merges into main.
 
 The experiment simulator can be run locally to validate the system.
-
-## Documentation
-
-- Developer Docs: https://dan-sones.github.io/prism/docs/developers/data-cooking-service
-- User Docs / Guides: https://dan-sones.github.io/prism/docs/experiment-owners/metrics-catalog
