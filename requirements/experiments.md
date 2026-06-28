@@ -205,7 +205,7 @@ As an experiment owner, I want the system to calculate whether the treatment gro
 
 **Security Measures**
 
-# FR-6.1 A/B Test (Window Based Metircs)
+# FR-6.1 A/B Test (Window-Based Metrics)
 
 **User Story / Rationale**
 
@@ -253,7 +253,7 @@ As an experiment owner, I want to immediately cancel an active experiment and re
 
 **Security Measures**
 
-# FR-8 Experiment State Management
+# FR-8 Experiment Time-Deterministic State Management
 
 **User Story / Rationale**
 As an experiment owner, I want the system to automatically manage the state transitions of my experiment based on the durations I have inputted, so that traffic allocation happens automatically without manual intervention.
@@ -268,8 +268,9 @@ As an experiment owner, I want the system to automatically manage the state tran
 
 **Output**
 
-- The experiment state is updated to cancelled
-- The assignment service "forgets" about the experiment, so it is no longer served to assignment requests.
+- The experiment state is derived from the current time and the configured A/A and A/B phase windows.
+- During the A/A phase, assigned users receive the control variant.
+- During the A/B phase, assigned users receive control or treatment variants according to the configured variant bounds.
 
 **Preconditions**
 
@@ -279,6 +280,7 @@ As an experiment owner, I want the system to automatically manage the state tran
 
 - The assignment service serves traffic based on the real time state of an experiment
 - The UI displays the current state of the experiment
+- Completed or cancelled experiments are excluded from active assignment responses.
 
 **Error Handling**
 
@@ -299,6 +301,8 @@ Sometimes more than one experiment might be taking on one local piece of an appl
 - An exclusivity group name
 
 **Output**
+
+- The exclusivity group is persisted and can be associated with experiments.
 
 **Preconditions**
 

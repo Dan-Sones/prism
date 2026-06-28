@@ -10,7 +10,7 @@ A custom Open Feature, as seen in `openfeature-provider-react/` manages the comm
 
 ## Getting Started
 
-Getting started with implementing Open Feature in you react application is simple. Once you have pulled in the `@openfeature/react-sdk` package and `@prism/openfeature-provider-react`, Set the `PrismWebProvider` and wrap your application with `<OpenFeatureProvider> </OpenFeatureProvider>`, as seen below:
+Getting started with implementing Open Feature in your react application is simple. Once you have pulled in the `@openfeature/react-sdk` package and `@prism/openfeature-provider-react`, Set the `PrismWebProvider` and wrap your application with `<OpenFeatureProvider> </OpenFeatureProvider>`, as seen below:
 
 ```tsx
 import { OpenFeature, OpenFeatureProvider } from "@openfeature/react-sdk";
