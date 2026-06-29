@@ -61,7 +61,6 @@ services:
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      # TODO: Plain text for now, need to look into SSL later (?)
       KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:29092,PLAINTEXT_HOST://0.0.0.0:9092
@@ -219,6 +218,21 @@ services:
         condition: service_started
       kafka:
         condition: service_started
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: prism_caddy
+    profiles: ["tls"]
+    ports:
+      - "443:443"
+    env_file:
+      - .env.test
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ${CADDY_CERT_DIR:-./caddy/certs}:/certs:ro
+    depends_on:
+      - events-service
+      - assignment-service
 
 volumes:
   postgres_data_test:
