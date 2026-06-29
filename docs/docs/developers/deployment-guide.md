@@ -52,3 +52,48 @@ Once you have images, the recommended model of deployment is via Docker Compose 
 The Docker Compose provided within the repository is pre-configured with all of the connectivity between services, And an accompanying end.example, ready to be copied, allows you to tune Prism to your needs.
 
 See [Experiment Walkthrough](../experiment-owners/experiment-walkthrough.md) for more on how to do this.
+
+## Transport security (HTTPS / TLS)
+
+Communication on the edge of Prism (your services -> Assignment Service | Events Service) can be configured to use HTTPS.
+
+### When to enable HTTPS
+
+- Your backend and Prism run on **separate hosts**.
+- Traffic traverses any path you do not fully control.
+- Compliance
+
+### How to enable HTTPS
+
+A [Caddy](https://caddyserver.com/) reverse proxy terminates TLS in front of the events and assignment services.
+
+1. Provide a certificate. You can generate a self signed set with the following make commands, or drop your own CA cert and key into `CADDY_CERT_DIR` instead and then name `CADDY_TLS_CERT_PATH` & `CADDY_TLS_KEY_PATH` appropriately.
+
+   ```bash
+   make certs-host                                       # uses PRISM_PUBLIC_HOSTNAME from .env (default localhost)
+   make certs-host PRISM_PUBLIC_HOSTNAME=prism.your-org.internal   # a DNS hostname
+   make certs-ip   PRISM_PUBLIC_HOSTNAME=203.0.113.5              # a raw IP address
+   ```
+
+2. Set the hostname in your env file:
+
+   ```
+   PRISM_PUBLIC_HOSTNAME=prism.your-org.internal
+   ```
+
+3. (Optional) Add the certificates to your machines trust-store with:
+
+   ```
+   make certs-trust
+   ```
+
+4. Start the stack with the `tls` profile:
+
+   ```bash
+   docker compose --profile tls up
+   ```
+
+You can now configure your backend to hit these two endpoints via HTTPS.
+
+- `https://$PRISM_PUBLIC_HOSTNAME/event`
+- `https://$PRISM_PUBLIC_HOSTNAME/api/assignments/{user_id}`

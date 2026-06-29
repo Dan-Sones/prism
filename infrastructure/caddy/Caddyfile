@@ -1,0 +1,18 @@
+{$PRISM_PUBLIC_HOSTNAME} {
+	tls {$CADDY_TLS_CERT_PATH} {$CADDY_TLS_KEY_PATH}
+
+	# POST /event
+	handle /event {
+		reverse_proxy events-service:5678
+	}
+
+	# GET /api/assignments/{user_id}
+	handle /api/* {
+		reverse_proxy assignment-service:8082
+	}
+
+	#fallback to 404
+	handle {
+		respond 404
+	}
+}
