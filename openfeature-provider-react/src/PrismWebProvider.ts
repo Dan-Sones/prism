@@ -39,7 +39,6 @@ export class PrismWebProvider implements Provider {
         }
 
         try {
-            console.log(`Initializing with targeting key: ${context.targetingKey}`);
             await this.updateFlagsCache(context.targetingKey)
         } catch (error) {
             this.events.emit(ProviderEvents.Error)
@@ -68,7 +67,6 @@ export class PrismWebProvider implements Provider {
         newContext: EvaluationContext
     ): Promise<void> | void {     
         if (oldContext.targetingKey !== newContext.targetingKey) {
-        console.log(`Targeting key changed from ${oldContext.targetingKey} to ${newContext.targetingKey}`);
             return this.updateFlagsCache(newContext.targetingKey as string)
         }
     }
