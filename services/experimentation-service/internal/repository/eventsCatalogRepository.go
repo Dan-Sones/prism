@@ -12,7 +12,6 @@ import (
 
 type EventsCatalogRepositoryInterface interface {
 	CreateEventType(ctx context.Context, eventType event.EventType) error
-	DeleteEventType(ctx context.Context, eventTypeId string) error
 	GetEventTypeById(ctx context.Context, eventTypeId string) (*event.EventType, error)
 	GetEventTypeByKey(ctx context.Context, eventTypeKey string) (*event.EventType, error)
 	GetEventTypes(ctx context.Context) ([]*event.EventType, error)
@@ -57,21 +56,6 @@ func (e *EventsCatalogRepository) CreateEventType(ctx context.Context, eventType
 
 	if err = tx.Commit(ctx); err != nil {
 		return err
-	}
-
-	return nil
-}
-
-func (e *EventsCatalogRepository) DeleteEventType(ctx context.Context, eventTypeId string) error {
-	sql := `DELETE FROM prism.event_types WHERE id = $1`
-
-	result, err := e.pgx.Exec(ctx, sql, eventTypeId)
-	if err != nil {
-		return err
-	}
-
-	if result.RowsAffected() == 0 {
-		return pgx.ErrNoRows
 	}
 
 	return nil

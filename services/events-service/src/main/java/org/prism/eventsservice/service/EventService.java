@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.prism.eventsservice.exception.EventIngestionException;
+import org.prism.eventsservice.grpc.events_catalog.v1.DataType;
 import org.prism.eventsservice.grpc.events_catalog.v1.EventType;
 import org.prism.eventsservice.grpc.events_catalog.v1.EventsCatalogServiceGrpc;
 import org.prism.eventsservice.grpc.events_catalog.v1.GetEventTypeByKeyRequest;
@@ -55,7 +56,8 @@ public class EventService {
 
         var propertiesValidationResult = validateEventProperties(eventToIngest.getProperties(), eventType);
         if (!propertiesValidationResult.isValid()) {
-            return;
+            throw new EventIngestionException(
+                    "Invalid event properties: " + String.join(", ", propertiesValidationResult.validationErrors()));
         }
 
         DownstreamEvent downstreamEvent = new DownstreamEvent(eventType, eventToIngest);
@@ -96,18 +98,47 @@ public class EventService {
 
     private EventPropertiesValidationResult validateEventProperties(
             Map<String, Object> eventProperties, EventType eventType) {
-        ArrayList<String> missingFields = new ArrayList<>();
+        ArrayList<String> validationErrors = new ArrayList<>();
+
+        if (eventProperties == null) {
+            validationErrors.add("properties must be present");
+            // TODO: Surface error in portal that event was sent with no properties
+            return new EventPropertiesValidationResult(false, validationErrors);
+        }
 
         for (var schemaField : eventType.getFieldsList()) {
-            if (!eventProperties.containsKey(schemaField.getFieldKey())) {
-                // TODO: Missing fields need to be raised through an observable alert in the portal, for now just log
-                // and discard the event
-                log.warn("Missing field " + schemaField.getFieldKey() + " in event " + eventType.getName());
-                missingFields.add(schemaField.getFieldKey());
+            String fieldKey = schemaField.getFieldKey();
+
+            if (!eventProperties.containsKey(fieldKey)) {
+                validationErrors.add("Missing property: " + fieldKey);
+                // TODO: Surface error in portal that event is missing property
+                continue;
+            }
+
+            Object value = eventProperties.get(fieldKey);
+
+            if (!isCorrectType(value, schemaField.getDataType())) {
+                // TODO: Surface error in portal that there is a type mismatch
+                validationErrors.add("Property " + fieldKey + " expected " + schemaField.getDataType() + " but got "
+                        + value.getClass().getSimpleName());
             }
         }
 
-        return new EventPropertiesValidationResult(missingFields.isEmpty(), missingFields);
+        return new EventPropertiesValidationResult(validationErrors.isEmpty(), validationErrors);
+    }
+
+    private boolean isCorrectType(Object value, DataType expectedType) {
+        if (value == null) {
+            return false;
+        }
+        return switch (expectedType) {
+            case DATA_TYPE_STRING -> value instanceof String;
+            case DATA_TYPE_INT -> value instanceof Integer;
+            case DATA_TYPE_FLOAT -> value instanceof Number;
+            case DATA_TYPE_BOOL -> value instanceof Boolean;
+            case DATA_TYPE_TIMESTAMP -> value instanceof String;
+            default -> false;
+        };
     }
 
     public EventType lookupEventType(String eventKey) {

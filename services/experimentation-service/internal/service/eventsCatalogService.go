@@ -18,7 +18,6 @@ import (
 
 type EventsCatalogServiceInterface interface {
 	CreateEventType(ctx context.Context, eventType event.EventType) (error, []problems.Violation)
-	DeleteEventType(ctx context.Context, eventTypeId string) error
 	GetEventTypeById(ctx context.Context, eventTypeId string) (*event.EventType, error)
 	GetEventTypeByKey(ctx context.Context, eventTypeId string) (*event.EventType, error)
 	GetEventTypes(ctx context.Context) ([]*event.EventType, error)
@@ -69,16 +68,6 @@ func (e *EventsCatalogService) CreateEventType(ctx context.Context, eventType ev
 	}
 
 	return nil, nil
-}
-
-func (e *EventsCatalogService) DeleteEventType(ctx context.Context, eventTypeId string) error {
-	err := e.eventsCatalogRepository.DeleteEventType(ctx, eventTypeId)
-	if err != nil {
-		e.logger.Error("Error deleting event type", "error", err, "eventTypeId", eventTypeId)
-		return err
-	}
-
-	return nil
 }
 
 func (e *EventsCatalogService) GetEventTypeById(ctx context.Context, eventTypeId string) (*event.EventType, error) {
