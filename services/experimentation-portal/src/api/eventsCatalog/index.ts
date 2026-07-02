@@ -4,7 +4,6 @@ export { getEventTypeById } from "./get-event-type";
 export { getLiveEventStatistics } from "./get-live-event-statistics";
 export type { LiveEventStatistics } from "./model/liveEventStatistics";
 export { getEventTypeByKey } from "./get-event-type-by-key";
-export { deleteEventType } from "./delete-event-type";
 export { getEventUsageOverPeriod } from "./get-event-usage-over-period";
 export { checkFieldKeyAvailable } from "./check-field-key";
 export { checkEventKeyAvailable } from "./check-event-key";

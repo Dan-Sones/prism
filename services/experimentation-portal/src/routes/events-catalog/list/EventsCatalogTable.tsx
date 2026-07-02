@@ -8,14 +8,12 @@ type EventTypeRow = {
   owner: string;
   lastUsed: string;
   createdAt: string;
-  eventId: string;
 };
 
 interface EventsCatalogTableProps {
   data?: Array<EventType>;
   isLoading: boolean;
   error: Error | null;
-  deleteTable: (id: string) => void;
 }
 
 const EventsCatalogTable = (props: EventsCatalogTableProps) => {
@@ -30,7 +28,6 @@ const EventsCatalogTable = (props: EventsCatalogTableProps) => {
       eventKey: event.event_key,
       lastUsed: new Date().toLocaleDateString(),
       createdAt: new Date(event.created_at).toLocaleDateString(),
-      eventId: event.id,
     }));
   };
 
@@ -42,24 +39,12 @@ const EventsCatalogTable = (props: EventsCatalogTableProps) => {
     { header: "Created at", accessor: "createdAt" },
   ];
 
-  const deleteTableAction = (row: EventTypeRow) => {
-    props.deleteTable(row.eventId);
-  };
-
-  const actions = [
-    {
-      label: "Delete",
-      onClick: deleteTableAction,
-    },
-  ];
-
   return (
     <Table
       data={transformData(data || [])}
       columns={columns}
       loading={isLoading}
       error={error}
-      actions={actions}
       onRowClick={(row) => navigate(`/events-catalog/${row.eventKey}`)}
     />
   );
