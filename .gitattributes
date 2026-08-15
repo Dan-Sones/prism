@@ -1,0 +1,3 @@
+# Gatling HTML reports are generated output (bundled jQuery, Highcharts, Bootstrap).
+# Exclude them from GitHub's language statistics.
+tools/gatling-load-testing/results/** linguist-generated=true

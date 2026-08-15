@@ -2,8 +2,6 @@
 
 Prism is an MVP self-hostable Experimentation Platform that I have built for the fulfillment of my undergraduate degree in BSc (Hons) Digital & Technology Solutions (Software Engineering).
 
-**NOTE:** The GitHub language percentage is **INCORRECT** - the HTML percentage is greatly inflated by the inclusion of Gatling reports in the repository.
-
 ## Documentation
 
 - Developer Docs: https://dan-sones.github.io/prism/docs/developers/data-cooking-service
