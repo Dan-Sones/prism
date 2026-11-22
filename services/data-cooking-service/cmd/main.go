@@ -70,7 +70,7 @@ func main() {
 	}
 
 	// repository
-	cookedEventsRepository := repository.NewCookedEventsRepositoryClickhouse(clickhouseConn)
+	cookedEventsRepository := repository.NewCookedEventsRepositoryClickhouse(clickhouseConn, logger)
 
 	// service
 	salt, bucketCount := prismhash.GetBucketConfig()
