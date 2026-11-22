@@ -2,7 +2,9 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/ClickHouse/clickhouse-go/v2/lib/driver"
@@ -15,11 +17,13 @@ type CookedEventsRepository interface {
 
 type CookedEventsRepositoryClickhouse struct {
 	connection driver.Conn
+	logger     *slog.Logger
 }
 
-func NewCookedEventsRepositoryClickhouse(connection driver.Conn) *CookedEventsRepositoryClickhouse {
+func NewCookedEventsRepositoryClickhouse(connection driver.Conn, logger *slog.Logger) *CookedEventsRepositoryClickhouse {
 	return &CookedEventsRepositoryClickhouse{
 		connection: connection,
+		logger:     logger,
 	}
 }
 
@@ -34,7 +38,16 @@ func (r *CookedEventsRepositoryClickhouse) InsertBatch(ctx context.Context, cook
 	}
 
 	for _, cookedEvent := range cookedEvents {
-		err := batch.Append(cookedEvent.ExperimentKey, cookedEvent.VariantKey, cookedEvent.EventKey, cookedEvent.UserDetails.ID, cookedEvent.SentAt, cookedEvent.ReceivedAt, cookedEvent.GetStringProperties(), cookedEvent.GetIntProperties(), cookedEvent.GetFloatProperties(), cookedEvent.IsAA)
+		stringProps, stringErr := cookedEvent.GetStringProperties()
+		intProps, intErr := cookedEvent.GetIntProperties()
+		floatProps, floatErr := cookedEvent.GetFloatProperties()
+		// Drop the mistyped properties but keep the event: failing here would block the
+		// whole microbatch from committing and redeliver it forever.
+		if err := errors.Join(stringErr, intErr, floatErr); err != nil {
+			r.logger.Warn("dropping event properties that do not match their declared type", "event_id", cookedEvent.ID, "event_key", cookedEvent.EventKey, "experiment_key", cookedEvent.ExperimentKey, "error", err)
+		}
+
+		err := batch.Append(cookedEvent.ExperimentKey, cookedEvent.VariantKey, cookedEvent.EventKey, cookedEvent.UserDetails.ID, cookedEvent.SentAt, cookedEvent.ReceivedAt, stringProps, intProps, floatProps, cookedEvent.IsAA)
 		if err != nil {
 			return err
 		}

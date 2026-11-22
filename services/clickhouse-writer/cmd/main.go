@@ -58,7 +58,7 @@ func main() {
 	}
 
 	// repositories
-	eventsRepository := repository.NewEventsRepositoryClickhouse(clickhouseConn)
+	eventsRepository := repository.NewEventsRepositoryClickhouse(clickhouseConn, logger)
 
 	// services
 	microBatchProcessor := services.NewMicroBatchProcessorImp(eventsRepository)

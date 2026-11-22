@@ -52,7 +52,10 @@ func TestDownstreamEvent_GetStringProperties(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := tt.event.GetStringProperties()
+			result, err := tt.event.GetStringProperties()
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
 			if len(result) != len(tt.expected) {
 				t.Errorf("Expected %d properties, got %d", len(tt.expected), len(result))
 			}
@@ -114,7 +117,10 @@ func TestDownstreamEvent_GetIntProperties(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := tt.event.GetIntProperties()
+			result, err := tt.event.GetIntProperties()
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
 			if len(result) != len(tt.expected) {
 				t.Errorf("Expected %d properties, got %d", len(tt.expected), len(result))
 			}
@@ -176,7 +182,10 @@ func TestDownstreamEvent_GetFloatProperties(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := tt.event.GetFloatProperties()
+			result, err := tt.event.GetFloatProperties()
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
 			if len(result) != len(tt.expected) {
 				t.Errorf("Expected %d properties, got %d", len(tt.expected), len(result))
 			}
