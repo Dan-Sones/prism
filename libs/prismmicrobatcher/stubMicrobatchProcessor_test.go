@@ -1,35 +1,63 @@
 package services
 
-import "context"
+import (
+	"context"
+	"sync"
+)
 
-type StubMicrobatchProcessor struct {
+// stubMicrobatchProcessor succeeds unless hook says otherwise. It keeps every
+// successful batch in order and reports successes to the shared ledger.
+type stubMicrobatchProcessor struct {
+	ledger *ledger
+
+	// hook, if set, runs for every call (0-based, counting retries) and decides its result.
+	hook func(ctx context.Context, call int, batch [][]byte) error
+
+	mu               sync.Mutex
+	calls            int
 	processedBatches [][][]byte
 }
 
-func NewStubMicrobatchProcessor() *StubMicrobatchProcessor {
-	return &StubMicrobatchProcessor{
-		processedBatches: [][][]byte{},
-	}
+func newStubMicrobatchProcessor(l *ledger) *stubMicrobatchProcessor {
+	return &stubMicrobatchProcessor{ledger: l}
 }
 
-func (s *StubMicrobatchProcessor) ProcessMicrobatch(ctx context.Context, microbatch [][]byte) error {
+func (s *stubMicrobatchProcessor) ProcessMicrobatch(ctx context.Context, microbatch [][]byte) error {
+	s.mu.Lock()
+	call := s.calls
+	s.calls++
+	s.mu.Unlock()
+
+	if s.hook != nil {
+		if err := s.hook(ctx, call, microbatch); err != nil {
+			return err
+		}
+	}
+
+	s.ledger.markProcessed(microbatch)
+	s.mu.Lock()
 	s.processedBatches = append(s.processedBatches, microbatch)
+	s.mu.Unlock()
 	return nil
 }
 
-func (s *StubMicrobatchProcessor) GetNumberOfProcessedBatches() int {
+func (s *stubMicrobatchProcessor) Calls() int {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return s.calls
+}
+
+func (s *stubMicrobatchProcessor) GetNumberOfProcessedBatches() int {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	return len(s.processedBatches)
 }
 
-func (s *StubMicrobatchProcessor) GetProcessedBatch(index int) [][]byte {
+func (s *stubMicrobatchProcessor) GetProcessedBatch(index int) [][]byte {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 	if index < 0 || index >= len(s.processedBatches) {
 		return nil
 	}
 	return s.processedBatches[index]
 }
-
-// have the micro batch processor read from the event reader
-
-// then assert that process microbatch has been called with the correct events and correct number of events?
-
-// we may need to not use random strings for this and instead ints so we know what position it was in?

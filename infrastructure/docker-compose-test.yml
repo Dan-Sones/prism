@@ -167,6 +167,7 @@ services:
     image: ghcr.io/dan-sones/prism-clickhouse-writer:latest
     platform: linux/amd64
     container_name: prism_clickhouse_writer
+    restart: on-failure
     env_file:
       - .env.test
     environment:
@@ -206,6 +207,7 @@ services:
     image: ghcr.io/dan-sones/prism-data-cooking-service:latest
     platform: linux/amd64
     container_name: prism_data_cooking_service
+    restart: on-failure
     env_file:
       - .env.test
     environment:
