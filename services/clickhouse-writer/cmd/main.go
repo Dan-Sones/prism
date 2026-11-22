@@ -67,7 +67,11 @@ func main() {
 
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
-	microBatchService.Start(ctx)
+	if err := microBatchService.Start(ctx); err != nil {
+		// Exit so the consumer restarts from the last committed offset and retries the failed records.
+		logger.Error("Micro batching stopped", "error", err)
+		os.Exit(1)
+	}
 }
 
 func initLogger() *slog.Logger {
